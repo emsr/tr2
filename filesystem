@@ -1,0 +1,1438 @@
+// TR2 <filesystem> -*- C++ -*-
+
+// Copyright (C) 2011, 2012, 2013 Free Software Foundation, Inc.
+//
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or (at your option)
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+/** @file tr2/filesystem
+ *  This is a TR2 C++ Library header.
+ */
+
+#ifndef _GLIBCXX_TR2_FILESYSTEM
+#define _GLIBCXX_TR2_FILESYSTEM 1
+
+#pragma GCC system_header
+
+#include <system_error>
+#include <string>
+#include <locale>
+#include <chrono>
+#include <memory>
+#include <cassert>
+
+#include "path_traits.h"
+
+namespace std _GLIBCXX_VISIBILITY(default)
+{
+namespace tbd
+{
+namespace filesystem
+{
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
+
+  /**
+   *
+   */
+  enum class file_type
+  {
+    status_error,
+    file_not_found,
+    regular_file,
+    directory_file,
+    symlink_file,
+    block_file,
+    character_file,
+    fifo_file,
+    socket_file,
+    type_unknown
+  };
+
+  /**
+   *
+   */
+  enum class copy_options
+  {
+    none  	=   0,
+    skip_existing	=   1,
+    overwrite_existing	=   2,
+    update_existing	=   4,
+    recursive		=   8,
+    copy_symlinks	=  16,
+    skip_symlinks	=  32,
+    directories_only	=  64,
+    create_symlinks	= 128,
+    create_hard_links	= 256
+  };
+
+  inline constexpr copy_options
+  operator&(copy_options __x, copy_options __y)
+  {
+    return static_cast<copy_options>
+      (static_cast<int>(__x) & static_cast<int>(__y));
+  }
+
+  inline constexpr copy_options
+  operator|(copy_options __x, copy_options __y)
+  {
+    return static_cast<copy_options>
+      (static_cast<int>(__x) | static_cast<int>(__y));
+  }
+
+  inline constexpr copy_options
+  operator^(copy_options __x, copy_options __y)
+  {
+    return static_cast<copy_options>
+      (static_cast<int>(__x) ^ static_cast<int>(__y));
+  }
+
+  inline constexpr copy_options
+  operator~(copy_options __x)
+  {
+    return static_cast<copy_options>(~static_cast<int>(__x));
+  }
+
+  inline copy_options &
+  operator&=(copy_options & __x, copy_options __y)
+  {
+    __x = __x & __y;
+    return __x;
+  }
+
+  inline copy_options &
+  operator|=(copy_options & __x, copy_options __y)
+  {
+    __x = __x | __y;
+    return __x;
+  }
+
+  inline copy_options &
+  operator^=(copy_options & __x, copy_options __y)
+  {
+    __x = __x ^ __y;
+    return __x;
+  }
+
+  /**
+   *
+   */
+  enum class perms : int
+  {
+    no_perms		= 0,
+
+    owner_read		=  0400,
+    owner_write		=  0200,
+    owner_exe		=  0100,
+    owner_all		=  0700,
+
+    group_read		=   040,
+    group_write		=   020,
+    group_exe		=   010,
+    group_all		=   070,
+
+    others_read		=    04,
+    others_write	=    02,
+    others_exe		=    01,
+    others_all		=    07,
+
+    all_all		= owner_all | group_all | others_all, // 0777
+
+    set_uid_on_exe	= 04000,
+    set_gid_on_exe	= 02000,
+    sticky_bit		= 01000,
+
+    perms_mask		= all_all | set_uid_on_exe | set_gid_on_exe | sticky_bit, // 07777
+
+    perms_not_known	= 0xffff,
+
+    add_perms		= 0x1000,
+    remove_perms	= 0x2000,
+    symlink_perms	= 0x4000
+  };
+
+  inline constexpr perms
+  operator&(perms __x, perms __y)
+  {
+    return static_cast<perms>
+      (static_cast<int>(__x) & static_cast<int>(__y));
+  }
+
+  inline constexpr perms
+  operator|(perms __x, perms __y)
+  {
+    return static_cast<perms>
+      (static_cast<int>(__x) | static_cast<int>(__y));
+  }
+
+  inline constexpr perms
+  operator^(perms __x, perms __y)
+  {
+    return static_cast<perms>
+      (static_cast<int>(__x) ^ static_cast<int>(__y));
+  }
+
+  inline constexpr perms
+  operator~(perms __x)
+  {
+    return static_cast<perms>(~static_cast<int>(__x));
+  }
+
+  inline perms &
+  operator&=(perms & __x, perms __y)
+  {
+    __x = __x & __y;
+    return __x;
+  }
+
+  inline perms &
+  operator|=(perms & __x, perms __y)
+  {
+    __x = __x | __y;
+    return __x;
+  }
+
+  inline perms &
+  operator^=(perms & __x, perms __y)
+  {
+    __x = __x ^ __y;
+    return __x;
+  }
+
+  /**
+   *
+   */
+  struct space_info  // returned by space function
+  {
+    uintmax_t capacity;
+    uintmax_t free;
+    uintmax_t available; // free space available to a non-privileged process
+  };
+
+  /**
+   *
+   */
+  enum class copy_option
+  {
+    none,
+    fail_if_exists = none,
+    overwrite_if_exists
+  };
+
+  /**
+   *
+   */
+  enum class symlink_option
+  {
+    none,
+    no_recurse = none,
+    recurse
+  };
+
+
+  /**
+   *
+   */
+  class file_status
+  {
+  public:
+
+    explicit
+    file_status(file_type __ft = file_type::status_error,
+		perms __perms = perms::perms_not_known)
+    : _M_file_type{__ft}, _M_perms{__perms}
+    { }
+
+    file_status(const file_status& fs) = default;
+
+    ~file_status() = default;
+
+    file_type
+    type() const
+    { return this->_M_file_type; }
+
+    perms
+    permissions() const
+    { return this->_M_perms; }
+
+    void
+    type(file_type __tp)
+    { this->_M_file_type = __tp; }
+
+    void
+    permissions(perms __prms)
+    { this->_M_perms = __prms; }
+
+    bool
+    operator==(const file_status& __rhs) const
+    { return type() == __rhs.type() && permissions() == __rhs.permissions(); }
+
+    bool
+    operator!=(const file_status& __rhs) const
+    { return !(*this == __rhs); }
+
+  private:
+
+    //  Should I put more of stat in here?  I would need non-standard accessors to be useful.
+    file_type _M_file_type;
+    perms _M_perms;
+  };
+
+
+  /**
+   *
+   */
+  class path
+  {
+  public:
+
+    typedef char					value_type;
+    typedef std::basic_string<value_type>		string_type;
+    static constexpr value_type preferred_separator = '/';
+
+    // Constructors and destructor
+    path();
+
+    path(const path& pth);
+
+    path(path&& pth) noexcept;
+
+    template<typename _Source>
+      path(const _Source& __source)
+      { __detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt); }
+
+    template<typename _InIter>
+      path(_InIter __begin, _InIter __end)
+      {
+	if (__begin != __end)
+	  {
+	    for (; __begin != __end; ++__begin)
+	      this->_M_pathname << *__begin;
+	  }
+      }
+
+    template<typename _Source>
+      path(const _Source& __source, const std::locale& __loc)
+      { __detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt); }
+
+    template<typename _InIter>
+      path(_InIter __begin, _InIter __end, const std::locale& __loc)
+      {
+	if (__begin != __end)
+	  {
+	    for (; __begin != __end; ++__begin)
+	      this->_M_pathname << *__begin;
+	  }
+      }
+
+    ~path();
+
+    // Assignments.
+
+    path& operator=(const path& pth);
+
+    path& operator=(path&& pth) noexcept;
+
+    template<typename _Source>
+      path& operator=(const _Source& __source)
+      {
+	this->operator=(path(__source));
+	return *this;
+      }
+
+    template<typename _Source>
+      path&
+      assign(const _Source& __source)
+      {
+	this->_M_pathname.clear();
+	__detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt);
+	return *this;
+      }
+
+    template<typename _InIter>
+      path&
+      assign(_InIter __begin, _InIter __end)
+      {
+	this->_M_pathname.clear();
+	if (__begin != __end)
+	{
+	  std::basic_string<typename std::iterator_traits<_InIter>::value_type>
+	    __stemp(__begin, __end);
+	  __detail::_Path_traits::convert(__stemp.c_str(), __stemp.c_str() + __stemp.size(),
+			       this->_M_pathname, *_S_codecvt);
+	}
+	return *this;
+      }
+
+    //  Appends.
+
+    path&
+    operator/=(const path& __pth)
+    {
+      if (!(this->empty()
+	    || this->_M_pathname[this->_M_pathname.length() - 1]
+		 == preferred_separator
+	////    || this->root_directory().empty()
+	    || __pth.empty()
+	    || *__pth.native().cbegin() == preferred_separator))
+	this->_M_pathname += preferred_separator;
+      this->_M_pathname += __pth.native();
+      return *this;
+    }
+
+    path&
+    operator/=(const value_type* __str)
+    {
+      this->operator/=(string_type(__str));
+      return *this;
+    }
+
+    template<typename _Source>
+      path& operator/=(const _Source& __source)
+      { return this->append(path(__source)); }
+
+    path&
+    append(const value_type* __str)
+    {
+      this->operator/=(__str);
+      return *this;
+    }
+
+    template<typename _Source>
+      path&
+      append(const _Source& __source)
+      { return this->append(std::begin(__source), std::end(__source)); }
+
+    template<typename _InIter>
+      path&
+      append(_InIter __begin, _InIter __end);
+
+    //  Concatenation.
+
+    path&
+    operator+=(const path& __pth)
+    {
+      this->_M_pathname += __pth._M_pathname;
+      return *this;
+    }
+
+    path&
+    operator+=(const string_type& __str)
+    {
+      this->_M_pathname += __str;
+      return *this;
+    }
+
+    path&
+    operator+=(const value_type* __str)
+    {
+      this->_M_pathname += __str;
+      return *this;
+    }
+
+    path&
+    operator+=(value_type __chr)
+    {
+      this->_M_pathname += __chr;
+      return *this;
+    }
+
+    template<typename _Source>
+      typename std::enable_if<__detail::_Path_traits::is_pathable<
+	typename std::decay<_Source>::type>::value, path&>::type
+      operator+=(_Source const& __source)
+      { return this->concat(__source); }
+
+    template<typename _CharT>
+      typename std::enable_if<std::is_integral<_CharT>::value, path&>::type
+      operator+=(_CharT __c)
+      {
+	_CharT __tmp[2]{__c, 0};
+	return this->concat(__tmp);
+      }
+
+    template<typename _Source>
+      path&
+      concat(const _Source& __source)
+      {
+	__detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt);
+	return *this;
+      }
+
+    template<typename _InIter>
+      path&
+      concat(_InIter __begin, _InIter __end)
+      { 
+	if (__begin == __end)
+          return *this;
+	std::basic_string<typename std::iterator_traits<_InIter>::value_type>
+          __stemp(__begin, __end);
+	__detail::_Path_traits::convert(__stemp.c_str(), __stemp.c_str() + __stemp.size(),
+			     this->_M_pathname, *_S_codecvt);
+	return *this;
+      }
+
+    // Modifiers.
+
+    void
+    clear() noexcept
+    { this->_M_pathname.clear(); }
+
+    path&
+    make_preferred()
+    { return *this; }
+
+    path&
+    remove_filename()
+    {
+      this->_M_pathname.erase(this->_M_pathname.size()
+			   - this->filename()._M_pathname.size());
+      // Should I remove trailing slash?
+    }
+
+    path& replace_filename(const path& __new_filename)
+    {
+      this->remove_filename();
+      return this->operator/=(__new_filename);
+    }
+
+    path& replace_extension(const path& new_extension = path());
+
+    void
+    swap(path& __rhs) noexcept
+    { this->_M_pathname.swap(__rhs._M_pathname); }
+
+    // Native format observers.
+
+    const string_type&
+    native() const noexcept
+    { return this->_M_pathname; }
+
+    const value_type*
+    c_str() const noexcept
+    { this->native().c_str(); }
+
+    operator string_type() const
+    { return this->_M_pathname; }
+
+    template <typename _CharT, typename _Traits = std::char_traits<_CharT>,
+              typename _Allocator = allocator<_CharT> >
+      std::basic_string<_CharT, _Traits, _Allocator>
+      string(const _Allocator& __alloc = _Allocator()) const
+      {
+        typedef typename std::basic_string<_CharT, _Traits, _Allocator> _String;
+	const string_type::value_type* __str = this->_M_pathname.c_str();
+	string_type::value_type* __nxt_str;
+	std::size_t __len = this->_M_pathname.length();
+	std::size_t __olen = __len * _S_codecvt->max_length();
+	std::unique_ptr<_CharT> __ostr(new _CharT[__olen]);
+	_CharT* __nxt_ostr;
+	__detail::_Path_traits::codecvt_type::state_type __st;
+	_S_codecvt->out(__st, __str, __str + __len, __nxt_str,
+			__ostr.get(), __ostr.get() + __olen, __nxt_ostr);
+	return _String(__ostr.get());
+      }
+
+    std::string
+    string() const
+    { return this->_M_pathname; }
+
+    std::wstring wstring() const;
+    std::string u8string() const;
+    std::u16string u16string() const;
+    std::u32string u32string() const;
+
+    // Generic format observers.
+
+    template <typename _CharT, typename _Traits = std::char_traits<_CharT>,
+              typename _Allocator = allocator<_CharT> >
+      std::basic_string<_CharT, _Traits, _Allocator>
+      generic_string(const _Allocator& __alloc = _Allocator()) const
+      { return this->string(); }
+
+    std::string
+    generic_string() const
+    { return this->string(); }
+
+    std::wstring generic_wstring() const;
+    std::string generic_u8string() const;
+    std::u16string generic_u16string() const;
+    std::u32string generic_u32string() const;
+
+    // Comparison.
+
+    int compare(const path& __pth) const noexcept;
+
+    int
+    compare(const std::string& __str) const
+    { return compare(path(__str)); }
+
+    int
+    compare(const value_type* __str) const
+    { return compare(path(__str)); }
+
+    // Decomposition
+    path root_name() const;
+    path root_directory() const;
+    path root_path() const;
+    path relative_path() const;
+    path parent_path() const;
+    path filename() const;
+    path stem() const;
+    path extension() const;
+
+    // Query.
+
+    bool
+    empty() const noexcept
+    { return this->_M_pathname.empty(); }
+
+    bool
+    has_root_name() const
+    { return !this->root_name().empty(); }
+
+    bool
+    has_root_directory() const
+    { return !this->root_directory().empty(); }
+
+    bool
+    has_root_path() const
+    { return !this->root_path().empty(); }
+
+    bool
+    has_relative_path() const
+    { return !this->relative_path().empty(); }
+
+    bool
+    has_parent_path() const
+    { return !this->parent_path().empty(); }
+
+    bool
+    has_filename() const
+    { return !this->filename().empty(); }
+
+    bool
+    has_stem() const
+    { return !this->stem().empty(); }
+
+    bool
+    has_extension() const
+    { return !this->extension().empty(); }
+
+    bool
+    is_absolute() const
+    { return this->_M_pathname.length() > 1
+	     && _M_pathname[0] == preferred_separator; }
+
+    bool
+    is_relative() const
+    { return !this->is_absolute(); }
+
+    // Iterators.
+
+    class iterator;
+    typedef iterator const_iterator;
+
+    iterator begin() const;
+    iterator end() const;
+
+    // Encoding conversion
+    static std::locale
+    imbue(const std::locale& __loc)
+    {
+      if (std::has_facet<__detail::_Path_traits::codecvt_type>(__loc))
+	_S_codecvt = &std::use_facet<__detail::_Path_traits::codecvt_type>(__loc);
+    }
+
+  private:
+
+    template<typename _CharFrom, typename _CharTo>
+      struct _Convert;
+
+    static const __detail::_Path_traits::codecvt_type *_S_codecvt;
+    string_type _M_pathname;  // exposition only
+  };
+
+
+  /**
+   *
+   */
+  class path::iterator
+  {
+  public:
+
+    friend class path;
+
+    typedef path			    value_type;
+    typedef std::ptrdiff_t		    difference_type;
+    typedef const value_type*		    pointer;
+    typedef const value_type&		    reference;
+    typedef std::bidirectional_iterator_tag iterator_category;
+
+    iterator();
+    iterator(const iterator& iter);
+    ~iterator();
+
+    iterator& operator=(const iterator& iter);
+
+    bool operator==(const iterator& iter) const;
+    bool operator!=(const iterator& iter) const;
+
+    reference operator*();
+    pointer operator->();
+
+    iterator& operator++();
+    iterator operator++(int);
+    iterator& operator--();
+    iterator operator--(int);
+
+  private:
+
+    iterator(const path& iter, bool begin);
+
+    class _Impl;
+    std::shared_ptr<_Impl> _M_impl;
+  };
+
+  inline void
+  swap(path& __lhs, path& __rhs)
+  { __lhs.swap(__rhs); }
+
+  bool
+  lexicographical_compare(path::iterator first1, path::iterator last1,
+			  path::iterator first2, path::iterator last2);
+
+  inline std::size_t
+  hash_value(const path& __pth)
+  { return std::hash<path::string_type>()(__pth.native()); }
+
+  inline bool
+  operator==(const path& __lhs, const path& __rhs)
+  { return __lhs.compare(__rhs) == 0; }
+
+  inline bool
+  operator==(const path& __lhs, const path::string_type& __rhs)
+  { return __lhs.compare(__rhs) == 0; }
+
+  inline bool
+  operator==(const path::string_type& __lhs, const path& __rhs)
+  { return __rhs.compare(__lhs) == 0; }
+
+  inline bool
+  operator==(const path& __lhs, const path::value_type* __rhs)
+  { return __lhs.compare(__rhs) == 0; }
+
+  inline bool
+  operator==(const path::value_type* __lhs, const path& __rhs)
+  { return __rhs.compare(__lhs) == 0; }
+
+  inline bool
+  operator!=(const path& __lhs, const path& __rhs)
+  { return !(__lhs == __rhs); }
+
+  inline bool
+  operator!=(const path& __lhs, const path::string_type& __rhs)
+  { return !(__lhs == __rhs); }
+
+  inline bool
+  operator!=(const path::string_type& __lhs, const path& __rhs)
+  { return !(__lhs == __rhs); }
+
+  inline bool
+  operator!=(const path& __lhs, const path::value_type* __rhs)
+  { return !(__lhs == __rhs); }
+
+  inline bool
+  operator!=(const path::value_type* __lhs, const path& __rhs)
+  { return !(__lhs == __rhs); }
+
+  inline bool
+  operator<(const path& __lhs, const path& __rhs)
+  { return __lhs.compare(__rhs) < 0; }
+
+  inline bool
+  operator<(const path& __lhs, const path::string_type& __rhs)
+  { return __lhs < path(__rhs); }
+
+  inline bool
+  operator<(const path::string_type& __lhs, const path& __rhs)
+  { return path(__lhs) < __rhs; }
+
+  inline bool
+  operator<(const path& __lhs, const path::value_type* __rhs)
+  { return __lhs < path(__rhs); }
+
+  inline bool
+  operator<(const path::value_type* __lhs, const path& __rhs)
+  { return path(__lhs) < __rhs; }
+
+  inline bool
+  operator<=(const path& __lhs, const path& __rhs)
+  { return !(__rhs < __lhs); }
+
+  inline bool
+  operator<=(const path& __lhs, const path::string_type& __rhs)
+  { return __lhs <= path(__rhs); }
+
+  inline bool
+  operator<=(const path::string_type& __lhs, const path& __rhs)
+  { return path(__lhs) <= __rhs; }
+
+  inline bool
+  operator<=(const path& __lhs, const path::value_type* __rhs)
+  { return __lhs <= path(__rhs); }
+
+  inline bool
+  operator<=(const path::value_type* __lhs, const path& __rhs)
+  { return path(__lhs) <= __rhs; }
+
+  inline bool
+  operator>(const path& __lhs, const path& __rhs)
+  { return __rhs < __lhs; }
+
+  inline bool
+  operator>(const path& __lhs, const path::string_type& __rhs)
+  { return __lhs > path(__rhs); }
+
+  inline bool
+  operator>(const path::string_type& __lhs, const path& __rhs)
+  { return path(__lhs) > __rhs; }
+
+  inline bool
+  operator>(const path& __lhs, const path::value_type* __rhs)
+  { return __lhs > path(__rhs); }
+
+  inline bool
+  operator>(const path::value_type* __lhs, const path& __rhs)
+  { return path(__lhs) > __rhs; }
+
+  inline bool
+  operator>=(const path& __lhs, const path& __rhs)
+  { return !(__lhs < __rhs); }
+
+  inline bool
+  operator>=(const path& __lhs, const path::string_type& __rhs)
+  { return __lhs >= path(__rhs); }
+
+  inline bool
+  operator>=(const path::string_type& __lhs, const path& __rhs)
+  { return path(__lhs) >= __rhs; }
+
+  inline bool
+  operator>=(const path& __lhs, const path::value_type* __rhs)
+  { return __lhs >= path(__rhs); }
+
+  inline bool
+  operator>=(const path::value_type* __lhs, const path& __rhs)
+  { return path(__lhs) >= __rhs; }
+
+  inline path
+  operator/(const path& __lhs, const path& __rhs)
+  { return path(__lhs) /= __rhs; }
+
+  inline path
+  operator/(const path& __lhs, const path::string_type& __rhs)
+  { return __lhs / path(__rhs); }
+
+  inline path
+  operator/(const path::string_type& __lhs, const path& __rhs)
+  { return path(__lhs) / __rhs; }
+
+  inline path
+  operator/(const path& __lhs, const path::value_type* __rhs)
+  { return __lhs / path(__rhs); }
+
+  inline path
+  operator/(const path::value_type* __lhs, const path& __rhs)
+  { return path(__lhs) / __rhs; }
+
+  inline path
+  operator+(const path& __lhs, const path& __rhs)
+  { return path(__lhs) += __rhs; }
+
+  inline path
+  operator+(const path& __lhs, const path::string_type& __rhs)
+  { return __lhs + path(__rhs); }
+
+  inline path
+  operator+(const path::string_type& __lhs, const path& __rhs)
+  { return path(__lhs) + __rhs; }
+
+  inline path
+  operator+(const path& __lhs, const path::value_type* __rhs)
+  { return __lhs + path(__rhs); }
+
+  inline path
+  operator+(const path::value_type* __lhs, const path& __rhs)
+  { return path(__lhs) + __rhs; }
+
+  std::ostream& operator<<( std::ostream& os, const path& pth );
+  std::wostream& operator<<( std::wostream& os, const path& pth );
+  std::istream& operator>>( std::istream& is, path& pth );
+  std::wistream& operator>>( std::wistream& is, path& pth );
+
+  path u8path(const char* s);
+  path u8path(const std::string& s);
+  template <class InputIterator>
+    path u8path(InputIterator begin, InputIterator end);
+
+  typedef std::chrono::time_point<std::chrono::system_clock> file_time_type;
+
+  // Operational functions
+
+  path current_path();
+  path current_path(std::error_code& ec);
+  void current_path(const path& pth);
+  void current_path(const path& pth, std::error_code& ec);
+
+  path absolute(const path& pth, const path& base = current_path());
+
+  path canonical(const path& pth, const path& base = current_path());
+  path canonical(const path& pth, std::error_code& ec);
+  path canonical(const path& pth, const path& base, std::error_code& ec);
+
+  void copy(const path& from, const path& to, copy_options options);
+  void copy(const path& from, const path& to, copy_options options, std::error_code& ec);
+
+  inline void
+  copy(const path& __from, const path& __to)
+  { copy(__from, __to, copy_options::none); }
+
+  inline void
+  copy(const path& __from, const path& __to, std::error_code& __ec)
+  { copy(__from, __to, copy_options::none, __ec); }
+
+  void copy_directory(const path& from, const path& to);
+  void copy_directory(const path& from, const path& to, std::error_code& ec);
+
+  void copy_file(const path& from, const path& to, copy_options options);
+  void copy_file(const path& from, const path& to, copy_options options,
+		 std::error_code& ec);
+
+  inline void
+  copy_file(const path& __from, const path& __to)
+  { copy_file(__from, __to, copy_options::none); }
+
+  inline void
+  copy_file(const path& __from, const path& __to, std::error_code& __ec)
+  { copy_file(__from, __to, copy_options::none, __ec); }
+
+  void copy_symlink(const path& existing_symlink, const path& new_symlink);
+  void copy_symlink(const path& existing_symlink, const path& new_symlink,
+		    std::error_code& ec);
+
+  bool create_directories(const path& pth);
+  bool create_directories(const path& pth, std::error_code& ec);
+
+  bool create_directory(const path& pth);
+  bool create_directory(const path& pth, std::error_code& ec);
+
+  void create_directory_symlink(const path& to, const path& new_symlink);
+  void create_directory_symlink(const path& to, const path& new_symlink,
+				std::error_code& ec);
+
+  bool create_file(const path& pth);
+  bool create_file(const path& pth, std::error_code& ec);
+
+  void create_hard_link(const path& to, const path& new_hard_link);
+  void create_hard_link(const path& to, const path& new_hard_link,
+			std::error_code& ec);
+
+  void create_symlink(const path& to, const path& new_symlink);
+  void create_symlink(const path& to, const path& new_symlink,
+		      std::error_code& ec);
+
+  file_status status(const path& pth);
+  file_status status(const path& pth, std::error_code& ec) noexcept;
+
+  inline bool
+  type_present(file_status __fs)
+  { return __fs.type() != file_type::status_error; }
+
+  inline bool
+  permissions_present(file_status __fs)
+  { return __fs.permissions() != perms::perms_not_known; }
+
+  inline bool
+  status_known(file_status __fs)
+  { return type_present(__fs) && permissions_present(__fs); }
+
+  inline bool
+  exists(file_status __fs) noexcept
+  { return status_known(__fs) && __fs.type() != file_type::file_not_found; }
+
+  bool exists(const path& __pth);
+  bool exists(const path& __pth, std::error_code& __ec) noexcept;
+
+  bool equivalent(const path& pth1, const path& pth2);
+  bool equivalent(const path& pth1, const path& pth2, std::error_code& ec);
+
+  uintmax_t file_size(const path& pth);
+  uintmax_t file_size(const path& pth, std::error_code& ec);
+
+  uintmax_t hard_link_count(const path& pth);
+  uintmax_t hard_link_count(const path& pth, std::error_code& ec);
+
+  const path& initial_path();
+  const path& initial_path(std::error_code& ec);
+
+  inline bool
+  is_directory(file_status __fs) noexcept
+  { return __fs.type() == file_type::directory_file; }
+
+  inline bool
+  is_directory(const path& __pth)
+  { return is_directory(status(__pth)); }
+
+  inline bool
+  is_directory(const path& __pth, std::error_code& __ec) noexcept
+  { return is_directory(status(__pth, __ec)); }
+
+  bool is_empty(const path& pth);
+  bool is_empty(const path& pth, std::error_code& ec);
+
+  inline bool
+  is_regular_file(file_status __fs) noexcept
+  { return __fs.type() == file_type::regular_file; }
+
+  inline bool
+  is_regular_file(const path& __pth)
+  { return is_regular_file(status(__pth)); }
+
+  inline bool
+  is_regular_file(const path& __pth, std::error_code& __ec) noexcept
+  { return is_regular_file(status(__pth, __ec)); }
+
+  inline bool
+  is_symlink(file_status __fs) noexcept
+  { return __fs.type() == file_type::symlink_file; }
+
+  inline bool
+  is_symlink(const path& __pth)
+  { return is_symlink(status(__pth)); }
+
+  inline bool
+  is_symlink(const path& __pth, std::error_code& __ec) noexcept
+  { return is_symlink(status(__pth, __ec)); }
+
+  inline bool
+  is_other(file_status __fs) noexcept
+  {
+    return exists(__fs) && !is_regular_file(__fs)
+	   && !is_directory(__fs) && !is_symlink(__fs);
+  }
+
+  inline bool
+  is_other(const path& __pth)
+  { return is_other(status(__pth)); }
+
+  inline bool
+  is_other(const path& __pth, std::error_code& __ec) noexcept
+  { return is_other(status(__pth, __ec)); }
+
+  file_time_type last_write_time(const path& pth);
+  file_time_type last_write_time(const path& pth, std::error_code& ec);
+  void last_write_time(const path& pth,
+		       const file_time_type new_time);
+  void last_write_time(const path& pth,
+		       const file_time_type new_time,
+		       std::error_code& ec);
+
+  void permissions(const path& pth, perms prms);
+  void permissions(const path& pth, perms prms, std::error_code& ec);
+
+  path read_symlink(const path& pth);
+  path read_symlink(const path& pth, std::error_code& ec);
+
+  bool remove(const path& pth);
+  bool remove(const path& pth, std::error_code& ec);
+
+  uintmax_t remove_all(const path& pth);
+  uintmax_t remove_all(const path& pth, std::error_code& ec);
+
+  void rename(const path& from, const path& to);
+  void rename(const path& from, const path& to, std::error_code& ec);
+
+  void resize_file(const path& pth, uintmax_t size);
+  void resize_file(const path& pth, uintmax_t size, std::error_code& ec);
+
+  space_info space(const path& pth);
+  space_info space(const path& pth, std::error_code& ec);
+
+  file_status symlink_status(const path& pth);
+  file_status symlink_status(const path& pth, std::error_code& ec) noexcept;
+
+  path system_complete(const path& pth);
+  path system_complete(const path& pth, std::error_code& ec);
+
+  path temp_directory_path();
+  path temp_directory_path(std::error_code& ec);
+
+  path unique_path(const path& model = "%%%%-%%%%-%%%%-%%%%");
+  path unique_path(const path& model, std::error_code& ec);
+
+
+  /**
+   *
+   */
+  class filesystem_error : public std::system_error
+  {
+  public:
+
+    filesystem_error(const std::string& __what, std::error_code __ec)
+    : std::system_error{__ec, __what}
+    { }
+
+    filesystem_error(const std::string& __what, const path& __pth,
+		     std::error_code __ec)
+    : std::system_error{__ec, __what}, _M_path1{__pth}, _M_path2{}
+    { }
+
+    filesystem_error(const std::string& __what,
+		     const path& __pth1, const path& __pth2,
+		     std::error_code __ec)
+    : std::system_error{__ec, __what}, _M_path1{__pth1}, _M_path2{__pth2}
+    { }
+
+    filesystem_error&
+    operator=(const filesystem_error&) = default;
+
+    const path&
+    path1() const noexcept
+    { return this->_M_path1; }
+
+    const path&
+    path2() const noexcept
+    { return this->_M_path2; }
+
+    const char*
+    what() const noexcept
+    { return std::system_error::what(); }
+
+  private:
+
+    path _M_path1;
+    path _M_path2;
+  };
+
+
+  /**
+   *
+   */
+  class directory_entry
+  {
+  public:
+
+    // constructors and destructor
+    directory_entry()
+    : _M_path{},
+      _M_status{file_type::type_unknown},
+      _M_symlink_status{file_type::type_unknown}
+    { }
+
+    directory_entry(const directory_entry&) = default;
+
+    directory_entry(directory_entry&&) = default;
+
+    explicit
+    directory_entry(const path& __pth, file_status __stat = file_status(),
+		    file_status __sym_stat = file_status())
+    : _M_path{__pth}, _M_status{__stat}, _M_symlink_status{__sym_stat}
+    { }
+
+    ~directory_entry()
+    { }
+
+    // Modifiers
+
+    directory_entry& operator=(const directory_entry&) = default;
+
+    directory_entry& operator=(directory_entry&&) = default;
+
+    void
+    assign(const path& __pth, file_status __st = file_status(),
+	   file_status __symlink_st = file_status())
+    {
+      this->_M_path = __pth;
+      this->_M_status = __st;
+      this->_M_symlink_status = __symlink_st;
+    }
+
+    void
+    replace_filename(const path& pth, file_status st = file_status(),
+		     file_status symlink_st = file_status())
+    {
+      this->_M_path.remove_filename();
+      this->_M_path /= pth;
+      this->_M_status = st;
+      this->_M_symlink_status = symlink_st;
+    };
+
+    // Observers
+
+    const std::tbd::filesystem::path&
+    path() const
+    { return this->_M_path; }
+
+    file_status
+    status() const
+    {
+      std::error_code __ec;
+      file_status __status = this->status(__ec);
+      if (__ec)
+	throw filesystem_error("status", this->_M_path, __ec);
+      return __status;
+    }
+
+    file_status
+    status(std::error_code& __ec) const
+    {
+      if (!status_known(this->_M_status))
+      {
+	if (status_known(this->_M_symlink_status)
+	    && !is_symlink(this->_M_symlink_status))
+	  this->_M_status = this->_M_symlink_status;
+	else
+	  this->_M_status = std::tbd::filesystem::status(this->_M_path, __ec);
+      }
+      return this->_M_status;
+    }
+
+    file_status
+    symlink_status() const
+    {
+      std::error_code __ec;
+      file_status __symlink_status = this->symlink_status(__ec);
+      if (__ec)
+	throw filesystem_error("symlink_status", this->_M_path, __ec);
+      return __symlink_status;
+    }
+
+    file_status
+    symlink_status(std::error_code& __ec) const
+    {
+      if (!status_known(this->_M_symlink_status))
+	this->_M_symlink_status
+	  = std::tbd::filesystem::symlink_status(this->_M_path, __ec);
+      return this->_M_symlink_status;
+    }
+
+    // NOTE: I added const to these.
+    bool
+    operator<(const directory_entry& __rhs) const
+    { return this->_M_path < __rhs._M_path; }
+
+    bool
+    operator==(const directory_entry& __rhs) const
+    { return this->_M_path == __rhs._M_path; }
+
+    bool
+    operator!=(const directory_entry& __rhs) const
+    { return this->_M_path != __rhs._M_path; }
+
+    bool
+    operator<=(const directory_entry& __rhs) const
+    { return this->_M_path <= __rhs._M_path; }
+
+    bool
+    operator>(const directory_entry& __rhs) const
+    { return this->_M_path > __rhs._M_path; }
+
+    bool
+    operator>=(const directory_entry& __rhs) const
+    { return this->_M_path >= __rhs._M_path; }
+
+  private:
+
+    std::tbd::filesystem::path _M_path;	// for exposition only
+    mutable file_status _M_status; // for exposition only; stat()-like
+    mutable file_status _M_symlink_status; // for exposition only; lstat()-like
+  };
+
+
+namespace __detail
+{
+namespace _Path_traits
+{
+
+  template<>
+    struct is_pathable<directory_entry>
+    {
+      static const bool value = true;
+    };
+
+  void
+  dispatch(const directory_entry& de, path::string_type& to,
+           const codecvt_type&);
+
+} // namespace _Path_traits
+} // namespace __detail
+
+
+  /**
+   *
+   */
+  class directory_iterator
+  : public iterator<std::input_iterator_tag, directory_entry>
+  {
+  public:
+
+    typedef directory_entry	    value_type;
+    typedef std::ptrdiff_t	    difference_type;
+    typedef const value_type*	    pointer;
+    typedef const value_type&	    reference;
+    typedef std::input_iterator_tag iterator_category;
+
+    // constructors and destructor
+    directory_iterator();
+    directory_iterator(const directory_iterator& diter) = delete;
+    directory_iterator(directory_iterator&& diter);
+    explicit directory_iterator(const path& p);
+    directory_iterator(const path& p, std::error_code& ec);
+    ~directory_iterator();
+
+    directory_iterator& operator=(const directory_iterator& di) = delete;
+    directory_iterator& operator=(directory_iterator&& di);
+
+    directory_iterator& operator++();
+    directory_iterator& increment(std::error_code& ec);
+
+    bool operator==(const directory_iterator& di) const;
+    bool operator!=(const directory_iterator& di) const;
+
+    reference operator*();
+    pointer operator->();
+
+  private:
+
+    class _Impl;
+    std::unique_ptr<_Impl> _M_impl;
+  };
+
+
+  /**
+   *
+   */
+  class recursive_directory_iterator
+  : public iterator<std::input_iterator_tag, directory_entry>
+  {
+  public:
+
+    typedef directory_entry	    value_type;
+    typedef std::ptrdiff_t	    difference_type;
+    typedef const value_type*	    pointer;
+    typedef const value_type&	    reference;
+    typedef std::input_iterator_tag iterator_category;
+
+    // constructors and destructor
+    recursive_directory_iterator();
+    recursive_directory_iterator(const recursive_directory_iterator& rdi) = delete;
+    recursive_directory_iterator(recursive_directory_iterator&& rdi);
+    explicit
+    recursive_directory_iterator(const path& pth,
+				 symlink_option opt = symlink_option::none);
+    recursive_directory_iterator(const path& pth, symlink_option opt,
+				 std::error_code& ec);
+    recursive_directory_iterator(const path& pth, std::error_code& ec);
+    ~recursive_directory_iterator();
+
+    // observers
+    int level() const;
+    bool is_push_pending() const; // "Yes, we have no bananas." - Flipping the logic.
+
+    // modifiers
+    recursive_directory_iterator& operator=(const recursive_directory_iterator& rdi) = delete;
+    recursive_directory_iterator& operator=(recursive_directory_iterator&& rdi);
+    recursive_directory_iterator& operator++();
+    recursive_directory_iterator& increment(std::error_code& ec);
+
+    void pop();
+    // NOTE: I added an error code version of pop.
+    void pop(std::error_code& ec);
+    void pending_push(bool value = false);
+
+    bool operator==(const recursive_directory_iterator& rdi) const;
+    bool operator!=(const recursive_directory_iterator& rdi) const;
+
+    reference operator*();
+    pointer operator->();
+
+  private:
+
+    class _Impl;
+    std::unique_ptr<_Impl> _M_impl;
+  };
+
+  //  Hacked from boost but templatized because we have a 4x4 matrix of char types.
+
+  template<typename _CharFrom, typename _CharTo>
+    struct path::_Convert
+    {
+      void
+      operator()(const _CharFrom* __from_begin,
+        	 const _CharFrom* __from_end,
+        	 std::basic_string<_CharTo>& __target,
+        	 const __detail::_Path_traits::codecvt_type& __cvt)
+      {
+	std::size_t __buf_size = (__from_end - __from_begin) * 4; // perhaps too large, but that's OK
+	__buf_size += 4; // encodings like shift-JIS need some prefix space
+
+	std::unique_ptr<_CharTo> __buf(new _CharTo[__buf_size]);
+	convert_aux(__from_begin, __from_end, __buf.get(), __buf.get() + __buf_size,
+		    __target, __cvt);
+      }
+
+      void
+      convert_aux(const _CharFrom* __from_begin,
+        	  const _CharFrom* __from_end,
+        	  _CharTo* __to_begin, _CharTo* __to_end,
+        	  std::basic_string<_CharTo>& __target,
+        	  const __detail::_Path_traits::codecvt_type& __cvt)
+      {
+	std::mbstate_t __state;
+	const _CharFrom* __from_next;
+	_CharTo* __to_next;
+	std::codecvt_base::result __res = __cvt.out(__state, __from_begin,
+						    __from_end, __from_next,
+						    __to_begin, __to_end, __to_next);
+
+	if (__res != std::codecvt_base::ok)
+	  throw std::system_error("codecvt");
+
+	__target.append(__to_begin, __to_next); 
+      }
+    };
+
+  template<typename _Char>
+    struct path::_Convert<_Char, _Char>
+    {
+      void
+      operator()(const _Char* __from_begin,
+        	 const _Char* __from_end,
+        	 std::basic_string<_Char>& __target,
+        	 const __detail::_Path_traits::codecvt_type&)
+      { __target.append(__from_begin, __from_end); }
+    };
+
+_GLIBCXX_END_NAMESPACE_VERSION
+} // namespace filesystem
+} // namespace tbd
+} // namespace std
+
+#endif // _GLIBCXX_TR2_FILESYSTEM
