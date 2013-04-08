@@ -1,0 +1,207 @@
+
+#ifndef BOOST_ANY
+#define BOOST_ANY
+
+#include <algorithm>
+#include <typeinfo>
+#include <type_traits>
+
+//  This is a variant.
+
+namespace std
+{
+  class any
+  {
+  public:
+
+    // Constructors and destructor
+
+    ///  Default constructor.
+    any() noexcept
+    : _M_content{nullptr}
+    { }
+
+    /// Copy constructor.
+    any(const any& __other)
+    : _M_content{__other._M_content ? __other._M_content->clone() : nullptr}
+    { }
+
+    /// Move constructor.
+    any(any&& __other) noexcept
+    : _M_content{nullptr}
+    { std::swap(this->_M_content, __other._M_content); }
+
+    /// Constructor template with value.
+    template<typename _ValueType>
+      any(_ValueType __value)
+      : _M_content(new _Holder<_ValueType>{__value})
+      { }
+
+    /// Constructor template with allocator.
+    template<typename _Allocator>
+      any(allocator_arg_t, const _Allocator& __alloc)
+      : _M_content{__alloc, nullptr}
+      { }
+
+    /// Constructor template with allocator and value.
+    template<typename _Allocator, typename _ValueType>
+      any(allocator_arg_t, const _Allocator& __alloc, _ValueType __value)
+      : _M_content{__alloc, __value}
+      { }
+
+    ///  Destructor.
+    ~any()
+    { delete this->_M_content; }
+
+    // Assignments
+
+    any&
+    operator=(const any& __rhs)
+    {
+      any temp{__rhs};
+      this->swap(temp);
+      return *this;
+    }
+
+    any&
+    operator=(any&& __rhs) noexcept
+    {
+      *this = move(__rhs);
+      return *this;
+    }
+
+    template<typename _ValueType>
+      any&
+      operator=(_ValueType __rhs)
+      {
+	any(__rhs).swap(*this);
+	return *this;
+      }
+
+    // Modifiers
+
+    void
+    swap(any& __rhs) noexcept
+    { std::swap(this->_M_content, __rhs._M_content); }
+
+    // Queries
+
+    bool
+    empty() const noexcept
+    { return !this->_M_content; }
+
+    const std::type_info&
+    type() const noexcept
+    { return this->_M_content ? this->_M_content->type() : typeid(void); }
+
+  private:
+
+    // Types
+
+    struct _HolderBase
+    {
+      // Destructor
+      virtual ~_HolderBase()
+      { }
+
+      // Queries
+      virtual const std::type_info& type() const noexcept = 0;
+      virtual _HolderBase* clone() const = 0;
+    };
+
+    template<typename _ValueType, typename _Allocator = std::allocator<_ValueType>>
+      struct _Holder : public _HolderBase
+      {
+	// Constructor
+        _Holder(const _ValueType& __value)
+        : _M_value{__value}
+        { }
+
+	// Constructor
+        _Holder(const _Allocator& __alloc, const _ValueType& __value)
+        : _M_alloc{__alloc}, _M_value{__value}
+        { }
+
+        _Holder& operator=(const _Holder &) = delete;
+
+	// Queries
+	const std::type_info&
+	type() const noexcept
+	{ return typeid(_ValueType); }
+
+	_HolderBase*
+	clone() const
+	{ return new _Holder{this->_M_value}; }
+
+        // Representation
+        _Allocator _M_alloc;
+	_ValueType _M_value;
+      };
+
+    // Representation
+
+    template<typename _ValueType>
+      friend _ValueType* any_cast(any*);
+
+    _HolderBase* _M_content;
+
+  };
+
+  void
+  swap(any& __x, any& __y) noexcept
+  { __x.swap(__y); }
+
+  /**
+   *  Class of objects thrown by a failed any_cast.
+   */
+  class bad_any_cast : public std::bad_cast
+  {
+  public:
+    virtual const char*
+    what() const noexcept
+    {
+      return "bad_any_cast: "
+             "failed conversion using any_cast";
+    }
+  };
+
+  template<typename _ValueType>
+    inline _ValueType
+    any_cast(const any& __operand)
+    {
+      typedef typename std::remove_reference<_ValueType>::type __nonref;
+
+      return any_cast<const __nonref&>(const_cast<any&>(__operand));
+    }
+
+  template<typename _ValueType>
+    inline _ValueType
+    any_cast(any& __operand)
+    {
+      typedef typename std::remove_reference<_ValueType>::type __nonref;
+
+      __nonref* __result = any_cast<__nonref>(&__operand);
+      if (!__result)
+	throw bad_any_cast();
+      return *__result;
+    }
+
+  template<typename _ValueTypePtr>
+    inline const _ValueTypePtr
+    any_cast(const any* __operand) noexcept
+    { return any_cast<_ValueTypePtr>(const_cast<any*>(__operand)); }
+
+  template<typename _ValueTypePtr>
+    inline _ValueTypePtr
+    any_cast(any* __operand) noexcept
+    {
+      return __operand &&
+	     __operand->type() == typeid(_ValueTypePtr)
+	     ? &static_cast<any::_Holder<_ValueTypePtr>*>(__operand->_M_content)->_M_value
+	     : nullptr;
+    }
+
+} // namespace std
+
+
+#endif
