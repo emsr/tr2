@@ -1,6 +1,6 @@
-// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2648.html
+// http://www.open-std.org/JTC1/sc22/WG21/docs/papers/2013/n3532.html
 
-// /home/ed/bin/bin/g++ -std=c++11 -o test_dynarray test_dynarray.cpp
+// /home/ed/bin/bin/g++ -std=c++1y -o test_dynarray test_dynarray.cpp
 
 #include "dynarray"
 #include <iostream>

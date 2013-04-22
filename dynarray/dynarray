@@ -42,7 +42,7 @@ namespace std {
       const dynarray operator=(const dynarray&) = delete;
 
       explicit dynarray(size_type __c)
-      : _M_store(this->_M_alloc(__c)), _M_count(__c)
+      : _M_store{this->_M_alloc(__c)}, _M_count{__c}
       {
         size_type __i;
         try
@@ -59,7 +59,7 @@ namespace std {
       }
 
       dynarray(const dynarray& __dyna)
-      : _M_store(_M_alloc(__dyna._M_count)), _M_count(__dyna._M_count)
+      : _M_store{_M_alloc(__dyna._M_count)}, _M_count{__dyna._M_count}
       {
         try
         {
@@ -131,7 +131,7 @@ namespace std {
 
       bool
       empty() const
-      { return false; }
+      { return this->_M_count == 0; }
 
       // element access:
       reference
