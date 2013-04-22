@@ -1,0 +1,186 @@
+#include <stdexcept>
+#include <memory>
+
+namespace std {
+
+  template<typename _Tp> // DefaultConstructible _Tp
+    struct dynarray
+    {
+      // types:
+      typedef       _Tp                             value_type;
+      typedef       _Tp&                            reference;
+      typedef const _Tp&                            const_reference;
+      typedef       _Tp*                            iterator;
+      typedef const _Tp*                            const_iterator;
+      typedef std::reverse_iterator<iterator>       reverse_iterator;
+      typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+      typedef size_t                                size_type;
+      typedef ptrdiff_t                             difference_type;
+
+    private:
+
+      // fields:
+      _Tp*      _M_store;
+      size_type _M_count;
+
+      // helper functions:
+      void
+      _M_check(size_type __n)
+      {
+	if (__n >= this->_M_count)
+	  throw std::out_of_range("dynarray");
+      }
+
+      _Tp*
+      _M_alloc(size_type __n)
+      { return reinterpret_cast<_Tp*>(new char[__n * sizeof(_Tp)]); }
+
+    public:
+
+      // construct and destruct:
+      dynarray() = delete;
+      const dynarray operator=(const dynarray&) = delete;
+
+      explicit dynarray(size_type __c)
+      : _M_store(this->_M_alloc(__c)), _M_count(__c)
+      {
+        size_type __i;
+        try
+        {
+          for (__i = 0; __i < _M_count; ++__i)
+            new (this->_M_store + __i) _Tp;
+        }
+        catch ( ... )
+        {
+          for (; __i > 0; --__i)
+            (this->_M_store + (__i - 1))->~_Tp();
+          throw;
+        }
+      }
+
+      dynarray(const dynarray& __dyna)
+      : _M_store(_M_alloc(__dyna._M_count)), _M_count(__dyna._M_count)
+      {
+        try
+        {
+          uninitialized_copy (__dyna.begin(), __dyna.end(), this->begin());
+        }
+        catch (...)
+        {
+          delete this->_M_store;
+          throw;
+        }
+      }
+
+      ~dynarray()
+      {
+        for (size_type __i = 0; __i < this->_M_count; ++__i)
+          (this->_M_store + __i)->~_Tp();
+        delete[] this->_M_store;
+      }
+
+      // iterators:
+      iterator
+      begin()
+      { return this->_M_store; }
+
+      const_iterator
+      begin()  const
+      { return this->_M_store; }
+
+      const_iterator
+      cbegin() const
+      { return this->_M_store; }
+
+      iterator
+      end()
+      { return this->_M_store + this->_M_count; }
+
+      const_iterator
+      end() const
+      { return this->_M_store + this->_M_count; }
+
+      const_iterator
+      cend() const
+      { return this->_M_store + this->_M_count; }
+
+      reverse_iterator
+      rbegin()       
+      { return reverse_iterator(this->end()); }
+
+      const_reverse_iterator
+      rbegin()  const
+      { return reverse_iterator(this->end()); }
+
+      reverse_iterator
+      rend()         
+      { return reverse_iterator(this->begin()); }
+
+      const_reverse_iterator
+      rend() const
+      { return reverse_iterator(this->begin()); }
+
+      // capacity:
+      size_type
+      size() const
+      { return this->_M_count; }
+
+      size_type
+      max_size() const
+      { return this->_M_count; }
+
+      bool
+      empty() const
+      { return false; }
+
+      // element access:
+      reference
+      operator[](size_type __n)
+      { return this->_M_store[__n]; }
+
+      const_reference
+      operator[](size_type __n) const
+      { return this->_M_store[__n]; }
+
+      reference
+      front()
+      { return this->_M_store[0]; }
+
+      const_reference
+      front() const
+      { return this->_M_store[0]; }
+
+      reference
+      back()
+      { return this->_M_store[this->_M_count - 1]; }
+
+      const_reference
+      back() const
+      { return this->_M_store[this->_M_count - 1]; }
+
+      const_reference
+      at(size_type __n) const
+      {
+        this->_M_check(__n);
+        return this->_M_store[__n];
+      }
+
+      reference
+      at(size_type __n)
+      {
+        this->_M_check(__n);
+        return this->_M_store[__n];
+      }
+
+      // data access:
+      _Tp*
+      data()
+      { return this->_M_store; }
+
+      const _Tp*
+      data() const
+      { return this->_M_store; }
+    };
+
+} // namespace std
+
