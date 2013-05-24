@@ -1,0 +1,380 @@
+//  http://kojot.sggw.waw.pl/~akrzemi1/optional/tr2.optional.proposal.html
+//  http://www.open-std.org/JTC1/sc22/WG21/docs/papers/2013/n3527.html
+
+//  Implementation: https://github.com/akrzemi1/Optional/
+
+#include <stdexcept>
+#include <memory>
+
+namespace std {
+
+  // 20.5.4, optional for object types
+  template <class T>
+  class optional;
+
+  // 20.5.5, In-place construction
+
+  struct emplace_t
+  { };
+
+  constexpr emplace_t emplace{};
+
+  // 20.5.6, Disengaged state indicator
+
+  struct nullopt_t
+  {
+    //see below
+  };
+
+  constexpr nullopt_t nullopt{}; // unspecified
+
+  // 20.5.7, Class bad_optional_access
+
+  class bad_optional_access : public std::logic_error
+  {
+  public:
+    explicit
+    bad_optional_access(const std::string& __str)
+    : std::logic_error{__str}
+    { }
+
+    explicit
+    bad_optional_access(const char* __str)
+    : std::logic_error{__str}
+    { }
+  };
+
+  // 20.5.8, Relational operators
+
+  template<typename _Tp>
+    constexpr bool
+    operator==(const optional<_Tp>& __x, const optional<_Tp>& __y)
+    { return ; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator!=(const optional<_Tp>& __x, const optional<_Tp>& __y)
+    { return !(__x == __y); }
+
+  template<typename _Tp>
+    constexpr bool
+    operator<(const optional<_Tp>& __x, const optional<_Tp>& __y)
+    { return ; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator>(const optional<_Tp>& __x, const optional<_Tp>& __y)
+    { return __y < __x; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator<=(const optional<_Tp>& __x, const optional<_Tp>& __y)
+    { return !(__y < __x); }
+
+  template<typename _Tp>
+    constexpr bool
+    operator>=(const optional<_Tp>& __x, const optional<_Tp>& __y)
+    { return !(__x < __y); }
+
+  // 20.5.9, Comparison with nullopt
+
+  template<typename _Tp>
+    constexpr bool
+    operator==(const optional<_Tp>& __opt, nullopt_t) noexcept
+    { return !__opt; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator==(nullopt_t, const optional<_Tp>& __opt) noexcept
+    { return !__opt; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator!=(const optional<_Tp>& __opt, nullopt_t) noexcept
+    { return bool(__opt); }
+
+  template<typename _Tp>
+    constexpr bool
+    operator!=(nullopt_t, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt); }
+
+  template<typename _Tp>
+    constexpr bool
+    operator<(const optional<_Tp>&, nullopt_t) noexcept
+    { return false; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator<(nullopt_t, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt); }
+
+  template<typename _Tp>
+    constexpr bool
+    operator<=(const optional<_Tp>& __opt, nullopt_t) noexcept
+    { return !__opt; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator<=(nullopt_t, const optional<_Tp>&) noexcept
+    { return true; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator>(const optional<_Tp>& __opt, nullopt_t) noexcept
+    { return bool(__opt); }
+
+  template<typename _Tp>
+    constexpr bool
+    operator>(nullopt_t, const optional<_Tp>&) noexcept
+    { return false; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator>=(const optional<_Tp>& __opt, nullopt_t) noexcept
+    { return true; }
+
+  template<typename _Tp>
+    constexpr bool
+    operator>=(nullopt_t, const optional<_Tp>& __opt) noexcept
+    { return !__opt; }
+
+  // 20.5.10, Comparison with _Tp
+
+  template<typename _Tp>
+    bool
+    operator==(const optional<_Tp>& __opt, const _Tp& __val) noexcept
+    { return bool(__opt) ? *__opt == __val : false; }
+
+  template<typename _Tp>
+    bool
+    operator==(const _Tp& __val, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt) ? __val == *__opt : false; }
+
+  template<typename _Tp>
+    bool
+    operator!=(const optional<_Tp>& __opt, const _Tp& __val) noexcept
+    { return bool(__opt) ? *__opt != __val : true; }
+
+  template<typename _Tp>
+    bool
+    operator!=(const _Tp& __val, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt) ? __val != *__opt : true; }
+
+  template<typename _Tp>
+    bool
+    operator<(const optional<_Tp>& __opt, const _Tp& __val) noexcept
+    { return bool(__opt) ? *__opt < __val : true; }
+
+  template<typename _Tp>
+    bool
+    operator<(const _Tp& __val, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt) ? __val < *__opt : false; }
+
+  template<typename _Tp>
+    bool
+    operator<=(const optional<_Tp>& __opt, const _Tp& __val) noexcept
+    { return bool(__opt) ? *__opt <= __val : true; }
+
+  template<typename _Tp>
+    bool
+    operator<=(const _Tp& __val, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt) ? __val <= *__opt : false; }
+
+  template<typename _Tp>
+    bool
+    operator>(const optional<_Tp>& __opt, const _Tp& __val) noexcept
+    { return bool(__opt) ? *__opt > __val : false; }
+
+  template<typename _Tp>
+    bool
+    operator>(const _Tp& __val, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt) ? __val > *__opt : true; }
+
+  template<typename _Tp>
+    bool
+    operator>=(const optional<_Tp>& __opt, const _Tp& __val) noexcept
+    { return bool(__opt) ? *__opt >= __val : false; }
+
+  template<typename _Tp>
+    bool
+    operator>=(const _Tp& __val, const optional<_Tp>& __opt) noexcept
+    { return bool(__opt) ? __val >= *__opt : true; }
+
+  // 20.5.11, Specialized algorithms
+
+  template<typename _Tp>
+    void
+    swap(optional<_Tp>& __x, optional<_Tp>& __y)
+    noexcept(noexcept(__x.swap(__y)))
+    { __x.swap(__y); }
+
+  template<typename _Tp>
+    constexpr optional<typename std::decay<_Tp>::type>
+    make_optional(_Tp&& __val)
+    {
+      typedef typename std::decay<_Tp>::type __type;
+      return optional<__type>(std::forward<_Tp>(__val));
+    }
+
+  // 20.5.12, hash support
+
+  template<typename _Tp> struct hash;
+  template<typename _Tp> struct hash<optional<_Tp>>;
+
+  template<typename _Tp>
+    class optional
+    {
+    public:
+      typedef _Tp value_type;
+
+      // 20.5.4.1, constructors
+
+      constexpr
+      optional() noexcept
+      //: _M_init{false}, _M_val{}
+      : _M_ptr{}
+      { }
+
+      constexpr
+      optional(nullopt_t) noexcept
+      //: _M_init{false}, _M_val{}
+      : _M_ptr{}
+      { }
+
+      optional(const optional& __opt)
+      : _M_ptr{}
+      {
+	if (__opt._M_ptr)
+	  this->_M_ptr.reset(new value_type(*__opt._M_ptr.get()));
+      }
+
+      optional(optional&& __opt) noexcept/*(see below)*/
+      : _M_ptr{__opt._M_ptr.release()}
+      { }
+
+      constexpr optional(const _Tp& __val)
+      : _M_ptr{new value_type(__val)}
+      { }
+
+      constexpr optional(_Tp&& __val)
+      : _M_ptr{new value_type(std::move(__val))}
+      { }
+
+      template<typename... _Args>
+	constexpr explicit
+	optional(emplace_t, _Args&&...);
+
+      template<typename _Up, typename... _Args>
+	constexpr explicit
+	optional(emplace_t, initializer_list<_Up>, _Args&&...);
+
+      // 20.5.4.2, destructor
+
+      ~optional()
+      { this->_M_ptr.clear(); }
+
+      // 20.5.4.3, assignment
+
+      optional&
+      operator=(nullopt_t) noexcept
+      {
+	//_M_init = false;
+	this->_M_ptr.clear();
+      }
+
+      optional&
+      operator=(const optional& __opt)
+      { this->_M_ptr.reset(new value_type(*__opt._M_ptr.get())); }
+
+      optional&
+      operator=(optional&& __opt) noexcept/*(see below)*/
+      { this->_M_ptr = __opt._M_ptr; }
+
+      template<typename _Up>
+	optional&
+	operator=(_Up&&);
+
+      template<typename... _Args>
+	optional&
+	emplace(_Args&&...);
+
+      template<typename _Up, typename... _Args>
+	optional&
+	emplace(initializer_list<_Up>, _Args&&...);
+
+      // 20.5.4.4, swap
+
+      void
+      swap(optional& __opt) noexcept/*(see below)*/
+      { this->_M_ptr.swap(__opt._M_ptr); }
+
+      // 20.5.4.5, observers
+
+      constexpr _Tp const*
+      operator->() const;
+
+      _Tp*
+      operator->()
+      { return *this->_M_ptr.get(); }
+
+      constexpr _Tp const&
+      operator*() const
+      { return *this->_M_ptr.get(); }
+
+      _Tp&
+      operator*()
+      { return this->_M_ptr.get(); }
+
+      constexpr explicit
+      operator bool() const noexcept
+      { return this->_M_ptr; }
+
+      constexpr _Tp const&
+      value() const
+      {
+	if (this->_M_ptr)
+	  return *this->_M_ptr.get();
+	else
+	  throw bad_optional_access("");
+      }
+
+      _Tp&
+      value()
+      {
+	if (this->_M_ptr)
+	  return *this->_M_ptr.get();
+	else
+	  throw bad_optional_access("");
+      }
+
+      template<typename _Up>
+	constexpr _Tp
+	value_or(_Up&& __val) const&
+	{
+	  if (this->_M_ptr)
+	    return *this->_M_ptr.get();
+	  else
+	    return static_cast<_Tp>(std::forward<_Up>(__val));
+	}
+
+      template<typename _Up>
+	_Tp
+	value_or(_Up&& __val) &&
+	{
+	  if (this->_M_ptr)
+	    return *this->_M_ptr.release(); // Wrong but we knew that...
+	  else
+	    return static_cast<_Tp>(std::forward<_Up>(__val));
+	}
+
+    private:
+
+      //bool _M_init;
+
+      //_Tp* _M_val;
+      std::unique_ptr<value_type> _M_ptr;
+
+    };
+
+} // namespace std
+
