@@ -48,17 +48,7 @@ is_int(const std::any & operand)
 
 bool
 is_char_ptr(const std::any & operand)
-{
-  try
-  {
-    std::any_cast<const char *>(operand);
-    return true;
-  }
-  catch (const std::bad_any_cast &)
-  {
-    return false;
-  }
-}
+{ return operand.type() == typeid(const char *); }
 
 bool
 is_string(const std::any & operand)
@@ -90,6 +80,12 @@ main()
   append_string(values, std::string("howdy"));
   append_char_ptr(values, "poop");
   append_any(values, std::any(5));
+  append_any(values, std::any("wadd"));
   append_nothing(values);
+  append_any(values, std::any());
+  append_any(values, std::any(std::string("ules")));
   count_all(values, std::cout);
+
+  //for (auto v : values)
+  //  std::cout << *v << std::endl;
 }

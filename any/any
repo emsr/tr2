@@ -98,10 +98,13 @@ namespace std
 
     // Types
 
+    // !!! Move alloc to base for possible EBCO???
+    // This whole thing needs to be allocator aware!!!
     struct _HolderBase
     {
       // Destructor
-      virtual ~_HolderBase()
+      virtual
+      ~_HolderBase()
       { }
 
       // Queries
@@ -131,7 +134,12 @@ namespace std
 
 	_HolderBase*
 	clone() const
-	{ return new _Holder{this->_M_value}; }
+	{
+	  //* __ptr = _M_alloc.allocate(1);
+	  //if (__ptr)
+	  //  _M_alloc.create(__ptr,);
+	  return new _Holder{this->_M_value};
+	}
 
         // Representation
         _Allocator _M_alloc;
@@ -140,8 +148,8 @@ namespace std
 
     // Representation
 
-    template<typename _ValueType>
-      friend _ValueType* any_cast(any*);
+    template<typename _ValueTypePtr>
+      friend _ValueTypePtr any_cast(any*) noexcept;
 
     _HolderBase* _M_content;
 
@@ -180,7 +188,7 @@ namespace std
     {
       typedef typename std::remove_reference<_ValueType>::type __nonref;
 
-      __nonref* __result = any_cast<__nonref>(&__operand);
+      __nonref* __result = any_cast<__nonref*>(&__operand); // Added the * to nonref.
       if (!__result)
 	throw bad_any_cast();
       return *__result;
