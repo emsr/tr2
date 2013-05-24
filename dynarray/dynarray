@@ -20,8 +20,8 @@ namespace std {
     private:
 
       // fields:
-      _Tp*      _M_store;
       size_type _M_count;
+      _Tp*      _M_store;
 
       // helper functions:
       void
@@ -33,16 +33,20 @@ namespace std {
 
       _Tp*
       _M_alloc(size_type __n)
+      //{ return reinterpret_cast<_Tp*>(alloca(__n * sizeof(_Tp))); }
+      // Remember you can't delete pointer returned by alloca.
       { return reinterpret_cast<_Tp*>(new char[__n * sizeof(_Tp)]); }
 
     public:
 
       // construct and destruct:
       dynarray() = delete;
+
       const dynarray operator=(const dynarray&) = delete;
 
-      explicit dynarray(size_type __c)
-      : _M_store{this->_M_alloc(__c)}, _M_count{__c}
+      explicit dynarray(size_type __n)
+      : _M_count{__n},
+	_M_store{this->_M_alloc(__n)}
       {
         size_type __i;
         try
@@ -59,15 +63,16 @@ namespace std {
       }
 
       dynarray(const dynarray& __dyna)
-      : _M_store{_M_alloc(__dyna._M_count)}, _M_count{__dyna._M_count}
+      : _M_count{__dyna._M_count},
+	_M_store{_M_alloc(__dyna._M_count)}
       {
         try
         {
-          uninitialized_copy (__dyna.begin(), __dyna.end(), this->begin());
+          uninitialized_copy(__dyna.begin(), __dyna.end(), this->begin());
         }
         catch (...)
         {
-          delete this->_M_store;
+          delete[] this->_M_store;
           throw;
         }
       }

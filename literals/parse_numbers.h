@@ -1,6 +1,8 @@
 #ifndef PARSE_NUMBERS_H_
 #define PARSE_NUMBERS_H_
 
+#pragma GCC system_header
+
 #include <cstddef>
 
 // Stolen from n3468.pdf except I added binary literal prefixes and digit separator (`).
@@ -11,236 +13,332 @@ namespace std {
 
 namespace __parse_int {
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int
+  template<unsigned _Base, char _Dig>
+    struct _Digit;
+
+  template<unsigned _Base>
+    struct _Digit<_Base, '0'>
     {
-      static_assert(_Base <= 16U, "only support up to hexadecimal");
-      static_assert(!sizeof...(_Digits), "invalid integral constant");
-      static constexpr unsigned long long value = 0;
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0};
     };
 
-  template<char... _Digits>
-    struct _Base_dispatch;
-
-  template<char... _Digits>
-    struct _Base_dispatch<'0', 'b', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '1'>
     {
-      static constexpr unsigned long long value{parse_int<2U, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{1};
     };
 
-  template<char... _Digits>
-    struct _Base_dispatch<'0', 'B', _Digits...>
-    {
-      static constexpr unsigned long long value{parse_int<2U, _Digits...>::value};
-    };
-
-  template<char... _Digits>
-    struct _Base_dispatch<'0', 'x', _Digits...>
-    {
-      static constexpr unsigned long long value{parse_int<16U, _Digits...>::value};
-    };
-
-  template<char... _Digits>
-    struct _Base_dispatch<'0', 'X', _Digits...>
-    {
-      static constexpr unsigned long long value{parse_int<16U, _Digits...>::value};
-    };
-
-  template<char... _Digits>
-    struct _Base_dispatch<'0', _Digits...>
-    {
-      static constexpr unsigned long long value{parse_int<8U, _Digits...>::value};
-    };
-
-  template<char... _Digits>
-    struct _Base_dispatch
-    {
-      static constexpr unsigned long long value{parse_int<10U, _Digits...>::value};
-    };
-
-
-  constexpr unsigned long long
-  pow(unsigned _Base, size_t __p)
-  {
-    return __p ? (__p%2 ? _Base : 1) * pow(_Base, __p/2) * pow(_Base, __p/2) : 1;
-  }
-
-
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '0', _Digits...>
-    {
-      static constexpr unsigned long long
-      value{parse_int<_Base, _Digits...>::value};
-    };
-
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '1', _Digits...>
-    {
-      static constexpr unsigned long long
-      value{1 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
-    };
-
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '2', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '2'>
     {
       static_assert(_Base > 2, "invalid digit");
-      static constexpr unsigned long long
-      value{2 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{2};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '3', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '3'>
     {
       static_assert(_Base > 3, "invalid digit");
-      static constexpr unsigned long long
-      value{3 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{3};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '4', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '4'>
     {
       static_assert(_Base > 4, "invalid digit");
-      static constexpr unsigned long long
-      value{4 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{4};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '5', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '5'>
     {
       static_assert(_Base > 5, "invalid digit");
-      static constexpr unsigned long long
-      value{5 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{5};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '6', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '6'>
     {
       static_assert(_Base > 6, "invalid digit");
-      static constexpr unsigned long long
-      value{6 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{6};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '7', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '7'>
     {
       static_assert(_Base > 7, "invalid digit");
-      static constexpr unsigned long long
-      value{7 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{7};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '8', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '8'>
     {
       static_assert(_Base > 8, "invalid digit");
-      static constexpr unsigned long long
-      value{8 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{8};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, '9', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, '9'>
     {
       static_assert(_Base > 9, "invalid digit");
-      static constexpr unsigned long long
-      value{9 * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{9};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'a', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'a'>
     {
       static_assert(_Base > 0xa, "invalid digit");
-      static constexpr unsigned long long
-      value{0xa * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xa};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'A', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'A'>
     {
       static_assert(_Base > 0xa, "invalid digit");
-      static constexpr unsigned long long
-      value{0xa * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xa};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'b', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'b'>
     {
       static_assert(_Base > 0xb, "invalid digit");
-      static constexpr unsigned long long
-      value{0xb * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xb};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'B', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'B'>
     {
       static_assert(_Base > 0xb, "invalid digit");
-      static constexpr unsigned long long
-      value{0xb * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xb};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'c', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'c'>
     {
       static_assert(_Base > 0xc, "invalid digit");
-      static constexpr unsigned long long
-      value{0xc * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xc};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'C', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'C'>
     {
       static_assert(_Base > 0xc, "invalid digit");
-      static constexpr unsigned long long
-      value{0xc * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xc};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'd', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'd'>
     {
       static_assert(_Base > 0xd, "invalid digit");
-      static constexpr unsigned long long
-      value{0xd * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xd};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'D', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'D'>
     {
       static_assert(_Base > 0xd, "invalid digit");
-      static constexpr unsigned long long
-      value{0xd * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xd};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'e', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'e'>
     {
       static_assert(_Base > 0xe, "invalid digit");
-      static constexpr unsigned long long
-      value{0xe * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xe};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'E', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'E'>
     {
       static_assert(_Base > 0xe, "invalid digit");
-      static constexpr unsigned long long
-      value{0xe * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xe};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'f', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'f'>
     {
       static_assert(_Base > 0xf, "invalid digit");
-      static constexpr unsigned long long
-      value{0xf * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xf};
     };
 
-  template<unsigned _Base, char... _Digits>
-    struct parse_int<_Base, 'F', _Digits...>
+  template<unsigned _Base>
+    struct _Digit<_Base, 'F'>
     {
       static_assert(_Base > 0xf, "invalid digit");
-      static constexpr unsigned long long
-      value{0xf * pow(_Base, sizeof...(_Digits)) + parse_int<_Base, _Digits...>::value};
+      static constexpr bool valid{true};
+      static constexpr unsigned value{0xf};
     };
 
-} // __parse_int
+  //  Digit separator
+  template<unsigned _Base>
+    struct _Digit<_Base, '`'>
+    {
+      static constexpr bool valid{false};
+      static constexpr unsigned value{0};
+    };
+
+
+//------------------------------------------------------------------------------
+
+  template<unsigned _Base, char _Dig, char... _Digs>
+    struct _Digits_help
+    {
+      static constexpr unsigned
+	value{_Digit<_Base, _Dig>::valid ?
+	      1U + _Digits_help<_Base, _Digs...>::value :
+	      _Digits_help<_Base, _Digs...>::value};
+    };
+
+  template<unsigned _Base, char _Dig>
+    struct _Digits_help<_Base, _Dig>
+    {
+      static constexpr unsigned value{_Digit<_Base, _Dig>::valid ? 1U : 0U};
+    };
+
+  template<unsigned _Base, char... _Digs>
+    struct _Digits
+    {
+      static constexpr unsigned value{_Digits_help<_Base, _Digs...>::value};
+    };
+
+  template<unsigned _Base>
+    struct _Digits<_Base>
+    {
+      static constexpr unsigned value{0U};
+    };
+
+//------------------------------------------------------------------------------
+
+  template<unsigned _Base, char _Dig, char... _Digs>
+    struct _Power_help
+    {
+      static constexpr unsigned
+	value{_Digit<_Base, _Dig>::valid ?
+	      _Base * _Power_help<_Base, _Digs...>::value :
+	      _Power_help<_Base, _Digs...>::value};
+    };
+
+  template<unsigned _Base, char _Dig>
+    struct _Power_help<_Base, _Dig>
+    {
+      static constexpr unsigned value{_Digit<_Base, _Dig>::valid ? 1U : 0U};
+    };
+
+  template<unsigned _Base, char... _Digs>
+    struct _Power
+    {
+      static constexpr unsigned value{_Power_help<_Base, _Digs...>::value};
+    };
+
+  template<unsigned _Base>
+    struct _Power<_Base>
+    {
+      static constexpr unsigned value{0U};
+    };
+
+//------------------------------------------------------------------------------
+
+  template<unsigned _Base, unsigned _Pow, char _Dig, char... _Digs>
+    struct _Number_help
+    {
+      static constexpr unsigned
+	value{_Digit<_Base, _Dig>::valid ?
+	      _Pow * _Digit<_Base, _Dig>::value
+	      + _Number_help<_Base, _Pow / _Base, _Digs...>::value :
+	      _Number_help<_Base, _Pow, _Digs...>::value};
+    };
+
+  template<unsigned _Base, unsigned _Pow, char _Dig>
+    struct _Number_help<_Base, _Pow, _Dig>
+    {
+      //static_assert(_Pow == 1U, "power should be one");
+      static constexpr unsigned
+	value{_Digit<_Base, _Dig>::valid ? _Digit<_Base, _Dig>::value : 0U};
+    };
+
+  template<unsigned _Base, char... _Digs>
+    struct _Number
+    {
+      static constexpr unsigned
+	value{_Number_help<_Base, _Power<_Base, _Digs...>::value, _Digs...>::value};
+    };
+
+  template<unsigned _Base>
+    struct _Number<_Base>
+    {
+      static constexpr unsigned value{0U};
+    };
+
+//------------------------------------------------------------------------------
+//  This _Parse_int is the same 'level' as the old _Base_dispatch.
+
+  template<char... _Digs>
+    struct _Parse_int;
+
+  template<char... _Digs>
+    struct _Parse_int<'0', 'b', _Digs...>
+    {
+      static constexpr unsigned long long
+	value{_Number<2U, _Digs...>::value};
+    };
+
+  template<char... _Digs>
+    struct _Parse_int<'0', 'B', _Digs...>
+    {
+      static constexpr unsigned long long
+	value{_Number<2U, _Digs...>::value};
+    };
+
+  template<char... _Digs>
+    struct _Parse_int<'0', 'x', _Digs...>
+    {
+      static constexpr unsigned long long
+	value{_Number<16U, _Digs...>::value};
+    };
+
+  template<char... _Digs>
+    struct _Parse_int<'0', 'X', _Digs...>
+    {
+      static constexpr unsigned long long
+	value{_Number<16U, _Digs...>::value};
+    };
+
+  template<char... _Digs>
+    struct _Parse_int<'0', _Digs...>
+    {
+      static constexpr unsigned long long
+	value{_Number<8U, _Digs...>::value};
+    };
+
+  template<char... _Digs>
+    struct _Parse_int
+    {
+      static constexpr unsigned long long
+	value{_Number<10U, _Digs...>::value};
+    };
+
+} // namespace __parse_int
 
 
 namespace __select_int_type {
@@ -250,20 +348,21 @@ namespace __select_int_type {
 
   template<unsigned long long _Val, typename _IntType, typename... _Ints>
     struct _Select_int_type<_Val, _IntType, _Ints...>
-         : integral_constant<typename conditional<
-          _Val <= static_cast<unsigned long long>(std::numeric_limits<_IntType>::max()),
-          _IntType,
-          typename _Select_int_type<_Val, _Ints...>::value_type >::type, _Val>
+	 : integral_constant<typename conditional<
+	  _Val <= static_cast<unsigned long long>
+			(std::numeric_limits<_IntType>::max()),
+	  _IntType,
+	  typename _Select_int_type<_Val, _Ints...>::value_type >::type, _Val>
     { };
 
   template<unsigned long long _Val>
     struct _Select_int_type<_Val> : integral_constant<unsigned long long, _Val>
     { };
 
-} // __select_int_type
+} // namespace __select_int_type
 
 #endif // __cplusplus > 201103L
 
-} // std
+} // namespace std
 
 #endif // PARSE_NUMBERS_H_

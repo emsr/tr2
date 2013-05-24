@@ -6,3 +6,5 @@ dynarray/test_dynarray
 specfun/test_gamma
 specfun/test_specfun
 specfun/trigint_error
+
+literals/test_suffixen
