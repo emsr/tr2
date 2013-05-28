@@ -9,7 +9,7 @@
 
 namespace std {
 
-#if __cplusplus > 201103L
+////#if __cplusplus > 201103L
 
 namespace __parse_int {
 
@@ -341,27 +341,27 @@ namespace __parse_int {
 } // namespace __parse_int
 
 
-namespace __select_int_type {
+namespace __select_int {
 
   template<unsigned long long _Val, typename... _Ints>
-    struct _Select_int_type;
+    struct _Select_int;
 
   template<unsigned long long _Val, typename _IntType, typename... _Ints>
-    struct _Select_int_type<_Val, _IntType, _Ints...>
+    struct _Select_int<_Val, _IntType, _Ints...>
 	 : integral_constant<typename conditional<
 	  _Val <= static_cast<unsigned long long>
 			(std::numeric_limits<_IntType>::max()),
 	  _IntType,
-	  typename _Select_int_type<_Val, _Ints...>::value_type >::type, _Val>
+	  typename _Select_int<_Val, _Ints...>::value_type >::type, _Val>
     { };
 
   template<unsigned long long _Val>
-    struct _Select_int_type<_Val> : integral_constant<unsigned long long, _Val>
+    struct _Select_int<_Val> : integral_constant<unsigned long long, _Val>
     { };
 
-} // namespace __select_int_type
+} // namespace __select_int
 
-#endif // __cplusplus > 201103L
+////#endif // __cplusplus > 201103L
 
 } // namespace std
 
