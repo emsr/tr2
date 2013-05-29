@@ -15,9 +15,10 @@
 #include "parse_numbers.h"
 
 
-namespace std {
-
 #if __cplusplus > 201103L
+
+namespace std
+{
 
 inline namespace literals {
 inline namespace string_literals {
@@ -38,17 +39,18 @@ inline namespace string_literals {
   operator"" s(const char32_t* __str, size_t __len)
   { return std::basic_string<char32_t>{__str, __len}; }
 
-} // string_literals
-} // literals
+} // inline namespace string_literals
+} // inline namespace literals
+
+} // namespace std
 
 #endif // __cplusplus > 201103L
 
-} // std
-
-
-namespace std {
 
 #if __cplusplus > 201103L
+
+namespace std
+{
 
 inline namespace literals {
 inline namespace complex_literals {
@@ -77,17 +79,18 @@ inline namespace complex_literals {
   operator"" il(unsigned long long __num)
   { return std::complex<long double>{0.0L, static_cast<long double>(__num)}; }
 
-} // complex_literals
-} // literals
+} // inline namespace complex_literals
+} // inline namespace literals
+
+} // namespace std
 
 #endif // __cplusplus > 201103L
 
-} // std
-
-
-namespace std {
 
 #if __cplusplus > 201103L
+
+namespace std
+{
 
 inline namespace literals {
 inline namespace chrono_literals {
@@ -119,12 +122,13 @@ inline namespace chrono_literals {
 
   template <char... _Digits>
     inline constexpr typename
-    __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
+    __detail::_Select_type<std::__select_int::_Select_int<_Digits...>::value,
 			   chrono::hours>::type
     operator"" h()
     {
-      return __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
-				    chrono::hours>::value;
+      return __detail::_Select_type<
+			std::__select_int::_Select_int<_Digits...>::value,
+			chrono::hours>::value;
     }
 
   inline constexpr chrono::duration<long double, ratio<60,1>>
@@ -133,12 +137,13 @@ inline namespace chrono_literals {
 
   template <char... _Digits>
     inline constexpr typename
-    __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
+    __detail::_Select_type<std::__select_int::_Select_int<_Digits...>::value,
 			   chrono::minutes>::type
     operator"" min()
     {
-      return __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
-				    chrono::minutes>::value;
+      return __detail::_Select_type<
+			std::__select_int::_Select_int<_Digits...>::value,
+			chrono::minutes>::value;
     }
 
   inline constexpr chrono::duration<long double>
@@ -147,12 +152,13 @@ inline namespace chrono_literals {
 
   template <char... _Digits>
     inline constexpr typename
-    __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
+    __detail::_Select_type<std::__select_int::_Select_int<_Digits...>::value,
 			   chrono::seconds>::type
     operator"" s()
     {
-      return __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
-				    chrono::seconds>::value;
+      return __detail::_Select_type<
+			std::__select_int::_Select_int<_Digits...>::value,
+			chrono::seconds>::value;
     }
 
   inline constexpr chrono::duration<long double, milli>
@@ -161,12 +167,13 @@ inline namespace chrono_literals {
 
   template <char... _Digits>
     inline constexpr typename
-    __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
+    __detail::_Select_type<std::__select_int::_Select_int<_Digits...>::value,
 			   chrono::milliseconds>::type
     operator"" ms()
     {
-      return __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
-				    chrono::milliseconds>::value;
+      return __detail::_Select_type<
+			std::__select_int::_Select_int<_Digits...>::value,
+			chrono::milliseconds>::value;
     }
 
   inline constexpr chrono::duration<long double, micro>
@@ -175,12 +182,13 @@ inline namespace chrono_literals {
 
   template <char... _Digits>
     inline constexpr typename
-    __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
+    __detail::_Select_type<std::__select_int::_Select_int<_Digits...>::value,
 			   chrono::microseconds>::type
     operator"" us()
     {
-      return __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
-				    chrono::microseconds>::value;
+      return __detail::_Select_type<
+			std::__select_int::_Select_int<_Digits...>::value,
+			chrono::microseconds>::value;
     }
 
   inline constexpr chrono::duration<long double, nano>
@@ -189,20 +197,21 @@ inline namespace chrono_literals {
 
   template <char... _Digits>
     inline constexpr typename
-    __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
+    __detail::_Select_type<std::__select_int::_Select_int<_Digits...>::value,
 			   chrono::nanoseconds>::type
     operator"" ns()
     {
-      return __detail::_Select_type<std::__select_int_type::_Select_int_type<_Digits...>::value,
-				    chrono::nanoseconds>::value;
+      return __detail::_Select_type<
+			std::__select_int::_Select_int<_Digits...>::value,
+			chrono::nanoseconds>::value;
     }
 
-} // chrono_literals
-} // literals
+} // inline namespace chrono_literals
+} // inline namespace literals
+
+} // namespace std
 
 #endif // __cplusplus > 201103L
-
-} // std
 
 
 #endif // SUFFIXEN_H_

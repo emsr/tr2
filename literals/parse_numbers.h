@@ -1,11 +1,38 @@
-#ifndef PARSE_NUMBERS_H_
-#define PARSE_NUMBERS_H_
+// Components for compile-time parsing of numbers -*- C++ -*-
+
+// Copyright (C) 2013 Free Software Foundation, Inc.
+//
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or (at your option)
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+/** @file bits/parse_numbers.h
+ *  This is an internal header file, included by other library headers.
+ *  Do not attempt to use it directly. @headername{chrono}
+ */
+
+#ifndef _PARSE_NUMBERS_H
+#define _PARSE_NUMBERS_H
 
 #pragma GCC system_header
 
-#include <cstddef>
-
-// Stolen from n3468.pdf except I added binary literal prefixes and digit separator (`).
+// From n3642.pdf except I added binary literals and digit separator '`'.
 
 namespace std {
 
@@ -281,7 +308,8 @@ namespace __parse_int {
     struct _Number
     {
       static constexpr unsigned
-	value{_Number_help<_Base, _Power<_Base, _Digs...>::value, _Digs...>::value};
+	value{_Number_help<_Base, _Power<_Base, _Digs...>::value,
+			   _Digs...>::value};
     };
 
   template<unsigned _Base>
@@ -341,28 +369,28 @@ namespace __parse_int {
 } // namespace __parse_int
 
 
-namespace __select_int_type {
+namespace __select_int {
 
   template<unsigned long long _Val, typename... _Ints>
-    struct _Select_int_type;
+    struct _Select_int;
 
   template<unsigned long long _Val, typename _IntType, typename... _Ints>
-    struct _Select_int_type<_Val, _IntType, _Ints...>
+    struct _Select_int<_Val, _IntType, _Ints...>
 	 : integral_constant<typename conditional<
 	  _Val <= static_cast<unsigned long long>
 			(std::numeric_limits<_IntType>::max()),
 	  _IntType,
-	  typename _Select_int_type<_Val, _Ints...>::value_type >::type, _Val>
+	  typename _Select_int<_Val, _Ints...>::value_type >::type, _Val>
     { };
 
   template<unsigned long long _Val>
-    struct _Select_int_type<_Val> : integral_constant<unsigned long long, _Val>
+    struct _Select_int<_Val> : integral_constant<unsigned long long, _Val>
     { };
 
-} // namespace __select_int_type
+} // namespace __select_int
 
 #endif // __cplusplus > 201103L
 
 } // namespace std
 
-#endif // PARSE_NUMBERS_H_
+#endif // _PARSE_NUMBERS_H

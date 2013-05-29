@@ -1,6 +1,6 @@
 // /home/ed/bin/bin/g++ -std=c++1y -fdiagnostics-color=auto -o test_suffixen test_suffixen.cpp
 
-// n3468.pdf by Peter Sommerlad
+// n3642.pdf by Peter Sommerlad
 
 #include <cassert>
 
