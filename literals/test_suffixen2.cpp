@@ -47,28 +47,28 @@ test00()
   constexpr auto d = 0b0101_testit; // value 0b0101
   assert(d == 0b0101);
 
-  std::cout << sizeof(std::__select_int::_Select_int<1LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<10LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<100LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<1000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<10000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<100000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<1000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<10000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<100000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<1000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<10000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<100000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<1000000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<10000000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<100000000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<1000000000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<10000000000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<100000000000000000LL, char, short, int, long, long long>::value) << '\n';
-  std::cout << sizeof(std::__select_int::_Select_int<1000000000000000000LL, char, short, int, long, long long>::value) << '\n';
-  //std::cout << sizeof(std::__select_int::_Select_int<10000000000000000000LL, char, short, int, long, long long>::value) << '\n';
-  //std::cout << sizeof(std::__select_int::_Select_int<100000000000000000000LL, char, short, int, long, long long>::value) << '\n';
-  //std::cout << sizeof(std::__select_int::_Select_int<1000000000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  //std::cout << sizeof(std::__select_int::_Select_int_base<10000000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  //std::cout << sizeof(std::__select_int::_Select_int_base<100000000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  //std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000000000000LL, char, short, int, long, long long>::value) << '\n';
 }
 
 void
