@@ -34,9 +34,10 @@
 
 // From n3642.pdf except I added binary literals and digit separator '`'.
 
-namespace std {
+////#if __cplusplus > 201103L
 
-#if __cplusplus > 201103L
+namespace std
+{
 
 namespace __parse_int {
 
@@ -389,8 +390,8 @@ namespace __select_int {
 
 } // namespace __select_int
 
-#endif // __cplusplus > 201103L
-
 } // namespace std
+
+////#endif // __cplusplus > 201103L
 
 #endif // _PARSE_NUMBERS_H
