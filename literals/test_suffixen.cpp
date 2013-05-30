@@ -41,10 +41,33 @@ test00()
   assert(a == 123);
   constexpr auto b = 0123_testit; // value 0123
   assert(b == 0123);
-  constexpr auto c = 0x123_testit; // value 0x123
-  assert(c == 0x123);
+  constexpr auto c = 0x123abc_testit; // value 0x123abc
+  assert(c == 0x123abc);
   constexpr auto d = 0b0101_testit; // value 0b0101
   assert(d == 0b0101);
+
+  std::cout << sizeof(std::__select_int::_Select_int_base<1LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<10000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<100000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  //std::cout << sizeof(std::__select_int::_Select_int_base<10000000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  //std::cout << sizeof(std::__select_int::_Select_int_base<100000000000000000000LL, char, short, int, long, long long>::value) << '\n';
+  //std::cout << sizeof(std::__select_int::_Select_int_base<1000000000000000000000LL, char, short, int, long, long long>::value) << '\n';
 }
 
 void
@@ -162,6 +185,17 @@ main()
     auto h16 = u"Hello!"s;
 
     auto h32 = U"Hello!"s;
+
+    std::string planet = "Mercury"s;
+    assert( planet == std::string("Mercury") );
+    std::wstring wplanet = L"Venus"s;
+    assert( wplanet == std::wstring(L"Venus") );
+    std::string u8planet = u8"Mars"s;
+    assert( u8planet == std::string(u8"Mars") );
+    std::u16string u16planet = u"Juiter"s;
+    assert( u16planet == std::u16string(u"Juiter") );
+    std::u32string u32planet = U"Saturn"s;
+    assert( u32planet == std::u32string(U"Saturn") );
   }
   {
     using namespace std::literals::complex_literals;
@@ -185,6 +219,19 @@ main()
 
     auto ili = -33il;
     std::cout << "sizeof(ili) = " << sizeof(ili) << '\n';
+
+    std::complex<float> j1 = 1.0i_f;
+    assert( j1 == std::complex<float>(0.0F, 1.0F) );
+    std::complex<float> k1 = 1i_f;
+    assert( k1 == std::complex<float>(0.0F, 1.0F) );
+    std::complex<double> j2 = 2.0i;
+    assert( j2 == std::complex<double>(0.0, 2.0) );
+    std::complex<double> k2 = 2i;
+    assert( k2 == std::complex<double>(0.0, 2.0) );
+    std::complex<long double> j4 = 4.0il;
+    assert( j4 == std::complex<long double>(0.0L, 4.0L) );
+    std::complex<long double> k4 = 4il;
+    assert( k4 == std::complex<long double>(0.0L, 4.0L) );
   }
   {
     using namespace std::literals::chrono_literals;
@@ -238,5 +285,36 @@ main()
     auto ftn = 1.0ns;
     std::cout << "sizeof(ftn) = " << sizeof(ftn) << '\n';
     std::cout << "typeid(ftn) = " << demangle(typeid(ftn).name()) << '\n';
+
+    auto jiffy = 23ns;
+    assert( jiffy == std::chrono::nanoseconds(23) );
+    auto fjiffy = 23.0ns;
+    assert( (fjiffy == std::chrono::duration<long double, std::nano>(23.0L)) );
+    auto blip = 14us;
+    assert( blip == std::chrono::microseconds(14) );
+    auto fblip = 14.0us;
+    assert( (fblip == std::chrono::duration<long double, std::micro>(14.0L)) );
+    auto bit = 77ms;
+    assert( bit == std::chrono::milliseconds(77) );
+    auto fbit = 77.0ms;
+    assert( (fbit == std::chrono::duration<long double, std::milli>(77.0L)) );
+    auto warmup = 33s;
+    assert( warmup == std::chrono::seconds(33) );
+    auto fwarmup = 33.0s;
+    assert( (fwarmup == std::chrono::duration<long double, std::ratio<1,1>>(33.0L)) );
+    auto classtime = 50min;
+    assert( classtime == std::chrono::minutes(50) );
+    auto fclasstime = 50.0min;
+    assert( (fclasstime == std::chrono::duration<long double, std::ratio<60,1>>(50.0L)) );
+    auto longtime = 1h + 30min;
+    assert( longtime == std::chrono::minutes(90) );
+    auto flongtime = 1.0h + 30.0min;
+    assert( (flongtime == std::chrono::duration<long double, std::ratio<3600,1>>(1.0L)
+			+ std::chrono::duration<long double, std::ratio<60,1>>(30.0L)) );
+    assert( (flongtime == std::chrono::duration<long double, std::ratio<60,1>>(90.0L)) );
+    auto workday = 8h;
+    assert( workday == std::chrono::hours(8) );
+    auto fworkday = 8.0h;
+    assert( (fworkday == std::chrono::duration<long double, std::ratio<3600,1>>(8.0L)) );
   }
 }

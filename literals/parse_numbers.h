@@ -373,19 +373,37 @@ namespace __parse_int {
 namespace __select_int {
 
   template<unsigned long long _Val, typename... _Ints>
-    struct _Select_int;
+    struct _Select_int_base;
 
   template<unsigned long long _Val, typename _IntType, typename... _Ints>
-    struct _Select_int<_Val, _IntType, _Ints...>
-	 : integral_constant<typename conditional<
+    struct _Select_int_base<_Val, _IntType, _Ints...>
+    : integral_constant
+      <
+	typename conditional
+	<
 	  _Val <= static_cast<unsigned long long>
-			(std::numeric_limits<_IntType>::max()),
+		    (std::numeric_limits<_IntType>::max()),
 	  _IntType,
-	  typename _Select_int<_Val, _Ints...>::value_type >::type, _Val>
+	  typename _Select_int_base<_Val, _Ints...>::value_type
+	>::type,
+	_Val
+      >
     { };
 
   template<unsigned long long _Val>
-    struct _Select_int<_Val> : integral_constant<unsigned long long, _Val>
+    struct _Select_int_base<_Val> : integral_constant<unsigned long long, _Val>
+    { };
+
+  template<char... _Digs>
+    struct _Select_int
+    : _Select_int_base<
+	__parse_int::_Parse_int<_Digs...>::value,
+	unsigned char,
+	unsigned short,
+	unsigned int,
+	unsigned long,
+	unsigned long long
+      >
     { };
 
 } // namespace __select_int

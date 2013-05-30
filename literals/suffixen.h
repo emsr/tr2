@@ -161,9 +161,9 @@ inline namespace chrono_literals {
 			std::chrono::seconds>::value;
     }
 
-  inline constexpr std::chrono::duration<long double, milli>
+  inline constexpr std::chrono::duration<long double, std::milli>
   operator"" ms(long double __msecs)
-  { return std::chrono::duration<long double, milli>{__msecs}; }
+  { return std::chrono::duration<long double, std::milli>{__msecs}; }
 
   template <char... _Digits>
     inline constexpr typename
@@ -176,9 +176,9 @@ inline namespace chrono_literals {
 			std::chrono::milliseconds>::value;
     }
 
-  inline constexpr std::chrono::duration<long double, micro>
+  inline constexpr std::chrono::duration<long double, std::micro>
   operator"" us(long double __usecs)
-  { return std::chrono::duration<long double, micro>{__usecs}; }
+  { return std::chrono::duration<long double, std::micro>{__usecs}; }
 
   template <char... _Digits>
     inline constexpr typename
@@ -191,9 +191,9 @@ inline namespace chrono_literals {
 			std::chrono::microseconds>::value;
     }
 
-  inline constexpr std::chrono::duration<long double, nano>
+  inline constexpr std::chrono::duration<long double, std::nano>
   operator"" ns(long double __nsecs)
-  { return std::chrono::duration<long double, nano>{__nsecs}; }
+  { return std::chrono::duration<long double, std::nano>{__nsecs}; }
 
   template <char... _Digits>
     inline constexpr typename

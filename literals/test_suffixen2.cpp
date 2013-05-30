@@ -22,15 +22,15 @@ demangle(const char* name)
   return ret_val;
 }
 
-template<char... _Digits>
+template<char... _Digs>
   constexpr unsigned long long
   operator"" _ternary()
-  { return std::__parse_int::_Number<3, _Digits...>::value; }
+  { return std::__parse_int::_Number<3, _Digs...>::value; }
 
-template<char... _Digits>
+template<char... _Digs>
   constexpr unsigned long long
   operator"" _testit()
-  { return std::__parse_int::_Parse_int<_Digits...>::value; }
+  { return std::__parse_int::_Parse_int<_Digs...>::value; }
 
 void
 test00()
@@ -42,7 +42,7 @@ test00()
   assert(a == 123);
   constexpr auto b = 0123_testit; // value 0123
   assert(b == 0123);
-  constexpr auto c = 0x123abc_testit; // value 0x123
+  constexpr auto c = 0x123abc_testit; // value 0x123abc
   assert(c == 0x123abc);
   constexpr auto d = 0b0101_testit; // value 0b0101
   assert(d == 0b0101);
@@ -188,15 +188,14 @@ main()
     auto h32 = U"Hello!"s;
 
     std::string planet = "Mercury"s;
-    std::wstring wplanet = L"Venus"s;
-    std::string u8planet = u8"Mars"s;
-    std::u16string u16planet = u"Juiter"s;
-    std::u32string u32planet = U"Saturn"s;
-
     assert( planet == std::string("Mercury") );
+    std::wstring wplanet = L"Venus"s;
     assert( wplanet == std::wstring(L"Venus") );
+    std::string u8planet = u8"Mars"s;
     assert( u8planet == std::string(u8"Mars") );
+    std::u16string u16planet = u"Juiter"s;
     assert( u16planet == std::u16string(u"Juiter") );
+    std::u32string u32planet = U"Saturn"s;
     assert( u32planet == std::u32string(U"Saturn") );
   }
   {
@@ -223,17 +222,16 @@ main()
     std::cout << "sizeof(ili) = " << sizeof(ili) << '\n';
 
     std::complex<float> j1 = 1.0i_f;
-    std::complex<float> k1 = 1i_f;
-    std::complex<double> j2 = 2.0i;
-    std::complex<double> k2 = 2i;
-    std::complex<long double> j4 = 4.0il;
-    std::complex<long double> k4 = 4il;
-
     assert( j1 == std::complex<float>(0.0F, 1.0F) );
+    std::complex<float> k1 = 1i_f;
     assert( k1 == std::complex<float>(0.0F, 1.0F) );
+    std::complex<double> j2 = 2.0i;
     assert( j2 == std::complex<double>(0.0, 2.0) );
+    std::complex<double> k2 = 2i;
     assert( k2 == std::complex<double>(0.0, 2.0) );
+    std::complex<long double> j4 = 4.0il;
     assert( j4 == std::complex<long double>(0.0L, 4.0L) );
+    std::complex<long double> k4 = 4il;
     assert( k4 == std::complex<long double>(0.0L, 4.0L) );
   }
   {
@@ -289,36 +287,35 @@ main()
     std::cout << "sizeof(ftn) = " << sizeof(ftn) << '\n';
     std::cout << "typeid(ftn) = " << demangle(typeid(ftn).name()) << '\n';
 
-/*
     auto jiffy = 23ns;
+    assert( jiffy == std::chrono::nanoseconds(23) );
     auto fjiffy = 23.0ns;
-    auto blip = 14.0us;
-    auto fblip = 14us;
+    assert( (fjiffy == std::chrono::duration<long double, std::nano>(23.0L)) );
+    auto blip = 14us;
+    assert( blip == std::chrono::microseconds(14) );
+    auto fblip = 14.0us;
+    assert( (fblip == std::chrono::duration<long double, std::micro>(14.0L)) );
     auto bit = 77ms;
+    assert( bit == std::chrono::milliseconds(77) );
     auto fbit = 77.0ms;
+    assert( (fbit == std::chrono::duration<long double, std::milli>(77.0L)) );
     auto warmup = 33s;
+    assert( warmup == std::chrono::seconds(33) );
     auto fwarmup = 33.0s;
+    assert( (fwarmup == std::chrono::duration<long double, std::ratio<1,1>>(33.0L)) );
     auto classtime = 50min;
+    assert( classtime == std::chrono::minutes(50) );
     auto fclasstime = 50.0min;
+    assert( (fclasstime == std::chrono::duration<long double, std::ratio<60,1>>(50.0L)) );
     auto longtime = 1h + 30min;
+    assert( longtime == std::chrono::minutes(90) );
     auto flongtime = 1.0h + 30.0min;
+    assert( (flongtime == std::chrono::duration<long double, std::ratio<3600,1>>(1.0L)
+			+ std::chrono::duration<long double, std::ratio<60,1>>(30.0L)) );
+    assert( (flongtime == std::chrono::duration<long double, std::ratio<60,1>>(90.0L)) );
     auto workday = 8h;
+    assert( workday == std::chrono::hours(8) );
     auto fworkday = 8.0h;
-
-    assert( jiffy == 23 * std::chrono::nanoseconds );
-    assert( fjiffy == 23.0 * std::chrono::nanoseconds );
-    assert( blip == 14 * std::chrono::microseconds );
-    assert( fblip == 14.0 * std::chrono::microseconds );
-    assert( bit == 77 * std::chrono::milliseconds );
-    assert( fbit == 77.0 * std::chrono::milliseconds );
-    assert( warmup == 33 * std::chrono::seconds );
-    assert( fwarmup == 33.0 * std::chrono::seconds );
-    assert( classtime == 50 * std::chrono::minutes );
-    assert( fclasstime == 50.0 * std::chrono::minutes );
-    assert( longtime == 90 * std::chrono::minutes );
-    assert( flongtime == 90.0 * std::chrono::minutes );
-    assert( workday == 8 * std::chrono::hours );
-    assert( fworkday == 8.0 * std::chrono::hours );
-*/
+    assert( (fworkday == std::chrono::duration<long double, std::ratio<3600,1>>(8.0L)) );
   }
 }
