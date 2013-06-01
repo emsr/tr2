@@ -382,7 +382,7 @@ namespace __select_int {
 	typename conditional
 	<
 	  _Val <= static_cast<unsigned long long>
-		    (std::numeric_limits<_IntType>::max()),
+		    (numeric_limits<_IntType>::max()),
 	  _IntType,
 	  typename _Select_int_base<_Val, _Ints...>::value_type
 	>::type,
