@@ -1,100 +1,149 @@
+// /home/ed/bin/bin/g++ -std=c++11 -o quoted quoted.cpp
 
+#include <string>
+#include <cstddef>
+#include <iostream>
 
 namespace std
 {
 
   namespace __detail {
-    template <class _CharT, class _Traits, class _Allocator>
-      struct _Quoted_string
+
+    template<typename _String, typename _CharT>
+      struct _Quoted_string;
+
+    template<typename _CharT>
+      struct _Quoted_string<const _CharT*, _CharT>
       {
-	_Quoted_string(const basic_string<_CharT, _Traits, _Allocator>& __str)
-	: __string{__str}
+	_Quoted_string(const _CharT* __str, _CharT __del, _CharT __esc)
+	: __string{__str}, __delim{__del}, __escape{__esc}
 	{ }
 
-	basic_string<_CharT, _Traits, _Allocator> __string;
+	_Quoted_string&
+	operator=(_Quoted_string&) = delete;
+
+	const _CharT* __string;
+	_CharT __delim;
+	_CharT __escape;
       };
+
+    template<typename _CharT, typename _Traits, typename _Alloc>
+      struct _Quoted_string<const basic_string<_CharT, _Traits, _Alloc>&, _CharT>
+      {
+	_Quoted_string(const basic_string<_CharT, _Traits, _Alloc>& __str,
+		       _CharT __del, _CharT __esc)
+	: __string{__str}, __delim{__del}, __escape{__esc}
+	{ }
+
+	const basic_string<_CharT, _Traits, _Alloc>& __string;
+	_CharT __delim;
+	_CharT __escape;
+      };
+
+    template<typename _CharT, typename _Traits, typename _Alloc>
+      struct _Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>
+      {
+	_Quoted_string(const basic_string<_CharT, _Traits, _Alloc>& __str,
+		       _CharT __del, _CharT __esc)
+	: __string{__str}, __delim{__del}, __escape{__esc}
+	{ }
+
+	basic_string<_CharT, _Traits, _Alloc>& __string;
+	_CharT __delim;
+	_CharT __escape;
+      };
+
   } // namespace __detail
 
-  template <class _CharT>
-    T11
+  template<typename _CharT>
+    __detail::_Quoted_string<const _CharT*, _CharT>
     quoted(const _CharT* __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
+      return __detail::_Quoted_string<const _CharT*, _CharT>(
+		__str, __delim, __escape);
     }
 
-  template <class _CharT, class _Traits, class _Allocator>
-    T12
-    quoted(const basic_string<_CharT, _Traits, _Allocator>& __str,
+  template<typename _CharT, typename _Traits, typename _Alloc>
+    __detail::_Quoted_string<const basic_string<_CharT, _Traits, _Alloc>&, _CharT>
+    quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
+      return __detail::_Quoted_string<const basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
+		__str, __delim, __escape);
     }
 
-  template <class _CharT, class _Traits, class _Allocator>
-    T13
-    quoted(basic_string<_CharT, _Traits, _Allocator>& str,
+  template<typename _CharT, typename _Traits, typename _Alloc>
+    __detail::_Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>
+    quoted(basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
+      return __detail::_Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
+		__str, __delim, __escape);
     }
 
   //  Hacked from filesystem (templatized, etc.)
-  template <class _CharT, class _Traits>
+  template<typename _CharT, typename _Traits, typename _String>
     std::basic_ostream<_CharT, _Traits>&
     operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-	       const path& pth)
+	       const __detail::_Quoted_string<_String, _CharT>& __str)
     {
-      std::size_t __ppos = 0;
-      __os << __delim;
-      do
+      __os << __str.__delim;
+      for (auto& __c : __str)
 	{
-	  std::size_t __pos = pth.string().find(__delim, ppos);
-	  __os << pth.string().substr(ppos, pos - ppos);
-	  if (pos == std::string::npos)
-	    break;
-	  else
-	    {
-	      __os << __escape << '"';
-              __ppos = __pos + 1;
-	    }
+	  if (__c == __str.__delim || __c == __str.__escape)
+	    __os << __str.__escape;
+	  __os << __c;
 	}
-      while (true);
-      __os << __delim;
+      __os << __str.__delim;
 
       return __os;
     }
 
-  template <class _CharT, class _Traits>
+  template<typename _CharT, typename _Traits, typename _Alloc>
     std::basic_istream<_CharT, _Traits>&
     operator>>(std::basic_istream<_CharT, _Traits>& __is,
-	       path& pth)
+	       __detail::_Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>& __str)
     {
-      pth.clear();
-      std::string pathname;
-      char __c;
-      do
-	__is.get(__c);
-      while (__c != __delim);
+      __str.__string.clear();
+
+      _CharT __c;
       do
 	{
-	  __is.get(__c);
+	  __is >> __c;
 	  if (!__is.good())
 	    break;
-	  if (__c == __escape)
+	}
+      while (__c != __str.__delim);
+      do
+	{
+	  __is >> __c;
+	  if (!__is.good())
+	    break;
+	  if (__c == __str.__escape)
 	    {
-	      __is.get(__c);
+	      __is >> __c;
 	      if (!__is.good())
 		break;
-	      pathname += static_cast<char>(__c);
+	      __str.__string += __c;
 	    }
-	  else if (__c == __delim)
+	  else if (__c == __str.__delim)
 	    break;
 	  else
-	    pathname += static_cast<char>(__c);
+	    __str.__string += __c;
 	}
       while (true);
-
-      pth = path(pathname);
 
       return __is;
     }
 
 } // namespace std
+
+int
+main()
+{
+  std::cout << "Enter quoted string: ";
+  std::string quote;
+  std::cin >> std::quoted(quote);
+  std::cout << "Quoted string: " << quote;
+}

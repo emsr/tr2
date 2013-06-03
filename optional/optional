@@ -2,6 +2,7 @@
 //  http://www.open-std.org/JTC1/sc22/WG21/docs/papers/2013/n3527.html
 
 //  Implementation: https://github.com/akrzemi1/Optional/
+//  Implementation: https://github.com/akrzemi1/Optional/blob/master/optional.hpp
 
 #include <stdexcept>
 #include <memory>
@@ -10,23 +11,27 @@ namespace std {
 
   // 20.5.4, optional for object types
   template <class T>
-  class optional;
+    class optional;
 
   // 20.5.5, In-place construction
 
-  struct emplace_t
+  struct in_place_t
   { };
 
-  constexpr emplace_t emplace{};
+  constexpr in_place_t in_place{};
 
   // 20.5.6, Disengaged state indicator
 
   struct nullopt_t
   {
-    //see below
+    struct _Dummy
+    { };
+
+    constexpr nullopt_t(_Dummy)
+    { };
   };
 
-  constexpr nullopt_t nullopt{}; // unspecified
+  constexpr nullopt_t nullopt{nullopt_t::_Dummy{}}; // unspecified
 
   // 20.5.7, Class bad_optional_access
 
@@ -49,32 +54,16 @@ namespace std {
   template<typename _Tp>
     constexpr bool
     operator==(const optional<_Tp>& __x, const optional<_Tp>& __y)
-    { return ; }
-
-  template<typename _Tp>
-    constexpr bool
-    operator!=(const optional<_Tp>& __x, const optional<_Tp>& __y)
-    { return !(__x == __y); }
+    {
+      return bool(__x) != bool(__y)
+	   ? false
+	   : bool(__x) == false ? true : *__x == *__y;
+    }
 
   template<typename _Tp>
     constexpr bool
     operator<(const optional<_Tp>& __x, const optional<_Tp>& __y)
-    { return ; }
-
-  template<typename _Tp>
-    constexpr bool
-    operator>(const optional<_Tp>& __x, const optional<_Tp>& __y)
-    { return __y < __x; }
-
-  template<typename _Tp>
-    constexpr bool
-    operator<=(const optional<_Tp>& __x, const optional<_Tp>& __y)
-    { return !(__y < __x); }
-
-  template<typename _Tp>
-    constexpr bool
-    operator>=(const optional<_Tp>& __x, const optional<_Tp>& __y)
-    { return !(__x < __y); }
+    { return (!__y) ? false : (!__x) ? true : *__x < *__y; }
 
   // 20.5.9, Comparison with nullopt
 
@@ -90,16 +79,6 @@ namespace std {
 
   template<typename _Tp>
     constexpr bool
-    operator!=(const optional<_Tp>& __opt, nullopt_t) noexcept
-    { return bool(__opt); }
-
-  template<typename _Tp>
-    constexpr bool
-    operator!=(nullopt_t, const optional<_Tp>& __opt) noexcept
-    { return bool(__opt); }
-
-  template<typename _Tp>
-    constexpr bool
     operator<(const optional<_Tp>&, nullopt_t) noexcept
     { return false; }
 
@@ -107,36 +86,6 @@ namespace std {
     constexpr bool
     operator<(nullopt_t, const optional<_Tp>& __opt) noexcept
     { return bool(__opt); }
-
-  template<typename _Tp>
-    constexpr bool
-    operator<=(const optional<_Tp>& __opt, nullopt_t) noexcept
-    { return !__opt; }
-
-  template<typename _Tp>
-    constexpr bool
-    operator<=(nullopt_t, const optional<_Tp>&) noexcept
-    { return true; }
-
-  template<typename _Tp>
-    constexpr bool
-    operator>(const optional<_Tp>& __opt, nullopt_t) noexcept
-    { return bool(__opt); }
-
-  template<typename _Tp>
-    constexpr bool
-    operator>(nullopt_t, const optional<_Tp>&) noexcept
-    { return false; }
-
-  template<typename _Tp>
-    constexpr bool
-    operator>=(const optional<_Tp>& __opt, nullopt_t) noexcept
-    { return true; }
-
-  template<typename _Tp>
-    constexpr bool
-    operator>=(nullopt_t, const optional<_Tp>& __opt) noexcept
-    { return !__opt; }
 
   // 20.5.10, Comparison with _Tp
 
@@ -152,16 +101,6 @@ namespace std {
 
   template<typename _Tp>
     bool
-    operator!=(const optional<_Tp>& __opt, const _Tp& __val) noexcept
-    { return bool(__opt) ? *__opt != __val : true; }
-
-  template<typename _Tp>
-    bool
-    operator!=(const _Tp& __val, const optional<_Tp>& __opt) noexcept
-    { return bool(__opt) ? __val != *__opt : true; }
-
-  template<typename _Tp>
-    bool
     operator<(const optional<_Tp>& __opt, const _Tp& __val) noexcept
     { return bool(__opt) ? *__opt < __val : true; }
 
@@ -169,36 +108,6 @@ namespace std {
     bool
     operator<(const _Tp& __val, const optional<_Tp>& __opt) noexcept
     { return bool(__opt) ? __val < *__opt : false; }
-
-  template<typename _Tp>
-    bool
-    operator<=(const optional<_Tp>& __opt, const _Tp& __val) noexcept
-    { return bool(__opt) ? *__opt <= __val : true; }
-
-  template<typename _Tp>
-    bool
-    operator<=(const _Tp& __val, const optional<_Tp>& __opt) noexcept
-    { return bool(__opt) ? __val <= *__opt : false; }
-
-  template<typename _Tp>
-    bool
-    operator>(const optional<_Tp>& __opt, const _Tp& __val) noexcept
-    { return bool(__opt) ? *__opt > __val : false; }
-
-  template<typename _Tp>
-    bool
-    operator>(const _Tp& __val, const optional<_Tp>& __opt) noexcept
-    { return bool(__opt) ? __val > *__opt : true; }
-
-  template<typename _Tp>
-    bool
-    operator>=(const optional<_Tp>& __opt, const _Tp& __val) noexcept
-    { return bool(__opt) ? *__opt >= __val : false; }
-
-  template<typename _Tp>
-    bool
-    operator>=(const _Tp& __val, const optional<_Tp>& __opt) noexcept
-    { return bool(__opt) ? __val >= *__opt : true; }
 
   // 20.5.11, Specialized algorithms
 
@@ -218,8 +127,10 @@ namespace std {
 
   // 20.5.12, hash support
 
-  template<typename _Tp> struct hash;
-  template<typename _Tp> struct hash<optional<_Tp>>;
+  template<typename _Tp>
+    struct hash;
+  template<typename _Tp>
+    struct hash<optional<_Tp>>;
 
   template<typename _Tp>
     class optional
@@ -262,11 +173,11 @@ namespace std {
 
       template<typename... _Args>
 	constexpr explicit
-	optional(emplace_t, _Args&&...);
+	optional(in_place_t, _Args&&...);
 
       template<typename _Up, typename... _Args>
 	constexpr explicit
-	optional(emplace_t, initializer_list<_Up>, _Args&&...);
+	optional(in_place_t, initializer_list<_Up>, _Args&&...);
 
       // 20.5.4.2, destructor
 
