@@ -8,3 +8,13 @@ specfun/test_specfun
 specfun/trigint_error
 
 literals/test_suffixen
+
+optional/test_optional
+
+help
+help2
+help3
+help3.cpp.junk
+quoted
+quoted.cpp.bck
+quoted.cpp.junk
