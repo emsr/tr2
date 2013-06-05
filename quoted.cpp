@@ -26,6 +26,80 @@ namespace std
 	_CharT __escape;
       };
 
+    template<typename _CharT, typename _Traits>
+      std::basic_ostream<_CharT, _Traits>&
+      operator<<(std::basic_ostream<_CharT, _Traits>& __os,
+		 const _Quoted_string<const _CharT*, _CharT>& __str)
+      {
+	__os << __str.__delim;
+	for (const _CharT* __c = __str.__string; *__c; ++__c)
+	  {
+	    if (*__c == __str.__delim || *__c == __str.__escape)
+	      __os << __str.__escape;
+	    __os << *__c;
+	  }
+	__os << __str.__delim;
+
+	return __os;
+      }
+
+    template<typename _CharT, typename _Traits, typename _String>
+      std::basic_ostream<_CharT, _Traits>&
+      operator<<(std::basic_ostream<_CharT, _Traits>& __os,
+		 const _Quoted_string<_String, _CharT>& __str)
+      {
+	__os << __str.__delim;
+	for (auto& __c : __str.__string)
+	  {
+	    if (__c == __str.__delim || __c == __str.__escape)
+	      __os << __str.__escape;
+	    __os << __c;
+	  }
+	__os << __str.__delim;
+
+	return __os;
+      }
+
+    template<typename _CharT, typename _Traits, typename _Alloc>
+      std::basic_istream<_CharT, _Traits>&
+      operator>>(std::basic_istream<_CharT, _Traits>& __is,
+		 const _Quoted_string<
+				  basic_string<_CharT, _Traits, _Alloc>&,
+				  _CharT>& __str)
+      {
+	__str.__string.clear();
+
+	_CharT __c;
+	__is >> __c;
+	if (__c != __str.__delim)
+	  {
+	    __is.unget();
+	    __is >> __str.__string;
+	    return __is;
+	  }
+	std::ios_base::fmtflags __flags
+	  = __is.flags(__is.flags() & ~std::ios_base::skipws);
+	do
+	  {
+	    __is >> __c;
+	    if (!__is.good())
+	      break;
+	    if (__c == __str.__escape)
+	      {
+		__is >> __c;
+		if (!__is.good())
+		  break;
+	      }
+	    else if (__c == __str.__delim)
+	      break;
+	    __str.__string += __c;
+	  }
+	while (true);
+	__is.setf(__flags);
+
+	return __is;
+      }
+
   } // namespace __detail
 
   template<typename _CharT>
@@ -56,80 +130,6 @@ namespace std
       return __detail::_Quoted_string<
 			basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
 				__str, __delim, __escape);
-    }
-
-  template<typename _CharT, typename _Traits>
-    std::basic_ostream<_CharT, _Traits>&
-    operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-	       const __detail::_Quoted_string<const _CharT*, _CharT>& __str)
-    {
-      __os << __str.__delim;
-      for (const _CharT* __c = __str.__string; *__c; ++__c)
-	{
-	  if (*__c == __str.__delim || *__c == __str.__escape)
-	    __os << __str.__escape;
-	  __os << *__c;
-	}
-      __os << __str.__delim;
-
-      return __os;
-    }
-
-  template<typename _CharT, typename _Traits, typename _String>
-    std::basic_ostream<_CharT, _Traits>&
-    operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-	       const __detail::_Quoted_string<_String, _CharT>& __str)
-    {
-      __os << __str.__delim;
-      for (auto& __c : __str.__string)
-	{
-	  if (__c == __str.__delim || __c == __str.__escape)
-	    __os << __str.__escape;
-	  __os << __c;
-	}
-      __os << __str.__delim;
-
-      return __os;
-    }
-
-  template<typename _CharT, typename _Traits, typename _Alloc>
-    std::basic_istream<_CharT, _Traits>&
-    operator>>(std::basic_istream<_CharT, _Traits>& __is,
-	       const __detail::_Quoted_string<
-				basic_string<_CharT, _Traits, _Alloc>&,
-				_CharT>& __str)
-    {
-      __str.__string.clear();
-
-      _CharT __c;
-      __is >> __c;
-      if (__c != __str.__delim)
-	{
-	  __is.unget();
-	  __is >> __str.__string;
-	  return __is;
-	}
-      std::ios_base::fmtflags __flags
-	= __is.flags(__is.flags() & ~std::ios_base::skipws);
-      do
-	{
-	  __is >> __c;
-	  if (!__is.good())
-	    break;
-	  if (__c == __str.__escape)
-	    {
-	      __is >> __c;
-	      if (!__is.good())
-		break;
-	    }
-	  else if (__c == __str.__delim)
-	    break;
-	  __str.__string += __c;
-	}
-      while (true);
-      __is.setf(__flags);
-
-      return __is;
     }
 
 } // namespace std
