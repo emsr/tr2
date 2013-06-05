@@ -11,11 +11,20 @@ namespace std
 
   namespace __detail {
 
+    /**
+     * @brief Struct for delimited strings.
+     *        The left and right delimiters can be different.
+     */
     template<typename _String, typename _CharT>
       struct _Quoted_string
       {
 	_Quoted_string(_String __str, _CharT __del, _CharT __esc)
-	: __string(__str), __delim{__del}, __escape{__esc}
+	: __string(__str), __delim{__del}, __escape{__esc}, __delim2{__del}
+	{ }
+
+	_Quoted_string(_String __str, _CharT __del, _CharT __esc,
+		       _CharT __del2)
+	: __string(__str), __delim{__del}, __escape{__esc}, __delim2{__del2}
 	{ }
 
 	_Quoted_string&
@@ -24,8 +33,13 @@ namespace std
 	_String __string;
 	_CharT __delim;
 	_CharT __escape;
+	_CharT __delim2;
       };
 
+    /**
+     * @brief Inserter for delimited strings.
+     *        The left and right delimiters can be different.
+     */
     template<typename _CharT, typename _Traits>
       std::basic_ostream<_CharT, _Traits>&
       operator<<(std::basic_ostream<_CharT, _Traits>& __os,
@@ -38,11 +52,15 @@ namespace std
 	      __os << __str.__escape;
 	    __os << *__c;
 	  }
-	__os << __str.__delim;
+	__os << __str.__delim2;
 
 	return __os;
       }
 
+    /**
+     * @brief Inserter for delimited strings.
+     *        The left and right delimiters can be different.
+     */
     template<typename _CharT, typename _Traits, typename _String>
       std::basic_ostream<_CharT, _Traits>&
       operator<<(std::basic_ostream<_CharT, _Traits>& __os,
@@ -55,17 +73,20 @@ namespace std
 	      __os << __str.__escape;
 	    __os << __c;
 	  }
-	__os << __str.__delim;
+	__os << __str.__delim2;
 
 	return __os;
       }
 
+    /**
+     * @brief Extractor for delimited strings.
+     *        The left and right delimiters can be different.
+     */
     template<typename _CharT, typename _Traits, typename _Alloc>
       std::basic_istream<_CharT, _Traits>&
       operator>>(std::basic_istream<_CharT, _Traits>& __is,
-		 const _Quoted_string<
-				  basic_string<_CharT, _Traits, _Alloc>&,
-				  _CharT>& __str)
+		 const _Quoted_string<basic_string<_CharT, _Traits, _Alloc>&,
+				      _CharT>& __str)
       {
 	__str.__string.clear();
 
@@ -90,7 +111,7 @@ namespace std
 		if (!__is.good())
 		  break;
 	      }
-	    else if (__c == __str.__delim)
+	    else if (__c == __str.__delim2)
 	      break;
 	    __str.__string += __c;
 	  }
@@ -102,19 +123,25 @@ namespace std
 
   } // namespace __detail
 
+  /**
+   * @brief Manipulator for quoted strings.
+   * @param __str    String to quote.
+   * @param __delim  Character to quote string with.
+   * @param __escape Escape character to escape itself or quote character.
+   */
   template<typename _CharT>
     __detail::_Quoted_string<const _CharT*, _CharT>
-    quoted(const _CharT* __str,
+    inline quoted(const _CharT* __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
-      return __detail::_Quoted_string<const _CharT*, _CharT>(
-		__str, __delim, __escape);
+      return __detail::_Quoted_string<const _CharT*, _CharT>(__str, __delim,
+							     __escape);
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
     __detail::_Quoted_string<
 		const basic_string<_CharT, _Traits, _Alloc>&, _CharT>
-    quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
+    inline quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
       return __detail::_Quoted_string<
@@ -124,7 +151,7 @@ namespace std
 
   template<typename _CharT, typename _Traits, typename _Alloc>
     __detail::_Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>
-    quoted(basic_string<_CharT, _Traits, _Alloc>& __str,
+    inline quoted(basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
       return __detail::_Quoted_string<
@@ -133,6 +160,77 @@ namespace std
     }
 
 } // namespace std
+
+namespace __gnu_cxx
+{
+
+  template<char _Left>
+    struct delim_pair
+    {
+      constexpr static char left = _Left;
+      constexpr static char right = _Left;
+    };
+
+  template<>
+    struct delim_pair<'('>
+    {
+      constexpr static char left = '(';
+      constexpr static char right = ')';
+    };
+
+  template<>
+    struct delim_pair<'['>
+    {
+      constexpr static char left = '[';
+      constexpr static char right = ']';
+    };
+
+  template<>
+    struct delim_pair<'{'>
+    {
+      constexpr static char left = '{';
+      constexpr static char right = '}';
+    };
+
+  template<>
+    struct delim_pair<'<'>
+    {
+      constexpr static char left = '<';
+      constexpr static char right = '>';
+    };
+
+  template<typename _CharT>
+    std::__detail::_Quoted_string<const _CharT*, _CharT>
+    delimited(const _CharT* __str,
+	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'))
+    {
+      return std::__detail::_Quoted_string<const _CharT*, _CharT>(
+		__str, __delim, __escape);
+    }
+
+  template<typename _CharT, typename _Traits, typename _Alloc>
+    std::__detail::_Quoted_string<
+		const std::basic_string<_CharT, _Traits, _Alloc>&, _CharT>
+    delimited(const std::basic_string<_CharT, _Traits, _Alloc>& __str,
+	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'))
+    {
+      return std::__detail::_Quoted_string<
+		const std::basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
+				__str, __delim, __escape);
+    }
+
+  template<typename _CharT, typename _Traits, typename _Alloc>
+    std::__detail::_Quoted_string<std::basic_string<_CharT, _Traits, _Alloc>&,
+				  _CharT>
+    delimited(std::basic_string<_CharT, _Traits, _Alloc>& __str,
+	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'))
+    {
+      return std::__detail::_Quoted_string<
+			std::basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
+				__str, __delim, __escape);
+    }
+
+} // namespace __gnu_cxx
 
 int
 main()
@@ -187,4 +285,6 @@ main()
   std::string test;
   ss >> std::quoted(test);
   assert(test == "Alpha");
+
+  //  Test delimited string extension.
 }
