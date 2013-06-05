@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -fdiagnostics-color=auto -o quoted quoted.cpp
+// /home/ed/bin/bin/g++ -std=c++1y -fdiagnostics-color=auto -o quoted quoted.cpp
 
 #include <string>
 #include <cstddef>
@@ -92,6 +92,8 @@ namespace std
 
 	_CharT __c;
 	__is >> __c;
+	if (!__is.good())
+	  return __is;
 	if (__c != __str.__delim)
 	  {
 	    __is.unget();
@@ -130,8 +132,8 @@ namespace std
    * @param __escape Escape character to escape itself or quote character.
    */
   template<typename _CharT>
-    __detail::_Quoted_string<const _CharT*, _CharT>
-    inline quoted(const _CharT* __str,
+    inline auto
+    quoted(const _CharT* __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
       return __detail::_Quoted_string<const _CharT*, _CharT>(__str, __delim,
@@ -139,9 +141,8 @@ namespace std
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
-    __detail::_Quoted_string<
-		const basic_string<_CharT, _Traits, _Alloc>&, _CharT>
-    inline quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
+    inline auto
+    quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
       return __detail::_Quoted_string<
@@ -150,8 +151,8 @@ namespace std
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
-    __detail::_Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>
-    inline quoted(basic_string<_CharT, _Traits, _Alloc>& __str,
+    inline auto
+    quoted(basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
       return __detail::_Quoted_string<
@@ -200,34 +201,34 @@ namespace __gnu_cxx
     };
 
   template<typename _CharT>
-    std::__detail::_Quoted_string<const _CharT*, _CharT>
-    delimited(const _CharT* __str,
-	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'))
+    auto
+    delimited(const _CharT* __str, _CharT __delim = _CharT('('),
+	      _CharT __escape = _CharT('\\'), _CharT __delim2 = _CharT(')'))
     {
       return std::__detail::_Quoted_string<const _CharT*, _CharT>(
-		__str, __delim, __escape);
+		__str, __delim, __escape, __delim2);
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
-    std::__detail::_Quoted_string<
-		const std::basic_string<_CharT, _Traits, _Alloc>&, _CharT>
+    auto
     delimited(const std::basic_string<_CharT, _Traits, _Alloc>& __str,
-	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'))
+	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'),
+	      _CharT __delim2 = _CharT(')'))
     {
       return std::__detail::_Quoted_string<
 		const std::basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
-				__str, __delim, __escape);
+				__str, __delim, __escape, __delim2);
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
-    std::__detail::_Quoted_string<std::basic_string<_CharT, _Traits, _Alloc>&,
-				  _CharT>
+    auto
     delimited(std::basic_string<_CharT, _Traits, _Alloc>& __str,
-	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'))
+	      _CharT __delim = _CharT('('), _CharT __escape = _CharT('\\'),
+	      _CharT __delim2 = _CharT(')'))
     {
       return std::__detail::_Quoted_string<
 			std::basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
-				__str, __delim, __escape);
+				__str, __delim, __escape, __delim2);
     }
 
 } // namespace __gnu_cxx
@@ -287,4 +288,12 @@ main()
   assert(test == "Alpha");
 
   //  Test delimited string extension.
+  ss.seekg(0);
+  ss.seekp(0);
+  ss.clear();
+  ss << __gnu_cxx::delimited(original);
+  std::cout << "original: " << original << '\n';
+  std::cout << "__gnu_cxx::delimited(original): " << __gnu_cxx::delimited(original) << '\n';
+  ss >> __gnu_cxx::delimited(round_trip);
+  std::cout << "round_trip: " << round_trip << '\n';
 }
