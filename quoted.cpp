@@ -38,12 +38,14 @@ namespace std
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
-    __detail::_Quoted_string<const basic_string<_CharT, _Traits, _Alloc>&, _CharT>
+    __detail::_Quoted_string<
+		const basic_string<_CharT, _Traits, _Alloc>&, _CharT>
     quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
-      return __detail::_Quoted_string<const basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
-		__str, __delim, __escape);
+      return __detail::_Quoted_string<
+			const basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
+				__str, __delim, __escape);
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
@@ -51,11 +53,11 @@ namespace std
     quoted(basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
-      return __detail::_Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
-		__str, __delim, __escape);
+      return __detail::_Quoted_string<
+			basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
+				__str, __delim, __escape);
     }
 
-  //  Hacked from filesystem (templatized, etc.)
   template<typename _CharT, typename _Traits>
     std::basic_ostream<_CharT, _Traits>&
     operator<<(std::basic_ostream<_CharT, _Traits>& __os,
@@ -93,19 +95,22 @@ namespace std
   template<typename _CharT, typename _Traits, typename _Alloc>
     std::basic_istream<_CharT, _Traits>&
     operator>>(std::basic_istream<_CharT, _Traits>& __is,
-	       const __detail::_Quoted_string<basic_string<_CharT, _Traits, _Alloc>&, _CharT>& __str)
+	       const __detail::_Quoted_string<
+				basic_string<_CharT, _Traits, _Alloc>&,
+				_CharT>& __str)
     {
       __str.__string.clear();
 
       _CharT __c;
-      do
+      __is >> __c;
+      if (__c != __str.__delim)
 	{
-	  __is >> __c;
-	  if (!__is.good())
-	    break;
+	  __is.unget();
+	  __is >> __str.__string;
+	  return __is;
 	}
-      while (__c != __str.__delim);
-      __is >> std::noskipws;
+      std::ios_base::fmtflags __flags
+	= __is.flags(__is.flags() & ~std::ios_base::skipws);
       do
 	{
 	  __is >> __c;
@@ -122,6 +127,7 @@ namespace std
 	  __str.__string += __c;
 	}
       while (true);
+      __is.setf(__flags);
 
       return __is;
     }
@@ -156,4 +162,29 @@ main()
   std::cout << "Quoted string: " << quote << '\n';
 
   std::cout << "Quoted string: " << std::quoted("\"There's a dead bishop on the landing!\"") << '\n';
+
+  //  Test skipws correctness.
+  ss.seekg(0);
+  ss.seekp(0);
+  ss.clear();
+  ss << std::quoted("Hello Goodbye") << ' ' << 1 << ' ' << 2;
+  std::cout << "ss.str(): " << ss.str() << '\n';
+  std::string song;
+  int thing1, thing2;
+  ss >> std::quoted(song) >> thing1 >> thing2;
+  std::cout << "song: " << song << '\n';
+  std::cout << "thing1: " << thing1 << '\n';
+  std::cout << "thing2: " << thing2 << '\n';
+  assert(song == "Hello Goodbye");
+  assert(thing1 == 1);
+  assert(thing2 == 2);
+
+  //  Test read of unquoted string.
+  ss.seekg(0);
+  ss.seekp(0);
+  ss.clear();
+  ss << "Alpha Omega";
+  std::string test;
+  ss >> std::quoted(test);
+  assert(test == "Alpha");
 }
