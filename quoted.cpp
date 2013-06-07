@@ -18,6 +18,10 @@ namespace std
     template<typename _String, typename _CharT>
       struct _Quoted_string
       {
+	static_assert(is_reference<_String>::value
+		   || is_pointer<_String>::value,
+		      "String type must be pointer or reference");
+
 	_Quoted_string(_String __str, _CharT __del, _CharT __esc)
 	: __string(__str), __delim{__del}, __escape{__esc}, __delim2{__del}
 	{ }
@@ -145,6 +149,7 @@ namespace std
     quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
+cout << "\n---------------- BOO ----------------\n";
       return __detail::_Quoted_string<
 			const basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
 				__str, __delim, __escape);
@@ -233,6 +238,12 @@ namespace __gnu_cxx
 
 } // namespace __gnu_cxx
 
+void
+error(const std::string& message)
+{
+  std::cerr << "\n  **  Error: " << std::quoted(message) << "  **\n";
+}
+
 int
 main()
 {
@@ -296,4 +307,7 @@ main()
   std::cout << "__gnu_cxx::delimited(original): " << __gnu_cxx::delimited(original) << '\n';
   ss >> __gnu_cxx::delimited(round_trip);
   std::cout << "round_trip: " << round_trip << '\n';
+
+  error(original);
+  error("My biscuits are burnin'!");
 }
