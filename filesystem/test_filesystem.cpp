@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -g -std=c++11 -o test_filesystem test_filesystem.cpp filesystem.cc unique_path.cc
+// /home/ed/bin/bin/g++ -g -std=c++1y -o test_filesystem test_filesystem.cpp filesystem.cc unique_path.cc
 
 // LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem
 

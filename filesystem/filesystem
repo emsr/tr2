@@ -345,9 +345,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     // Assignments.
 
-    path& operator=(const path& pth);
+    path& operator=(const path& pth) = default;
 
-    path& operator=(path&& pth) noexcept;
+    path& operator=(path&& pth) /*noexcept*/ = default;
 
     template<typename _Source>
       path& operator=(const _Source& __source)
@@ -553,10 +553,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     string() const
     { return this->_M_pathname; }
 
-    std::wstring wstring() const;
-    std::string u8string() const;
-    std::u16string u16string() const;
-    std::u32string u32string() const;
+    std::wstring wstring() const { return L"FIXME!!!"; };
+    std::string u8string() const { return u8"FIXME!!!"; };
+    std::u16string u16string() const { return u"FIXME!!!"; };
+    std::u32string u32string() const { return U"FIXME!!!"; };
 
     // Generic format observers.
 

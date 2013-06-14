@@ -35,6 +35,7 @@
 #include <fstream>
 #include <stack>  //  for recursive_directory_iterator
 #include <vector>  //  for recursive_directory_iterator
+#include <iomanip> // for quoted
 
 namespace std {
 namespace tbd {
@@ -53,11 +54,11 @@ path::path(path&&) noexcept = default;
 
 path::~path() = default;
 
-path&
-path::operator=(const path& pth) = default;
+//path&
+//path::operator=(const path& pth) = default;
 
-path&
-path::operator=(path&& pth) noexcept = default;
+//path&
+//path::operator=(path&& pth) noexcept = default;
 
 namespace __detail
 {
@@ -723,59 +724,19 @@ lexicographical_compare(path::iterator first1, path::iterator last1,
 
 std::ostream&
 operator<<(std::ostream& os, const path& pth)
-{
-  std::size_t ppos = 0;
-  os << '"';
-  do
-    {
-      std::size_t pos = pth.string().find('"', ppos);
-      os << pth.string().substr(ppos, pos - ppos);
-      if (pos == std::string::npos)
-	break;
-      else
-	{
-	  os << '&' << '"';
-          ppos = pos + 1;
-	}
-    }
-  while (true);
-  os << '"';
-
-  return os;
-}
+{ return os << std::quoted(pth.string(), '"', '&'); }
 
 std::wostream&
 operator<<(std::wostream& os, const path& pth)
-{
-  ////os << '"' << pth.wstring() << '"';  FIXME!!!
-  return os;
-}
+{ return os << std::quoted(pth.wstring(), L'"', L'&'); }
 
 std::istream&
 operator>>(std::istream& is, path& pth)
 {
   pth.clear();
   std::string pathname;
-  char c;
-  do
-    is.get(c);
-  while (c != '"');
-  do
-    {
-      is.get(c);
-      if (c == '&')
-	{
-	  // TODO : Can you escape anything?
-	  is.get(c);
-	  //if (c == '&' || c == '"') 
-	    pathname += static_cast<char>(c);
-	}
-      else if (c == '"')
-	break;
-      else
-	pathname += static_cast<char>(c);
-    }
-  while (true);
+
+  is >> std::quoted(pathname, '"', '&');
 
   pth = path(pathname);
 
@@ -787,8 +748,11 @@ operator>>(std::wistream& is, path& pth)
 {
   pth.clear();
   std::wstring pathname;
-  is >> pathname;
+
+  is >> std::quoted(pathname, L'"', L'&');
+
   pth = path(pathname);
+
   return is;
 }
 
