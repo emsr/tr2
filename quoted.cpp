@@ -23,21 +23,21 @@ namespace std
 		      "String type must be pointer or reference");
 
 	_Quoted_string(_String __str, _CharT __del, _CharT __esc)
-	: __string(__str), __delim{__del}, __escape{__esc}, __delim2{__del}
+	: _M_string(__str), _M_delim{__del}, _M_escape{__esc}, _M_delim2{__del}
 	{ }
 
 	_Quoted_string(_String __str, _CharT __del, _CharT __esc,
 		       _CharT __del2)
-	: __string(__str), __delim{__del}, __escape{__esc}, __delim2{__del2}
+	: _M_string(__str), _M_delim{__del}, _M_escape{__esc}, _M_delim2{__del2}
 	{ }
 
 	_Quoted_string&
 	operator=(_Quoted_string&) = delete;
 
-	_String __string;
-	_CharT __delim;
-	_CharT __escape;
-	_CharT __delim2;
+	_String _M_string;
+	_CharT _M_delim;
+	_CharT _M_escape;
+	_CharT _M_delim2;
       };
 
     /**
@@ -45,18 +45,18 @@ namespace std
      *        The left and right delimiters can be different.
      */
     template<typename _CharT, typename _Traits>
-      std::basic_ostream<_CharT, _Traits>&
+      auto&
       operator<<(std::basic_ostream<_CharT, _Traits>& __os,
 		 const _Quoted_string<const _CharT*, _CharT>& __str)
       {
-	__os << __str.__delim;
-	for (const _CharT* __c = __str.__string; *__c; ++__c)
+	__os << __str._M_delim;
+	for (const _CharT* __c = __str._M_string; *__c; ++__c)
 	  {
-	    if (*__c == __str.__delim || *__c == __str.__escape)
-	      __os << __str.__escape;
+	    if (*__c == __str._M_delim || *__c == __str._M_escape)
+	      __os << __str._M_escape;
 	    __os << *__c;
 	  }
-	__os << __str.__delim2;
+	__os << __str._M_delim2;
 
 	return __os;
       }
@@ -66,18 +66,18 @@ namespace std
      *        The left and right delimiters can be different.
      */
     template<typename _CharT, typename _Traits, typename _String>
-      std::basic_ostream<_CharT, _Traits>&
+      auto&
       operator<<(std::basic_ostream<_CharT, _Traits>& __os,
 		 const _Quoted_string<_String, _CharT>& __str)
       {
-	__os << __str.__delim;
-	for (auto& __c : __str.__string)
+	__os << __str._M_delim;
+	for (auto& __c : __str._M_string)
 	  {
-	    if (__c == __str.__delim || __c == __str.__escape)
-	      __os << __str.__escape;
+	    if (__c == __str._M_delim || __c == __str._M_escape)
+	      __os << __str._M_escape;
 	    __os << __c;
 	  }
-	__os << __str.__delim2;
+	__os << __str._M_delim2;
 
 	return __os;
       }
@@ -87,21 +87,21 @@ namespace std
      *        The left and right delimiters can be different.
      */
     template<typename _CharT, typename _Traits, typename _Alloc>
-      std::basic_istream<_CharT, _Traits>&
+      auto&
       operator>>(std::basic_istream<_CharT, _Traits>& __is,
 		 const _Quoted_string<basic_string<_CharT, _Traits, _Alloc>&,
 				      _CharT>& __str)
       {
-	__str.__string.clear();
+	__str._M_string.clear();
 
 	_CharT __c;
 	__is >> __c;
 	if (!__is.good())
 	  return __is;
-	if (__c != __str.__delim)
+	if (__c != __str._M_delim)
 	  {
 	    __is.unget();
-	    __is >> __str.__string;
+	    __is >> __str._M_string;
 	    return __is;
 	  }
 	std::ios_base::fmtflags __flags
@@ -111,15 +111,15 @@ namespace std
 	    __is >> __c;
 	    if (!__is.good())
 	      break;
-	    if (__c == __str.__escape)
+	    if (__c == __str._M_escape)
 	      {
 		__is >> __c;
 		if (!__is.good())
 		  break;
 	      }
-	    else if (__c == __str.__delim2)
+	    else if (__c == __str._M_delim2)
 	      break;
-	    __str.__string += __c;
+	    __str._M_string += __c;
 	  }
 	while (true);
 	__is.setf(__flags);
@@ -137,32 +137,31 @@ namespace std
    */
   template<typename _CharT>
     inline auto
-    quoted(const _CharT* __str,
+    quoted(const _CharT* __string,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
-      return __detail::_Quoted_string<const _CharT*, _CharT>(__str, __delim,
+      return __detail::_Quoted_string<const _CharT*, _CharT>(__string, __delim,
 							     __escape);
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
     inline auto
-    quoted(const basic_string<_CharT, _Traits, _Alloc>& __str,
+    quoted(const basic_string<_CharT, _Traits, _Alloc>& __string,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
-cout << "\n---------------- BOO ----------------\n";
       return __detail::_Quoted_string<
 			const basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
-				__str, __delim, __escape);
+				__string, __delim, __escape);
     }
 
   template<typename _CharT, typename _Traits, typename _Alloc>
     inline auto
-    quoted(basic_string<_CharT, _Traits, _Alloc>& __str,
+    quoted(basic_string<_CharT, _Traits, _Alloc>& __string,
 	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
       return __detail::_Quoted_string<
 			basic_string<_CharT, _Traits, _Alloc>&, _CharT>(
-				__str, __delim, __escape);
+				__string, __delim, __escape);
     }
 
 } // namespace std
