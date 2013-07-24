@@ -4,7 +4,7 @@
 
 #include <cassert>
 #include <string>
-#include <complex>
+//#include <complex>
 #include <chrono>
 
 #include <iostream>
@@ -91,7 +91,7 @@ test01()
   static_assert(std::is_same<decltype(U"Hello"s), std::u32string>::value,
 		"U\"Hello\"s is std::u32string");
 }
-
+/*
 void
 test02()
 {
@@ -115,7 +115,7 @@ test02()
   static_assert(std::is_same<decltype(1il), std::complex<long double>>::value,
 		"il is std::complex<long double>");
 }
-
+*/
 void
 test03()
 {
@@ -169,7 +169,7 @@ main()
 {
   test00();
   test01();
-  test02();
+  //test02();
   test03();
 
   {
@@ -198,6 +198,7 @@ main()
     std::u32string u32planet = U"Saturn"s;
     assert( u32planet == std::u32string(U"Saturn") );
   }
+/*
   {
     using namespace std::literals::complex_literals;
 
@@ -234,6 +235,7 @@ main()
     std::complex<long double> k4 = 4il;
     assert( k4 == std::complex<long double>(0.0L, 4.0L) );
   }
+*/
   {
     using namespace std::literals::chrono_literals;
 
