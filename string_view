@@ -1,0 +1,186 @@
+#ifndef STRING_VIEW
+#define STRING_VIEW 1
+
+namespace std {
+
+  template<typename _CharT, typename _Traits = char_traits<_CharT>>
+    class basic_string_view
+    {
+
+    public:
+
+      // types
+      typedef _Traits traits_type;
+      typedef _CharT value_type;
+      typedef const _CharT* pointer;
+      typedef const _CharT* const_pointer;
+      typedef const _CharT& reference;
+      typedef const _CharT& const_reference;
+      typedef implementation-defined const_iterator; // See [string.view.iterators]
+      typedef const_iterator iterator;
+      typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+      typedef const_reverse_iterator reverse_iterator;
+      typedef size_t size_type;
+      typedef ptrdiff_t difference_type;
+      static constexpr size_type npos = size_type(-1);
+
+      // [string.view.cons], construct/copy
+      constexpr basic_string_view() noexcept;
+      constexpr basic_string_view(const basic_string_view&) noexcept = default;
+      basic_string_view&
+      operator=(const basic_string_view&) noexcept = default;
+      template<typename _Allocator>
+        basic_string_view(const basic_string<_CharT, _Traits, _Allocator>& str) noexcept;
+      constexpr basic_string_view(const _CharT* str);
+      constexpr basic_string_view(const _CharT* str, size_type len);
+
+      // [string.view.iterators], iterators
+      constexpr const_iterator begin() const noexcept;
+      constexpr const_iterator end() const noexcept;
+      constexpr const_iterator cbegin() const noexcept;
+      constexpr const_iterator cend() const noexcept;
+      const_reverse_iterator rbegin() const noexcept;
+      const_reverse_iterator rend() const noexcept;
+      const_reverse_iterator crbegin() const noexcept;
+      const_reverse_iterator crend() const noexcept;
+
+      // [string.view.capacity], capacity
+      constexpr size_type size() const noexcept;
+      constexpr size_type length() const noexcept;
+      constexpr size_type max_size() const noexcept;
+      constexpr bool empty() const noexcept;
+
+      // [string.view.access], element access
+      constexpr const _CharT& operator[](size_type pos) const;
+      constexpr const _CharT& at(size_type pos) const;
+      constexpr const _CharT& front() const;
+      constexpr const _CharT& back() const;
+      constexpr const _CharT* data() const noexcept;
+
+      // [string.view.modifiers], modifiers:
+      void clear() noexcept;
+      void remove_prefix(size_type n);
+      void remove_suffix(size_type n);
+      void swap(basic_string_view& s) noexcept;
+
+      // [string.view.ops], string operations:
+      template<typename _Allocator>
+        explicit operator basic_string<_CharT, _Traits, _Allocator>() const;
+
+      size_type copy(_CharT* s, size_type n, size_type pos = 0) const;
+
+      // [string.view.ops], string operations:
+      constexpr basic_string_view substr(size_type pos, size_type n=npos) const;
+      int compare(basic_string_view s) const noexcept;
+      int compare(size_type pos1, size_type n1, basic_string_view s) const;
+      int compare(size_type pos1, size_type n1,
+		  basic_string_view s, size_type pos2, size_type n2) const;
+      int compare(const _CharT* s) const noexcept;
+      int compare(size_type pos1, size_type n1, const charT* s) const;
+      int compare(size_type pos1, size_type n1,
+		  const charT* s, size_type n2) const;
+      size_type find(basic_string_view s, size_type pos=0) const noexcept;
+      size_type find(_CharT c, size_type pos=0) const noexcept;
+      size_type find(const charT* s, size_type pos, size_type n) const;
+      size_type find(const _CharT* s, size_type pos=0) const noexcept;
+      size_type rfind(basic_string_view s, size_type pos=0) const noexcept;
+      size_type rfind(_CharT c, size_type pos=0) const noexcept;
+      size_type rfind(const charT* s, size_type pos, size_type n) const;
+      size_type rfind(const _CharT* s, size_type pos=0) const noexcept;
+      size_type find_first_of(basic_string_view s, size_type pos=0) const noexcept;
+      size_type find_first_of(_CharT c, size_type pos=0) const noexcept;
+      size_type find_first_of(const charT* s, size_type pos, size_type n) const;
+      size_type find_first_of(const _CharT* s, size_type pos=0) const noexcept;
+      size_type find_last_of(basic_string_view s, size_type pos=0) const noexcept;
+      size_type find_last_of(_CharT c, size_type pos=0) const noexcept;
+      size_type find_last_of(const charT* s, size_type pos, size_type n) const;
+      size_type find_last_of(const _CharT* s, size_type pos=0) const noexcept;
+      size_type find_first_not_of(basic_string_view s, size_type pos=0) const noexcept;
+      size_type find_first_not_of(_CharT c, size_type pos=0) const noexcept;
+      size_type find_first_not_of(const charT* s, size_type pos, size_type n) const;
+      size_type find_first_not_of(const _CharT* s, size_type pos=0) const noexcept;
+      size_type find_last_not_of(basic_string_view s, size_type pos=0) const noexcept;
+      size_type find_last_not_of(_CharT c, size_type pos=0) const noexcept;
+      size_type find_last_not_of(const charT* s, size_type pos, size_type n) const;
+      size_type find_last_not_of(const _CharT* s, size_type pos=0) const noexcept;
+
+    private:
+
+    };
+
+  // [string.view.comparison], non-member basic_string_view comparison functions
+  template<typename _CharT, typename _Traits>
+    bool
+    operator==(basic_string_view<_CharT, _Traits> __x,
+               basic_string_view<_CharT, _Traits> __y) noexcept
+    { return __x.compare(__y) == 0; }
+
+  template<typename _CharT, typename _Traits>
+    bool
+    operator!=(basic_string_view<_CharT, _Traits> __x,
+               basic_string_view<_CharT, _Traits> __y) noexcept
+    { return !(__x == __y); }
+
+  template<typename _CharT, typename _Traits>
+    bool
+    operator< (basic_string_view<_CharT, _Traits> __x,
+               basic_string_view<_CharT, _Traits> __y) noexcept
+    { lhs.compare(rhs) < 0; }
+
+  template<typename _CharT, typename _Traits>
+    bool
+    operator> (basic_string_view<_CharT, _Traits> __x,
+               basic_string_view<_CharT, _Traits> __y) noexcept
+    { lhs.compare(rhs) > 0; }
+
+  template<typename _CharT, typename _Traits>
+    bool
+    operator<=(basic_string_view<_CharT, _Traits> __x,
+               basic_string_view<_CharT, _Traits> __y) noexcept
+    { lhs.compare(rhs) <= 0; }
+
+  template<typename _CharT, typename _Traits>
+    bool
+    operator>=(basic_string_view<_CharT, _Traits> __x,
+               basic_string_view<_CharT, _Traits> __y) noexcept
+    { lhs.compare(rhs) >= 0; }
+
+  // [string.view.comparison], sufficient additional overloads of comparison functions
+
+  // [string.view.nonmem], other non-member basic_string_view functions
+  template<typename _CharT, typename _Traits = char_traits<_CharT>,
+           typename _Allocator = allocator<_CharT>>
+    basic_string<_CharT, _Traits, _Allocator>
+    to_string(basic_string_view<_CharT, _Traits>,
+	      const _Allocator& a = _Allocator());
+
+  template<typename _CharT, typename _Traits>
+    basic_ostream<_CharT, _Traits>&
+      operator<<(basic_ostream<_CharT, _Traits>& os,
+                 basic_string_view<_CharT,_Traits> str);
+
+  // basic_string_view typedef names
+  typedef basic_string_view<char> string_view;
+  typedef basic_string_view<char16_t> u16string_view;
+  typedef basic_string_view<char32_t> u32string_view;
+  typedef basic_string_view<wchar_t> wstring_view;
+
+  // [string.view.hash], hash support:
+  template<typename _Tp>
+    struct hash;
+
+  template<>
+    struct hash<string_view>;
+
+  template<>
+    struct hash<u16string_view>;
+
+  template<>
+    struct hash<u32string_view>;
+
+  template<>
+    struct hash<wstring_view>;
+
+} // namespace std
+
+#endif // STRING_VIEW
