@@ -23,7 +23,7 @@ template<typename _Elem>
 
 template<typename _Elem>
   exempt_ptr<_Elem>
-  make_exempt(E *) noexcept;
+  make_exempt(_Elem *) noexcept;
 
 template<typename _Elem>
   bool
@@ -170,6 +170,14 @@ template<typename _Elem>
     operator bool() const noexcept
     { return this->get(); }
 
+    // conversions:
+
+    operator pointer() noexcept
+    { return this->get(); }
+
+    operator const_pointer() const noexcept
+    { return this->get(); }
+
     // modifiers:
 
     pointer
@@ -187,6 +195,44 @@ template<typename _Elem>
     void
     swap(exempt_ptr & __other) noexcept
     { std::swap(this->_M_ptr, __other._M_ptr); }
+
+    // arithmetic:
+
+    exempt_ptr &
+    operator++()
+    { ++_M_ptr; return *this; }
+
+    exempt_ptr &
+    operator--()
+    { --_M_ptr; return *this; }
+
+    exempt_ptr
+    operator++(int)
+    { pointer __tmp = _M_ptr; ++_M_ptr; return exempt_ptr{__tmp}; }
+
+    exempt_ptr
+    operator--(int)
+    { pointer __tmp = _M_ptr; --_M_ptr; return exempt_ptr{__tmp}; }
+
+    exempt_ptr
+    operator+() const
+    { return *this; }
+
+    exempt_ptr
+    operator+(ptrdiff_t __d) const
+    { return exempt_ptr{_M_ptr + __d}; }
+
+    exempt_ptr
+    operator-(ptrdiff_t __d) const
+    { return exempt_ptr{_M_ptr - __d}; }
+
+    value_type &
+    operator[](ptrdiff_t __k)
+    { return _M_ptr[__k]; }
+
+    value_type const &
+    operator[](ptrdiff_t __k) const
+    { return _M_ptr[__k]; }
 
   private:
 
