@@ -1,6 +1,6 @@
 Index: include/std/iomanip
 ===================================================================
---- include/std/iomanip	(revision 202509)
+--- include/std/iomanip	(revision 202499)
 +++ include/std/iomanip	(working copy)
 @@ -117,8 +117,8 @@
     *  @param  __base  A numeric base.
@@ -35,7 +35,7 @@ Index: include/std/iomanip
  		ios_base::fmtflags(0), ios_base::basefield);
 Index: include/bits/locale_facets.tcc
 ===================================================================
---- include/bits/locale_facets.tcc	(revision 202509)
+--- include/bits/locale_facets.tcc	(revision 202499)
 +++ include/bits/locale_facets.tcc	(working copy)
 @@ -383,8 +383,9 @@
  	// NB: Iff __basefield == 0, __base can change based on contents.
@@ -135,7 +135,7 @@ Index: include/bits/locale_facets.tcc
  	      __news[1] = __olds[1];
 Index: include/bits/locale_facets.h
 ===================================================================
---- include/bits/locale_facets.h	(revision 202509)
+--- include/bits/locale_facets.h	(revision 202499)
 +++ include/bits/locale_facets.h	(working copy)
 @@ -1532,6 +1532,8 @@
  	_S_oudigits_end = _S_oudigits + 16,
@@ -175,7 +175,7 @@ Index: include/bits/locale_facets.h
         *  Thousands separators are inserted according to
 Index: include/bits/ostream.tcc
 ===================================================================
---- include/bits/ostream.tcc	(revision 202509)
+--- include/bits/ostream.tcc	(revision 202499)
 +++ include/bits/ostream.tcc	(working copy)
 @@ -94,7 +94,7 @@
        // _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -197,7 +197,7 @@ Index: include/bits/ostream.tcc
  	return _M_insert(static_cast<long>(__n));
 Index: include/bits/regex.h
 ===================================================================
---- include/bits/regex.h	(revision 202509)
+--- include/bits/regex.h	(revision 202499)
 +++ include/bits/regex.h	(working copy)
 @@ -607,6 +607,8 @@
      {
@@ -210,7 +210,7 @@ Index: include/bits/regex.h
        else if (__radix == 16)
 Index: include/bits/ios_base.h
 ===================================================================
---- include/bits/ios_base.h	(revision 202509)
+--- include/bits/ios_base.h	(revision 202499)
 +++ include/bits/ios_base.h	(working copy)
 @@ -65,8 +65,9 @@
        _S_skipws 	= 1L << 12,
@@ -281,7 +281,7 @@ Index: include/bits/ios_base.h
    inline ios_base&
 Index: src/c++98/ios.cc
 ===================================================================
---- src/c++98/ios.cc	(revision 202509)
+--- src/c++98/ios.cc	(revision 202499)
 +++ src/c++98/ios.cc	(working copy)
 @@ -49,6 +49,7 @@
    const ios_base::fmtflags ios_base::skipws;
@@ -293,7 +293,7 @@ Index: src/c++98/ios.cc
    const ios_base::fmtflags ios_base::floatfield;
 Index: testsuite/27_io/headers/ios/synopsis.cc
 ===================================================================
---- testsuite/27_io/headers/ios/synopsis.cc	(revision 202509)
+--- testsuite/27_io/headers/ios/synopsis.cc	(revision 202499)
 +++ testsuite/27_io/headers/ios/synopsis.cc	(working copy)
 @@ -53,6 +53,7 @@
    ios_base& dec          (ios_base& str);
@@ -305,7 +305,7 @@ Index: testsuite/27_io/headers/ios/synopsis.cc
    ios_base& scientific (ios_base& str);
 Index: testsuite/27_io/ios_base/types/fmtflags/case_label.cc
 ===================================================================
---- testsuite/27_io/ios_base/types/fmtflags/case_label.cc	(revision 202509)
+--- testsuite/27_io/ios_base/types/fmtflags/case_label.cc	(revision 202499)
 +++ testsuite/27_io/ios_base/types/fmtflags/case_label.cc	(working copy)
 @@ -62,6 +62,8 @@
        break;
@@ -319,8 +319,8 @@ Index: testsuite/27_io/ios_base/types/fmtflags/case_label.cc
 Index: testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10bin.cc
 ===================================================================
 --- testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10bin.cc	(revision 0)
-+++ testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10bin.cc	(revision 0)
-@@ -0,0 +1,94 @@
++++ testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10bin.cc	(working copy)
+@@ -0,0 +1,96 @@
 +// Copyright (C) 2004-2013 Free Software Foundation, Inc.
 +//
 +// This file is part of the GNU ISO C++ Library.  This library is free
@@ -345,13 +345,14 @@ Index: testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10bin.cc
 +#include <locale>
 +#include <testsuite_hooks.h>
 +
-+bool test10()
++bool
++test10()
 +{
 +  std::wstring str_01(L"0 00 000 +0 +0 -0");
 +  std::wstringbuf isbuf_01(str_01);
 +  std::wistream is_01(&isbuf_01);
 +
-+  bool test [[gnu::unused]] = true;
++  bool test __attribute__((unused)) = true;
 +
 +  int n = 666;
 +  std::wstring str_02(L"0x32 0X33 033 33 0b11 0B11 11");
@@ -410,7 +411,8 @@ Index: testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10bin.cc
 +  return test;
 +}
 +
-+int main()
++int
++main()
 +{
 +  test10();
 +  return 0;
@@ -418,8 +420,8 @@ Index: testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10bin.cc
 Index: testsuite/27_io/basic_istream/extractors_arithmetic/char/10bin.cc
 ===================================================================
 --- testsuite/27_io/basic_istream/extractors_arithmetic/char/10bin.cc	(revision 0)
-+++ testsuite/27_io/basic_istream/extractors_arithmetic/char/10bin.cc	(revision 0)
-@@ -0,0 +1,96 @@
++++ testsuite/27_io/basic_istream/extractors_arithmetic/char/10bin.cc	(working copy)
+@@ -0,0 +1,98 @@
 +// 1999-04-12 bkoz
 +
 +// Copyright (C) 1999-2013 Free Software Foundation, Inc.
@@ -446,13 +448,14 @@ Index: testsuite/27_io/basic_istream/extractors_arithmetic/char/10bin.cc
 +#include <locale>
 +#include <testsuite_hooks.h>
 +
-+bool test10()
++bool
++test10()
 +{
 +  std::string str_01("0 00 000 +0 +0 -0");
 +  std::stringbuf isbuf_01(str_01);
 +  std::istream is_01(&isbuf_01);
 +
-+  bool test [[gnu::unused]] = true;
++  bool test __attribute__((unused)) = true;
 +
 +  int n = 666;
 +  std::string str_02("0x32 0X33 033 33 0b11 0B11 11");
@@ -511,7 +514,8 @@ Index: testsuite/27_io/basic_istream/extractors_arithmetic/char/10bin.cc
 +  return test;
 +}
 +
-+int main()
++int
++main()
 +{
 +  test10();
 +  return 0;
@@ -519,8 +523,8 @@ Index: testsuite/27_io/basic_istream/extractors_arithmetic/char/10bin.cc
 Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc
 ===================================================================
 --- testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc	(revision 0)
-+++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc	(revision 0)
-@@ -0,0 +1,65 @@
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc	(working copy)
+@@ -0,0 +1,66 @@
 +// Copyright (C) 2005-2013 Free Software Foundation, Inc.
 +//
 +// This file is part of the GNU ISO C++ Library.  This library is free
@@ -547,7 +551,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc
 +test03_check(T n)
 +{
 +  using namespace std;
-+  bool test [[gnu::unused]] = true;
++
++  bool test __attribute__((unused)) = true;
 +
 +  wstringbuf strbuf;
 +  wostream o(&strbuf);
@@ -556,7 +561,7 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc
 +  if (numeric_limits<T>::digits + 1 == 16)
 +    expect = L"1111111111111111 177777 ffff";
 +  else if (numeric_limits<T>::digits + 1 == 32)
-+    expect = L"11111111111111111111111111111111 137777777777 ffffffff";
++    expect = L"11111111111111111111111111111111 37777777777 ffffffff";
 +  else if (numeric_limits<T>::digits + 1 == 64)
 +    expect = L"1111111111111111111111111111111111111111111111111111111111111111 1777777777777777777777 ffffffffffffffff";
 +  else
@@ -580,7 +585,7 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc
 +  test03_check(l);
 +}
 +
-+int 
++int
 +main()
 +{
 +  test03();
@@ -589,8 +594,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3bin.cc
 Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7bin.cc
 ===================================================================
 --- testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7bin.cc	(revision 0)
-+++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7bin.cc	(revision 0)
-@@ -0,0 +1,71 @@
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7bin.cc	(working copy)
+@@ -0,0 +1,74 @@
 +// 2005-07-11  Paolo Carlini  <pcarlini@suse.de>
 +
 +// Copyright (C) 2005-2013 Free Software Foundation, Inc.
@@ -615,10 +620,12 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7bin.cc
 +#include <sstream>
 +#include <testsuite_hooks.h>
 +
-+void test01()
++void
++test01()
 +{
 +  using namespace std;
-+  bool test [[gnu::unused]] = true;
++
++  bool test __attribute__((unused)) = true;
 +
 +  wstringstream ostr1, ostr2, ostr3, ostr4;
 +
@@ -657,7 +664,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7bin.cc
 +#endif
 +}
 +
-+int main()
++int
++main()
 +{
 +  test01();
 +  return 0;
@@ -665,8 +673,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7bin.cc
 Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/3bin.cc
 ===================================================================
 --- testsuite/27_io/basic_ostream/inserters_arithmetic/char/3bin.cc	(revision 0)
-+++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/3bin.cc	(revision 0)
-@@ -0,0 +1,68 @@
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/3bin.cc	(working copy)
+@@ -0,0 +1,69 @@
 +// 1999-11-15 Kevin Ediger  <kediger@licor.com>
 +// test the floating point inserters (facet num_put)
 +
@@ -696,7 +704,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/3bin.cc
 +test03_check(T n)
 +{
 +  using namespace std;
-+  bool test [[gnu::unused]] = true;
++
++  bool test __attribute__((unused)) = true;
 +
 +  stringbuf strbuf;
 +  ostream o(&strbuf);
@@ -729,7 +738,7 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/3bin.cc
 +  test03_check (l);
 +}
 +
-+int 
++int
 +main()
 +{
 +  test03();
@@ -738,8 +747,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/3bin.cc
 Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/7bin.cc
 ===================================================================
 --- testsuite/27_io/basic_ostream/inserters_arithmetic/char/7bin.cc	(revision 0)
-+++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/7bin.cc	(revision 0)
-@@ -0,0 +1,71 @@
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/7bin.cc	(working copy)
+@@ -0,0 +1,74 @@
 +// 2005-07-11  Paolo Carlini  <pcarlini@suse.de>
 +
 +// Copyright (C) 2005-2013 Free Software Foundation, Inc.
@@ -764,10 +773,12 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/7bin.cc
 +#include <sstream>
 +#include <testsuite_hooks.h>
 +
-+void test01()
++void
++test01()
 +{
 +  using namespace std;
-+  bool test [[gnu::unused]] = true;
++
++  bool test __attribute__((unused)) = true;
 +
 +  stringstream ostr1, ostr2, ostr3, ostr4;
 +
@@ -806,7 +817,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/7bin.cc
 +#endif
 +}
 +
-+int main()
++int
++main()
 +{
 +  test01();
 +  return 0;
@@ -814,8 +826,8 @@ Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/7bin.cc
 Index: testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc
 ===================================================================
 --- testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc	(revision 0)
-+++ testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc	(revision 0)
-@@ -0,0 +1,152 @@
++++ testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc	(working copy)
+@@ -0,0 +1,153 @@
 +// Copyright (C) 2004-2013 Free Software Foundation, Inc.
 +//
 +// This file is part of the GNU ISO C++ Library.  This library is free
@@ -832,7 +844,6 @@ Index: testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc
 +// You should have received a copy of the GNU General Public License along
 +// with this library; see the file COPYING3.  If not see
 +// <http://www.gnu.org/licenses/>.
-+
 +
 +#include <sstream>
 +#include <locale>
@@ -856,13 +867,15 @@ Index: testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc
 +MyNP::do_thousands_sep() const
 +{ return L' '; }
 +
-+void test01()
++void
++test01()
 +{
-+  bool test [[gnu::unused]] = true;
-+  const wchar_t lit[] = L"0b101010\n"
-+                        L"#0b1 010 101.....................#\n"
++  bool test __attribute__((unused)) = true;
++
++  const wchar_t lit[] = L"0b101 010\n"
++                        L"#.....................0b1 010 101#\n"
 +                        L"#0b101 010.......................#\n"
-+                        L"#.........................0b10101#\n"
++                        L"#........................0b10 101#\n"
 +                        L"#0b.........................1 010#\n"
 +                        L"#0b111 010 110 111 100 110 100 010 101#\n"
 +                        L"#0b100 101 101 011 010 000 111...#\n"
@@ -887,35 +900,35 @@ Index: testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc
 +  oss.imbue(std::locale(std::locale(), new MyNP));
 +
 +  // Binaries
-+  oss << std::bin << std::showbase;
++  oss << std::bin << std::showbase << std::setfill(L'.');
 +  oss << 0b0101010l << std::endl;
 +
-+  oss << L"#" << std::setw(24);
++  oss << L"#" << std::setw(32);
 +  oss << 0b01010101l << L"#" << std::endl;
 +
-+  oss << L"#" << std::setw(24) << std::left;
++  oss << L"#" << std::setw(32) << std::left;
 +  oss << 0b0101010l << L"#" << std::endl;
 +
-+  oss << L"#" << std::setw(24) << std::right;
++  oss << L"#" << std::setw(32) << std::right;
 +  oss << 0b010101l << L"#" << std::endl;
 +
-+  oss << L"#" << std::setw(24) << std::internal;
++  oss << L"#" << std::setw(32) << std::internal;
 +  oss << 0b01010l << L"#" << std::endl;
 +
-+  oss << L"#" << std::setw(24);
++  oss << L"#" << std::setw(32);
 +  oss << 123456789l << L"#" << std::endl;
 +
-+  oss << L"#" << std::setw(24) << std::left;
++  oss << L"#" << std::setw(32) << std::left;
 +  oss << 1234567l << L"#" << std::endl;
 +
-+  oss << L"#" << std::setw(24) << std::right;
++  oss << L"#" << std::setw(32) << std::right;
 +  oss << 123456l << L"#" << std::endl;
 +
-+  oss << L"#" << std::setw(24) << std::internal;
++  oss << L"#" << std::setw(32) << std::internal;
 +  oss << 123l << L"#" << std::endl;
 +
 +  // Octals
-+  oss << std::oct << std::showbase << std::setfill(L'0');
++  oss << std::oct << std::showbase << std::setfill(L' ');
 +  oss << 0123456l << std::endl;
 +
 +  oss << L":" << std::setw(11);
@@ -962,7 +975,7 @@ Index: testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc
 +  VERIFY( oss.str() == lit );
 +}
 +
-+int 
++int
 +main() 
 +{
 +  test01();
@@ -971,8 +984,8 @@ Index: testsuite/27_io/manipulators/basefield/wchar_t/1bin.cc
 Index: testsuite/27_io/manipulators/basefield/char/1bin.cc
 ===================================================================
 --- testsuite/27_io/manipulators/basefield/char/1bin.cc	(revision 0)
-+++ testsuite/27_io/manipulators/basefield/char/1bin.cc	(revision 0)
-@@ -0,0 +1,154 @@
++++ testsuite/27_io/manipulators/basefield/char/1bin.cc	(working copy)
+@@ -0,0 +1,155 @@
 +// 981027 ncm work with libstdc++v3
 +
 +// Copyright (C) 1997-2013 Free Software Foundation, Inc.
@@ -991,7 +1004,6 @@ Index: testsuite/27_io/manipulators/basefield/char/1bin.cc
 +// You should have received a copy of the GNU General Public License along
 +// with this library; see the file COPYING3.  If not see
 +// <http://www.gnu.org/licenses/>.
-+
 +
 +#include <sstream>
 +#include <locale>
@@ -1015,13 +1027,15 @@ Index: testsuite/27_io/manipulators/basefield/char/1bin.cc
 +MyNP::do_thousands_sep() const
 +{ return ' '; }
 +
-+void test01()
++void
++test01()
 +{
-+  bool test [[gnu::unused]] = true;
-+  const char lit[] = "0b101010\n"
-+                     "#0b1 010 101.....................#\n"
++  bool test __attribute__((unused)) = true;
++
++  const char lit[] = "0b101 010\n"
++                     "#.....................0b1 010 101#\n"
 +                     "#0b101 010.......................#\n"
-+                     "#.........................0b10101#\n"
++                     "#........................0b10 101#\n"
 +                     "#0b.........................1 010#\n"
 +                     "#0b111 010 110 111 100 110 100 010 101#\n"
 +                     "#0b100 101 101 011 010 000 111...#\n"
@@ -1046,7 +1060,7 @@ Index: testsuite/27_io/manipulators/basefield/char/1bin.cc
 +  oss.imbue(std::locale(std::locale(), new MyNP));
 +
 +  // Binaries
-+  oss << std::bin << std::showbase << std::setfill(L'.');
++  oss << std::bin << std::showbase << std::setfill('.');
 +  oss << 0b0101010l << std::endl;
 +
 +  oss << "#" << std::setw(32);
@@ -1074,7 +1088,7 @@ Index: testsuite/27_io/manipulators/basefield/char/1bin.cc
 +  oss << 123l << "#" << std::endl;
 +
 +  // Octals
-+  oss << std::oct << std::showbase << std::setfill(L'0');
++  oss << std::oct << std::showbase << std::setfill(' ');
 +  oss << 0123456l << std::endl;
 +
 +  oss << ":" << std::setw(11);
@@ -1121,7 +1135,7 @@ Index: testsuite/27_io/manipulators/basefield/char/1bin.cc
 +  VERIFY( oss.str() == lit );
 +}
 +
-+int 
++int
 +main() 
 +{
 +  test01();
@@ -1129,7 +1143,7 @@ Index: testsuite/27_io/manipulators/basefield/char/1bin.cc
 +}
 Index: config/abi/pre/gnu.ver
 ===================================================================
---- config/abi/pre/gnu.ver	(revision 202509)
+--- config/abi/pre/gnu.ver	(revision 202499)
 +++ config/abi/pre/gnu.ver	(working copy)
 @@ -84,7 +84,12 @@
        std::invalid_argument::i*;
@@ -1158,11 +1172,12 @@ Index: config/abi/pre/gnu.ver
 Index: testsuite/28_regex/traits/char/binvalue.cc
 ===================================================================
 --- testsuite/28_regex/traits/char/binvalue.cc	(revision 0)
-+++ testsuite/28_regex/traits/char/binvalue.cc	(revision 0)
-@@ -0,0 +1,59 @@
++++ testsuite/28_regex/traits/char/binvalue.cc	(working copy)
+@@ -0,0 +1,62 @@
 +// { dg-do run }
++// { dg-options "-std=gnu++11" }
 +
-+// 2013-09-09 Edward Smith-Rowland  <3dw4rd@verizon.net>
++// 2013-09-12 Edward Smith-Rowland  <3dw4rd@verizon.net>
 +//
 +// Copyright (C) 2013 Free Software Foundation, Inc.
 +//
@@ -1187,9 +1202,11 @@ Index: testsuite/28_regex/traits/char/binvalue.cc
 +#include <testsuite_hooks.h>
 +
 +// Tests the value() function of the regex_traits<char> class.
-+void test01()
++void
++test01()
 +{
 +  bool test [[gnu::unused]] = true;
++
 +  std::regex_traits<char> t;
 +  VERIFY( t.value('1', 2)  == 1 );
 +  VERIFY( t.value('1', 8)  == 1 );
@@ -1215,18 +1232,19 @@ Index: testsuite/28_regex/traits/char/binvalue.cc
 +
 +int
 +main()
-+{ 
++{
 +  test01();
 +  return 0;
 +};
 Index: testsuite/28_regex/traits/wchar_t/binvalue.cc
 ===================================================================
 --- testsuite/28_regex/traits/wchar_t/binvalue.cc	(revision 0)
-+++ testsuite/28_regex/traits/wchar_t/binvalue.cc	(revision 0)
-@@ -0,0 +1,59 @@
++++ testsuite/28_regex/traits/wchar_t/binvalue.cc	(working copy)
+@@ -0,0 +1,62 @@
 +// { dg-do run }
++// { dg-options "-std=gnu++11" }
 +
-+// 2013-09-09 Edward Smith-Rowland  <3dw4rd@verizon.net>
++// 2013-09-12 Edward Smith-Rowland  <3dw4rd@verizon.net>
 +//
 +// Copyright (C) 2013 Free Software Foundation, Inc.
 +//
@@ -1251,9 +1269,11 @@ Index: testsuite/28_regex/traits/wchar_t/binvalue.cc
 +#include <testsuite_hooks.h>
 +
 +// Tests the value() function of the regex_traits<wchar_t> class.
-+void test01()
++void
++test01()
 +{
 +  bool test [[gnu::unused]] = true;
++
 +  std::regex_traits<wchar_t> t;
 +  VERIFY( t.value(L'1', 2)  == 1 );
 +  VERIFY( t.value(L'1', 8)  == 1 );
@@ -1279,7 +1299,7 @@ Index: testsuite/28_regex/traits/wchar_t/binvalue.cc
 +
 +int
 +main()
-+{ 
++{
 +  test01();
 +  return 0;
 +};
