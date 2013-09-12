@@ -1,0 +1,30 @@
+
+#include <ostream>
+#include <string>
+
+namespace std {
+namespace experimental {
+
+  // types _Ts1 and _Ts2 are sets of implementation types which are distinguishable for different Tp...
+
+  template<typename _CharT, typename... _Tp>
+    _Ts1
+    putf(const _CharT *__fmt, const _Tp&... __t);
+
+  template<typename _CharT, typename _Traits, typename _Allocator,
+	   typename... _Tp>
+    _Ts2
+    putf(std::basic_string<_CharT, _Traits, _Allocator> const& fmt,
+	 _Tp const&... __t);
+
+  template<typename _CharT, typename _Traits, typename... _Tp>
+    auto operator<<(std::basic_ostream<_CharT, _Traits>& __os, _Ts1 __bundle)
+      -> decltype(__os);
+
+  template<typename _CharT, typename _Traits, typename... _Tp>
+    auto operator<<(std::basic_ostream<_CharT, _Traits>& __os, _Ts2 __bundle)
+      -> decltype(__os);
+
+} // namespace experimental
+} // namespace std
+
