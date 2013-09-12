@@ -1,0 +1,260 @@
+#include <string>        // std::basic_string
+#include <system_error>  // std::error_code
+#include <iosfwd>        // std::basic_istream, std::basic_ostream
+#include <iterator>      // std::iterator_traits
+#include <memory>        // std::allocator
+#include <optional>      // std::optional
+
+namespace std {
+namespace experimental {
+// class declarations
+class uri;
+class uri_builder;
+class uri_syntax_error;
+class uri_builder_error;
+class percent_decoding_error;
+
+enum class uri_error {
+ // uri syntax errors
+ invalid_syntax,
+
+ // builder errors
+ invalid_uri,
+ invalid_scheme,
+ invalid_user_info,
+ invalid_host,
+ invalid_port,
+ invalid_path,
+ invalid_query,
+ invalid_fragment,
+
+ // decoding errors
+ not_enough_input,
+ non_hex_input,
+ conversion_failed,
+};
+
+enum class uri_comparison_level {
+ string_comparison,
+ syntax_based,
+};
+
+// factory functions
+template <class Source>
+uri make_uri(const Source& source, std::error_code& e) noexcept;
+template <class InputIterator>
+uri make_uri(InputIterator first, InputIterator last, std::error_code& e) noexcept;
+template <class Source, class Alloc>
+uri make_uri(const Source& source, const Alloc& alloc, std::error_code& e) noexcept;
+template <class InputIterator, class Alloc>
+uri make_uri(InputIterator first, InputIterator last, const Alloc& alloc,
+             std::error_code& e) noexcept;
+
+// swap functions
+void swap(uri& lhs, uri& rhs) noexcept;
+
+// hash
+size_t hash_value(const uri& u) noexcept;
+
+// equality and comparison operators
+bool operator== (const uri& lhs, const uri& rhs) noexcept;
+bool operator!= (const uri& lhs, const uri& rhs) noexcept;
+bool operator<  (const uri& lhs, const uri& rhs) noexcept;
+bool operator>  (const uri& lhs, const uri& rhs) noexcept;
+bool operator<= (const uri& lhs, const uri& rhs) noexcept;
+bool operator>= (const uri& lhs, const uri& rhs) noexcept;
+
+// stream operators
+template <typename CharT, class CharTraits = std::char_traits<CharT>>
+std::basic_ostream<CharT, CharTraits>&
+operator<< (std::basic_ostream<CharT, CharTraits>& os, const uri& u);
+template <typename CharT, class CharTraits = std::char_traits<CharT>>
+std::basic_istream<CharT, CharTraits>&
+operator>> (std::basic_istream<CharT, CharTraits>& is, uri& u);
+
+
+class uri {
+
+public:
+
+    // typedefs
+    typedef *unspecified* string_type;
+    typedef *unspecified* iterator;
+    typedef *unspecified* const_iterator;
+    typedef std::iterator_traits<iterator>::value_type value_type;
+    typedef basic_string_view<value_type> string_view;
+
+    // constructors and destructor
+    uri();
+    template <class Source, class Alloc = std::allocator<value_type>>
+    explicit uri(const Source& source, const Alloc& alloc = Alloc());
+    template <typename InputIterator, class Alloc = std::allocator<value_type>>
+    uri(InputIterator first, InputIterator last, const Alloc& alloc = Alloc());
+    uri(const uri& other);
+    uri(uri&& other) noexcept;
+    ~uri() noexcept;
+
+    // assignment
+    uri& operator= (const uri& other);
+    uri& operator= (uri&& other) noexcept;
+
+    // modifiers
+    void swap(uri& other) noexcept;
+
+    // iterators
+    const_iterator begin() const;
+    const_iterator end() const;
+    const_iterator cbegin() const;
+    const_iterator cend() const;
+
+    // accessors
+    std::optional<string_view> scheme() const noexcept;
+    std::optional<string_view> user_info() const noexcept;
+    std::optional<string_view> host() const noexcept;
+    std::optional<string_view> port() const noexcept;
+    template <typename IntT>
+    std::optional<IntT> port(typename std::is_integral<IntT>::type* = 0) const noexcept;
+    std::optional<string_view> path() const noexcept;
+    std::optional<string_view> authority() const noexcept;
+    std::optional<string_view> query() const noexcept;
+    std::optional<string_view> fragment() const noexcept;
+
+    // string accessors
+    template <typename CharT,
+              class CharTraits = std::char_traits<CharT>,
+              class Alloc = std::allocator<CharT>>
+    std::basic_string<CharT, CharTraits, Alloc> string(const Alloc& alloc = Alloc()) const;
+    std::string string() const;
+    std::wstring wstring() const;
+    std::string u8string() const;
+    std::u16string u16string() const;
+    std::u32string u32string() const;
+
+    // query
+    bool empty() const noexcept;
+    bool is_absolute() const noexcept;
+    bool is_opaque() const noexcept;
+
+    // transformers
+    uri normalize(uri_comparison_level level) const;
+    template <class Alloc>
+    uri normalize(uri_comparison_level level, const Alloc& alloc) const;
+    uri normalize(uri_comparison_level level, std::error_code& ec) const noexcept;
+    template <class Alloc>
+    uri normalize(uri_comparison_level level, const Alloc& alloc, std::error_code) const noexcept;
+
+    uri make_reference(const uri& base) const;
+    template <class Alloc>
+    uri make_reference(const uri& base, const Alloc& alloc) const;
+    uri make_reference(const uri& base, std::error_code& ec) const noexcept;
+    template <class Alloc>
+    uri make_reference(const uri& base, const Alloc& alloc, std::error_code& ec) const noexcept;
+
+    uri resolve(const uri& other) const;
+    template <class Alloc>
+    uri resolve(const uri& other, const Alloc& alloc) const;
+    uri resolve(const uri& other, std::error_code& ec) const noexcept;
+    template <class Alloc>
+    uri resolve(const uri& other, const Alloc& alloc, std::error_code& ec) const noexcept;
+
+    // comparison
+    int compare(const uri& other, uri_comparison_level level) const noexcept;
+
+    // percent encoding and decoding
+    template <typename InputIterator, typename OutputIterator>
+    static OutputIterator encode_user_info(InputIterator first, InputIterator last,
+                                           OutputIterator out);
+    template <typename InputIterator, typename OutputIterator>
+    static OutputIterator encode_host(InputIterator first, InputIterator last,
+                                      OutputIterator out);
+    template <typename InputIterator, typename OutputIterator>
+    static OutputIterator encode_port(InputIterator first, InputIterator last,
+                                      OutputIterator out);
+    template <typename InputIterator, typename OutputIterator>
+    static OutputIterator encode_path(InputIterator first, InputIterator last,
+                                      OutputIterator out);
+    template <typename InputIterator, typename OutputIterator>
+    static OutputIterator encode_query(InputIterator first, InputIterator last,
+                                       OutputIterator out);
+    template <typename InputIterator, typename OutputIterator>
+    static OutputIterator encode_fragment(InputIterator first, InputIterator last,
+                                          OutputIterator out);
+    template <typename InputIterator, typename OutputIterator>
+    static OutputIterator decode(InputIterator first, InputIterator last,
+                                 OutputIterator out);
+
+};
+
+class uri_builder {
+
+private:
+
+    uri_builder(const uri_builder&) = delete;
+    uri_builder& operator = uri_builder(const uri_builder&) = delete;
+
+public:
+
+    // Constructors
+    uri_builder();
+    explicit uri_builder(const uri& base);
+    template <class Source>
+    explicit uri_builder(const Source& base);
+    ~uri_builder();
+
+    // Setters
+    template <class Source>
+    uri_builder& scheme(const Source& scheme);
+    template <class Source>
+    uri_builder& user_info(const Source& user_info);
+    template <class Source>
+    uri_builder& host(const Source& host);
+    template <class Source>
+    uri_builder& port(const Source& port);
+    template <class Source>
+    uri_builder& authority(const Source& authority);
+    template <class UserInfoSource, class HostSource, PortSource>
+    uri_builder& authority(const UserInfoSource& user_info,
+                           const HostSource& host, const PortSource& port);
+    template <class Source>
+    uri_builder& path(const Source& path);
+    template <class Source>
+    uri_builder& append_path(const Source& path);
+    template <class Source>
+    uri_builder& query(const Source& query);
+    template <class Key, class Param>
+    uri_builder& append_query(const Key& key, const Param& param);
+    template <class Source>
+    uri_builder& fragment(const Source& fragment);
+
+    // Builder
+    std::experimental::uri uri() const;
+
+};
+
+
+class uri_syntax_error : public std::system_error {
+public:
+    uri_syntax_error(const string& what_arg, error_code ec);
+    virtual ~uri_syntax_error() noexcept;
+    virtual const char *what() const noexcept;
+};
+
+
+class uri_builder_error : public std::system_error {
+public:
+    uri_builder_error(const string& what_arg, error_code ec);
+    virtual ~uri_builder_error() noexcept;
+    virtual const char *what() const noexcept;
+};
+
+
+class percent_decoding_error : public std::system_error {
+public:
+    percent_decoding_error(const string& what_arg, error_code ec);
+    virtual ~percent_decoding_error() noexcept;
+    virtual const char *what() const noexcept;
+};
+
+
+} // namespace experimental
+} // namespace std
