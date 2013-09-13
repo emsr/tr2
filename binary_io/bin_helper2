@@ -1,0 +1,23 @@
+svn diff \
+  include/std/iomanip \
+  include/bits/locale_facets.tcc \
+  include/bits/locale_facets.h \
+  include/bits/ostream.tcc \
+  include/bits/regex.h \
+  include/bits/ios_base.h \
+  src/Makefile.* \
+  src/c++14 \
+  testsuite/27_io/headers/ios/synopsis_bin.cc \
+  testsuite/27_io/ios_base/types/fmtflags/case_label_bin.cc \
+  testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10_bin.cc \
+  testsuite/27_io/basic_istream/extractors_arithmetic/char/10_bin.cc \
+  testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3_bin.cc \
+  testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7_bin.cc \
+  testsuite/27_io/basic_ostream/inserters_arithmetic/char/3_bin.cc \
+  testsuite/27_io/basic_ostream/inserters_arithmetic/char/7_bin.cc \
+  testsuite/27_io/manipulators/basefield/wchar_t/1_bin.cc \
+  testsuite/27_io/manipulators/basefield/char/1_bin.cc \
+  testsuite/28_regex/traits/char/value_bin.cc \
+  testsuite/28_regex/traits/wchar_t/value_bin.cc \
+  config/abi/pre/gnu.ver \
+> patch_binb

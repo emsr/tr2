@@ -1,0 +1,2287 @@
+Index: include/std/iomanip
+===================================================================
+--- include/std/iomanip	(revision 202540)
++++ include/std/iomanip	(working copy)
+@@ -117,8 +117,8 @@
+    *  @param  __base  A numeric base.
+    *
+    *  Sent to a stream object, this manipulator changes the
+-   *  @c ios_base::basefield flags to @c oct, @c dec, or @c hex when @a base
+-   *  is 8, 10, or 16, accordingly, and to 0 if @a __base is any other value.
++   *  @c ios_base::basefield flags to @c bin, @c oct, @c dec, or @c hex when @a base
++   *  is 2, 8, 10, or 16, accordingly, and to 0 if @a __base is any other value.
+   */
+   inline _Setbase 
+   setbase(int __base)
+@@ -128,7 +128,11 @@
+     inline basic_istream<_CharT, _Traits>& 
+     operator>>(basic_istream<_CharT, _Traits>& __is, _Setbase __f)
+     {
+-      __is.setf(__f._M_base ==  8 ? ios_base::oct : 
++      __is.setf(
++#if __cplusplus > 201103L
++		__f._M_base ==  2 ? ios_base::bin : 
++#endif
++		__f._M_base ==  8 ? ios_base::oct : 
+ 		__f._M_base == 10 ? ios_base::dec : 
+ 		__f._M_base == 16 ? ios_base::hex : 
+ 		ios_base::fmtflags(0), ios_base::basefield);
+@@ -139,7 +143,11 @@
+     inline basic_ostream<_CharT, _Traits>& 
+     operator<<(basic_ostream<_CharT, _Traits>& __os, _Setbase __f)
+     {
+-      __os.setf(__f._M_base ==  8 ? ios_base::oct : 
++      __os.setf(
++#if __cplusplus > 201103L
++		__f._M_base ==  2 ? ios_base::bin : 
++#endif
++		__f._M_base ==  8 ? ios_base::oct : 
+ 		__f._M_base == 10 ? ios_base::dec : 
+ 		__f._M_base == 16 ? ios_base::hex : 
+ 		ios_base::fmtflags(0), ios_base::basefield);
+Index: include/bits/locale_facets.tcc
+===================================================================
+--- include/bits/locale_facets.tcc	(revision 202540)
++++ include/bits/locale_facets.tcc	(working copy)
+@@ -383,8 +383,12 @@
+ 	// NB: Iff __basefield == 0, __base can change based on contents.
+ 	const ios_base::fmtflags __basefield = __io.flags()
+ 	                                       & ios_base::basefield;
++	const bool __bin = false;
++#if __cplusplus > 201103L
++	__bin = __basefield == ios_base::bin;
++#endif
+ 	const bool __oct = __basefield == ios_base::oct;
+-	int __base = __oct ? 8 : (__basefield == ios_base::hex ? 16 : 10);
++	int __base = __bin ? 2 : (__oct ? 8 : (__basefield == ios_base::hex ? 16 : 10));
+ 
+ 	// True if __beg becomes equal to __end.
+ 	bool __testeof = __beg == __end;
+@@ -439,6 +443,20 @@
+ 		else
+ 		  break;
+ 	      }
++	    else if (__found_zero
++		     && (__c == __lit[__num_base::_S_ib]
++			 || __c == __lit[__num_base::_S_iB]))
++	      {
++		if (__basefield == 0)
++		  __base = 2;
++		if (__base == 2)
++		  {
++		    __found_zero = false;
++		    __sep_pos = 0;
++		  }
++		else
++		  break;
++	      }
+ 	    else
+ 	      break;
+ 
+@@ -810,6 +828,18 @@
+ 	    }
+ 	  while (__v != 0);
+ 	}
++#if __cplusplus > 201103L
++      else if ((__flags & ios_base::basefield) == ios_base::bin)
++	{
++	  // Binary.
++	  do
++	    {
++	      *--__buf = __lit[(__v & 0x1) + __num_base::_S_odigits];
++	      __v >>= 1;
++	    }
++	  while (__v != 0);
++	}
++#endif
+       else
+ 	{
+ 	  // Hex.
+@@ -855,16 +885,20 @@
+ 	const _CharT* __lit = __lc->_M_atoms_out;
+ 	const ios_base::fmtflags __flags = __io.flags();
+ 
+-	// Long enough to hold hex, dec, and octal representations.
+-	const int __ilen = 5 * sizeof(_ValueT);
++	// Long enough to hold hex, dec, octal, and binary representations.
++	const int __ilen = 9 * sizeof(_ValueT);
+ 	_CharT* __cs = static_cast<_CharT*>(__builtin_alloca(sizeof(_CharT)
+ 							     * __ilen));
+ 
+ 	// [22.2.2.2.2] Stage 1, numeric conversion to character.
+ 	// Result is returned right-justified in the buffer.
+ 	const ios_base::fmtflags __basefield = __flags & ios_base::basefield;
+-	const bool __dec = (__basefield != ios_base::oct
+-			    && __basefield != ios_base::hex);
++	const bool __dec = (
++#if __cplusplus > 201103L
++			    __basefield != ios_base::bin &&
++#endif
++			    __basefield != ios_base::oct &&
++			    __basefield != ios_base::hex);
+ 	const __unsigned_type __u = ((__v > 0 || !__dec)
+ 				     ? __unsigned_type(__v)
+ 				     : -__unsigned_type(__v));
+@@ -901,6 +935,17 @@
+ 	  {
+ 	    if (__basefield == ios_base::oct)
+ 	      *--__cs = __lit[__num_base::_S_odigits], ++__len;
++#if __cplusplus > 201103L
++	    else if (__basefield == ios_base::bin)
++	      {
++		// 'b' or 'B'
++		*--__cs = (__flags & ios_base::uppercase) ?
++			  __lit[__num_base::_S_oB] : __lit[__num_base::_S_ob];
++		// '0'
++		*--__cs = __lit[__num_base::_S_odigits];
++		__len += 2;
++	      }
++#endif
+ 	    else
+ 	      {
+ 		// 'x' or 'X'
+@@ -1222,7 +1267,9 @@
+ 	  else if (__ctype.widen('0') == __olds[0]
+ 		   && __oldlen > 1
+ 		   && (__ctype.widen('x') == __olds[1]
+-		       || __ctype.widen('X') == __olds[1]))
++		       || __ctype.widen('X') == __olds[1]
++		       || __ctype.widen('b') == __olds[1]
++		       || __ctype.widen('B') == __olds[1]))
+ 	    {
+ 	      __news[0] = __olds[0];
+ 	      __news[1] = __olds[1];
+Index: include/bits/locale_facets.h
+===================================================================
+--- include/bits/locale_facets.h	(revision 202540)
++++ include/bits/locale_facets.h	(working copy)
+@@ -1532,6 +1532,10 @@
+ 	_S_oudigits_end = _S_oudigits + 16,
+ 	_S_oe = _S_odigits + 14,  // For scientific notation, 'e'
+ 	_S_oE = _S_oudigits + 14, // For scientific notation, 'E'
++#if __cplusplus > 201103L
++	_S_ob = _S_odigits + 11,  // For binary, '0b'
++	_S_oB = _S_oudigits + 11,  // For binary, '0B'
++#endif
+ 	_S_oend = _S_oudigits_end
+       };
+ 
+@@ -1555,6 +1559,10 @@
+       _S_izero,
+       _S_ie = _S_izero + 14,
+       _S_iE = _S_izero + 20,
++#if __cplusplus > 201103L
++      _S_ib = _S_izero + 11,
++      _S_iB = _S_izero + 17,
++#endif
+       _S_iend = 26
+     };
+ 
+@@ -2306,13 +2314,14 @@
+        *  ios_base::basefield.  If equal to ios_base::oct, formats like the
+        *  printf %o specifier.  Else if equal to ios_base::hex, formats like
+        *  %x or %X with ios_base::uppercase unset or set respectively.
++       *  Else if equal to ios_base::bin, formats ...<FIXME>
+        *  Otherwise, formats like %d, %ld, %lld for signed and %u, %lu, %llu
+-       *  for unsigned values.  Note that if both oct and hex are set, neither
+-       *  will take effect.
++       *  for unsigned values.  Note that if two or more of bin, oct and hex
++       *  are set, none will take effect.
+        *
+        *  If ios_base::showpos is set, '+' is output before positive values.
+        *  If ios_base::showbase is set, '0' precedes octal values (except 0)
+-       *  and '0[xX]' precedes hex values.
++       *  '0[xX]' precedes hex values, and '0[bB]' precedes binary values.
+        *
+        *  The decimal point character used is numpunct::decimal_point().
+        *  Thousands separators are inserted according to
+Index: include/bits/ostream.tcc
+===================================================================
+--- include/bits/ostream.tcc	(revision 202540)
++++ include/bits/ostream.tcc	(working copy)
+@@ -94,7 +94,11 @@
+       // _GLIBCXX_RESOLVE_LIB_DEFECTS
+       // 117. basic_ostream uses nonexistent num_put member functions.
+       const ios_base::fmtflags __fmt = this->flags() & ios_base::basefield;
+-      if (__fmt == ios_base::oct || __fmt == ios_base::hex)
++      if (
++#if __cplusplus > 201103L
++	  __fmt == ios_base::bin ||
++#endif
++	  __fmt == ios_base::oct || __fmt == ios_base::hex)
+ 	return _M_insert(static_cast<long>(static_cast<unsigned short>(__n)));
+       else
+ 	return _M_insert(static_cast<long>(__n));
+@@ -108,7 +112,11 @@
+       // _GLIBCXX_RESOLVE_LIB_DEFECTS
+       // 117. basic_ostream uses nonexistent num_put member functions.
+       const ios_base::fmtflags __fmt = this->flags() & ios_base::basefield;
+-      if (__fmt == ios_base::oct || __fmt == ios_base::hex)
++      if (
++#if __cplusplus > 201103L
++	  __fmt == ios_base::bin ||
++#endif
++	  __fmt == ios_base::oct || __fmt == ios_base::hex)
+ 	return _M_insert(static_cast<long>(static_cast<unsigned int>(__n)));
+       else
+ 	return _M_insert(static_cast<long>(__n));
+Index: include/bits/regex.h
+===================================================================
+--- include/bits/regex.h	(revision 202540)
++++ include/bits/regex.h	(working copy)
+@@ -607,6 +607,11 @@
+     {
+       std::basic_istringstream<char_type> __is(string_type(1, __ch));
+       int __v;
++#if __cplusplus > 201303L
++      if (__radix == 2)
++	__is >> std::bin;
++      else
++#endif
+       if (__radix == 8)
+ 	__is >> std::oct;
+       else if (__radix == 16)
+Index: include/bits/ios_base.h
+===================================================================
+--- include/bits/ios_base.h	(revision 202540)
++++ include/bits/ios_base.h	(working copy)
+@@ -65,8 +65,9 @@
+       _S_skipws 	= 1L << 12,
+       _S_unitbuf 	= 1L << 13,
+       _S_uppercase 	= 1L << 14,
++      _S_bin		= 1L << 15,
+       _S_adjustfield 	= _S_left | _S_right | _S_internal,
+-      _S_basefield 	= _S_dec | _S_oct | _S_hex,
++      _S_basefield 	= _S_dec | _S_oct | _S_hex | _S_bin,
+       _S_floatfield 	= _S_scientific | _S_fixed,
+       _S_ios_fmtflags_end = 1L << 16 
+     };
+@@ -104,7 +105,7 @@
+     { 
+       _S_app 		= 1L << 0,
+       _S_ate 		= 1L << 1,
+-      _S_bin 		= 1L << 2,
++      _S_binary		= 1L << 2,
+       _S_in 		= 1L << 3,
+       _S_out 		= 1L << 4,
+       _S_trunc 		= 1L << 5,
+@@ -248,6 +249,7 @@
+      *  - skipws
+      *  - unitbuf
+      *  - uppercase
++     *  - bin
+      *  - adjustfield
+      *  - basefield
+      *  - floatfield
+@@ -306,10 +308,13 @@
+     /// in generated output.
+     static const fmtflags uppercase =   _S_uppercase;
+ 
++    /// Converts integer input or generates integer output in binary base.
++    static const fmtflags bin =         _S_bin;
++
+     /// A mask of left|right|internal.  Useful for the 2-arg form of @c setf.
+     static const fmtflags adjustfield = _S_adjustfield;
+ 
+-    /// A mask of dec|oct|hex.  Useful for the 2-arg form of @c setf.
++    /// A mask of dec|oct|hex|bin.  Useful for the 2-arg form of @c setf.
+     static const fmtflags basefield =   _S_basefield;
+ 
+     /// A mask of scientific|fixed.  Useful for the 2-arg form of @c setf.
+@@ -369,7 +374,7 @@
+     /// Perform input and output in binary mode (as opposed to text mode).
+     /// This is probably not what you think it is; see
+     /// http://gcc.gnu.org/onlinedocs/libstdc++/manual/bk01pt11ch27s02.html
+-    static const openmode binary =	_S_bin;
++    static const openmode binary =	_S_binary;
+ 
+     /// Open for input.  Default for @c ifstream and fstream.
+     static const openmode in =		_S_in;
+@@ -952,6 +957,14 @@
+     return __base;
+   }
+ 
++  /// Calls base.setf(ios_base::bin, ios_base::basefield).
++  inline ios_base&
++  bin(ios_base& __base)
++  {
++    __base.setf(ios_base::bin, ios_base::basefield);
++    return __base;
++  }
++
+   // [27.4.5.4] floatfield manipulators
+   /// Calls base.setf(ios_base::fixed, ios_base::floatfield).
+   inline ios_base&
+Index: src/Makefile.am
+===================================================================
+--- src/Makefile.am	(revision 202540)
++++ src/Makefile.am	(working copy)
+@@ -22,13 +22,14 @@
+ 
+ include $(top_srcdir)/fragment.am
+ 
+-SUBDIRS = c++98 c++11
++SUBDIRS = c++98 c++11 c++14
+ 
+ # Cross compiler support.
+ toolexeclib_LTLIBRARIES = libstdc++.la
+ 
+ vpath % $(top_srcdir)/src/c++98
+ vpath % $(top_srcdir)/src/c++11
++vpath % $(top_srcdir)/src/c++14
+ 
+ if GLIBCXX_LDBL_COMPAT
+ ldbl_compat_sources = compatibility-ldbl.cc
+@@ -60,13 +61,15 @@
+ 	$(GLIBCXX_LIBS) \
+ 	$(top_builddir)/libsupc++/libsupc++convenience.la \
+ 	$(top_builddir)/src/c++98/libc++98convenience.la \
+-	$(top_builddir)/src/c++11/libc++11convenience.la
++	$(top_builddir)/src/c++11/libc++11convenience.la \
++	$(top_builddir)/src/c++11/libc++14convenience.la
+ 
+ libstdc___la_DEPENDENCIES = \
+ 	${version_dep} \
+ 	$(top_builddir)/libsupc++/libsupc++convenience.la \
+ 	$(top_builddir)/src/c++98/libc++98convenience.la \
+-	$(top_builddir)/src/c++11/libc++11convenience.la
++	$(top_builddir)/src/c++11/libc++11convenience.la \
++	$(top_builddir)/src/c++11/libc++14convenience.la
+ 
+ libstdc___la_LDFLAGS = \
+ 	-version-info $(libtool_VERSION) ${version_arg} -lm
+Index: src/Makefile.in
+===================================================================
+--- src/Makefile.in	(revision 202540)
++++ src/Makefile.in	(working copy)
+@@ -339,7 +339,7 @@
+ 
+ # -I/-D flags to pass when compiling.
+ AM_CPPFLAGS = $(GLIBCXX_INCLUDES)
+-SUBDIRS = c++98 c++11
++SUBDIRS = c++98 c++11 c++14
+ 
+ # Cross compiler support.
+ toolexeclib_LTLIBRARIES = libstdc++.la
+Index: src/c++14/Makefile.in
+===================================================================
+--- src/c++14/Makefile.in	(revision 0)
++++ src/c++14/Makefile.in	(revision 0)
+@@ -0,0 +1,620 @@
++# Makefile.in generated by automake 1.11.1 from Makefile.am.
++# @configure_input@
++
++# Copyright (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002,
++# 2003, 2004, 2005, 2006, 2007, 2008, 2009  Free Software Foundation,
++# Inc.
++# This Makefile.in is free software; the Free Software Foundation
++# gives unlimited permission to copy and/or distribute it,
++# with or without modifications, as long as this notice is preserved.
++
++# This program is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY, to the extent permitted by law; without
++# even the implied warranty of MERCHANTABILITY or FITNESS FOR A
++# PARTICULAR PURPOSE.
++
++@SET_MAKE@
++
++VPATH = @srcdir@
++pkgdatadir = $(datadir)/@PACKAGE@
++pkgincludedir = $(includedir)/@PACKAGE@
++pkglibdir = $(libdir)/@PACKAGE@
++pkglibexecdir = $(libexecdir)/@PACKAGE@
++am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
++install_sh_DATA = $(install_sh) -c -m 644
++install_sh_PROGRAM = $(install_sh) -c
++install_sh_SCRIPT = $(install_sh) -c
++INSTALL_HEADER = $(INSTALL_DATA)
++transform = $(program_transform_name)
++NORMAL_INSTALL = :
++PRE_INSTALL = :
++POST_INSTALL = :
++NORMAL_UNINSTALL = :
++PRE_UNINSTALL = :
++POST_UNINSTALL = :
++build_triplet = @build@
++host_triplet = @host@
++target_triplet = @target@
++DIST_COMMON = $(top_srcdir)/fragment.am $(srcdir)/Makefile.in \
++	$(srcdir)/Makefile.am
++subdir = src/c++14
++ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
++am__aclocal_m4_deps = $(top_srcdir)/../config/acx.m4 \
++	$(top_srcdir)/../config/enable.m4 \
++	$(top_srcdir)/../config/futex.m4 \
++	$(top_srcdir)/../config/iconv.m4 \
++	$(top_srcdir)/../config/lead-dot.m4 \
++	$(top_srcdir)/../config/lib-ld.m4 \
++	$(top_srcdir)/../config/lib-link.m4 \
++	$(top_srcdir)/../config/lib-prefix.m4 \
++	$(top_srcdir)/../config/lthostflags.m4 \
++	$(top_srcdir)/../config/multi.m4 \
++	$(top_srcdir)/../config/no-executables.m4 \
++	$(top_srcdir)/../config/override.m4 \
++	$(top_srcdir)/../config/stdint.m4 \
++	$(top_srcdir)/../config/unwind_ipinfo.m4 \
++	$(top_srcdir)/../libtool.m4 $(top_srcdir)/../ltoptions.m4 \
++	$(top_srcdir)/../ltsugar.m4 $(top_srcdir)/../ltversion.m4 \
++	$(top_srcdir)/../lt~obsolete.m4 $(top_srcdir)/crossconfig.m4 \
++	$(top_srcdir)/linkage.m4 $(top_srcdir)/acinclude.m4 \
++	$(top_srcdir)/../config/gc++filt.m4 \
++	$(top_srcdir)/../config/tls.m4 $(top_srcdir)/../config/gthr.m4 \
++	$(top_srcdir)/configure.ac
++am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
++	$(ACLOCAL_M4)
++CONFIG_HEADER = $(top_builddir)/config.h
++CONFIG_CLEAN_FILES =
++CONFIG_CLEAN_VPATH_FILES =
++LTLIBRARIES = $(noinst_LTLIBRARIES)
++libc__14convenience_la_LIBADD =
++am__objects_1 = ios.lo
++am_libc__14convenience_la_OBJECTS = $(am__objects_1)
++libc__14convenience_la_OBJECTS = $(am_libc__14convenience_la_OBJECTS)
++DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
++depcomp =
++am__depfiles_maybe =
++CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
++	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
++CXXLD = $(CXX)
++SOURCES = $(libc__14convenience_la_SOURCES)
++ETAGS = etags
++CTAGS = ctags
++ABI_TWEAKS_SRCDIR = @ABI_TWEAKS_SRCDIR@
++ACLOCAL = @ACLOCAL@
++ALLOCATOR_H = @ALLOCATOR_H@
++ALLOCATOR_NAME = @ALLOCATOR_NAME@
++AMTAR = @AMTAR@
++AR = @AR@
++AS = @AS@
++ATOMICITY_SRCDIR = @ATOMICITY_SRCDIR@
++ATOMIC_FLAGS = @ATOMIC_FLAGS@
++ATOMIC_WORD_SRCDIR = @ATOMIC_WORD_SRCDIR@
++AUTOCONF = @AUTOCONF@
++AUTOHEADER = @AUTOHEADER@
++AUTOMAKE = @AUTOMAKE@
++AWK = @AWK@
++BASIC_FILE_CC = @BASIC_FILE_CC@
++BASIC_FILE_H = @BASIC_FILE_H@
++CC = @CC@
++CCODECVT_CC = @CCODECVT_CC@
++CCOLLATE_CC = @CCOLLATE_CC@
++CCTYPE_CC = @CCTYPE_CC@
++CFLAGS = @CFLAGS@
++CLOCALE_CC = @CLOCALE_CC@
++CLOCALE_H = @CLOCALE_H@
++CLOCALE_INTERNAL_H = @CLOCALE_INTERNAL_H@
++CMESSAGES_CC = @CMESSAGES_CC@
++CMESSAGES_H = @CMESSAGES_H@
++CMONEY_CC = @CMONEY_CC@
++CNUMERIC_CC = @CNUMERIC_CC@
++CPP = @CPP@
++CPPFLAGS = @CPPFLAGS@
++CPU_DEFINES_SRCDIR = @CPU_DEFINES_SRCDIR@
++CPU_OPT_BITS_RANDOM = @CPU_OPT_BITS_RANDOM@
++CPU_OPT_EXT_RANDOM = @CPU_OPT_EXT_RANDOM@
++CSTDIO_H = @CSTDIO_H@
++CTIME_CC = @CTIME_CC@
++CTIME_H = @CTIME_H@
++CXX = @CXX@
++CXXCPP = @CXXCPP@
++CXXFILT = @CXXFILT@
++CXXFLAGS = @CXXFLAGS@
++CYGPATH_W = @CYGPATH_W@
++C_INCLUDE_DIR = @C_INCLUDE_DIR@
++DBLATEX = @DBLATEX@
++DEBUG_FLAGS = @DEBUG_FLAGS@
++DEFS = @DEFS@
++DOT = @DOT@
++DOXYGEN = @DOXYGEN@
++DSYMUTIL = @DSYMUTIL@
++DUMPBIN = @DUMPBIN@
++ECHO_C = @ECHO_C@
++ECHO_N = @ECHO_N@
++ECHO_T = @ECHO_T@
++EGREP = @EGREP@
++ERROR_CONSTANTS_SRCDIR = @ERROR_CONSTANTS_SRCDIR@
++EXEEXT = @EXEEXT@
++EXTRA_CXX_FLAGS = @EXTRA_CXX_FLAGS@
++FGREP = @FGREP@
++GLIBCXX_INCLUDES = @GLIBCXX_INCLUDES@
++GLIBCXX_LIBS = @GLIBCXX_LIBS@
++GREP = @GREP@
++HWCAP_FLAGS = @HWCAP_FLAGS@
++INSTALL = @INSTALL@
++INSTALL_DATA = @INSTALL_DATA@
++INSTALL_PROGRAM = @INSTALL_PROGRAM@
++INSTALL_SCRIPT = @INSTALL_SCRIPT@
++INSTALL_STRIP_PROGRAM = @INSTALL_STRIP_PROGRAM@
++LD = @LD@
++LDFLAGS = @LDFLAGS@
++LIBICONV = @LIBICONV@
++LIBOBJS = @LIBOBJS@
++LIBS = @LIBS@
++LIBTOOL = @LIBTOOL@
++LIPO = @LIPO@
++LN_S = @LN_S@
++LTLIBICONV = @LTLIBICONV@
++LTLIBOBJS = @LTLIBOBJS@
++MAINT = @MAINT@
++MAKEINFO = @MAKEINFO@
++MKDIR_P = @MKDIR_P@
++NM = @NM@
++NMEDIT = @NMEDIT@
++OBJDUMP = @OBJDUMP@
++OBJEXT = @OBJEXT@
++OPTIMIZE_CXXFLAGS = @OPTIMIZE_CXXFLAGS@
++OPT_LDFLAGS = @OPT_LDFLAGS@
++OS_INC_SRCDIR = @OS_INC_SRCDIR@
++OTOOL = @OTOOL@
++OTOOL64 = @OTOOL64@
++PACKAGE = @PACKAGE@
++PACKAGE_BUGREPORT = @PACKAGE_BUGREPORT@
++PACKAGE_NAME = @PACKAGE_NAME@
++PACKAGE_STRING = @PACKAGE_STRING@
++PACKAGE_TARNAME = @PACKAGE_TARNAME@
++PACKAGE_URL = @PACKAGE_URL@
++PACKAGE_VERSION = @PACKAGE_VERSION@
++PATH_SEPARATOR = @PATH_SEPARATOR@
++PDFLATEX = @PDFLATEX@
++RANLIB = @RANLIB@
++SECTION_FLAGS = @SECTION_FLAGS@
++SECTION_LDFLAGS = @SECTION_LDFLAGS@
++SED = @SED@
++SET_MAKE = @SET_MAKE@
++SHELL = @SHELL@
++STRIP = @STRIP@
++SYMVER_FILE = @SYMVER_FILE@
++TOPLEVEL_INCLUDES = @TOPLEVEL_INCLUDES@
++USE_NLS = @USE_NLS@
++VERSION = @VERSION@
++VTV_CXXFLAGS = @VTV_CXXFLAGS@
++VTV_CXXLINKFLAGS = @VTV_CXXLINKFLAGS@
++VTV_PCH_CXXFLAGS = @VTV_PCH_CXXFLAGS@
++WARN_FLAGS = @WARN_FLAGS@
++WERROR = @WERROR@
++XMLLINT = @XMLLINT@
++XSLTPROC = @XSLTPROC@
++XSL_STYLE_DIR = @XSL_STYLE_DIR@
++abs_builddir = @abs_builddir@
++abs_srcdir = @abs_srcdir@
++abs_top_builddir = @abs_top_builddir@
++abs_top_srcdir = @abs_top_srcdir@
++ac_ct_CC = @ac_ct_CC@
++ac_ct_CXX = @ac_ct_CXX@
++ac_ct_DUMPBIN = @ac_ct_DUMPBIN@
++am__leading_dot = @am__leading_dot@
++am__tar = @am__tar@
++am__untar = @am__untar@
++baseline_dir = @baseline_dir@
++baseline_subdir_switch = @baseline_subdir_switch@
++bindir = @bindir@
++build = @build@
++build_alias = @build_alias@
++build_cpu = @build_cpu@
++build_os = @build_os@
++build_vendor = @build_vendor@
++builddir = @builddir@
++check_msgfmt = @check_msgfmt@
++datadir = @datadir@
++datarootdir = @datarootdir@
++docdir = @docdir@
++dvidir = @dvidir@
++enable_shared = @enable_shared@
++enable_static = @enable_static@
++exec_prefix = @exec_prefix@
++glibcxx_MOFILES = @glibcxx_MOFILES@
++glibcxx_PCHFLAGS = @glibcxx_PCHFLAGS@
++glibcxx_POFILES = @glibcxx_POFILES@
++glibcxx_builddir = @glibcxx_builddir@
++glibcxx_compiler_pic_flag = @glibcxx_compiler_pic_flag@
++glibcxx_compiler_shared_flag = @glibcxx_compiler_shared_flag@
++glibcxx_localedir = @glibcxx_localedir@
++glibcxx_lt_pic_flag = @glibcxx_lt_pic_flag@
++glibcxx_prefixdir = @glibcxx_prefixdir@
++glibcxx_srcdir = @glibcxx_srcdir@
++glibcxx_toolexecdir = @glibcxx_toolexecdir@
++glibcxx_toolexeclibdir = @glibcxx_toolexeclibdir@
++gxx_include_dir = @gxx_include_dir@
++host = @host@
++host_alias = @host_alias@
++host_cpu = @host_cpu@
++host_os = @host_os@
++host_vendor = @host_vendor@
++htmldir = @htmldir@
++includedir = @includedir@
++infodir = @infodir@
++install_sh = @install_sh@
++libdir = @libdir@
++libexecdir = @libexecdir@
++libtool_VERSION = @libtool_VERSION@
++localedir = @localedir@
++localstatedir = @localstatedir@
++lt_host_flags = @lt_host_flags@
++mandir = @mandir@
++mkdir_p = @mkdir_p@
++multi_basedir = @multi_basedir@
++oldincludedir = @oldincludedir@
++pdfdir = @pdfdir@
++port_specific_symbol_files = @port_specific_symbol_files@
++prefix = @prefix@
++program_transform_name = @program_transform_name@
++psdir = @psdir@
++python_mod_dir = @python_mod_dir@
++sbindir = @sbindir@
++sharedstatedir = @sharedstatedir@
++srcdir = @srcdir@
++sysconfdir = @sysconfdir@
++target = @target@
++target_alias = @target_alias@
++target_cpu = @target_cpu@
++target_os = @target_os@
++target_vendor = @target_vendor@
++thread_header = @thread_header@
++top_build_prefix = @top_build_prefix@
++top_builddir = @top_builddir@
++top_srcdir = @top_srcdir@
++toplevel_builddir = @toplevel_builddir@
++toplevel_srcdir = @toplevel_srcdir@
++
++# May be used by various substitution variables.
++gcc_version := $(shell cat $(top_srcdir)/../gcc/BASE-VER)
++MAINT_CHARSET = latin1
++mkinstalldirs = $(SHELL) $(toplevel_srcdir)/mkinstalldirs
++PWD_COMMAND = $${PWDCMD-pwd}
++STAMP = echo timestamp >
++toolexecdir = $(glibcxx_toolexecdir)
++toolexeclibdir = $(glibcxx_toolexeclibdir)
++@ENABLE_WERROR_FALSE@WERROR_FLAG = 
++@ENABLE_WERROR_TRUE@WERROR_FLAG = $(WERROR)
++@ENABLE_EXTERN_TEMPLATE_FALSE@XTEMPLATE_FLAGS = 
++@ENABLE_EXTERN_TEMPLATE_TRUE@XTEMPLATE_FLAGS = -fno-implicit-templates
++
++# These bits are all figured out from configure.  Look in acinclude.m4
++# or configure.ac to see how they are set.  See GLIBCXX_EXPORT_FLAGS.
++CONFIG_CXXFLAGS = \
++	$(SECTION_FLAGS) $(HWCAP_FLAGS) -frandom-seed=$@
++
++WARN_CXXFLAGS = \
++	$(WARN_FLAGS) $(WERROR_FLAG) -fdiagnostics-show-location=once 
++
++
++# -I/-D flags to pass when compiling.
++AM_CPPFLAGS = $(GLIBCXX_INCLUDES)
++
++# Convenience library for C++14 runtime.
++noinst_LTLIBRARIES = libc++14convenience.la
++headers = 
++sources = \
++	ios.cc
++
++# XTEMPLATE_FLAGS =
++@ENABLE_EXTERN_TEMPLATE_FALSE@inst_sources = 
++
++libc__14convenience_la_SOURCES = $(sources)  $(inst_sources)
++
++# AM_CXXFLAGS needs to be in each subdirectory so that it can be
++# modified in a per-library or per-sub-library way.  Need to manually
++# set this option because CONFIG_CXXFLAGS has to be after
++# OPTIMIZE_CXXFLAGS on the compile line so that -O2 can be overridden
++# as the occasion calls for it.
++AM_CXXFLAGS = \
++	-std=gnu++1y \
++	$(glibcxx_lt_pic_flag) $(glibcxx_compiler_shared_flag) \
++	$(XTEMPLATE_FLAGS) $(VTV_CXXFLAGS) \
++	$(WARN_CXXFLAGS) $(OPTIMIZE_CXXFLAGS) $(CONFIG_CXXFLAGS)
++
++AM_MAKEFLAGS = \
++	"gxx_include_dir=$(gxx_include_dir)"
++
++
++# Libtool notes
++
++# 1) In general, libtool expects an argument such as `--tag=CXX' when
++# using the C++ compiler, because that will enable the settings
++# detected when C++ support was being configured.  However, when no
++# such flag is given in the command line, libtool attempts to figure
++# it out by matching the compiler name in each configuration section
++# against a prefix of the command line.  The problem is that, if the
++# compiler name and its initial flags stored in the libtool
++# configuration file don't match those in the command line, libtool
++# can't decide which configuration to use, and it gives up.  The
++# correct solution is to add `--tag CXX' to LTCXXCOMPILE and maybe
++# CXXLINK, just after $(LIBTOOL), so that libtool doesn't have to
++# attempt to infer which configuration to use.
++# 
++# The second tag argument, `--tag disable-shared` means that libtool
++# only compiles each source once, for static objects. In actuality,
++# glibcxx_lt_pic_flag and glibcxx_compiler_shared_flag are added to
++# the libtool command that is used create the object, which is
++# suitable for shared libraries.  The `--tag disable-shared` must be
++# placed after --tag CXX lest things CXX undo the affect of
++# disable-shared.
++
++# 2) Need to explicitly set LTCXXCOMPILE so that EXTRA_CXX_FLAGS is
++# last. (That way, things like -O2 passed down from the toplevel can
++# be overridden by --enable-debug.)
++LTCXXCOMPILE = \
++	$(LIBTOOL) --tag CXX --tag disable-shared \
++	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
++	--mode=compile $(CXX) $(TOPLEVEL_INCLUDES) \
++	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) $(EXTRA_CXX_FLAGS)
++
++LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS))
++
++# 3) We'd have a problem when building the shared libstdc++ object if
++# the rules automake generates would be used.  We cannot allow g++ to
++# be used since this would add -lstdc++ to the link line which of
++# course is problematic at this point.  So, we get the top-level
++# directory to configure libstdc++-v3 to use gcc as the C++
++# compilation driver.
++CXXLINK = \
++	$(LIBTOOL) --tag CXX --tag disable-shared \
++	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
++	--mode=link $(CXX) \
++	$(VTV_CXXLINKFLAGS) \
++	$(OPT_LDFLAGS) $(SECTION_LDFLAGS) $(AM_CXXFLAGS) $(LTLDFLAGS) -o $@
++
++all: all-am
++
++.SUFFIXES:
++.SUFFIXES: .cc .lo .o .obj
++$(srcdir)/Makefile.in: @MAINTAINER_MODE_TRUE@ $(srcdir)/Makefile.am $(top_srcdir)/fragment.am $(am__configure_deps)
++	@for dep in $?; do \
++	  case '$(am__configure_deps)' in \
++	    *$$dep*) \
++	      ( cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh ) \
++	        && { if test -f $@; then exit 0; else break; fi; }; \
++	      exit 1;; \
++	  esac; \
++	done; \
++	echo ' cd $(top_srcdir) && $(AUTOMAKE) --foreign --ignore-deps src/c++14/Makefile'; \
++	$(am__cd) $(top_srcdir) && \
++	  $(AUTOMAKE) --foreign --ignore-deps src/c++14/Makefile
++.PRECIOUS: Makefile
++Makefile: $(srcdir)/Makefile.in $(top_builddir)/config.status
++	@case '$?' in \
++	  *config.status*) \
++	    cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh;; \
++	  *) \
++	    echo ' cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe)'; \
++	    cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@ $(am__depfiles_maybe);; \
++	esac;
++
++$(top_builddir)/config.status: $(top_srcdir)/configure $(CONFIG_STATUS_DEPENDENCIES)
++	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
++
++$(top_srcdir)/configure: @MAINTAINER_MODE_TRUE@ $(am__configure_deps)
++	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
++$(ACLOCAL_M4): @MAINTAINER_MODE_TRUE@ $(am__aclocal_m4_deps)
++	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
++$(am__aclocal_m4_deps):
++
++clean-noinstLTLIBRARIES:
++	-test -z "$(noinst_LTLIBRARIES)" || rm -f $(noinst_LTLIBRARIES)
++	@list='$(noinst_LTLIBRARIES)'; for p in $$list; do \
++	  dir="`echo $$p | sed -e 's|/[^/]*$$||'`"; \
++	  test "$$dir" != "$$p" || dir=.; \
++	  echo "rm -f \"$${dir}/so_locations\""; \
++	  rm -f "$${dir}/so_locations"; \
++	done
++libc++14convenience.la: $(libc__14convenience_la_OBJECTS) $(libc__14convenience_la_DEPENDENCIES) 
++	$(CXXLINK)  $(libc__14convenience_la_OBJECTS) $(libc__14convenience_la_LIBADD) $(LIBS)
++
++mostlyclean-compile:
++	-rm -f *.$(OBJEXT)
++
++distclean-compile:
++	-rm -f *.tab.c
++
++.cc.o:
++	$(CXXCOMPILE) -c -o $@ $<
++
++.cc.obj:
++	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
++
++.cc.lo:
++	$(LTCXXCOMPILE) -c -o $@ $<
++
++mostlyclean-libtool:
++	-rm -f *.lo
++
++clean-libtool:
++	-rm -rf .libs _libs
++
++ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
++	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
++	unique=`for i in $$list; do \
++	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
++	  done | \
++	  $(AWK) '{ files[$$0] = 1; nonempty = 1; } \
++	      END { if (nonempty) { for (i in files) print i; }; }'`; \
++	mkid -fID $$unique
++tags: TAGS
++
++TAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
++		$(TAGS_FILES) $(LISP)
++	set x; \
++	here=`pwd`; \
++	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
++	unique=`for i in $$list; do \
++	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
++	  done | \
++	  $(AWK) '{ files[$$0] = 1; nonempty = 1; } \
++	      END { if (nonempty) { for (i in files) print i; }; }'`; \
++	shift; \
++	if test -z "$(ETAGS_ARGS)$$*$$unique"; then :; else \
++	  test -n "$$unique" || unique=$$empty_fix; \
++	  if test $$# -gt 0; then \
++	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
++	      "$$@" $$unique; \
++	  else \
++	    $(ETAGS) $(ETAGSFLAGS) $(AM_ETAGSFLAGS) $(ETAGS_ARGS) \
++	      $$unique; \
++	  fi; \
++	fi
++ctags: CTAGS
++CTAGS:  $(HEADERS) $(SOURCES)  $(TAGS_DEPENDENCIES) \
++		$(TAGS_FILES) $(LISP)
++	list='$(SOURCES) $(HEADERS)  $(LISP) $(TAGS_FILES)'; \
++	unique=`for i in $$list; do \
++	    if test -f "$$i"; then echo $$i; else echo $(srcdir)/$$i; fi; \
++	  done | \
++	  $(AWK) '{ files[$$0] = 1; nonempty = 1; } \
++	      END { if (nonempty) { for (i in files) print i; }; }'`; \
++	test -z "$(CTAGS_ARGS)$$unique" \
++	  || $(CTAGS) $(CTAGSFLAGS) $(AM_CTAGSFLAGS) $(CTAGS_ARGS) \
++	     $$unique
++
++GTAGS:
++	here=`$(am__cd) $(top_builddir) && pwd` \
++	  && $(am__cd) $(top_srcdir) \
++	  && gtags -i $(GTAGS_ARGS) "$$here"
++
++distclean-tags:
++	-rm -f TAGS ID GTAGS GRTAGS GSYMS GPATH tags
++check-am: all-am
++check: check-am
++all-am: Makefile $(LTLIBRARIES)
++installdirs:
++install: install-am
++install-exec: install-exec-am
++install-data: install-data-am
++uninstall: uninstall-am
++
++install-am: all-am
++	@$(MAKE) $(AM_MAKEFLAGS) install-exec-am install-data-am
++
++installcheck: installcheck-am
++install-strip:
++	$(MAKE) $(AM_MAKEFLAGS) INSTALL_PROGRAM="$(INSTALL_STRIP_PROGRAM)" \
++	  install_sh_PROGRAM="$(INSTALL_STRIP_PROGRAM)" INSTALL_STRIP_FLAG=-s \
++	  `test -z '$(STRIP)' || \
++	    echo "INSTALL_PROGRAM_ENV=STRIPPROG='$(STRIP)'"` install
++mostlyclean-generic:
++
++clean-generic:
++
++distclean-generic:
++	-test -z "$(CONFIG_CLEAN_FILES)" || rm -f $(CONFIG_CLEAN_FILES)
++	-test . = "$(srcdir)" || test -z "$(CONFIG_CLEAN_VPATH_FILES)" || rm -f $(CONFIG_CLEAN_VPATH_FILES)
++
++maintainer-clean-generic:
++	@echo "This command is intended for maintainers to use"
++	@echo "it deletes files that may require special tools to rebuild."
++clean: clean-am
++
++clean-am: clean-generic clean-libtool clean-noinstLTLIBRARIES \
++	mostlyclean-am
++
++distclean: distclean-am
++	-rm -f Makefile
++distclean-am: clean-am distclean-compile distclean-generic \
++	distclean-tags
++
++dvi: dvi-am
++
++dvi-am:
++
++html: html-am
++
++html-am:
++
++info: info-am
++
++info-am:
++
++install-data-am:
++
++install-dvi: install-dvi-am
++
++install-dvi-am:
++
++install-exec-am:
++
++install-html: install-html-am
++
++install-html-am:
++
++install-info: install-info-am
++
++install-info-am:
++
++install-man:
++
++install-pdf: install-pdf-am
++
++install-pdf-am:
++
++install-ps: install-ps-am
++
++install-ps-am:
++
++installcheck-am:
++
++maintainer-clean: maintainer-clean-am
++	-rm -f Makefile
++maintainer-clean-am: distclean-am maintainer-clean-generic
++
++mostlyclean: mostlyclean-am
++
++mostlyclean-am: mostlyclean-compile mostlyclean-generic \
++	mostlyclean-libtool
++
++pdf: pdf-am
++
++pdf-am:
++
++ps: ps-am
++
++ps-am:
++
++uninstall-am:
++
++.MAKE: install-am install-strip
++
++.PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
++	clean-libtool clean-noinstLTLIBRARIES ctags distclean \
++	distclean-compile distclean-generic distclean-libtool \
++	distclean-tags dvi dvi-am html html-am info info-am install \
++	install-am install-data install-data-am install-dvi \
++	install-dvi-am install-exec install-exec-am install-html \
++	install-html-am install-info install-info-am install-man \
++	install-pdf install-pdf-am install-ps install-ps-am \
++	install-strip installcheck installcheck-am installdirs \
++	maintainer-clean maintainer-clean-generic mostlyclean \
++	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
++	pdf pdf-am ps ps-am tags uninstall uninstall-am
++
++
++vpath % $(top_srcdir)/src/c++14
++
++# Use special rules for the hashtable.cc file so that all
++# the generated template functions are also instantiated. 
++hashtable_c++0x.lo: hashtable_c++0x.cc
++	$(LTCXXCOMPILE) -fimplicit-templates -c $<
++hashtable_c++0x.o: hashtable_c++0x.cc
++	$(CXXCOMPILE) -fimplicit-templates -c $<
++
++# Tell versions [3.59,3.63) of GNU make to not export all variables.
++# Otherwise a system limit (for SysV at least) may be exceeded.
++.NOEXPORT:
+Index: src/c++14/Makefile.am
+===================================================================
+--- src/c++14/Makefile.am	(revision 0)
++++ src/c++14/Makefile.am	(revision 0)
+@@ -0,0 +1,99 @@
++## Makefile for the C++03 sources of the GNU C++ Standard library.
++##
++## Copyright (C) 1997-2013 Free Software Foundation, Inc.
++##
++## This file is part of the libstdc++ version 3 distribution.
++## Process this file with automake to produce Makefile.in.
++
++## This file is part of the GNU ISO C++ Library.  This library is free
++## software; you can redistribute it and/or modify it under the
++## terms of the GNU General Public License as published by the
++## Free Software Foundation; either version 3, or (at your option)
++## any later version.
++
++## This library is distributed in the hope that it will be useful,
++## but WITHOUT ANY WARRANTY; without even the implied warranty of
++## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++## GNU General Public License for more details.
++
++## You should have received a copy of the GNU General Public License along
++## with this library; see the file COPYING3.  If not see
++## <http://www.gnu.org/licenses/>.
++
++include $(top_srcdir)/fragment.am
++
++# Convenience library for C++14 runtime.
++noinst_LTLIBRARIES = libc++14convenience.la
++
++headers =
++
++sources = \
++	ios.cc
++
++# XTEMPLATE_FLAGS =
++inst_sources =
++
++vpath % $(top_srcdir)/src/c++14
++
++libc__14convenience_la_SOURCES = $(sources)  $(inst_sources)
++
++# AM_CXXFLAGS needs to be in each subdirectory so that it can be
++# modified in a per-library or per-sub-library way.  Need to manually
++# set this option because CONFIG_CXXFLAGS has to be after
++# OPTIMIZE_CXXFLAGS on the compile line so that -O2 can be overridden
++# as the occasion calls for it.
++AM_CXXFLAGS = \
++	-std=gnu++1y \
++	$(glibcxx_lt_pic_flag) $(glibcxx_compiler_shared_flag) \
++	$(XTEMPLATE_FLAGS) $(VTV_CXXFLAGS) \
++	$(WARN_CXXFLAGS) $(OPTIMIZE_CXXFLAGS) $(CONFIG_CXXFLAGS)
++
++AM_MAKEFLAGS = \
++	"gxx_include_dir=$(gxx_include_dir)"
++
++# Libtool notes
++
++# 1) In general, libtool expects an argument such as `--tag=CXX' when
++# using the C++ compiler, because that will enable the settings
++# detected when C++ support was being configured.  However, when no
++# such flag is given in the command line, libtool attempts to figure
++# it out by matching the compiler name in each configuration section
++# against a prefix of the command line.  The problem is that, if the
++# compiler name and its initial flags stored in the libtool
++# configuration file don't match those in the command line, libtool
++# can't decide which configuration to use, and it gives up.  The
++# correct solution is to add `--tag CXX' to LTCXXCOMPILE and maybe
++# CXXLINK, just after $(LIBTOOL), so that libtool doesn't have to
++# attempt to infer which configuration to use.
++# 
++# The second tag argument, `--tag disable-shared` means that libtool
++# only compiles each source once, for static objects. In actuality,
++# glibcxx_lt_pic_flag and glibcxx_compiler_shared_flag are added to
++# the libtool command that is used create the object, which is
++# suitable for shared libraries.  The `--tag disable-shared` must be
++# placed after --tag CXX lest things CXX undo the affect of
++# disable-shared.
++
++# 2) Need to explicitly set LTCXXCOMPILE so that EXTRA_CXX_FLAGS is
++# last. (That way, things like -O2 passed down from the toplevel can
++# be overridden by --enable-debug.)
++LTCXXCOMPILE = \
++	$(LIBTOOL) --tag CXX --tag disable-shared \
++	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
++	--mode=compile $(CXX) $(TOPLEVEL_INCLUDES) \
++	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) $(EXTRA_CXX_FLAGS)
++
++LTLDFLAGS = $(shell $(SHELL) $(top_srcdir)/../libtool-ldflags $(LDFLAGS))
++
++# 3) We'd have a problem when building the shared libstdc++ object if
++# the rules automake generates would be used.  We cannot allow g++ to
++# be used since this would add -lstdc++ to the link line which of
++# course is problematic at this point.  So, we get the top-level
++# directory to configure libstdc++-v3 to use gcc as the C++
++# compilation driver.
++CXXLINK = \
++	$(LIBTOOL) --tag CXX --tag disable-shared \
++	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
++	--mode=link $(CXX) \
++	$(VTV_CXXLINKFLAGS) \
++	$(OPT_LDFLAGS) $(SECTION_LDFLAGS) $(AM_CXXFLAGS) $(LTLDFLAGS) -o $@
+Index: src/c++14/ios.cc
+===================================================================
+--- src/c++14/ios.cc	(revision 0)
++++ src/c++14/ios.cc	(revision 0)
+@@ -0,0 +1,40 @@
++// Iostreams base classes -*- C++ -*-
++
++// Copyright (C) 1997-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// Under Section 7 of GPL version 3, you are granted additional
++// permissions described in the GCC Runtime Library Exception, version
++// 3.1, as published by the Free Software Foundation.
++
++// You should have received a copy of the GNU General Public License and
++// a copy of the GCC Runtime Library Exception along with this program;
++// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++// <http://www.gnu.org/licenses/>.
++
++//
++// ISO C++ 14882: 27.4  Iostreams base classes
++//
++
++#include <ios>
++#include <limits>
++
++namespace std _GLIBCXX_VISIBILITY(default)
++{
++_GLIBCXX_BEGIN_NAMESPACE_VERSION
++
++  // Definitions for static const members of ios_base.
++  const ios_base::fmtflags ios_base::bin;
++
++_GLIBCXX_END_NAMESPACE_VERSION
++} // namespace
+Index: testsuite/27_io/headers/ios/synopsis_bin.cc
+===================================================================
+--- testsuite/27_io/headers/ios/synopsis_bin.cc	(revision 0)
++++ testsuite/27_io/headers/ios/synopsis_bin.cc	(revision 0)
+@@ -0,0 +1,61 @@
++// { dg-do compile }
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2007-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <ios>
++
++namespace std {
++#if 0
++  typedef OFF_T streamoff;
++  typedef SZ_T streamsize;
++#endif
++
++  template <class stateT> class fpos;
++  class ios_base;
++  template <class charT, class traits>
++     class basic_ios;
++
++  // 27.4.5, manipulators:
++  ios_base& boolalpha (ios_base& str);
++  ios_base& noboolalpha(ios_base& str);
++  ios_base& showbase     (ios_base& str);
++  ios_base& noshowbase (ios_base& str);
++  ios_base& showpoint (ios_base& str);
++  ios_base& noshowpoint(ios_base& str);
++  ios_base& showpos      (ios_base& str);
++  ios_base& noshowpos    (ios_base& str);
++  ios_base& skipws       (ios_base& str);
++  ios_base& noskipws     (ios_base& str);
++  ios_base& uppercase (ios_base& str);
++  ios_base& nouppercase(ios_base& str);
++  ios_base& unitbuf      (ios_base& str);
++  ios_base& nounitbuf    (ios_base& str);
++  // 27.4.5.2 adjustfield:
++  ios_base& internal     (ios_base& str);
++  ios_base& left         (ios_base& str);
++  ios_base& right        (ios_base& str);
++  // 27.4.5.3 basefield:
++  ios_base& dec          (ios_base& str);
++  ios_base& hex          (ios_base& str);
++  ios_base& oct          (ios_base& str);
++  ios_base& bin          (ios_base& str);
++  // 27.4.5.4 floatfield:
++  ios_base& fixed        (ios_base& str);
++  ios_base& scientific (ios_base& str);
++}
+Index: testsuite/27_io/ios_base/types/fmtflags/case_label_bin.cc
+===================================================================
+--- testsuite/27_io/ios_base/types/fmtflags/case_label_bin.cc	(revision 0)
++++ testsuite/27_io/ios_base/types/fmtflags/case_label_bin.cc	(revision 0)
+@@ -0,0 +1,76 @@
++// { dg-do compile }
++// { dg-options "-std=gnu++1y" "-Wall" { target *-*-* } }
++// -*- C++ -*-
++ 
++// Copyright (C) 2004-2013 Free Software Foundation, Inc.
++ 
++// This library is free software; you can redistribute it and/or
++// modify it under the terms of the GNU General Public License as
++// published by the Free Software Foundation; either version 3, or (at
++// your option) any later version.
++ 
++// This library is distributed in the hope that it will be useful, but
++// WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++// General Public License for more details.
++ 
++// You should have received a copy of the GNU General Public License
++// along with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++ 
++ 
++// Benjamin Kosnik  <bkoz@redhat.com>
++
++#include <ios>
++
++// PR libstdc++/17922
++// -Wall
++typedef std::ios_base::fmtflags bitmask_type;
++
++void
++case_labels(bitmask_type b)
++{
++  switch (b) 
++    {
++    case std::ios_base::boolalpha:
++      break;
++    case std::ios_base::dec:
++      break;
++    case std::ios_base::fixed:
++      break;
++    case std::ios_base::hex:
++      break;
++    case std::ios_base::internal:
++      break;
++    case std::ios_base::left:
++      break;
++    case std::ios_base::oct:
++      break;
++    case std::ios_base::right:
++      break;
++    case std::ios_base::scientific:
++      break;
++    case std::ios_base::showbase:
++      break;
++    case std::ios_base::showpoint:
++      break;
++    case std::ios_base::showpos:
++      break;
++    case std::ios_base::skipws:
++      break;
++    case std::ios_base::unitbuf:
++      break;
++    case std::ios_base::uppercase:
++      break;
++    case std::ios_base::bin:
++      break;
++    case std::ios_base::adjustfield:
++      break;
++    case std::ios_base::basefield:
++      break;
++    case std::ios_base::floatfield:
++      break;
++    case std::_S_ios_fmtflags_end:
++      break;
++    }
++}
+Index: testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10_bin.cc
+===================================================================
+--- testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10_bin.cc	(revision 0)
++++ testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10_bin.cc	(revision 0)
+@@ -0,0 +1,98 @@
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2004-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.1.2.2 arithmetic extractors
++
++#include <istream>
++#include <sstream>
++#include <locale>
++#include <testsuite_hooks.h>
++
++bool
++test10()
++{
++  std::wstring str_01(L"0 00 000 +0 +0 -0");
++  std::wstringbuf isbuf_01(str_01);
++  std::wistream is_01(&isbuf_01);
++
++  bool test [[gnu::unused]] = true;
++
++  int n = 666;
++  std::wstring str_02(L"0x32 0X33 033 33 0b11 0B11 11");
++  std::wstringbuf isbuf_02(str_02);
++  std::wistream is_02(&isbuf_02);
++  is_02.unsetf(std::ios_base::basefield);
++  is_02 >> n;
++  VERIFY( n == 50 );
++  is_02 >> n;
++  VERIFY( n == 51 );
++  is_02 >> n;
++  VERIFY( n == 27 );
++  is_02 >> n;
++  VERIFY( n == 33 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 11 );
++  VERIFY( is_02.rdstate() == std::ios_base::eofbit );
++
++  std::wstringbuf isbuf_03(str_02);
++  std::wistream is_03(&isbuf_03);
++  wchar_t c;
++  int m;
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == L'x' );
++  VERIFY( m == 32 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == L'X' );
++  VERIFY( n == 27 );
++
++  is_03 >> std::dec >> m >> n;
++  VERIFY( m == 33 );
++  VERIFY( n == 33 );
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == L'b' );
++  VERIFY( m == 11 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == L'B' );
++  VERIFY( n == 9 );
++
++  is_03 >> std::dec >> m;
++  VERIFY( m == 11 );
++  VERIFY( is_03.rdstate() == std::ios_base::eofbit );
++
++  return test;
++}
++
++int
++main()
++{
++  test10();
++  return 0;
++}
+Index: testsuite/27_io/basic_istream/extractors_arithmetic/char/10_bin.cc
+===================================================================
+--- testsuite/27_io/basic_istream/extractors_arithmetic/char/10_bin.cc	(revision 0)
++++ testsuite/27_io/basic_istream/extractors_arithmetic/char/10_bin.cc	(revision 0)
+@@ -0,0 +1,100 @@
++// { dg-options "-std=gnu++1y" }
++
++// 1999-04-12 bkoz
++
++// Copyright (C) 1999-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.1.2.2 arithmetic extractors
++
++#include <istream>
++#include <sstream>
++#include <locale>
++#include <testsuite_hooks.h>
++
++bool
++test10()
++{
++  std::string str_01("0 00 000 +0 +0 -0");
++  std::stringbuf isbuf_01(str_01);
++  std::istream is_01(&isbuf_01);
++
++  bool test [[gnu::unused]] = true;
++
++  int n = 666;
++  std::string str_02("0x32 0X33 033 33 0b11 0B11 11");
++  std::stringbuf isbuf_02(str_02);
++  std::istream is_02(&isbuf_02);
++  is_02.unsetf(std::ios_base::basefield);
++  is_02 >> n;
++  VERIFY( n == 50 );
++  is_02 >> n;
++  VERIFY( n == 51 );
++  is_02 >> n;
++  VERIFY( n == 27 );
++  is_02 >> n;
++  VERIFY( n == 33 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 11 );
++  VERIFY( is_02.rdstate() == std::ios_base::eofbit );
++
++  std::stringbuf isbuf_03(str_02);
++  std::istream is_03(&isbuf_03);
++  char c;
++  int m;
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == 'x' );
++  VERIFY( m == 32 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == 'X' );
++  VERIFY( n == 27 );
++
++  is_03 >> std::dec >> m >> n;
++  VERIFY( m == 33 );
++  VERIFY( n == 33 );
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == L'b' );
++  VERIFY( m == 11 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == L'B' );
++  VERIFY( n == 9 );
++
++  is_03 >> std::dec >> m;
++  VERIFY( m == 11 );
++  VERIFY( is_03.rdstate() == std::ios_base::eofbit );
++
++  return test;
++}
++
++int
++main()
++{
++  test10();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3_bin.cc	(revision 0)
+@@ -0,0 +1,68 @@
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2005-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <limits>
++#include <testsuite_hooks.h>
++
++template<typename T>
++bool
++test03_check(T n)
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  wstringbuf strbuf;
++  wostream o(&strbuf);
++  const wchar_t *expect;
++
++  if (numeric_limits<T>::digits + 1 == 16)
++    expect = L"1111111111111111 177777 ffff";
++  else if (numeric_limits<T>::digits + 1 == 32)
++    expect = L"11111111111111111111111111111111 37777777777 ffffffff";
++  else if (numeric_limits<T>::digits + 1 == 64)
++    expect = L"1111111111111111111111111111111111111111111111111111111111111111 1777777777777777777777 ffffffffffffffff";
++  else
++    expect = L"wow, you've got some big numbers here";
++
++  o << bin << n << ' ' << oct << n << L' ' << hex << n;
++  VERIFY ( strbuf.str() == expect );
++
++  return test;
++}
++
++void
++test03()
++{
++  short s = -1;
++  int i = -1;
++  long l = -1;
++
++  test03_check(s);
++  test03_check(i);
++  test03_check(l);
++}
++
++int
++main()
++{
++  test03();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7_bin.cc	(revision 0)
+@@ -0,0 +1,76 @@
++// { dg-options "-std=gnu++1y" }
++
++// 2005-07-11  Paolo Carlini  <pcarlini@suse.de>
++
++// Copyright (C) 2005-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.2.5.2  Arithmetic inserters
++
++#include <sstream>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  wstringstream ostr1, ostr2, ostr3, ostr4;
++
++  ostr1.setf(ios_base::bin);
++  ostr1.setf(ios_base::oct);
++  ostr1.setf(ios_base::hex);
++
++  short s = -1;
++  ostr1 << s;
++  VERIFY( ostr1.str() == L"-1" );
++
++  ostr2.setf(ios_base::bin);
++  ostr2.setf(ios_base::oct);
++  ostr2.setf(ios_base::hex);
++
++  int i = -1;
++  ostr2 << i;
++  VERIFY( ostr2.str() == L"-1" );
++
++  ostr3.setf(ios_base::bin);
++  ostr3.setf(ios_base::oct);
++  ostr3.setf(ios_base::hex);
++
++  long l = -1;
++  ostr3 << l;
++  VERIFY( ostr3.str() == L"-1" );
++
++#ifdef _GLIBCXX_USE_LONG_LONG
++  ostr4.setf(ios_base::bin);
++  ostr4.setf(ios_base::oct);
++  ostr4.setf(ios_base::hex);
++
++  long long ll = -1LL;
++  ostr4 << ll;
++  VERIFY( ostr4.str() == L"-1" );
++#endif
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/3_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/char/3_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/3_bin.cc	(revision 0)
+@@ -0,0 +1,71 @@
++// { dg-options "-std=gnu++1y" }
++
++// 1999-11-15 Kevin Ediger  <kediger@licor.com>
++// test the floating point inserters (facet num_put)
++
++// Copyright (C) 1999-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <limits>
++#include <testsuite_hooks.h>
++
++template<typename T>
++bool
++test03_check(T n)
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  stringbuf strbuf;
++  ostream o(&strbuf);
++  const char *expect;
++
++  if (numeric_limits<T>::digits + 1 == 16)
++    expect = "1111111111111111 177777 ffff";
++  else if (numeric_limits<T>::digits + 1 == 32)
++    expect = "11111111111111111111111111111111 37777777777 ffffffff";
++  else if (numeric_limits<T>::digits + 1 == 64)
++    expect = "1111111111111111111111111111111111111111111111111111111111111111 1777777777777777777777 ffffffffffffffff";
++  else
++    expect = "wow, you've got some big numbers here";
++
++  o << bin << n << ' ' << oct << n << ' ' << hex << n;
++  VERIFY ( strbuf.str() == expect );
++
++  return test;
++}
++
++void
++test03()
++{
++  short s = -1;
++  int i = -1;
++  long l = -1;
++
++  test03_check (s);
++  test03_check (i);
++  test03_check (l);
++}
++
++int
++main()
++{
++  test03();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/7_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/char/7_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/7_bin.cc	(revision 0)
+@@ -0,0 +1,76 @@
++// { dg-options "-std=gnu++1y" }
++
++// 2005-07-11  Paolo Carlini  <pcarlini@suse.de>
++
++// Copyright (C) 2005-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.2.5.2  Arithmetic inserters
++
++#include <sstream>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  stringstream ostr1, ostr2, ostr3, ostr4;
++
++  ostr1.setf(ios_base::bin);
++  ostr1.setf(ios_base::oct);
++  ostr1.setf(ios_base::hex);
++
++  short s = -1;
++  ostr1 << s;
++  VERIFY( ostr1.str() == "-1" );
++
++  ostr2.setf(ios_base::bin);
++  ostr2.setf(ios_base::oct);
++  ostr2.setf(ios_base::hex);
++
++  int i = -1;
++  ostr2 << i;
++  VERIFY( ostr2.str() == "-1" );
++
++  ostr3.setf(ios_base::bin);
++  ostr3.setf(ios_base::oct);
++  ostr3.setf(ios_base::hex);
++
++  long l = -1;
++  ostr3 << l;
++  VERIFY( ostr3.str() == "-1" );
++
++#ifdef _GLIBCXX_USE_LONG_LONG
++  ostr4.setf(ios_base::bin);
++  ostr4.setf(ios_base::oct);
++  ostr4.setf(ios_base::hex);
++
++  long long ll = -1LL;
++  ostr4 << ll;
++  VERIFY( ostr4.str() == "-1" );
++#endif
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/27_io/manipulators/basefield/wchar_t/1_bin.cc
+===================================================================
+--- testsuite/27_io/manipulators/basefield/wchar_t/1_bin.cc	(revision 0)
++++ testsuite/27_io/manipulators/basefield/wchar_t/1_bin.cc	(revision 0)
+@@ -0,0 +1,155 @@
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2004-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <locale>
++#include <iomanip>
++#include <testsuite_hooks.h>
++			
++struct MyNP : std::numpunct<wchar_t>
++{
++  std::string do_grouping() const;
++  wchar_t do_thousands_sep() const;
++};
++
++std::string
++MyNP::do_grouping() const
++{
++  std::string s("\3");
++  return s;
++}
++
++wchar_t
++MyNP::do_thousands_sep() const
++{ return L' '; }
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  const wchar_t lit[] = L"0b101 010\n"
++                        L"#.....................0b1 010 101#\n"
++                        L"#0b101 010.......................#\n"
++                        L"#........................0b10 101#\n"
++                        L"#0b.........................1 010#\n"
++                        L"#0b111 010 110 111 100 110 100 010 101#\n"
++                        L"#0b100 101 101 011 010 000 111...#\n"
++                        L"#........0b11 110 001 001 000 000#\n"
++                        L"#0b.....................1 111 011#\n"
++                        L"0123 456\n"
++                        L": 01 234 567:\n"
++                        L":0123 456   :\n"
++                        L":    012 345:\n"
++                        L":     01 234:\n"
++                        L":0726 746 425:\n"
++                        L":04 553 207 :\n"
++                        L":   0361 100:\n"
++                        L":       0173:\n"
++                        L"0x12 345 678\n"
++                        L"|0x000012 345 678|\n"
++                        L"|0x12 345 6780000|\n"
++                        L"|00000x12 345 678|\n"
++                        L"|0x000012 345 678|\n";
++
++  std::wostringstream oss;
++  oss.imbue(std::locale(std::locale(), new MyNP));
++
++  // Binaries
++  oss << std::bin << std::showbase << std::setfill(L'.');
++  oss << 0b0101010l << std::endl;
++
++  oss << L"#" << std::setw(32);
++  oss << 0b01010101l << L"#" << std::endl;
++
++  oss << L"#" << std::setw(32) << std::left;
++  oss << 0b0101010l << L"#" << std::endl;
++
++  oss << L"#" << std::setw(32) << std::right;
++  oss << 0b010101l << L"#" << std::endl;
++
++  oss << L"#" << std::setw(32) << std::internal;
++  oss << 0b01010l << L"#" << std::endl;
++
++  oss << L"#" << std::setw(32);
++  oss << 123456789l << L"#" << std::endl;
++
++  oss << L"#" << std::setw(32) << std::left;
++  oss << 1234567l << L"#" << std::endl;
++
++  oss << L"#" << std::setw(32) << std::right;
++  oss << 123456l << L"#" << std::endl;
++
++  oss << L"#" << std::setw(32) << std::internal;
++  oss << 123l << L"#" << std::endl;
++
++  // Octals
++  oss << std::oct << std::showbase << std::setfill(L' ');
++  oss << 0123456l << std::endl;
++
++  oss << L":" << std::setw(11);
++  oss << 01234567l << L":" << std::endl;
++
++  oss << L":" << std::setw(11) << std::left;
++  oss << 0123456l << L":" << std::endl;
++
++  oss << L":" << std::setw(11) << std::right;
++  oss << 012345l << L":" << std::endl;
++
++  oss << L":" << std::setw(11) << std::internal;
++  oss << 01234l << L":" << std::endl;
++
++  oss << L":" << std::setw(11);
++  oss << 123456789l << L":" << std::endl;
++
++  oss << L":" << std::setw(11) << std::left;
++  oss << 1234567l << L":" << std::endl;
++
++  oss << L":" << std::setw(11) << std::right;
++  oss << 123456l << L":" << std::endl;
++
++  oss << L":" << std::setw(11) << std::internal;
++  oss << 123l << L":" << std::endl;
++
++  // Hexadecimals
++  oss << std::hex << std::setfill(L'0');
++  oss << 0x12345678l << std::endl;
++
++  oss << L"|" << std::setw(16);
++  oss << 0x12345678l << L"|" << std::endl;
++
++  oss << L"|" << std::setw(16) << std::left;
++  oss << 0x12345678l << L"|" << std::endl;
++
++  oss << L"|" << std::setw(16) << std::right;
++  oss << 0x12345678l << L"|" << std::endl;
++
++  oss << L"|" << std::setw(16) << std::internal;
++  oss << 0x12345678l << L"|" << std::endl;
++
++  VERIFY( oss.good() );
++  VERIFY( oss.str() == lit );
++}
++
++int
++main() 
++{
++  test01();
++  return 0;
++}
+Index: testsuite/27_io/manipulators/basefield/char/1_bin.cc
+===================================================================
+--- testsuite/27_io/manipulators/basefield/char/1_bin.cc	(revision 0)
++++ testsuite/27_io/manipulators/basefield/char/1_bin.cc	(revision 0)
+@@ -0,0 +1,155 @@
++// 981027 ncm work with libstdc++v3
++
++// Copyright (C) 1997-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <locale>
++#include <iomanip>
++#include <testsuite_hooks.h>
++			
++struct MyNP : std::numpunct<char>
++{
++  std::string do_grouping() const;
++  char do_thousands_sep() const;
++};
++
++std::string
++MyNP::do_grouping() const
++{
++  std::string s("\3");
++  return s;
++}
++
++char
++MyNP::do_thousands_sep() const
++{ return ' '; }
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  const char lit[] = "0b101 010\n"
++                     "#.....................0b1 010 101#\n"
++                     "#0b101 010.......................#\n"
++                     "#........................0b10 101#\n"
++                     "#0b.........................1 010#\n"
++                     "#0b111 010 110 111 100 110 100 010 101#\n"
++                     "#0b100 101 101 011 010 000 111...#\n"
++                     "#........0b11 110 001 001 000 000#\n"
++                     "#0b.....................1 111 011#\n"
++                     "0123 456\n"
++                     ": 01 234 567:\n"
++                     ":0123 456   :\n"
++                     ":    012 345:\n"
++                     ":     01 234:\n"
++                     ":0726 746 425:\n"
++                     ":04 553 207 :\n"
++                     ":   0361 100:\n"
++                     ":       0173:\n"
++                     "0x12 345 678\n"
++                     "|0x000012 345 678|\n"
++                     "|0x12 345 6780000|\n"
++                     "|00000x12 345 678|\n"
++                     "|0x000012 345 678|\n";
++
++  std::ostringstream oss;
++  oss.imbue(std::locale(std::locale(), new MyNP));
++
++  // Binaries
++  oss << std::bin << std::showbase << std::setfill('.');
++  oss << 0b0101010l << std::endl;
++
++  oss << "#" << std::setw(32);
++  oss << 0b01010101l << "#" << std::endl;
++
++  oss << "#" << std::setw(32) << std::left;
++  oss << 0b0101010l << "#" << std::endl;
++
++  oss << "#" << std::setw(32) << std::right;
++  oss << 0b010101l << "#" << std::endl;
++
++  oss << "#" << std::setw(32) << std::internal;
++  oss << 0b01010l << "#" << std::endl;
++
++  oss << "#" << std::setw(32);
++  oss << 123456789l << "#" << std::endl;
++
++  oss << "#" << std::setw(32) << std::left;
++  oss << 1234567l << "#" << std::endl;
++
++  oss << "#" << std::setw(32) << std::right;
++  oss << 123456l << "#" << std::endl;
++
++  oss << "#" << std::setw(32) << std::internal;
++  oss << 123l << "#" << std::endl;
++
++  // Octals
++  oss << std::oct << std::showbase << std::setfill(' ');
++  oss << 0123456l << std::endl;
++
++  oss << ":" << std::setw(11);
++  oss << 01234567l << ":" << std::endl;
++
++  oss << ":" << std::setw(11) << std::left;
++  oss << 0123456l << ":" << std::endl;
++
++  oss << ":" << std::setw(11) << std::right;
++  oss << 012345l << ":" << std::endl;
++
++  oss << ":" << std::setw(11) << std::internal;
++  oss << 01234l << ":" << std::endl;
++
++  oss << ":" << std::setw(11);
++  oss << 123456789l << ":" << std::endl;
++
++  oss << ":" << std::setw(11) << std::left;
++  oss << 1234567l << ":" << std::endl;
++
++  oss << ":" << std::setw(11) << std::right;
++  oss << 123456l << ":" << std::endl;
++
++  oss << ":" << std::setw(11) << std::internal;
++  oss << 123l << ":" << std::endl;
++
++  // Hexadecimals
++  oss << std::hex << std::setfill('0');
++  oss << 0x12345678l << std::endl;
++
++  oss << "|" << std::setw(16);
++  oss << 0x12345678l << "|" << std::endl;
++
++  oss << "|" << std::setw(16) << std::left;
++  oss << 0x12345678l << "|" << std::endl;
++
++  oss << "|" << std::setw(16) << std::right;
++  oss << 0x12345678l << "|" << std::endl;
++
++  oss << "|" << std::setw(16) << std::internal;
++  oss << 0x12345678l << "|" << std::endl;
++
++  VERIFY( oss.good() );
++  VERIFY( oss.str() == lit );
++}
++
++int
++main() 
++{
++  test01();
++  return 0;
++}
+Index: testsuite/28_regex/traits/char/value_bin.cc
+===================================================================
+--- testsuite/28_regex/traits/char/value_bin.cc	(revision 0)
++++ testsuite/28_regex/traits/char/value_bin.cc	(revision 0)
+@@ -0,0 +1,62 @@
++// { dg-do run }
++// { dg-options "-std=gnu++1y" }
++
++// 2013-09-12 Edward Smith-Rowland  <3dw4rd@verizon.net>
++//
++// Copyright (C) 2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// [28.7] class template regex_traits value() function
++
++#include <regex>
++#include <testsuite_hooks.h>
++
++// Tests the value() function of the regex_traits<char> class.
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  std::regex_traits<char> t;
++  VERIFY( t.value('1', 2)  == 1 );
++  VERIFY( t.value('1', 8)  == 1 );
++  VERIFY( t.value('1', 10)  == 1 );
++  VERIFY( t.value('1', 16)  == 1 );
++  VERIFY( t.value('2', 2)  == -1 );
++  VERIFY( t.value('2', 8)  == 2 );
++  VERIFY( t.value('2', 10)  == 2 );
++  VERIFY( t.value('2', 16)  == 2 );
++  VERIFY( t.value('7', 2)  == -1 );
++  VERIFY( t.value('7', 8)  == 7 );
++  VERIFY( t.value('7', 10) == 7 );
++  VERIFY( t.value('7', 16) == 7 );
++  VERIFY( t.value('9', 2)  == -1 );
++  VERIFY( t.value('9', 8)  == -1 );
++  VERIFY( t.value('9', 10) == 9 );
++  VERIFY( t.value('9', 16) == 9 );
++  VERIFY( t.value('d', 2)  == -1 );
++  VERIFY( t.value('d', 8)  == -1 );
++  VERIFY( t.value('d', 10) == -1 );
++  VERIFY( t.value('d', 16) == 13 );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++};
+Index: testsuite/28_regex/traits/wchar_t/value_bin.cc
+===================================================================
+--- testsuite/28_regex/traits/wchar_t/value_bin.cc	(revision 0)
++++ testsuite/28_regex/traits/wchar_t/value_bin.cc	(revision 0)
+@@ -0,0 +1,62 @@
++// { dg-do run }
++// { dg-options "-std=gnu++1y" }
++
++// 2013-09-12 Edward Smith-Rowland  <3dw4rd@verizon.net>
++//
++// Copyright (C) 2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// [28.7] class template regex_traits value() function
++
++#include <regex>
++#include <testsuite_hooks.h>
++
++// Tests the value() function of the regex_traits<wchar_t> class.
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  std::regex_traits<wchar_t> t;
++  VERIFY( t.value(L'1', 2)  == 1 );
++  VERIFY( t.value(L'1', 8)  == 1 );
++  VERIFY( t.value(L'1', 10)  == 1 );
++  VERIFY( t.value(L'1', 16)  == 1 );
++  VERIFY( t.value(L'2', 2)  == -1 );
++  VERIFY( t.value(L'2', 8)  == 2 );
++  VERIFY( t.value(L'2', 10) == 2 );
++  VERIFY( t.value(L'2', 16) == 2 );
++  VERIFY( t.value(L'7', 2)  == -1 );
++  VERIFY( t.value(L'7', 8)  == 7 );
++  VERIFY( t.value(L'7', 10) == 7 );
++  VERIFY( t.value(L'7', 16) == 7 );
++  VERIFY( t.value(L'9', 2)  == -1 );
++  VERIFY( t.value(L'9', 8)  == -1 );
++  VERIFY( t.value(L'9', 10) == 9 );
++  VERIFY( t.value(L'9', 16) == 9 );
++  VERIFY( t.value(L'd', 2)  == -1 );
++  VERIFY( t.value(L'd', 8)  == -1 );
++  VERIFY( t.value(L'd', 10) == -1 );
++  VERIFY( t.value(L'd', 16) == 13 );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++};
+Index: config/abi/pre/gnu.ver
+===================================================================
+--- config/abi/pre/gnu.ver	(revision 202540)
++++ config/abi/pre/gnu.ver	(working copy)
+@@ -84,7 +84,12 @@
+       std::invalid_argument::i*;
+ #     std::invalid_argument::~i*;
+ #     std::ios_base::[A-Ha-z]*;
+-      std::ios_base::[A-Ha-f]*;
++#     std::ios_base::[A-Ha-f]*;
++      std::ios_base::[A-Ha]*;
++      std::ios_base::b[a-hj-z]*;
++      std::ios_base::bi[a-mo-z]*;
++      std::ios_base::binary;
++      std::ios_base::[c-f]*;
+       std::ios_base::goodbit;
+       std::ios_base::[h-z]*;
+       std::ios_base::_M_grow_words*;
+@@ -1365,6 +1370,9 @@
+     # std::get_unexpected()
+     _ZSt14get_unexpectedv;
+ 
++    # std::ios_base::bin
++    _ZNSt8ios_base3binE;
++
+ } GLIBCXX_3.4.19;
+ 
+ # Symbols in the support library (libsupc++) have their own tag.
