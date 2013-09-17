@@ -1,0 +1,228 @@
+
+
+
+  /**
+   * @brief A discrete hypergeometric random number distribution.
+   *
+   * The formula for the hypergeometric probability density function is
+   * @f$p(i|\mu) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}
+   * where @f$N@f$ is the total population of the distribution,
+   * @f$K@f$ is the total population of the distribution.
+   */
+  template<typename _UIntType = unsigned int>
+    class hypergeometric_distribution
+    {
+      static_assert(std::is_unsigned<_UIntType>::value, "template argument "
+		    "substituting _UIntType not an unsigned integral type");
+
+    public:
+      /** The type of the range of the distribution. */
+      typedef _UIntType  result_type;
+
+      /** Parameter type. */
+      struct param_type
+      {
+	typedef hypergeometric_distribution<_UIntType> distribution_type;
+	friend class hypergeometric_distribution<_UIntType>;
+
+	explicit
+	param_type(result_type __N = 10, result_type __K = 5,
+		   result_type __n = 1)
+	: _M_N{__N}, _M_K{__K}, _M_n{__n}
+	{
+	  _GLIBCXX_DEBUG_ASSERT(_M_N >= _M_K);
+	  _GLIBCXX_DEBUG_ASSERT(_M_N >= _M_n);
+	  _M_initialize();
+	}
+
+	result_type
+	total_size() const
+	{ return _M_N; }
+
+	result_type
+	successful_size() const
+	{ return _M_K; }
+
+	result_type
+	total_draws() const
+	{ return _M_n; }
+
+	friend bool
+	operator==(const param_type& __p1, const param_type& __p2)
+	{ return (__p1._M_N == __p2._M_N)
+	      && (__p1._M_K == __p2._M_K)
+	      && (__p1._M_n == __p2._M_n); }
+
+      private:
+
+	result_type _M_N;
+	result_type _M_K;
+	result_type _M_n;
+      };
+
+      // constructors and member function
+      explicit
+      hypergeometric_distribution(result_type __N = 10, result_type __K = 5,
+				  result_type __n = 1)
+      : _M_param{__N, __K, __n}, _M_dd{}
+      { }
+
+      explicit
+      hypergeometric_distribution(const param_type& __p)
+      : _M_param{__p}, _M_dd{}
+      { }
+
+      /**
+       * @brief Resets the distribution state.
+       */
+      void
+      reset()
+      { _M_dd.reset(); }
+
+      /**
+       * @brief Returns the distribution parameter @p N.
+       */
+      result_type
+      total_size() const
+      { return _M_param.total_size(); }
+
+      /**
+       * @brief Returns the distribution parameter @p K.
+       */
+      result_type
+      successful_size() const
+      { return _M_param.successful_size(); }
+
+      /**
+       * @brief Returns the distribution parameter @p n.
+       */
+      result_type
+      total_draws() const
+      { return _M_param.total_draws(); }
+
+      /**
+       * @brief Returns the parameter set of the distribution.
+       */
+      param_type
+      param() const
+      { return _M_param; }
+
+      /**
+       * @brief Sets the parameter set of the distribution.
+       * @param __param The new parameter set of the distribution.
+       */
+      void
+      param(const param_type& __param)
+      { _M_param = __param; }
+
+      /**
+       * @brief Returns the greatest lower bound value of the distribution.
+       */
+      result_type
+      min() const
+      { return 0; }
+
+      /**
+       * @brief Returns the least upper bound value of the distribution.
+       */
+      result_type
+      max() const
+      { return _M_param.total_draws(); }
+
+      /**
+       * @brief Generating functions.
+       */
+      template<typename _UniformRandomNumberGenerator>
+	result_type
+	operator()(_UniformRandomNumberGenerator& __urng)
+	{ return this->operator()(__urng, _M_param); }
+
+      template<typename _UniformRandomNumberGenerator>
+	result_type
+	operator()(_UniformRandomNumberGenerator& __urng,
+		   const param_type& __p);
+
+      template<typename _ForwardIterator,
+	       typename _UniformRandomNumberGenerator>
+	void
+	__generate(_ForwardIterator __f, _ForwardIterator __t,
+		   _UniformRandomNumberGenerator& __urng)
+	{ this->__generate(__f, __t, __urng, _M_param); }
+
+      template<typename _ForwardIterator,
+	       typename _UniformRandomNumberGenerator>
+	void
+	__generate(_ForwardIterator __f, _ForwardIterator __t,
+		   _UniformRandomNumberGenerator& __urng,
+		   const param_type& __p)
+	{ this->__generate_impl(__f, __t, __urng, __p); }
+
+      template<typename _UniformRandomNumberGenerator>
+	void
+	__generate(result_type* __f, result_type* __t,
+		   _UniformRandomNumberGenerator& __urng,
+		   const param_type& __p)
+	{ this->__generate_impl(__f, __t, __urng, __p); }
+
+       /**
+	* @brief Return true if two hypergeometric distributions have the same
+	*        parameters and the sequences that would be generated
+	*        are equal.
+	*/
+      friend bool
+      operator==(const hypergeometric_distribution& __d1,
+		 const hypergeometric_distribution& __d2)
+      { return __d1._M_param == __d2._M_param && __d1._M_dd == __d2._M_dd; }
+
+      /**
+       * @brief Inserts a %hypergeometric_distribution random number distribution
+       * @p __x into the output stream @p __os.
+       *
+       * @param __os An output stream.
+       * @param __x  A %hypergeometric_distribution random number distribution.
+       *
+       * @returns The output stream with the state of @p __x inserted or in
+       * an error state.
+       */
+      template<typename _UIntType1, typename _CharT, typename _Traits>
+	friend std::basic_ostream<_CharT, _Traits>&
+	operator<<(std::basic_ostream<_CharT, _Traits>& __os,
+		   const std::hypergeometric_distribution<_UIntType1>& __x);
+
+      /**
+       * @brief Extracts a %hypergeometric_distribution random number distribution
+       * @p __x from the input stream @p __is.
+       *
+       * @param __is An input stream.
+       * @param __x  A %hypergeometric_distribution random number generator engine.
+       *
+       * @returns The input stream with @p __x extracted or in an error
+       *          state.
+       */
+      template<typename _UIntType1, typename _CharT, typename _Traits>
+	friend std::basic_istream<_CharT, _Traits>&
+	operator>>(std::basic_istream<_CharT, _Traits>& __is,
+		   std::hypergeometric_distribution<_UIntType1>& __x);
+
+    private:
+
+      template<typename _ForwardIterator,
+	       typename _UniformRandomNumberGenerator>
+	void
+	__generate_impl(_ForwardIterator __f, _ForwardIterator __t,
+			_UniformRandomNumberGenerator& __urng,
+			const param_type& __p);
+
+      param_type _M_param;
+
+      std::discrete_distribution<result_type> _M_dd;
+    };
+
+  /**
+   * @brief Return true if two hypergeometric distributions are different.
+   */
+  template<typename _UIntType>
+    inline bool
+    operator!=(const std::hypergeometric_distribution<_UIntType>& __d1,
+	       const std::hypergeometric_distribution<_UIntType>& __d2)
+    { return !(__d1 == __d2); }
