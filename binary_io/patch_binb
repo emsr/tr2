@@ -1,6 +1,6 @@
 Index: include/std/iomanip
 ===================================================================
---- include/std/iomanip	(revision 202540)
+--- include/std/iomanip	(revision 202664)
 +++ include/std/iomanip	(working copy)
 @@ -117,8 +117,8 @@
     *  @param  __base  A numeric base.
@@ -41,7 +41,7 @@ Index: include/std/iomanip
  		ios_base::fmtflags(0), ios_base::basefield);
 Index: include/bits/locale_facets.tcc
 ===================================================================
---- include/bits/locale_facets.tcc	(revision 202540)
+--- include/bits/locale_facets.tcc	(revision 202664)
 +++ include/bits/locale_facets.tcc	(working copy)
 @@ -383,8 +383,12 @@
  	// NB: Iff __basefield == 0, __base can change based on contents.
@@ -57,10 +57,11 @@ Index: include/bits/locale_facets.tcc
  
  	// True if __beg becomes equal to __end.
  	bool __testeof = __beg == __end;
-@@ -439,6 +443,20 @@
+@@ -439,6 +443,22 @@
  		else
  		  break;
  	      }
++#if __cplusplus > 201103L
 +	    else if (__found_zero
 +		     && (__c == __lit[__num_base::_S_ib]
 +			 || __c == __lit[__num_base::_S_iB]))
@@ -75,10 +76,11 @@ Index: include/bits/locale_facets.tcc
 +		else
 +		  break;
 +	      }
++#endif
  	    else
  	      break;
  
-@@ -810,6 +828,18 @@
+@@ -810,6 +830,18 @@
  	    }
  	  while (__v != 0);
  	}
@@ -97,7 +99,7 @@ Index: include/bits/locale_facets.tcc
        else
  	{
  	  // Hex.
-@@ -855,16 +885,20 @@
+@@ -855,16 +887,20 @@
  	const _CharT* __lit = __lc->_M_atoms_out;
  	const ios_base::fmtflags __flags = __io.flags();
  
@@ -122,7 +124,7 @@ Index: include/bits/locale_facets.tcc
  	const __unsigned_type __u = ((__v > 0 || !__dec)
  				     ? __unsigned_type(__v)
  				     : -__unsigned_type(__v));
-@@ -901,6 +935,17 @@
+@@ -901,6 +937,17 @@
  	  {
  	    if (__basefield == ios_base::oct)
  	      *--__cs = __lit[__num_base::_S_odigits], ++__len;
@@ -140,7 +142,7 @@ Index: include/bits/locale_facets.tcc
  	    else
  	      {
  		// 'x' or 'X'
-@@ -1222,7 +1267,9 @@
+@@ -1222,7 +1269,9 @@
  	  else if (__ctype.widen('0') == __olds[0]
  		   && __oldlen > 1
  		   && (__ctype.widen('x') == __olds[1]
@@ -153,7 +155,7 @@ Index: include/bits/locale_facets.tcc
  	      __news[1] = __olds[1];
 Index: include/bits/locale_facets.h
 ===================================================================
---- include/bits/locale_facets.h	(revision 202540)
+--- include/bits/locale_facets.h	(revision 202664)
 +++ include/bits/locale_facets.h	(working copy)
 @@ -1532,6 +1532,10 @@
  	_S_oudigits_end = _S_oudigits + 16,
@@ -197,7 +199,7 @@ Index: include/bits/locale_facets.h
         *  Thousands separators are inserted according to
 Index: include/bits/ostream.tcc
 ===================================================================
---- include/bits/ostream.tcc	(revision 202540)
+--- include/bits/ostream.tcc	(revision 202664)
 +++ include/bits/ostream.tcc	(working copy)
 @@ -94,7 +94,11 @@
        // _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -227,7 +229,7 @@ Index: include/bits/ostream.tcc
  	return _M_insert(static_cast<long>(__n));
 Index: include/bits/regex.h
 ===================================================================
---- include/bits/regex.h	(revision 202540)
+--- include/bits/regex.h	(revision 202664)
 +++ include/bits/regex.h	(working copy)
 @@ -607,6 +607,11 @@
      {
@@ -243,7 +245,7 @@ Index: include/bits/regex.h
        else if (__radix == 16)
 Index: include/bits/ios_base.h
 ===================================================================
---- include/bits/ios_base.h	(revision 202540)
+--- include/bits/ios_base.h	(revision 202664)
 +++ include/bits/ios_base.h	(working copy)
 @@ -65,8 +65,9 @@
        _S_skipws 	= 1L << 12,
@@ -314,7 +316,7 @@ Index: include/bits/ios_base.h
    inline ios_base&
 Index: src/Makefile.am
 ===================================================================
---- src/Makefile.am	(revision 202540)
+--- src/Makefile.am	(revision 202664)
 +++ src/Makefile.am	(working copy)
 @@ -22,13 +22,14 @@
  
@@ -352,7 +354,7 @@ Index: src/Makefile.am
  	-version-info $(libtool_VERSION) ${version_arg} -lm
 Index: src/Makefile.in
 ===================================================================
---- src/Makefile.in	(revision 202540)
+--- src/Makefile.in	(revision 202664)
 +++ src/Makefile.in	(working copy)
 @@ -339,7 +339,7 @@
  
@@ -2259,7 +2261,7 @@ Index: testsuite/28_regex/traits/wchar_t/value_bin.cc
 +};
 Index: config/abi/pre/gnu.ver
 ===================================================================
---- config/abi/pre/gnu.ver	(revision 202540)
+--- config/abi/pre/gnu.ver	(revision 202664)
 +++ config/abi/pre/gnu.ver	(working copy)
 @@ -84,7 +84,12 @@
        std::invalid_argument::i*;
