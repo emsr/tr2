@@ -1,0 +1,1346 @@
+Index: include/std/iomanip
+===================================================================
+--- include/std/iomanip	(revision 202754)
++++ include/std/iomanip	(working copy)
+@@ -117,8 +117,9 @@
+    *  @param  __base  A numeric base.
+    *
+    *  Sent to a stream object, this manipulator changes the
+-   *  @c ios_base::basefield flags to @c oct, @c dec, or @c hex when @a base
+-   *  is 8, 10, or 16, accordingly, and to 0 if @a __base is any other value.
++   *  @c ios_base::basefield flags to @c (oct | hex), @c oct, @c dec, or @c hex
++   *  when @a base is 2, 8, 10, or 16, accordingly, and to 0 if @a __base
++   *  is any other value.
+   */
+   inline _Setbase 
+   setbase(int __base)
+@@ -128,7 +129,11 @@
+     inline basic_istream<_CharT, _Traits>& 
+     operator>>(basic_istream<_CharT, _Traits>& __is, _Setbase __f)
+     {
+-      __is.setf(__f._M_base ==  8 ? ios_base::oct : 
++      __is.setf(
++#if __cplusplus > 201103L
++		__f._M_base ==  2 ? (ios_base::oct | ios_base::hex): 
++#endif
++		__f._M_base ==  8 ? ios_base::oct : 
+ 		__f._M_base == 10 ? ios_base::dec : 
+ 		__f._M_base == 16 ? ios_base::hex : 
+ 		ios_base::fmtflags(0), ios_base::basefield);
+@@ -139,7 +144,11 @@
+     inline basic_ostream<_CharT, _Traits>& 
+     operator<<(basic_ostream<_CharT, _Traits>& __os, _Setbase __f)
+     {
+-      __os.setf(__f._M_base ==  8 ? ios_base::oct : 
++      __os.setf(
++#if __cplusplus > 201103L
++		__f._M_base ==  2 ? (ios_base::oct | ios_base::hex) : 
++#endif
++		__f._M_base ==  8 ? ios_base::oct : 
+ 		__f._M_base == 10 ? ios_base::dec : 
+ 		__f._M_base == 16 ? ios_base::hex : 
+ 		ios_base::fmtflags(0), ios_base::basefield);
+Index: include/bits/locale_facets.tcc
+===================================================================
+--- include/bits/locale_facets.tcc	(revision 202754)
++++ include/bits/locale_facets.tcc	(working copy)
+@@ -383,8 +383,12 @@
+ 	// NB: Iff __basefield == 0, __base can change based on contents.
+ 	const ios_base::fmtflags __basefield = __io.flags()
+ 	                                       & ios_base::basefield;
++	const bool __bin = false;
++#if __cplusplus > 201103L
++	__bin = __basefield == (ios_base::oct | ios_base::hex);
++#endif
+ 	const bool __oct = __basefield == ios_base::oct;
+-	int __base = __oct ? 8 : (__basefield == ios_base::hex ? 16 : 10);
++	int __base = __bin ? 2 : (__oct ? 8 : (__basefield == ios_base::hex ? 16 : 10));
+ 
+ 	// True if __beg becomes equal to __end.
+ 	bool __testeof = __beg == __end;
+@@ -439,6 +443,22 @@
+ 		else
+ 		  break;
+ 	      }
++#if __cplusplus > 201103L
++	    else if (__found_zero
++		     && (__c == __lit[__num_base::_S_ib]
++			 || __c == __lit[__num_base::_S_iB]))
++	      {
++		if (__basefield == 0)
++		  __base = 2;
++		if (__base == 2)
++		  {
++		    __found_zero = false;
++		    __sep_pos = 0;
++		  }
++		else
++		  break;
++	      }
++#endif
+ 	    else
+ 	      break;
+ 
+@@ -810,6 +830,19 @@
+ 	    }
+ 	  while (__v != 0);
+ 	}
++#if __cplusplus > 201103L
++      else if ((__flags & ios_base::basefield)
++		 == (ios_base::oct | ios_base::hex))
++	{
++	  // Binary.
++	  do
++	    {
++	      *--__buf = __lit[(__v & 0x1) + __num_base::_S_odigits];
++	      __v >>= 1;
++	    }
++	  while (__v != 0);
++	}
++#endif
+       else
+ 	{
+ 	  // Hex.
+@@ -855,16 +888,20 @@
+ 	const _CharT* __lit = __lc->_M_atoms_out;
+ 	const ios_base::fmtflags __flags = __io.flags();
+ 
+-	// Long enough to hold hex, dec, and octal representations.
+-	const int __ilen = 5 * sizeof(_ValueT);
++	// Long enough to hold hex, dec, octal, and binary representations.
++	const int __ilen = 9 * sizeof(_ValueT);
+ 	_CharT* __cs = static_cast<_CharT*>(__builtin_alloca(sizeof(_CharT)
+ 							     * __ilen));
+ 
+ 	// [22.2.2.2.2] Stage 1, numeric conversion to character.
+ 	// Result is returned right-justified in the buffer.
+ 	const ios_base::fmtflags __basefield = __flags & ios_base::basefield;
+-	const bool __dec = (__basefield != ios_base::oct
+-			    && __basefield != ios_base::hex);
++	const bool __dec = (
++#if __cplusplus > 201103L
++			    __basefield != (ios_base::oct | ios_base::hex) &&
++#endif
++			    __basefield != ios_base::oct &&
++			    __basefield != ios_base::hex);
+ 	const __unsigned_type __u = ((__v > 0 || !__dec)
+ 				     ? __unsigned_type(__v)
+ 				     : -__unsigned_type(__v));
+@@ -901,6 +938,17 @@
+ 	  {
+ 	    if (__basefield == ios_base::oct)
+ 	      *--__cs = __lit[__num_base::_S_odigits], ++__len;
++#if __cplusplus > 201103L
++	    else if (__basefield == (ios_base::oct | ios_base::hex))
++	      {
++		// 'b' or 'B'
++		*--__cs = (__flags & ios_base::uppercase) ?
++			  __lit[__num_base::_S_oB] : __lit[__num_base::_S_ob];
++		// '0'
++		*--__cs = __lit[__num_base::_S_odigits];
++		__len += 2;
++	      }
++#endif
+ 	    else
+ 	      {
+ 		// 'x' or 'X'
+@@ -1222,7 +1270,9 @@
+ 	  else if (__ctype.widen('0') == __olds[0]
+ 		   && __oldlen > 1
+ 		   && (__ctype.widen('x') == __olds[1]
+-		       || __ctype.widen('X') == __olds[1]))
++		       || __ctype.widen('X') == __olds[1]
++		       || __ctype.widen('b') == __olds[1]
++		       || __ctype.widen('B') == __olds[1]))
+ 	    {
+ 	      __news[0] = __olds[0];
+ 	      __news[1] = __olds[1];
+Index: include/bits/locale_facets.h
+===================================================================
+--- include/bits/locale_facets.h	(revision 202754)
++++ include/bits/locale_facets.h	(working copy)
+@@ -1532,6 +1532,10 @@
+ 	_S_oudigits_end = _S_oudigits + 16,
+ 	_S_oe = _S_odigits + 14,  // For scientific notation, 'e'
+ 	_S_oE = _S_oudigits + 14, // For scientific notation, 'E'
++#if __cplusplus > 201103L
++	_S_ob = _S_odigits + 11,  // For binary, '0b'
++	_S_oB = _S_oudigits + 11,  // For binary, '0B'
++#endif
+ 	_S_oend = _S_oudigits_end
+       };
+ 
+@@ -1555,6 +1559,10 @@
+       _S_izero,
+       _S_ie = _S_izero + 14,
+       _S_iE = _S_izero + 20,
++#if __cplusplus > 201103L
++      _S_ib = _S_izero + 11,
++      _S_iB = _S_izero + 17,
++#endif
+       _S_iend = 26
+     };
+ 
+@@ -2306,13 +2314,14 @@
+        *  ios_base::basefield.  If equal to ios_base::oct, formats like the
+        *  printf %o specifier.  Else if equal to ios_base::hex, formats like
+        *  %x or %X with ios_base::uppercase unset or set respectively.
++       *  Else if equal to (ios_base::oct | ios_base::hex), formats ...<FIXME>
+        *  Otherwise, formats like %d, %ld, %lld for signed and %u, %lu, %llu
+-       *  for unsigned values.  Note that if both oct and hex are set, neither
+-       *  will take effect.
++       *  for unsigned values.  Note that if two or more of bin, oct and hex
++       *  are set, none will take effect.
+        *
+        *  If ios_base::showpos is set, '+' is output before positive values.
+        *  If ios_base::showbase is set, '0' precedes octal values (except 0)
+-       *  and '0[xX]' precedes hex values.
++       *  '0[xX]' precedes hex values, and '0[bB]' precedes binary values.
+        *
+        *  The decimal point character used is numpunct::decimal_point().
+        *  Thousands separators are inserted according to
+Index: include/bits/ostream.tcc
+===================================================================
+--- include/bits/ostream.tcc	(revision 202754)
++++ include/bits/ostream.tcc	(working copy)
+@@ -94,7 +94,11 @@
+       // _GLIBCXX_RESOLVE_LIB_DEFECTS
+       // 117. basic_ostream uses nonexistent num_put member functions.
+       const ios_base::fmtflags __fmt = this->flags() & ios_base::basefield;
+-      if (__fmt == ios_base::oct || __fmt == ios_base::hex)
++      if (
++#if __cplusplus > 201103L
++	  __fmt == (ios_base::oct | ios_base::hex) ||
++#endif
++	  __fmt == ios_base::oct || __fmt == ios_base::hex)
+ 	return _M_insert(static_cast<long>(static_cast<unsigned short>(__n)));
+       else
+ 	return _M_insert(static_cast<long>(__n));
+@@ -108,7 +112,11 @@
+       // _GLIBCXX_RESOLVE_LIB_DEFECTS
+       // 117. basic_ostream uses nonexistent num_put member functions.
+       const ios_base::fmtflags __fmt = this->flags() & ios_base::basefield;
+-      if (__fmt == ios_base::oct || __fmt == ios_base::hex)
++      if (
++#if __cplusplus > 201103L
++	  __fmt == (ios_base::oct | ios_base::hex) ||
++#endif
++	  __fmt == ios_base::oct || __fmt == ios_base::hex)
+ 	return _M_insert(static_cast<long>(static_cast<unsigned int>(__n)));
+       else
+ 	return _M_insert(static_cast<long>(__n));
+Index: include/bits/regex.h
+===================================================================
+--- include/bits/regex.h	(revision 202754)
++++ include/bits/regex.h	(working copy)
+@@ -607,6 +607,11 @@
+     {
+       std::basic_istringstream<char_type> __is(string_type(1, __ch));
+       int __v;
++#if __cplusplus > 201303L
++      if (__radix == 2)
++	__is >> std::bin;
++      else
++#endif
+       if (__radix == 8)
+ 	__is >> std::oct;
+       else if (__radix == 16)
+Index: include/bits/ios_base.h
+===================================================================
+--- include/bits/ios_base.h	(revision 202754)
++++ include/bits/ios_base.h	(working copy)
+@@ -104,7 +104,7 @@
+     { 
+       _S_app 		= 1L << 0,
+       _S_ate 		= 1L << 1,
+-      _S_bin 		= 1L << 2,
++      _S_binary		= 1L << 2,
+       _S_in 		= 1L << 3,
+       _S_out 		= 1L << 4,
+       _S_trunc 		= 1L << 5,
+@@ -248,6 +248,7 @@
+      *  - skipws
+      *  - unitbuf
+      *  - uppercase
++     *  - bin
+      *  - adjustfield
+      *  - basefield
+      *  - floatfield
+@@ -309,7 +310,7 @@
+     /// A mask of left|right|internal.  Useful for the 2-arg form of @c setf.
+     static const fmtflags adjustfield = _S_adjustfield;
+ 
+-    /// A mask of dec|oct|hex.  Useful for the 2-arg form of @c setf.
++    /// A mask of dec|oct|hex|bin.  Useful for the 2-arg form of @c setf.
+     static const fmtflags basefield =   _S_basefield;
+ 
+     /// A mask of scientific|fixed.  Useful for the 2-arg form of @c setf.
+@@ -369,7 +370,7 @@
+     /// Perform input and output in binary mode (as opposed to text mode).
+     /// This is probably not what you think it is; see
+     /// http://gcc.gnu.org/onlinedocs/libstdc++/manual/bk01pt11ch27s02.html
+-    static const openmode binary =	_S_bin;
++    static const openmode binary =	_S_binary;
+ 
+     /// Open for input.  Default for @c ifstream and fstream.
+     static const openmode in =		_S_in;
+@@ -972,4 +973,17 @@
+ _GLIBCXX_END_NAMESPACE_VERSION
+ } // namespace
+ 
++#if __cplusplus > 201103L
++namespace __gnu_cxx
++{
++  /// Calls base.setf(ios_base::oct | ios_base::hex, ios_base::basefield).
++  inline ios_base&
++  __bin(ios_base& __base)
++  {
++    __base.setf(ios_base::oct | ios_base::hex, ios_base::basefield);
++    return __base;
++  }
++}
++#endif
++
+ #endif /* _IOS_BASE_H */
+Index: testsuite/27_io/headers/ios/synopsis_bin.cc
+===================================================================
+--- testsuite/27_io/headers/ios/synopsis_bin.cc	(revision 0)
++++ testsuite/27_io/headers/ios/synopsis_bin.cc	(revision 0)
+@@ -0,0 +1,64 @@
++// { dg-do compile }
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2007-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <ios>
++
++namespace std {
++#if 0
++  typedef OFF_T streamoff;
++  typedef SZ_T streamsize;
++#endif
++
++  template <class stateT> class fpos;
++  class ios_base;
++  template <class charT, class traits>
++     class basic_ios;
++
++  // 27.4.5, manipulators:
++  ios_base& boolalpha (ios_base& str);
++  ios_base& noboolalpha(ios_base& str);
++  ios_base& showbase     (ios_base& str);
++  ios_base& noshowbase (ios_base& str);
++  ios_base& showpoint (ios_base& str);
++  ios_base& noshowpoint(ios_base& str);
++  ios_base& showpos      (ios_base& str);
++  ios_base& noshowpos    (ios_base& str);
++  ios_base& skipws       (ios_base& str);
++  ios_base& noskipws     (ios_base& str);
++  ios_base& uppercase (ios_base& str);
++  ios_base& nouppercase(ios_base& str);
++  ios_base& unitbuf      (ios_base& str);
++  ios_base& nounitbuf    (ios_base& str);
++  // 27.4.5.2 adjustfield:
++  ios_base& internal     (ios_base& str);
++  ios_base& left         (ios_base& str);
++  ios_base& right        (ios_base& str);
++  // 27.4.5.3 basefield:
++  ios_base& dec          (ios_base& str);
++  ios_base& hex          (ios_base& str);
++  ios_base& oct          (ios_base& str);
++  // 27.4.5.4 floatfield:
++  ios_base& fixed        (ios_base& str);
++  ios_base& scientific (ios_base& str);
++}
++
++namespace __gnu_cxx {
++  ios_base& __bin        (ios_base& str);
++}
+Index: testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10_bin.cc
+===================================================================
+--- testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10_bin.cc	(revision 0)
++++ testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/10_bin.cc	(revision 0)
+@@ -0,0 +1,98 @@
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2004-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.1.2.2 arithmetic extractors
++
++#include <istream>
++#include <sstream>
++#include <locale>
++#include <testsuite_hooks.h>
++
++bool
++test10()
++{
++  std::wstring str_01(L"0 00 000 +0 +0 -0");
++  std::wstringbuf isbuf_01(str_01);
++  std::wistream is_01(&isbuf_01);
++
++  bool test [[gnu::unused]] = true;
++
++  int n = 666;
++  std::wstring str_02(L"0x32 0X33 033 33 0b11 0B11 11");
++  std::wstringbuf isbuf_02(str_02);
++  std::wistream is_02(&isbuf_02);
++  is_02.unsetf(std::ios_base::basefield);
++  is_02 >> n;
++  VERIFY( n == 50 );
++  is_02 >> n;
++  VERIFY( n == 51 );
++  is_02 >> n;
++  VERIFY( n == 27 );
++  is_02 >> n;
++  VERIFY( n == 33 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 11 );
++  VERIFY( is_02.rdstate() == std::ios_base::eofbit );
++
++  std::wstringbuf isbuf_03(str_02);
++  std::wistream is_03(&isbuf_03);
++  wchar_t c;
++  int m;
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == L'x' );
++  VERIFY( m == 32 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == L'X' );
++  VERIFY( n == 27 );
++
++  is_03 >> std::dec >> m >> n;
++  VERIFY( m == 33 );
++  VERIFY( n == 33 );
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == L'b' );
++  VERIFY( m == 11 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == L'B' );
++  VERIFY( n == 9 );
++
++  is_03 >> std::dec >> m;
++  VERIFY( m == 11 );
++  VERIFY( is_03.rdstate() == std::ios_base::eofbit );
++
++  return test;
++}
++
++int
++main()
++{
++  test10();
++  return 0;
++}
+Index: testsuite/27_io/basic_istream/extractors_arithmetic/char/10_bin.cc
+===================================================================
+--- testsuite/27_io/basic_istream/extractors_arithmetic/char/10_bin.cc	(revision 0)
++++ testsuite/27_io/basic_istream/extractors_arithmetic/char/10_bin.cc	(revision 0)
+@@ -0,0 +1,100 @@
++// { dg-options "-std=gnu++1y" }
++
++// 1999-04-12 bkoz
++
++// Copyright (C) 1999-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.1.2.2 arithmetic extractors
++
++#include <istream>
++#include <sstream>
++#include <locale>
++#include <testsuite_hooks.h>
++
++bool
++test10()
++{
++  std::string str_01("0 00 000 +0 +0 -0");
++  std::stringbuf isbuf_01(str_01);
++  std::istream is_01(&isbuf_01);
++
++  bool test [[gnu::unused]] = true;
++
++  int n = 666;
++  std::string str_02("0x32 0X33 033 33 0b11 0B11 11");
++  std::stringbuf isbuf_02(str_02);
++  std::istream is_02(&isbuf_02);
++  is_02.unsetf(std::ios_base::basefield);
++  is_02 >> n;
++  VERIFY( n == 50 );
++  is_02 >> n;
++  VERIFY( n == 51 );
++  is_02 >> n;
++  VERIFY( n == 27 );
++  is_02 >> n;
++  VERIFY( n == 33 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 3 );
++  is_02 >> n;
++  VERIFY( n == 11 );
++  VERIFY( is_02.rdstate() == std::ios_base::eofbit );
++
++  std::stringbuf isbuf_03(str_02);
++  std::istream is_03(&isbuf_03);
++  char c;
++  int m;
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == 'x' );
++  VERIFY( m == 32 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == 'X' );
++  VERIFY( n == 27 );
++
++  is_03 >> std::dec >> m >> n;
++  VERIFY( m == 33 );
++  VERIFY( n == 33 );
++
++  is_03 >> std::dec >> n >> c >> m;
++  VERIFY( n == 0 );
++  VERIFY( c == L'b' );
++  VERIFY( m == 11 );
++
++  is_03 >> std::oct >> m >> c >> n;
++  VERIFY( m == 0 );
++  VERIFY( c == L'B' );
++  VERIFY( n == 9 );
++
++  is_03 >> std::dec >> m;
++  VERIFY( m == 11 );
++  VERIFY( is_03.rdstate() == std::ios_base::eofbit );
++
++  return test;
++}
++
++int
++main()
++{
++  test10();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/3_bin.cc	(revision 0)
+@@ -0,0 +1,68 @@
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2005-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <limits>
++#include <testsuite_hooks.h>
++
++template<typename T>
++bool
++test03_check(T n)
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  wstringbuf strbuf;
++  wostream o(&strbuf);
++  const wchar_t *expect;
++
++  if (numeric_limits<T>::digits + 1 == 16)
++    expect = L"1111111111111111 177777 ffff";
++  else if (numeric_limits<T>::digits + 1 == 32)
++    expect = L"11111111111111111111111111111111 37777777777 ffffffff";
++  else if (numeric_limits<T>::digits + 1 == 64)
++    expect = L"1111111111111111111111111111111111111111111111111111111111111111 1777777777777777777777 ffffffffffffffff";
++  else
++    expect = L"wow, you've got some big numbers here";
++
++  o << __gnu_cxx::__bin << n << ' ' << oct << n << L' ' << hex << n;
++  VERIFY ( strbuf.str() == expect );
++
++  return test;
++}
++
++void
++test03()
++{
++  short s = -1;
++  int i = -1;
++  long l = -1;
++
++  test03_check(s);
++  test03_check(i);
++  test03_check(l);
++}
++
++int
++main()
++{
++  test03();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/wchar_t/7_bin.cc	(revision 0)
+@@ -0,0 +1,76 @@
++// { dg-options "-std=gnu++1y" }
++
++// 2005-07-11  Paolo Carlini  <pcarlini@suse.de>
++
++// Copyright (C) 2005-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.2.5.2  Arithmetic inserters
++
++#include <sstream>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  wstringstream ostr1, ostr2, ostr3, ostr4;
++
++  ostr1.setf(ios_base::oct | ios_base::hex);
++  ostr1.setf(ios_base::oct);
++  ostr1.setf(ios_base::hex);
++
++  short s = -1;
++  ostr1 << s;
++  VERIFY( ostr1.str() == L"-1" );
++
++  ostr2.setf(ios_base::oct | ios_base::hex);
++  ostr2.setf(ios_base::oct);
++  ostr2.setf(ios_base::hex);
++
++  int i = -1;
++  ostr2 << i;
++  VERIFY( ostr2.str() == L"-1" );
++
++  ostr3.setf(ios_base::oct | ios_base::hex);
++  ostr3.setf(ios_base::oct);
++  ostr3.setf(ios_base::hex);
++
++  long l = -1;
++  ostr3 << l;
++  VERIFY( ostr3.str() == L"-1" );
++
++#ifdef _GLIBCXX_USE_LONG_LONG
++  ostr4.setf(ios_base::oct | ios_base::hex);
++  ostr4.setf(ios_base::oct);
++  ostr4.setf(ios_base::hex);
++
++  long long ll = -1LL;
++  ostr4 << ll;
++  VERIFY( ostr4.str() == L"-1" );
++#endif
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/3_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/char/3_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/3_bin.cc	(revision 0)
+@@ -0,0 +1,71 @@
++// { dg-options "-std=gnu++1y" }
++
++// 1999-11-15 Kevin Ediger  <kediger@licor.com>
++// test the floating point inserters (facet num_put)
++
++// Copyright (C) 1999-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <limits>
++#include <testsuite_hooks.h>
++
++template<typename T>
++bool
++test03_check(T n)
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  stringbuf strbuf;
++  ostream o(&strbuf);
++  const char *expect;
++
++  if (numeric_limits<T>::digits + 1 == 16)
++    expect = "1111111111111111 177777 ffff";
++  else if (numeric_limits<T>::digits + 1 == 32)
++    expect = "11111111111111111111111111111111 37777777777 ffffffff";
++  else if (numeric_limits<T>::digits + 1 == 64)
++    expect = "1111111111111111111111111111111111111111111111111111111111111111 1777777777777777777777 ffffffffffffffff";
++  else
++    expect = "wow, you've got some big numbers here";
++
++  o << __gnu_cxx::__bin << n << ' ' << oct << n << ' ' << hex << n;
++  VERIFY ( strbuf.str() == expect );
++
++  return test;
++}
++
++void
++test03()
++{
++  short s = -1;
++  int i = -1;
++  long l = -1;
++
++  test03_check (s);
++  test03_check (i);
++  test03_check (l);
++}
++
++int
++main()
++{
++  test03();
++  return 0;
++}
+Index: testsuite/27_io/basic_ostream/inserters_arithmetic/char/7_bin.cc
+===================================================================
+--- testsuite/27_io/basic_ostream/inserters_arithmetic/char/7_bin.cc	(revision 0)
++++ testsuite/27_io/basic_ostream/inserters_arithmetic/char/7_bin.cc	(revision 0)
+@@ -0,0 +1,76 @@
++// { dg-options "-std=gnu++1y" }
++
++// 2005-07-11  Paolo Carlini  <pcarlini@suse.de>
++
++// Copyright (C) 2005-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 27.6.2.5.2  Arithmetic inserters
++
++#include <sstream>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  using namespace std;
++
++  bool test [[gnu::unused]] = true;
++
++  stringstream ostr1, ostr2, ostr3, ostr4;
++
++  ostr1.setf(ios_base::oct | ios_base::hex);
++  ostr1.setf(ios_base::oct);
++  ostr1.setf(ios_base::hex);
++
++  short s = -1;
++  ostr1 << s;
++  VERIFY( ostr1.str() == "-1" );
++
++  ostr2.setf(ios_base::oct | ios_base::hex);
++  ostr2.setf(ios_base::oct);
++  ostr2.setf(ios_base::hex);
++
++  int i = -1;
++  ostr2 << i;
++  VERIFY( ostr2.str() == "-1" );
++
++  ostr3.setf(ios_base::oct | ios_base::hex);
++  ostr3.setf(ios_base::oct);
++  ostr3.setf(ios_base::hex);
++
++  long l = -1;
++  ostr3 << l;
++  VERIFY( ostr3.str() == "-1" );
++
++#ifdef _GLIBCXX_USE_LONG_LONG
++  ostr4.setf(ios_base::oct | ios_base::hex);
++  ostr4.setf(ios_base::oct);
++  ostr4.setf(ios_base::hex);
++
++  long long ll = -1LL;
++  ostr4 << ll;
++  VERIFY( ostr4.str() == "-1" );
++#endif
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/27_io/manipulators/basefield/wchar_t/1_bin.cc
+===================================================================
+--- testsuite/27_io/manipulators/basefield/wchar_t/1_bin.cc	(revision 0)
++++ testsuite/27_io/manipulators/basefield/wchar_t/1_bin.cc	(revision 0)
+@@ -0,0 +1,155 @@
++// { dg-options "-std=gnu++1y" }
++
++// Copyright (C) 2004-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <locale>
++#include <iomanip>
++#include <testsuite_hooks.h>
++			
++struct MyNP : std::numpunct<wchar_t>
++{
++  std::string do_grouping() const;
++  wchar_t do_thousands_sep() const;
++};
++
++std::string
++MyNP::do_grouping() const
++{
++  std::string s("\3");
++  return s;
++}
++
++wchar_t
++MyNP::do_thousands_sep() const
++{ return L' '; }
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  const wchar_t lit[] = L"0b101 010\n"
++                        L"#.....................0b1 010 101#\n"
++                        L"#0b101 010.......................#\n"
++                        L"#........................0b10 101#\n"
++                        L"#0b.........................1 010#\n"
++                        L"#0b111 010 110 111 100 110 100 010 101#\n"
++                        L"#0b100 101 101 011 010 000 111...#\n"
++                        L"#........0b11 110 001 001 000 000#\n"
++                        L"#0b.....................1 111 011#\n"
++                        L"0123 456\n"
++                        L": 01 234 567:\n"
++                        L":0123 456   :\n"
++                        L":    012 345:\n"
++                        L":     01 234:\n"
++                        L":0726 746 425:\n"
++                        L":04 553 207 :\n"
++                        L":   0361 100:\n"
++                        L":       0173:\n"
++                        L"0x12 345 678\n"
++                        L"|0x000012 345 678|\n"
++                        L"|0x12 345 6780000|\n"
++                        L"|00000x12 345 678|\n"
++                        L"|0x000012 345 678|\n";
++
++  std::wostringstream oss;
++  oss.imbue(std::locale(std::locale(), new MyNP));
++
++  // Binaries
++  oss << __gnu_cxx::__bin << std::showbase << std::setfill(L'.');
++  oss << 0b0101010l << std::endl;
++
++  oss << L'#' << std::setw(32);
++  oss << 0b01010101l << L'#' << std::endl;
++
++  oss << L'#' << std::setw(32) << std::left;
++  oss << 0b0101010l << L'#' << std::endl;
++
++  oss << L'#' << std::setw(32) << std::right;
++  oss << 0b010101l << L'#' << std::endl;
++
++  oss << L'#' << std::setw(32) << std::internal;
++  oss << 0b01010l << L'#' << std::endl;
++
++  oss << L'#' << std::setw(32);
++  oss << 123456789l << L'#' << std::endl;
++
++  oss << L'#' << std::setw(32) << std::left;
++  oss << 1234567l << L'#' << std::endl;
++
++  oss << L'#' << std::setw(32) << std::right;
++  oss << 123456l << L'#' << std::endl;
++
++  oss << L'#' << std::setw(32) << std::internal;
++  oss << 123l << L'#' << std::endl;
++
++  // Octals
++  oss << std::oct << std::showbase << std::setfill(L' ');
++  oss << 0123456l << std::endl;
++
++  oss << L':' << std::setw(11);
++  oss << 01234567l << L':' << std::endl;
++
++  oss << L':' << std::setw(11) << std::left;
++  oss << 0123456l << L':' << std::endl;
++
++  oss << L':' << std::setw(11) << std::right;
++  oss << 012345l << L':' << std::endl;
++
++  oss << L':' << std::setw(11) << std::internal;
++  oss << 01234l << L':' << std::endl;
++
++  oss << L':' << std::setw(11);
++  oss << 123456789l << L':' << std::endl;
++
++  oss << L':' << std::setw(11) << std::left;
++  oss << 1234567l << L':' << std::endl;
++
++  oss << L':' << std::setw(11) << std::right;
++  oss << 123456l << L':' << std::endl;
++
++  oss << L':' << std::setw(11) << std::internal;
++  oss << 123l << L':' << std::endl;
++
++  // Hexadecimals
++  oss << std::hex << std::setfill(L'0');
++  oss << 0x12345678l << std::endl;
++
++  oss << L'|' << std::setw(16);
++  oss << 0x12345678l << L'|' << std::endl;
++
++  oss << L'|' << std::setw(16) << std::left;
++  oss << 0x12345678l << L'|' << std::endl;
++
++  oss << L'|' << std::setw(16) << std::right;
++  oss << 0x12345678l << L'|' << std::endl;
++
++  oss << L'|' << std::setw(16) << std::internal;
++  oss << 0x12345678l << L'|' << std::endl;
++
++  VERIFY( oss.good() );
++  VERIFY( oss.str() == lit );
++}
++
++int
++main() 
++{
++  test01();
++  return 0;
++}
+Index: testsuite/27_io/manipulators/basefield/char/1_bin.cc
+===================================================================
+--- testsuite/27_io/manipulators/basefield/char/1_bin.cc	(revision 0)
++++ testsuite/27_io/manipulators/basefield/char/1_bin.cc	(revision 0)
+@@ -0,0 +1,155 @@
++// 981027 ncm work with libstdc++v3
++
++// Copyright (C) 1997-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <sstream>
++#include <locale>
++#include <iomanip>
++#include <testsuite_hooks.h>
++			
++struct MyNP : std::numpunct<char>
++{
++  std::string do_grouping() const;
++  char do_thousands_sep() const;
++};
++
++std::string
++MyNP::do_grouping() const
++{
++  std::string s("\3");
++  return s;
++}
++
++char
++MyNP::do_thousands_sep() const
++{ return ' '; }
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  const char lit[] = "0b101 010\n"
++                     "#.....................0b1 010 101#\n"
++                     "#0b101 010.......................#\n"
++                     "#........................0b10 101#\n"
++                     "#0b.........................1 010#\n"
++                     "#0b111 010 110 111 100 110 100 010 101#\n"
++                     "#0b100 101 101 011 010 000 111...#\n"
++                     "#........0b11 110 001 001 000 000#\n"
++                     "#0b.....................1 111 011#\n"
++                     "0123 456\n"
++                     ": 01 234 567:\n"
++                     ":0123 456   :\n"
++                     ":    012 345:\n"
++                     ":     01 234:\n"
++                     ":0726 746 425:\n"
++                     ":04 553 207 :\n"
++                     ":   0361 100:\n"
++                     ":       0173:\n"
++                     "0x12 345 678\n"
++                     "|0x000012 345 678|\n"
++                     "|0x12 345 6780000|\n"
++                     "|00000x12 345 678|\n"
++                     "|0x000012 345 678|\n";
++
++  std::ostringstream oss;
++  oss.imbue(std::locale(std::locale(), new MyNP));
++
++  // Binaries
++  oss << __gnu_cxx::__bin << std::showbase << std::setfill('.');
++  oss << 0b0101010l << std::endl;
++
++  oss << '#' << std::setw(32);
++  oss << 0b01010101l << '#' << std::endl;
++
++  oss << '#' << std::setw(32) << std::left;
++  oss << 0b0101010l << '#' << std::endl;
++
++  oss << '#' << std::setw(32) << std::right;
++  oss << 0b010101l << '#' << std::endl;
++
++  oss << '#' << std::setw(32) << std::internal;
++  oss << 0b01010l << '#' << std::endl;
++
++  oss << '#' << std::setw(32);
++  oss << 123456789l << '#' << std::endl;
++
++  oss << '#' << std::setw(32) << std::left;
++  oss << 1234567l << '#' << std::endl;
++
++  oss << '#' << std::setw(32) << std::right;
++  oss << 123456l << '#' << std::endl;
++
++  oss << '#' << std::setw(32) << std::internal;
++  oss << 123l << '#' << std::endl;
++
++  // Octals
++  oss << std::oct << std::showbase << std::setfill(' ');
++  oss << 0123456l << std::endl;
++
++  oss << ':' << std::setw(11);
++  oss << 01234567l << ':' << std::endl;
++
++  oss << ':' << std::setw(11) << std::left;
++  oss << 0123456l << ':' << std::endl;
++
++  oss << ':' << std::setw(11) << std::right;
++  oss << 012345l << ':' << std::endl;
++
++  oss << ':' << std::setw(11) << std::internal;
++  oss << 01234l << ':' << std::endl;
++
++  oss << ':' << std::setw(11);
++  oss << 123456789l << ':' << std::endl;
++
++  oss << ':' << std::setw(11) << std::left;
++  oss << 1234567l << ':' << std::endl;
++
++  oss << ':' << std::setw(11) << std::right;
++  oss << 123456l << ':' << std::endl;
++
++  oss << ':' << std::setw(11) << std::internal;
++  oss << 123l << ':' << std::endl;
++
++  // Hexadecimals
++  oss << std::hex << std::setfill('0');
++  oss << 0x12345678l << std::endl;
++
++  oss << '|' << std::setw(16);
++  oss << 0x12345678l << '|' << std::endl;
++
++  oss << '|' << std::setw(16) << std::left;
++  oss << 0x12345678l << '|' << std::endl;
++
++  oss << '|' << std::setw(16) << std::right;
++  oss << 0x12345678l << '|' << std::endl;
++
++  oss << '|' << std::setw(16) << std::internal;
++  oss << 0x12345678l << '|' << std::endl;
++
++  VERIFY( oss.good() );
++  VERIFY( oss.str() == lit );
++}
++
++int
++main() 
++{
++  test01();
++  return 0;
++}
+Index: testsuite/28_regex/traits/char/value_bin.cc
+===================================================================
+--- testsuite/28_regex/traits/char/value_bin.cc	(revision 0)
++++ testsuite/28_regex/traits/char/value_bin.cc	(revision 0)
+@@ -0,0 +1,62 @@
++// { dg-do run }
++// { dg-options "-std=gnu++1y" }
++
++// 2013-09-12 Edward Smith-Rowland  <3dw4rd@verizon.net>
++//
++// Copyright (C) 2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// [28.7] class template regex_traits value() function
++
++#include <regex>
++#include <testsuite_hooks.h>
++
++// Tests the value() function of the regex_traits<char> class.
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  std::regex_traits<char> t;
++  VERIFY( t.value('1', 2)  == 1 );
++  VERIFY( t.value('1', 8)  == 1 );
++  VERIFY( t.value('1', 10)  == 1 );
++  VERIFY( t.value('1', 16)  == 1 );
++  VERIFY( t.value('2', 2)  == -1 );
++  VERIFY( t.value('2', 8)  == 2 );
++  VERIFY( t.value('2', 10)  == 2 );
++  VERIFY( t.value('2', 16)  == 2 );
++  VERIFY( t.value('7', 2)  == -1 );
++  VERIFY( t.value('7', 8)  == 7 );
++  VERIFY( t.value('7', 10) == 7 );
++  VERIFY( t.value('7', 16) == 7 );
++  VERIFY( t.value('9', 2)  == -1 );
++  VERIFY( t.value('9', 8)  == -1 );
++  VERIFY( t.value('9', 10) == 9 );
++  VERIFY( t.value('9', 16) == 9 );
++  VERIFY( t.value('d', 2)  == -1 );
++  VERIFY( t.value('d', 8)  == -1 );
++  VERIFY( t.value('d', 10) == -1 );
++  VERIFY( t.value('d', 16) == 13 );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++};
+Index: testsuite/28_regex/traits/wchar_t/value_bin.cc
+===================================================================
+--- testsuite/28_regex/traits/wchar_t/value_bin.cc	(revision 0)
++++ testsuite/28_regex/traits/wchar_t/value_bin.cc	(revision 0)
+@@ -0,0 +1,62 @@
++// { dg-do run }
++// { dg-options "-std=gnu++1y" }
++
++// 2013-09-12 Edward Smith-Rowland  <3dw4rd@verizon.net>
++//
++// Copyright (C) 2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// [28.7] class template regex_traits value() function
++
++#include <regex>
++#include <testsuite_hooks.h>
++
++// Tests the value() function of the regex_traits<wchar_t> class.
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  std::regex_traits<wchar_t> t;
++  VERIFY( t.value(L'1', 2)  == 1 );
++  VERIFY( t.value(L'1', 8)  == 1 );
++  VERIFY( t.value(L'1', 10)  == 1 );
++  VERIFY( t.value(L'1', 16)  == 1 );
++  VERIFY( t.value(L'2', 2)  == -1 );
++  VERIFY( t.value(L'2', 8)  == 2 );
++  VERIFY( t.value(L'2', 10) == 2 );
++  VERIFY( t.value(L'2', 16) == 2 );
++  VERIFY( t.value(L'7', 2)  == -1 );
++  VERIFY( t.value(L'7', 8)  == 7 );
++  VERIFY( t.value(L'7', 10) == 7 );
++  VERIFY( t.value(L'7', 16) == 7 );
++  VERIFY( t.value(L'9', 2)  == -1 );
++  VERIFY( t.value(L'9', 8)  == -1 );
++  VERIFY( t.value(L'9', 10) == 9 );
++  VERIFY( t.value(L'9', 16) == 9 );
++  VERIFY( t.value(L'd', 2)  == -1 );
++  VERIFY( t.value(L'd', 8)  == -1 );
++  VERIFY( t.value(L'd', 10) == -1 );
++  VERIFY( t.value(L'd', 16) == 13 );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++};
