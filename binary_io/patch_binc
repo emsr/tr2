@@ -1,6 +1,6 @@
 Index: include/std/iomanip
 ===================================================================
---- include/std/iomanip	(revision 202754)
+--- include/std/iomanip	(revision 202760)
 +++ include/std/iomanip	(working copy)
 @@ -117,8 +117,9 @@
     *  @param  __base  A numeric base.
@@ -42,7 +42,7 @@ Index: include/std/iomanip
  		ios_base::fmtflags(0), ios_base::basefield);
 Index: include/bits/locale_facets.tcc
 ===================================================================
---- include/bits/locale_facets.tcc	(revision 202754)
+--- include/bits/locale_facets.tcc	(revision 202760)
 +++ include/bits/locale_facets.tcc	(working copy)
 @@ -383,8 +383,12 @@
  	// NB: Iff __basefield == 0, __base can change based on contents.
@@ -157,7 +157,7 @@ Index: include/bits/locale_facets.tcc
  	      __news[1] = __olds[1];
 Index: include/bits/locale_facets.h
 ===================================================================
---- include/bits/locale_facets.h	(revision 202754)
+--- include/bits/locale_facets.h	(revision 202760)
 +++ include/bits/locale_facets.h	(working copy)
 @@ -1532,6 +1532,10 @@
  	_S_oudigits_end = _S_oudigits + 16,
@@ -201,7 +201,7 @@ Index: include/bits/locale_facets.h
         *  Thousands separators are inserted according to
 Index: include/bits/ostream.tcc
 ===================================================================
---- include/bits/ostream.tcc	(revision 202754)
+--- include/bits/ostream.tcc	(revision 202760)
 +++ include/bits/ostream.tcc	(working copy)
 @@ -94,7 +94,11 @@
        // _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -231,7 +231,7 @@ Index: include/bits/ostream.tcc
  	return _M_insert(static_cast<long>(__n));
 Index: include/bits/regex.h
 ===================================================================
---- include/bits/regex.h	(revision 202754)
+--- include/bits/regex.h	(revision 202760)
 +++ include/bits/regex.h	(working copy)
 @@ -607,6 +607,11 @@
      {
@@ -247,7 +247,7 @@ Index: include/bits/regex.h
        else if (__radix == 16)
 Index: include/bits/ios_base.h
 ===================================================================
---- include/bits/ios_base.h	(revision 202754)
+--- include/bits/ios_base.h	(revision 202760)
 +++ include/bits/ios_base.h	(working copy)
 @@ -104,7 +104,7 @@
      { 
@@ -284,13 +284,15 @@ Index: include/bits/ios_base.h
  
      /// Open for input.  Default for @c ifstream and fstream.
      static const openmode in =		_S_in;
-@@ -972,4 +973,17 @@
+@@ -972,4 +973,21 @@
  _GLIBCXX_END_NAMESPACE_VERSION
  } // namespace
  
 +#if __cplusplus > 201103L
-+namespace __gnu_cxx
++namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
 +{
++_GLIBCXX_BEGIN_NAMESPACE_VERSION
++
 +  /// Calls base.setf(ios_base::oct | ios_base::hex, ios_base::basefield).
 +  inline ios_base&
 +  __bin(ios_base& __base)
@@ -298,6 +300,8 @@ Index: include/bits/ios_base.h
 +    __base.setf(ios_base::oct | ios_base::hex, ios_base::basefield);
 +    return __base;
 +  }
++
++_GLIBCXX_END_NAMESPACE_VERSION
 +}
 +#endif
 +
