@@ -1,0 +1,705 @@
+Index: include/ext/random
+===================================================================
+--- include/ext/random	(revision 202868)
++++ include/ext/random	(working copy)
+@@ -2845,6 +2845,249 @@
+ 	       const __gnu_cxx::von_mises_distribution<_RealType>& __d2)
+    { return !(__d1 == __d2); }
+ 
++
++  /**
++   * @brief A discrete hypergeometric random number distribution.
++   *
++   * The formula for the hypergeometric probability density function is
++   * @f[
++   *   p(k|N,K,n) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}
++   * @f]
++   * where @f$N@f$ is the total population of the distribution,
++   * @f$K@f$ is the total population of the distribution.
++   */
++  template<typename _UIntType = unsigned int>
++    class hypergeometric_distribution
++    {
++      static_assert(std::is_unsigned<_UIntType>::value, "template argument "
++		    "substituting _UIntType not an unsigned integral type");
++
++    public:
++      /** The type of the range of the distribution. */
++      typedef _UIntType  result_type;
++
++      /** Parameter type. */
++      struct param_type
++      {
++	typedef hypergeometric_distribution<_UIntType> distribution_type;
++	friend class hypergeometric_distribution<_UIntType>;
++
++	explicit
++	param_type(result_type __N = 10, result_type __K = 5,
++		   result_type __n = 1)
++	: _M_N{__N}, _M_K{__K}, _M_n{__n}, _M_den{}
++	{
++	  _GLIBCXX_DEBUG_ASSERT(_M_N >= _M_K);
++	  _GLIBCXX_DEBUG_ASSERT(_M_N >= _M_n);
++
++	  this->_M_initialize();
++	}
++
++	result_type
++	total_size() const
++	{ return _M_N; }
++
++	result_type
++	successful_size() const
++	{ return _M_K; }
++
++	result_type
++	total_draws() const
++	{ return _M_n; }
++
++	friend bool
++	operator==(const param_type& __p1, const param_type& __p2)
++	{ return (__p1._M_N == __p2._M_N)
++	      && (__p1._M_K == __p2._M_K)
++	      && (__p1._M_n == __p2._M_n); }
++
++      private:
++
++	void _M_initialize();
++
++	result_type _M_N;
++	result_type _M_K;
++	result_type _M_n;
++
++        std::vector<double> _M_den;
++      };
++
++      // constructors and member function
++      explicit
++      hypergeometric_distribution(result_type __N = 10, result_type __K = 5,
++				  result_type __n = 1)
++      : _M_param{__N, __K, __n}, _M_dd{}
++      {
++	this->_M_dd.swap(std::discrete_distribution<_UIntType>(_M_den.begin(),
++							       _M_den.end()));
++      }
++
++      explicit
++      hypergeometric_distribution(const param_type& __p)
++      : _M_param{__p}, _M_dd{}
++      {
++	this->_M_dd.swap(std::discrete_distribution<_UIntType>(_M_den.begin(),
++							       _M_den.end()));
++      }
++
++      /**
++       * @brief Resets the distribution state.
++       */
++      void
++      reset()
++      { _M_dd.reset(); }
++
++      /**
++       * @brief Returns the distribution parameter @p N.
++       */
++      result_type
++      total_size() const
++      { return _M_param.total_size(); }
++
++      /**
++       * @brief Returns the distribution parameter @p K.
++       */
++      result_type
++      successful_size() const
++      { return _M_param.successful_size(); }
++
++      /**
++       * @brief Returns the distribution parameter @p n.
++       */
++      result_type
++      total_draws() const
++      { return _M_param.total_draws(); }
++
++      /**
++       * @brief Returns the parameter set of the distribution.
++       */
++      param_type
++      param() const
++      { return _M_param; }
++
++      /**
++       * @brief Sets the parameter set of the distribution.
++       * @param __param The new parameter set of the distribution.
++       */
++      void
++      param(const param_type& __param)
++      { _M_param = __param; }
++
++      /**
++       * @brief Returns the greatest lower bound value of the distribution.
++       */
++      result_type
++      min() const
++      { return 0; }
++
++      /**
++       * @brief Returns the least upper bound value of the distribution.
++       */
++      result_type
++      max() const
++      { return _M_param.total_draws(); }
++
++      /**
++       * @brief Generating functions.
++       */
++      template<typename _UniformRandomNumberGenerator>
++	result_type
++	operator()(_UniformRandomNumberGenerator& __urng)
++	{ return this->operator()(__urng, _M_param); }
++
++      template<typename _UniformRandomNumberGenerator>
++	result_type
++	operator()(_UniformRandomNumberGenerator& __urng,
++		   const param_type& __p);
++
++      template<typename _ForwardIterator,
++	       typename _UniformRandomNumberGenerator>
++	void
++	__generate(_ForwardIterator __f, _ForwardIterator __t,
++		   _UniformRandomNumberGenerator& __urng)
++	{ this->__generate(__f, __t, __urng, _M_param); }
++
++      template<typename _ForwardIterator,
++	       typename _UniformRandomNumberGenerator>
++	void
++	__generate(_ForwardIterator __f, _ForwardIterator __t,
++		   _UniformRandomNumberGenerator& __urng,
++		   const param_type& __p)
++	{ this->__generate_impl(__f, __t, __urng, __p); }
++
++      template<typename _UniformRandomNumberGenerator>
++	void
++	__generate(result_type* __f, result_type* __t,
++		   _UniformRandomNumberGenerator& __urng,
++		   const param_type& __p)
++	{ this->__generate_impl(__f, __t, __urng, __p); }
++
++       /**
++	* @brief Return true if two hypergeometric distributions have the same
++	*        parameters and the sequences that would be generated
++	*        are equal.
++	*/
++      friend bool
++      operator==(const hypergeometric_distribution& __d1,
++		 const hypergeometric_distribution& __d2)
++      { return __d1._M_param == __d2._M_param && __d1._M_dd == __d2._M_dd; }
++
++      /**
++       * @brief Inserts a %hypergeometric_distribution random number
++       * distribution @p __x into the output stream @p __os.
++       *
++       * @param __os An output stream.
++       * @param __x  A %hypergeometric_distribution random number
++       *             distribution.
++       *
++       * @returns The output stream with the state of @p __x inserted or in
++       * an error state.
++       */
++      template<typename _UIntType1, typename _CharT, typename _Traits>
++	friend std::basic_ostream<_CharT, _Traits>&
++	operator<<(std::basic_ostream<_CharT, _Traits>& __os,
++		   const __gnu_cxx::hypergeometric_distribution<_UIntType1>&
++                   __x);
++
++      /**
++       * @brief Extracts a %hypergeometric_distribution random number
++       * distribution @p __x from the input stream @p __is.
++       *
++       * @param __is An input stream.
++       * @param __x  A %hypergeometric_distribution random number generator
++       *             distribution.
++       *
++       * @returns The input stream with @p __x extracted or in an error
++       *          state.
++       */
++      template<typename _UIntType1, typename _CharT, typename _Traits>
++	friend std::basic_istream<_CharT, _Traits>&
++	operator>>(std::basic_istream<_CharT, _Traits>& __is,
++		   __gnu_cxx::hypergeometric_distribution<_UIntType1>& __x);
++
++    private:
++
++      template<typename _ForwardIterator,
++	       typename _UniformRandomNumberGenerator>
++	void
++	__generate_impl(_ForwardIterator __f, _ForwardIterator __t,
++			_UniformRandomNumberGenerator& __urng,
++			const param_type& __p);
++
++      param_type _M_param;
++
++      std::discrete_distribution<result_type> _M_dd;
++    };
++
++  /**
++   * @brief Return true if two hypergeometric distributions are different.
++   */
++  template<typename _UIntType>
++    inline bool
++    operator!=(const __gnu_cxx::hypergeometric_distribution<_UIntType>& __d1,
++	       const __gnu_cxx::hypergeometric_distribution<_UIntType>& __d2)
++    { return !(__d1 == __d2); }
++
+ _GLIBCXX_END_NAMESPACE_VERSION
+ } // namespace __gnu_cxx
+ 
+Index: include/ext/random.tcc
+===================================================================
+--- include/ext/random.tcc	(revision 202868)
++++ include/ext/random.tcc	(working copy)
+@@ -1307,6 +1307,115 @@
+       return __is;
+     }
+ 
++
++  template<typename _UIntType>
++    void
++    hypergeometric_distribution<_UIntType>::param_type::
++    _M_initialize()
++    {
++      using std::tr1::__detail::__log_bincoef<double>;
++      static const _Tp __max_bincoeff
++                      = std::numeric_limits<_Tp>::max_exponent10
++                      * std::log(_Tp(10)) - _Tp(1);
++      _M_den.clear();
++      for (_UIntType __k = 0; __k <= _M_n; ++__k)
++	{
++	  double __tmp = __log_bincoef<double>(_M_K, __k)
++		       + __log_bincoef<double>(_M_N - _M_K, _M_n - __k);
++		       - __log_bincoef<double>(_M_N, _M_n);
++	  if (__tmp > __max_bincoeff)
++	    _M_den.push_back(std::numeric_limits<_Tp>::quiet_NaN());
++	  else
++	    _M_den.push_back(std::exp(__tmp));
++	}
++    }
++
++  template<typename _UIntType>
++    template<typename _UniformRandomNumberGenerator>
++      typename beta_distribution<_UIntType>::result_type
++      hypergeometric_distribution<_UIntType>::
++      operator()(_UniformRandomNumberGenerator& __urng,
++		 const param_type& __param)
++      {
++	if (__param == this->_M_param)
++	  return this->_M_dd(__urng);
++	else
++	  {
++	    using __dd_ptype = decltype(this->_M_dd.param());
++	    return this->_M_dd(__urng, __dd_ptype(this->_M_param._M_den.begin(),
++						  this->_M_param._M_den.end()));
++	  }
++      }
++
++  template<typename _UIntType>
++    template<typename _OutputIterator,
++	     typename _UniformRandomNumberGenerator>
++      void
++      hypergeometric_distribution<_UIntType>::
++      __generate_impl(_OutputIterator __f, _OutputIterator __t,
++		      _UniformRandomNumberGenerator& __urng,
++		      const param_type& __param)
++      {
++	__glibcxx_function_requires(_OutputIteratorConcept<_OutputIterator>)
++
++	if (__param == this->_M_param)
++	  while (__f != __t)
++	    *__f++ = this->operator()(__urng);
++	else
++	  {
++	    using __dd_ptype = decltype(this->_M_dd.param());
++	    auto __dd_param(this->_M_param._M_den.begin(),
++			    this->_M_param._M_den.end());
++	    while (__f != __t)
++	      *__f++ = this->operator()(__urng, __dd_param);
++	  }
++      }
++
++  template<typename _UIntType, typename _CharT, typename _Traits>
++    std::basic_ostream<_CharT, _Traits>&
++    operator<<(std::basic_ostream<_CharT, _Traits>& __os,
++	       const __gnu_cxx::hypergeometric_distribution<_UIntType>& __x)
++    {
++      typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
++      typedef typename __ostream_type::ios_base    __ios_base;
++
++      const typename __ios_base::fmtflags __flags = __os.flags();
++      const _CharT __fill = __os.fill();
++      const std::streamsize __precision = __os.precision();
++      const _CharT __space = __os.widen(' ');
++      __os.flags(__ios_base::scientific | __ios_base::left);
++      __os.fill(__space);
++      __os.precision(std::numeric_limits<_UIntType>::max_digits10);
++
++      __os << __x.total_size() << __space << __x.successful_size() << __space
++	   << __x.total_draws();
++
++      __os.flags(__flags);
++      __os.fill(__fill);
++      __os.precision(__precision);
++      return __os;
++    }
++
++  template<typename _UIntType, typename _CharT, typename _Traits>
++    std::basic_istream<_CharT, _Traits>&
++    operator>>(std::basic_istream<_CharT, _Traits>& __is,
++	       __gnu_cxx::hypergeometric_distribution<_UIntType>& __x)
++    {
++      typedef std::basic_istream<_CharT, _Traits>  __istream_type;
++      typedef typename __istream_type::ios_base    __ios_base;
++
++      const typename __ios_base::fmtflags __flags = __is.flags();
++      __is.flags(__ios_base::dec | __ios_base::skipws);
++
++      _UIntType __total_size, __successful_size, __total_draws;
++      __os >> __total_size >> __successful_size >> __total_draws;
++      __x.param(typename __gnu_cxx::hypergeometric_distribution<_RealType>::
++		param_type(__total_size, __successful_size, __total_draws));
++
++      __is.flags(__flags);
++      return __is;
++    }
++
+ _GLIBCXX_END_NAMESPACE_VERSION
+ } // namespace
+ 
+Index: testsuite/ext/random/hypergeometric_distribution/cons/parms.cc
+===================================================================
+--- testsuite/ext/random/hypergeometric_distribution/cons/parms.cc	(revision 0)
++++ testsuite/ext/random/hypergeometric_distribution/cons/parms.cc	(revision 0)
+@@ -0,0 +1,47 @@
++// { dg-options "-std=c++11" }
++// { dg-require-cstdint "" }
++//
++// 2013-09-20  Edward M. Smith-Rowland <3dw4rd@verizon.net>
++//
++// Copyright (C) 2012-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 26.4.8.3.* Class template hypergeometric_distribution [rand.dist.ext.hypergeometric]
++// 26.4.2.4 Concept RandomNumberDistribution [rand.concept.dist]
++
++#include <ext/random>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  __gnu_cxx::hypergeometric_distribution<> u(15, 3, 2);
++  VERIFY( u.total_size() == 15 );
++  VERIFY( u.successful_size() == 3 );
++  VERIFY( u.total_draws() == 2 );
++  VERIFY( u.min() == 0 );
++  VERIFY( u.max() == 3 );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/ext/random/hypergeometric_distribution/cons/default.cc
+===================================================================
+--- testsuite/ext/random/hypergeometric_distribution/cons/default.cc	(revision 0)
++++ testsuite/ext/random/hypergeometric_distribution/cons/default.cc	(revision 0)
+@@ -0,0 +1,47 @@
++// { dg-options "-std=c++11" }
++// { dg-require-cstdint "" }
++//
++// 2013-09-20  Edward M. Smith-Rowland <3dw4rd@verizon.net>
++//
++// Copyright (C) 2012-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 26.4.8.3.* Class template hypergeometric_distribution [rand.dist.ext.hypergeometric]
++// 26.4.2.4 Concept RandomNumberDistribution [rand.concept.dist]
++
++#include <ext/random>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  __gnu_cxx::hypergeometri_distribution<> u;
++  VERIFY( u.() == 10 );
++  VERIFY( u.() == 5 );
++  VERIFY( u.() == 1 );
++  VERIFY( u.min() == 0 );
++  VERIFY( u.max() == 5 );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/ext/random/hypergeometric_distribution/requirements/explicit_instantiation/1.cc
+===================================================================
+--- testsuite/ext/random/hypergeometric_distribution/requirements/explicit_instantiation/1.cc	(revision 0)
++++ testsuite/ext/random/hypergeometric_distribution/requirements/explicit_instantiation/1.cc	(revision 0)
+@@ -0,0 +1,27 @@
++// { dg-do compile }
++// { dg-options "-std=c++11" }
++// { dg-require-cstdint "" }
++//
++// Copyright (C) 2012-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++#include <ext/random>
++
++template class __gnu_cxx::hypergeometric_distribution<unsigned short>;
++template class __gnu_cxx::hypergeometric_distribution<unsigned int>;
++template class __gnu_cxx::hypergeometric_distribution<unsigned long>;
++template class __gnu_cxx::hypergeometric_distribution<unsigned long long>;
+Index: testsuite/ext/random/hypergeometric_distribution/requirements/typedefs.cc
+===================================================================
+--- testsuite/ext/random/hypergeometric_distribution/requirements/typedefs.cc	(revision 0)
++++ testsuite/ext/random/hypergeometric_distribution/requirements/typedefs.cc	(revision 0)
+@@ -0,0 +1,36 @@
++// { dg-do compile }
++// { dg-options "-std=c++11" }
++// { dg-require-cstdint "" }
++//
++// 2013-09-20  Edward M. Smith-Rowland <3dw4rd@verizon.net>
++//
++// Copyright (C) 2012-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 26.4.8.3.* Class template hypergeometric_distribution [rand.dist.ext.hypergeometric]
++// 26.4.2.4 Concept RandomNumberDistribution [rand.concept.dist]
++
++#include <ext/random>
++
++void
++test01()
++{
++  typedef __gnu_cxx::hypergeometric_distribution<unsigned int> test_type;
++
++  typedef test_type::result_type result_type;
++  typedef test_type::param_type param_type;
++}
+Index: testsuite/ext/random/hypergeometric_distribution/operators/inequal.cc
+===================================================================
+--- testsuite/ext/random/hypergeometric_distribution/operators/inequal.cc	(revision 0)
++++ testsuite/ext/random/hypergeometric_distribution/operators/inequal.cc	(revision 0)
+@@ -0,0 +1,44 @@
++// { dg-options "-std=c++11" }
++// { dg-require-cstdint "" }
++//
++// 2013-09-20  Edward M. Smith-Rowland  <3dw4rd@verizon.net>
++//
++// Copyright (C) 2012-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 26.5.8.4.5 Class template rice_distribution [rand.dist.ext.hypergeometric]
++
++#include <ext/random>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  __gnu_cxx::hypergeometric_distribution<unsigned int> u(20, 3, 5), v, w;
++
++  VERIFY( u != v );
++  VERIFY( !(v != w) );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/ext/random/hypergeometric_distribution/operators/equal.cc
+===================================================================
+--- testsuite/ext/random/hypergeometric_distribution/operators/equal.cc	(revision 0)
++++ testsuite/ext/random/hypergeometric_distribution/operators/equal.cc	(revision 0)
+@@ -0,0 +1,44 @@
++// { dg-options "-std=c++11" }
++// { dg-require-cstdint "" }
++//
++// 2013-09-20  Edward M. Smith-Rowland  <3dw4rd@verizon.net>
++//
++// Copyright (C) 2012-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 26.5.8.4.5 Class template rice_distribution [rand.dist.ext.hypergeometric]
++
++#include <ext/random>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  __gnu_cxx::hypergeometric_distribution<unsigned int> u(20, 3, 2), v, w;
++
++  VERIFY( v == w );
++  VERIFY( !(u == v) );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
+Index: testsuite/ext/random/hypergeometric_distribution/operators/serialize.cc
+===================================================================
+--- testsuite/ext/random/hypergeometric_distribution/operators/serialize.cc	(revision 0)
++++ testsuite/ext/random/hypergeometric_distribution/operators/serialize.cc	(revision 0)
+@@ -0,0 +1,51 @@
++// { dg-options "-std=c++11" }
++// { dg-require-cstdint "" }
++//
++// 2013-09-20  Edward M. Smith-Rowland  <3dw4rd@verizon.net>
++//
++// Copyright (C) 2012-2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++//
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++//
++// You should have received a copy of the GNU General Public License along
++// with this library; see the file COPYING3.  If not see
++// <http://www.gnu.org/licenses/>.
++
++// 26.4.8.3.* Class template hypergeometric_distribution [rand.dist.ext.hypergeometric]
++// 26.4.2.4 Concept RandomNumberDistribution [rand.concept.dist]
++
++#include <ext/random>
++#include <sstream>
++#include <testsuite_hooks.h>
++
++void
++test01()
++{
++  bool test [[gnu::unused]] = true;
++
++  std::stringstream str;
++  __gnu_cxx::hypergeometric_distribution<unsigned int> u(15, 3, 6), v;
++  std::minstd_rand0 rng;
++
++  u(rng); // advance
++  str << u;
++
++  str >> v;
++  VERIFY( u == v );
++}
++
++int
++main()
++{
++  test01();
++  return 0;
++}
