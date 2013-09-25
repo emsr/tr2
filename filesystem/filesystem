@@ -1,4 +1,4 @@
-// TR2 <filesystem> -*- C++ -*-
+// C++ experimantal <filesystem> -*- C++ -*-
 
 // Copyright (C) 2011, 2012, 2013 Free Software Foundation, Inc.
 //
@@ -23,11 +23,11 @@
 // <http://www.gnu.org/licenses/>.
 
 /** @file tr2/filesystem
- *  This is a TR2 C++ Library header.
+ *  This is an experimental C++ Library header.
  */
 
-#ifndef _GLIBCXX_TR2_FILESYSTEM
-#define _GLIBCXX_TR2_FILESYSTEM 1
+#ifndef _GLIBCXX_EXPTL_FILESYSTEM
+#define _GLIBCXX_EXPTL_FILESYSTEM 1
 
 #pragma GCC system_header
 
@@ -42,7 +42,7 @@
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {
-namespace tbd
+namespace experimental
 {
 namespace filesystem
 {
@@ -1186,7 +1186,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     // Observers
 
-    const std::tbd::filesystem::path&
+    const std::experimental::filesystem::path&
     path() const
     { return this->_M_path; }
 
@@ -1209,7 +1209,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    && !is_symlink(this->_M_symlink_status))
 	  this->_M_status = this->_M_symlink_status;
 	else
-	  this->_M_status = std::tbd::filesystem::status(this->_M_path, __ec);
+	  this->_M_status = std::experimental::filesystem::status(this->_M_path, __ec);
       }
       return this->_M_status;
     }
@@ -1229,7 +1229,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
       if (!status_known(this->_M_symlink_status))
 	this->_M_symlink_status
-	  = std::tbd::filesystem::symlink_status(this->_M_path, __ec);
+	  = std::experimental::filesystem::symlink_status(this->_M_path, __ec);
       return this->_M_symlink_status;
     }
 
@@ -1260,7 +1260,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   private:
 
-    std::tbd::filesystem::path _M_path;	// for exposition only
+    std::experimental::filesystem::path _M_path;	// for exposition only
     mutable file_status _M_status; // for exposition only; stat()-like
     mutable file_status _M_symlink_status; // for exposition only; lstat()-like
   };
@@ -1432,7 +1432,7 @@ namespace _Path_traits
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace filesystem
-} // namespace tbd
+} // namespace experimental
 } // namespace std
 
-#endif // _GLIBCXX_TR2_FILESYSTEM
+#endif // _GLIBCXX_EXPTL_FILESYSTEM

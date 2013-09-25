@@ -1,4 +1,4 @@
-// TR2 <filesystem> -*- C++ -*-
+// C++ experimantal <filesystem> -*- C++ -*-
 
 // Copyright (C) 2012, 2013 Free Software Foundation, Inc.
 //
@@ -23,11 +23,11 @@
 // <http://www.gnu.org/licenses/>.
 
 /** @file tr2/path_traits.h
- *  This is a TR2 C++ Library header.
+ *  This is an experimental C++ Library header.
  */
 
-#ifndef _GLIBCXX_TR2_PATH_TRAITS_H
-#define _GLIBCXX_TR2_PATH_TRAITS_H 1
+#ifndef _GLIBCXX_EXPTL_PATH_TRAITS_H
+#define _GLIBCXX_EXPTL_PATH_TRAITS_H 1
 
 #pragma GCC system_header
 
@@ -36,7 +36,7 @@
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {
-namespace tbd
+namespace experimental
 {
 namespace filesystem
 {
@@ -266,7 +266,7 @@ namespace _Path_traits
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace __detail
 } // namespace filesystem
-} // namespace tbd
+} // namespace experimental
 } // namespace std
 
-#endif // _GLIBCXX_TR2_PATH_TRAITS_H
+#endif // _GLIBCXX_EXPTL_PATH_TRAITS_H

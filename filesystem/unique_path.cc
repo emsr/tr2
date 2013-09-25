@@ -1,4 +1,4 @@
-// TR2 unique_path.cc -*- C++ -*-
+// C++ experimantal unique_path.cc -*- C++ -*-
 
 // Copyright (C) 2012, 2013 Free Software Foundation, Inc.
 //
@@ -29,7 +29,7 @@
 #include <iomanip> // To build paths for unique_path.
 
 namespace std {
-namespace tbd {
+namespace experimental {
 namespace filesystem {
 
 path
@@ -72,5 +72,5 @@ unique_path(const path& model, std::error_code& ec)
 }
 
 } // filesystem
-} // tbd
+} // experimental
 } // std

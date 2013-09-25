@@ -29,7 +29,7 @@ std::string type[]{
 
 
 void
-table(std::ostream& out, const std::tbd::filesystem::path &p)
+table(std::ostream& out, const std::experimental::filesystem::path &p)
 {
   out << p.string();
   out << '\t';
@@ -63,14 +63,14 @@ tab(int level)
 int
 main(int, char **)
 {
-  std::tbd::filesystem::path empty;
+  std::experimental::filesystem::path empty;
   std::cout << "empty: " << empty << '\n';
   std::cout << "path empty: " << empty.empty() << '\n';
   try
   {
-    std::cout << "is_empty: " << std::tbd::filesystem::is_empty(empty) << '\n';
+    std::cout << "is_empty: " << std::experimental::filesystem::is_empty(empty) << '\n';
   }
-  catch(std::tbd::filesystem::filesystem_error& fe)
+  catch(std::experimental::filesystem::filesystem_error& fe)
   {
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
@@ -78,62 +78,62 @@ main(int, char **)
 
   std::vector<char> charvec(26);
   std::iota(std::begin(charvec), std::end(charvec), 'a');
-  std::tbd::filesystem::path vecpath(charvec);
+  std::experimental::filesystem::path vecpath(charvec);
   std::cout << "vecpath: " << vecpath << '\n';
 
   std::list<char> charlist(26);
   std::iota(std::begin(charlist), std::end(charlist), 'A');
-  std::tbd::filesystem::path listpath(charlist);
+  std::experimental::filesystem::path listpath(charlist);
   std::cout << "listpath: " << listpath << '\n';
 
-  std::tbd::filesystem::path path(std::string("./filesystem"));
+  std::experimental::filesystem::path path(std::string("./filesystem"));
   std::cout << "path: " << path << '\n';
-  std::tbd::filesystem::file_status path_stat = std::tbd::filesystem::status(path);
+  std::experimental::filesystem::file_status path_stat = std::experimental::filesystem::status(path);
   std::cout << "path type: " << type[int(path_stat.type())] << '\n';
-  std::tbd::filesystem::space_info sp = std::tbd::filesystem::space(path);
+  std::experimental::filesystem::space_info sp = std::experimental::filesystem::space(path);
   std::cout << "space: " << sp.capacity << "  " << sp.free << "  " << sp.available << '\n';
 
-  std::tbd::filesystem::path ccpath("./filesystem.cc");
+  std::experimental::filesystem::path ccpath("./filesystem.cc");
   std::cout << "ccpath: " << ccpath << '\n';
-  std::tbd::filesystem::file_status ccpath_stat = std::tbd::filesystem::status(ccpath);
+  std::experimental::filesystem::file_status ccpath_stat = std::experimental::filesystem::status(ccpath);
   std::cout << "path type: " << type[int(ccpath_stat.type())] << '\n';
-  std::tbd::filesystem::space_info ccsp = std::tbd::filesystem::space(ccpath);
+  std::experimental::filesystem::space_info ccsp = std::experimental::filesystem::space(ccpath);
   std::cout << "space: " << ccsp.capacity << "  " << ccsp.free << "  " << ccsp.available << '\n';
 
-  std::tbd::filesystem::path link(path.string() + ".link");
+  std::experimental::filesystem::path link(path.string() + ".link");
   std::cout << "link: " << link << '\n';
-  std::tbd::filesystem::create_symlink(path, link);
-  path_stat = std::tbd::filesystem::status(link);
+  std::experimental::filesystem::create_symlink(path, link);
+  path_stat = std::experimental::filesystem::status(link);
   std::cout << "path type: " << type[int(path_stat.type())] << '\n';
-  std::tbd::filesystem::file_status link_stat = std::tbd::filesystem::symlink_status(link);
+  std::experimental::filesystem::file_status link_stat = std::experimental::filesystem::symlink_status(link);
   std::cout << "link type: " << type[int(link_stat.type())] << '\n';
 
-  std::tbd::filesystem::remove(link);
+  std::experimental::filesystem::remove(link);
   try
   {
-    link_stat = std::tbd::filesystem::symlink_status(link);
+    link_stat = std::experimental::filesystem::symlink_status(link);
   }
-  catch (std::tbd::filesystem::filesystem_error& fe)
+  catch (std::experimental::filesystem::filesystem_error& fe)
   {
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
   }
   std::cout << "path type: " << type[int(link_stat.type())] << '\n';
 
-  std::tbd::filesystem::path hl1(path.string() + ".hl1");
+  std::experimental::filesystem::path hl1(path.string() + ".hl1");
   std::cout << "hard link 1: " << hl1 << '\n';
-  std::tbd::filesystem::create_hard_link(path, hl1);
-  std::tbd::filesystem::file_status hl1_stat = std::tbd::filesystem::status(hl1);
+  std::experimental::filesystem::create_hard_link(path, hl1);
+  std::experimental::filesystem::file_status hl1_stat = std::experimental::filesystem::status(hl1);
   std::cout << "hard link 1 type: " << type[int(hl1_stat.type())] << '\n';
   std::cout << "hard link count: " << hard_link_count(path) << '\n';
   std::cout << "hard link count: " << hard_link_count(hl1) << '\n';
 
-  std::tbd::filesystem::remove(hl1);
+  std::experimental::filesystem::remove(hl1);
   try
   {
-    hl1_stat = std::tbd::filesystem::status(hl1);
+    hl1_stat = std::experimental::filesystem::status(hl1);
   }
-  catch (std::tbd::filesystem::filesystem_error& fe)
+  catch (std::experimental::filesystem::filesystem_error& fe)
   {
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
@@ -141,51 +141,51 @@ main(int, char **)
   std::cout << "hard link 1 type: " << type[int(hl1_stat.type())] << '\n';
   std::cout << "hard link count: " << hard_link_count(path) << '\n';
 
-  std::cout << "current_path: " << std::tbd::filesystem::current_path() << '\n';
+  std::cout << "current_path: " << std::experimental::filesystem::current_path() << '\n';
 
-  std::cout << "unique_path: " << std::tbd::filesystem::unique_path() << '\n';
+  std::cout << "unique_path: " << std::experimental::filesystem::unique_path() << '\n';
 
-  std::cout << "temp_directory_path: " << std::tbd::filesystem::temp_directory_path() << '\n';
+  std::cout << "temp_directory_path: " << std::experimental::filesystem::temp_directory_path() << '\n';
 
   std::cout << '\n';
-  std::tbd::filesystem::path var("/var");
+  std::experimental::filesystem::path var("/var");
   std::cout << var << '\n';
   std::cout << var / "/spool" << '\n';
 
   std::cout << '\n';
-  std::tbd::filesystem::path walk1("//net/usr/local/winonas/big/brown/beaver.dat");
+  std::experimental::filesystem::path walk1("//net/usr/local/winonas/big/brown/beaver.dat");
   std::cout << walk1 << '\n';
   for (const auto& c : walk1)
     std::cout << " " << c;
   std::cout << '\n';
 
   std::cout << '\n' << '\n';
-  std::tbd::filesystem::path walk2("/usr/bin");
+  std::experimental::filesystem::path walk2("/usr/bin");
   std::cout << walk2 << '\n';
   for (const auto& c : walk2)
     std::cout << " " << c;
   std::cout << '\n';
 
   std::cout << '\n';
-  std::tbd::filesystem::path walk3("/uranus/hertz/");
+  std::experimental::filesystem::path walk3("/uranus/hertz/");
   std::cout << walk3 << '\n';
   for (const auto& c : walk3)
     std::cout << " " << c;
   std::cout << '\n';
 
   std::cout << '\n';
-  std::tbd::filesystem::path walk4("///A////B/////C//////");
+  std::experimental::filesystem::path walk4("///A////B/////C//////");
   std::cout << walk4 << '\n';
   for (const auto& c : walk4)
     std::cout << " " << c;
   std::cout << '\n';
 
   std::cout << '\n';
-  std::tbd::filesystem::path wbbb("//net/usr/local/winonas/big/brown/beaver.dat");
+  std::experimental::filesystem::path wbbb("//net/usr/local/winonas/big/brown/beaver.dat");
   std::cout << "wbbb: " << wbbb << '\n';
   std::cout << "wbbb.string(): " << wbbb.string() << '\n';
   ////std::wcout << "wbbb.string<std::wstring>(): " << wbbb.string<std::wstring>() << '\n';
-  std::tbd::filesystem::path::iterator it = wbbb.begin();
+  std::experimental::filesystem::path::iterator it = wbbb.begin();
   std::cout << "*it: " << *it << '\n';
   std::cout << "*it++: " << *it++ << '\n';
   std::cout << '\n';
@@ -195,26 +195,26 @@ main(int, char **)
     std::cout << " " << f;
   std::cout << '\n';
 
-  std::tbd::filesystem::path sluggo("sluggo");
-  std::tbd::filesystem::create_directory(sluggo);
-  std::tbd::filesystem::remove(sluggo);
+  std::experimental::filesystem::path sluggo("sluggo");
+  std::experimental::filesystem::create_directory(sluggo);
+  std::experimental::filesystem::remove(sluggo);
 
-  std::tbd::filesystem::path lwbbb("./winonas/big/brown/beaver.dat");
+  std::experimental::filesystem::path lwbbb("./winonas/big/brown/beaver.dat");
   std::cout << '\n' << "create_directories(" << lwbbb << ")" << '\n';
   std::cout << lwbbb << '\n';
   for (auto f : lwbbb)
     std::cout << " " << f;
   std::cout << '\n';
-  std::tbd::filesystem::create_directories(lwbbb);
-  std::cout << "is_directory(" << lwbbb << "): " << std::tbd::filesystem::is_directory(lwbbb) << '\n';
+  std::experimental::filesystem::create_directories(lwbbb);
+  std::cout << "is_directory(" << lwbbb << "): " << std::experimental::filesystem::is_directory(lwbbb) << '\n';
 
   std::cout << '\n' << "remove_all(" << lwbbb << ")" << '\n';
-  std::tbd::filesystem::remove_all(lwbbb);
-  std::cout << "is_directory(" << lwbbb << "): " << std::tbd::filesystem::is_directory(lwbbb) << '\n';
-  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::tbd::filesystem::is_directory(lwbbb.parent_path()) << '\n';
+  std::experimental::filesystem::remove_all(lwbbb);
+  std::cout << "is_directory(" << lwbbb << "): " << std::experimental::filesystem::is_directory(lwbbb) << '\n';
+  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::experimental::filesystem::is_directory(lwbbb.parent_path()) << '\n';
   std::cout << "remove_all(" << lwbbb.parent_path() << ")" << '\n';
-  std::tbd::filesystem::remove_all(lwbbb.parent_path());
-  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::tbd::filesystem::is_directory(lwbbb.parent_path()) << '\n';
+  std::experimental::filesystem::remove_all(lwbbb.parent_path());
+  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::experimental::filesystem::is_directory(lwbbb.parent_path()) << '\n';
 
   std::cout << '\n' << '\n';
   table(std::cout, "");
@@ -261,65 +261,65 @@ main(int, char **)
   try
   {
     std::cout << '\n' << "Recurse into \"/usr/local/bin/db2ls\"" << '\n';
-    std::tbd::filesystem::recursive_directory_iterator db2ls("/usr/local/bin/db2ls");
-    for(; db2ls != std::tbd::filesystem::recursive_directory_iterator(); ++db2ls)
+    std::experimental::filesystem::recursive_directory_iterator db2ls("/usr/local/bin/db2ls");
+    for(; db2ls != std::experimental::filesystem::recursive_directory_iterator(); ++db2ls)
       std::cout << tab(db2ls.level()) << db2ls->path().filename() << '\n';
   }
-  catch (std::tbd::filesystem::filesystem_error & fe)
+  catch (std::experimental::filesystem::filesystem_error & fe)
   {
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
   }
 
   std::cout << '\n' << "Iterate over \".\"" << '\n';
-  std::tbd::filesystem::directory_iterator di(".");
-  for(; di != std::tbd::filesystem::directory_iterator(); ++di)
+  std::experimental::filesystem::directory_iterator di(".");
+  for(; di != std::experimental::filesystem::directory_iterator(); ++di)
     std::cout << di->path().filename() << '\n';
 
   std::cout << '\n' << "Recurse into \".\"" << '\n';
-  std::tbd::filesystem::recursive_directory_iterator rdi(".");
-  for(; rdi != std::tbd::filesystem::recursive_directory_iterator(); ++rdi)
+  std::experimental::filesystem::recursive_directory_iterator rdi(".");
+  for(; rdi != std::experimental::filesystem::recursive_directory_iterator(); ++rdi)
     std::cout << tab(rdi.level()) << rdi->path().filename() << '\n';
 
   std::cout << '\n' << "Iterate over \"/usr/local\"" << '\n';
-  std::tbd::filesystem::directory_iterator diul("/usr/local");
-  for(; diul != std::tbd::filesystem::directory_iterator(); ++diul)
+  std::experimental::filesystem::directory_iterator diul("/usr/local");
+  for(; diul != std::experimental::filesystem::directory_iterator(); ++diul)
     std::cout << diul->path().filename() << '\n';
 
   try
   {
     std::cout << '\n' << "Recurse into \"/usr/local\"" << '\n';
-    std::tbd::filesystem::recursive_directory_iterator rdiul("/usr/local");
-    for(; rdiul != std::tbd::filesystem::recursive_directory_iterator(); ++rdiul)
+    std::experimental::filesystem::recursive_directory_iterator rdiul("/usr/local");
+    for(; rdiul != std::experimental::filesystem::recursive_directory_iterator(); ++rdiul)
       std::cout << tab(rdiul.level()) << rdiul->path().filename() << '\n';
   }
-  catch (std::tbd::filesystem::filesystem_error & fe)
+  catch (std::experimental::filesystem::filesystem_error & fe)
   {
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
   }
 
-  std::tbd::filesystem::path newpath;
+  std::experimental::filesystem::path newpath;
   std::istringstream strn("\" &\" uranus &\" hertz &\" \"");
   std::cout << "Input path: " << strn.str() << '\n';
   strn >> newpath;
   std::cout << "Output path: " << newpath << '\n';
 
   //  This is bad: It shouldn't compile.  It picks the template<Source> ctor.
-  std::tbd::filesystem::path badpath(std::tbd::filesystem::file_status());
+  std::experimental::filesystem::path badpath(std::experimental::filesystem::file_status());
 
-  std::tbd::filesystem::ofstream ofwbbb(wbbb);
+  std::experimental::filesystem::ofstream ofwbbb(wbbb);
   ofwbbb << "Primus Sucks!!!\n";
 
-  std::tbd::filesystem::ifstream ifwbbb(wbbb);
+  std::experimental::filesystem::ifstream ifwbbb(wbbb);
   std::string line;
   std::getline(ifwbbb, line);
 
-  std::tbd::filesystem::create_file("new file");
+  std::experimental::filesystem::create_file("new file");
 
   //auto path16 = path.string<std::u16string>();
 
   return 0;
 }
 
-// br 'std::tbd::filesystem::recursive_directory_iterator::increment(std::error_code&)'
+// br 'std::experimental::filesystem::recursive_directory_iterator::increment(std::error_code&)'

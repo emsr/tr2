@@ -1,6 +1,6 @@
-// TR2 fstream.h -*- C++ -*-
+// C++ experimantal fstream.h -*- C++ -*-
 
-// Copyright (C) 2011, 2012 Free Software Foundation, Inc.
+// Copyright (C) 2011, 2012, 2013 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -22,12 +22,12 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file tr2/filesystem
- *  This is a TR2 C++ Library header.
+/** @file tr2/fstream.h
+ *  This is an experimental C++ Library header.
  */
 
-#ifndef _GLIBCXX_TR2_FSTREAM_H
-#define _GLIBCXX_TR2_FSTREAM_H 1
+#ifndef _GLIBCXX_EXPTL_FSTREAM_H
+#define _GLIBCXX_EXPTL_FSTREAM_H 1
 
 #pragma GCC system_header
 
@@ -35,7 +35,7 @@
 #include <fstream>
 
 namespace std {
-namespace tbd {
+namespace experimental {
 namespace filesystem {
 
   template <typename _CharT, typename _Traits = std::char_traits<_CharT>>
@@ -157,7 +157,7 @@ namespace filesystem {
   typedef basic_fstream<wchar_t> wfstream;
 
 } // filesystem
-} // tbd
+} // experimental
 } // std
 
-#endif // _GLIBCXX_TR2_FSTREAM_H
+#endif // _GLIBCXX_EXPTL_FSTREAM_H

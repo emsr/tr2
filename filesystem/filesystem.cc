@@ -1,4 +1,4 @@
-// TR2 filesystem.cc -*- C++ -*-
+// C++ experimantal filesystem.cc -*- C++ -*-
 
 // Copyright (C) 2011, 2012, 2013 Free Software Foundation, Inc.
 //
@@ -38,7 +38,7 @@
 #include <iomanip> // for quoted
 
 namespace std {
-namespace tbd {
+namespace experimental {
 namespace filesystem {
 
 // Path implementation.
@@ -1708,5 +1708,5 @@ namespace _Path_traits
 } // __detail
 
 } // filesystem
-} // tbd
+} // experimental
 } // std
