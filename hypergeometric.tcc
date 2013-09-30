@@ -1,5 +1,6 @@
 
 #include <tr1/cmath>
+#include <limits> // numeric_limits
 
 namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
 {
@@ -10,18 +11,18 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     hypergeometric_distribution<_UIntType>::param_type::
     _M_initialize()
     {
-      using std::tr1::__detail::__log_bincoef<double>;
-      static const _Tp __max_bincoeff
-                      = std::numeric_limits<_Tp>::max_exponent10
-                      * std::log(_Tp(10)) - _Tp(1);
+      static const double __max_bincoeff
+				= std::numeric_limits<double>::max_exponent10
+				* std::log(10.0) - 1.0;
       _M_den.clear();
       for (_UIntType __k = 0; __k <= _M_n; ++__k)
 	{
-	  double __tmp = __log_bincoef<double>(_M_K, __k)
-		       + __log_bincoef<double>(_M_N - _M_K, _M_n - __k);
-		       - __log_bincoef<double>(_M_N, _M_n);
+	  double __tmp = std::tr1::__detail::__log_bincoef<double>(_M_K, __k)
+		       + std::tr1::__detail::__log_bincoef<double>(_M_N - _M_K,
+								   _M_n - __k);
+		       - std::tr1::__detail::__log_bincoef<double>(_M_N, _M_n);
 	  if (__tmp > __max_bincoeff)
-	    _M_den.push_back(std::numeric_limits<_Tp>::quiet_NaN());
+	    _M_den.push_back(std::numeric_limits<double>::quiet_NaN());
 	  else
 	    _M_den.push_back(std::exp(__tmp));
 	}
@@ -29,7 +30,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _UIntType>
     template<typename _UniformRandomNumberGenerator>
-      typename beta_distribution<_UIntType>::result_type
+      typename hypergeometric_distribution<_UIntType>::result_type
       hypergeometric_distribution<_UIntType>::
       operator()(_UniformRandomNumberGenerator& __urng,
 		 const param_type& __param)
@@ -61,10 +62,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	else
 	  {
 	    using __dd_ptype = decltype(this->_M_dd.param());
-	    auto __dd_param(this->_M_param._M_den.begin(),
-			    this->_M_param._M_den.end());
 	    while (__f != __t)
-	      *__f++ = this->operator()(__urng, __dd_param);
+	      *__f++ = this->operator()(__urng,
+				__dd_ptype(this->_M_param._M_den.begin(),
+					   this->_M_param._M_den.end()));
 	  }
       }
 
@@ -105,8 +106,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __is.flags(__ios_base::dec | __ios_base::skipws);
 
       _UIntType __total_size, __successful_size, __total_draws;
-      __os >> __total_size >> __successful_size >> __total_draws;
-      __x.param(typename __gnu_cxx::hypergeometric_distribution<_RealType>::
+      __is >> __total_size >> __successful_size >> __total_draws;
+      __x.param(typename __gnu_cxx::hypergeometric_distribution<_UIntType>::
 		param_type(__total_size, __successful_size, __total_draws));
 
       __is.flags(__flags);

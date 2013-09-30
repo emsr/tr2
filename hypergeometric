@@ -1,15 +1,21 @@
 
-#include <vector>
+#include <type_traits>
+#include <iostream>
+#include <random> // discrete_distribution
+#include <vector> // For _M_den
 
 namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
+
   /**
    * @brief A discrete hypergeometric random number distribution.
    *
    * The formula for the hypergeometric probability density function is
-   * @f$p(i|\mu) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}
+   * @f[
+   *   p(k|N,K,n) = \frac{\binom{K}{k} \binom{N-K}{n-k}}{\binom{N}{n}}
+   * @f]
    * where @f$N@f$ is the total population of the distribution,
    * @f$K@f$ is the total population of the distribution.
    */
@@ -73,19 +79,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       explicit
       hypergeometric_distribution(result_type __N = 10, result_type __K = 5,
 				  result_type __n = 1)
-      : _M_param{__N, __K, __n}, _M_dd{}
-      {
-	this->_M_dd.swap(std::discrete_distribution<_UIntType>(_M_den.begin(),
-							       _M_den.end()));
-      }
+      : _M_param{__N, __K, __n},
+	_M_dd{_M_param._M_den.begin(), _M_param._M_den.end()}
+      { }
 
       explicit
       hypergeometric_distribution(const param_type& __p)
-      : _M_param{__p}, _M_dd{}
-      {
-	this->_M_dd.swap(std::discrete_distribution<_UIntType>(_M_den.begin(),
-							       _M_den.end()));
-      }
+      : _M_param{__p},
+	_M_dd{_M_param._M_den.begin(), _M_param._M_den.end()}
+      { }
 
       /**
        * @brief Resets the distribution state.
@@ -135,14 +137,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        */
       result_type
       min() const
-      { return 0; }
+      { return std::max(0, _M_param.total_draws()
+			- _M_param.total_size() + _M_param.successful_size()); }
 
       /**
        * @brief Returns the least upper bound value of the distribution.
        */
       result_type
       max() const
-      { return _M_param.total_draws(); }
+      { return std::min(_M_param.successful_size(), _M_param.total_draws()); }
 
       /**
        * @brief Generating functions.
