@@ -86,7 +86,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __os.precision(std::numeric_limits<_UIntType>::max_digits10);
 
       __os << __x.total_size() << __space << __x.successful_size() << __space
-	   << __x.total_draws();
+	   << __x.total_draws() << __space << __x._M_dd;
 
       __os.flags(__flags);
       __os.fill(__fill);
@@ -106,7 +106,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __is.flags(__ios_base::dec | __ios_base::skipws);
 
       _UIntType __total_size, __successful_size, __total_draws;
-      __is >> __total_size >> __successful_size >> __total_draws;
+      __is >> __total_size >> __successful_size >> __total_draws >> __x._M_dd;
       __x.param(typename __gnu_cxx::hypergeometric_distribution<_UIntType>::
 		param_type(__total_size, __successful_size, __total_draws));
 

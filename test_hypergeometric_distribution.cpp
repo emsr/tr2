@@ -1,0 +1,63 @@
+// ../bin/bin/g++ -std=c++11 -o test_hypergeometric_distribution test_hypergeometric_distribution.cpp
+
+#include "hypergeometric"
+#include <iostream>
+#include <functional>
+#include <random>
+#include "histogram.h"
+
+void
+hyperplot(unsigned int N, unsigned int K, unsigned int n)
+{
+  std::default_random_engine re; // the default engine
+  __gnu_cxx::hypergeometric_distribution<> hd(N, K, n);
+
+  auto gen = std::bind(hd, re);
+
+  histogram<unsigned int> bin(n, 0, n);
+
+  const std::size_t per = 1000;
+
+  //for (std::size_t i = 0; i < 1000 * per; ++i)
+  //  std::cout << gen() << '\n';
+
+  for (std::size_t i = 0; i < 200 * per; ++i)
+    bin << gen();
+
+  for (std::size_t i = 1; i <= bin.size(); ++i)
+  {
+    std::cout << bin.value(i) << '\t';
+    for (std::size_t j = 0; j < bin[i]; j += per)
+      std::cout << '*';
+    std::cout << '\n';
+  }
+}
+
+int
+main()
+{
+  const std::vector<double> mean {1.0, 3.0, 4.5, 4.75, 5.5, 6.0};
+  const double sigma {6.0};
+  const double m = mean.size() / 2.0;
+
+  __gnu_cxx::hypergeometric_distribution<> hyper{};
+  std::cout << "default hyper = " << hyper << '\n';
+
+  __gnu_cxx::hypergeometric_distribution<> hyper2(52, 13, 5);
+  std::cout << "hyper(52, 13, 5) = " << hyper2 << '\n';
+
+  std::cout << "hyper(52, 13, 5)\n";
+  hyperplot(52, 13, 5);
+
+  std::cout << "hyper(20, 10, 12)\n";
+  hyperplot(20, 10, 12);
+
+  std::cout << "hyper(10, 9, 8)\n";
+  hyperplot(10, 9, 8);
+
+  std::cout << "hyper(500, 20, 6)\n";
+  hyperplot(500, 20, 6);
+
+  std::cout << "hyper(500, 200, 40)\n";
+  hyperplot(500, 200, 40);
+}

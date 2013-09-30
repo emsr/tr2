@@ -137,8 +137,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        */
       result_type
       min() const
-      { return std::max(0, _M_param.total_draws()
-			- _M_param.total_size() + _M_param.successful_size()); }
+      {
+	using _IntType = typename std::make_signed<result_type>::type;
+	return std::max(0, static_cast<result_type>(
+		  static_cast<_IntType>(_M_param.total_draws())
+		- static_cast<_IntType>(_M_param.total_size())
+		+ static_cast<_IntType>(_M_param.successful_size())));
+      }
 
       /**
        * @brief Returns the least upper bound value of the distribution.
@@ -250,3 +255,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace
+
+#include "hypergeometric.tcc"
+
