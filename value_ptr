@@ -1,0 +1,264 @@
+#include <memory>
+#include <iostream>
+#include <utility>
+#include <type_traits>
+
+struct cloner_impl
+{
+  virtual void clone_to(void**, void*) = 0;
+  virtual void clone_moving_to(void**, void*) = 0;
+  virtual std::shared_ptr<cloner_impl> clone() = 0;
+  virtual void destroy(void*) = 0;
+  virtual ~cloner_impl() {}
+};
+
+template<typename _Tp>
+  struct cloner_deleter
+  {
+    cloner_impl* impl;
+    cloner_deleter(cloner_impl* impl) : impl(impl) {}
+    void operator()(_Tp* t)
+    {
+      impl->destroy(t);
+    }
+  };
+
+template<typename _Tp, typename _Alloc=std::allocator<_Tp>>
+  struct cloner
+  {
+    _Alloc a;
+
+    cloner() = default;
+
+    cloner(_Alloc a)
+    : a(a)
+    { }
+
+    void
+    clone_impl(void** vtarget, void* vsource, bool do_move)
+    {
+      std::cout << "cloner" << std::endl;
+      _Tp** target = (_Tp**)vtarget;
+      *target = std::allocator_traits<_Alloc>::allocate(a, sizeof(_Tp));
+      _Tp* source = static_cast<_Tp*>(vsource);
+      if (do_move)
+        std::allocator_traits<_Alloc>::construct(a, *target, std::move(*source));
+      else
+        std::allocator_traits<_Alloc>::construct(a, *target, *source);
+    }
+
+    void
+    clone_to(void** vtarget, void* vsource)
+    { clone_impl(vtarget, vsource, false); }
+
+    void
+    clone_moving_to(void** vtarget, void* vsource)
+    { clone_impl(vtarget, vsource, true); }
+
+    void
+    destroy(void* v)
+    {
+      std::allocator_traits<_Alloc>::destroy(a, (_Tp*)v);
+      std::allocator_traits<_Alloc>::deallocate(a, (_Tp*)v, sizeof(_Tp));
+    }
+
+    ~cloner()
+    { }
+  };
+
+template<typename _Tp, typename _Up>
+  struct delegating_cloner : cloner_impl
+  {
+    _Up impl;
+
+    delegating_cloner(_Up u)
+    : impl(u)
+    { }
+
+    void
+    clone_to(void** vtarget, void* vsource)
+    { impl.clone_to(vtarget, vsource); }
+
+    void
+    clone_moving_to(void** vtarget, void* vsource)
+    { impl.clone_moving_to(vtarget, vsource); }
+
+    std::shared_ptr<cloner_impl>
+    clone()
+    { return std::make_shared<delegating_cloner>(*this); }
+
+    void
+    destroy(void* v)
+    { impl.destroy(v); }
+
+    ~delegating_cloner()
+    { }
+  };
+
+template<typename _Tp, typename _Alloc=std::allocator<_Tp>>
+  struct another_cloner
+  {
+    _Alloc a;
+
+    another_cloner() = default;
+
+    another_cloner(_Alloc a) : a(a) {}
+
+    void
+    clone_impl(void** vtarget, void* vsource, bool do_move)
+    {
+      std::cout << "another_cloner" << std::endl;
+      _Tp** target = (_Tp**)vtarget;
+      *target = std::allocator_traits<std::allocator<_Tp>>::allocate(a, sizeof(_Tp));
+      _Tp* source = static_cast<_Tp*>(vsource);
+      if (do_move)
+        *target = new (*target) _Tp(std::move(*source));
+      else
+        *target = new (*target) _Tp(*source);
+    }
+
+    void
+    clone_to(void** vtarget, void* vsource)
+    { clone_impl(vtarget, vsource, false); }
+
+    void
+    clone_moving_to(void** vtarget, void* vsource)
+    { clone_impl(vtarget, vsource, true); }
+
+    void
+    destroy(void* v)
+    {
+      std::allocator_traits<std::allocator<_Tp>>::destroy(a, (_Tp*)v);
+      std::allocator_traits<std::allocator<_Tp>>::deallocate(a, (_Tp*)v, sizeof(_Tp));
+    }
+
+    ~another_cloner()
+    { }
+  };
+
+template<typename _Tp>
+  struct value_ptr
+  {
+    mutable std::shared_ptr<cloner_impl> cloner_;
+    std::shared_ptr<_Tp> val;
+
+    value_ptr(_Tp* src)
+    : cloner_{std::make_shared<delegating_cloner<_Tp, cloner<_Tp>>>(cloner<_Tp>{})},
+      val{src, cloner_deleter<_Tp>{cloner_.get()}}
+    { }
+
+    template<typename _Up>
+      value_ptr(_Tp* src, _Up scloner)
+      : cloner_{std::make_shared<delegating_cloner<_Tp, _Up>>(scloner)},
+	val{src, cloner_deleter<_Tp>{cloner_.get()}}
+      { }
+
+    //  value_ptr(const volatile value_ptr& other) = delete;
+    value_ptr(const value_ptr& other)
+    {
+      void* shadow{};
+      other.cloner_->clone_to(&shadow, other.val.get());
+      val.reset((_Tp*)shadow);
+      cloner_ = other.cloner_->clone();
+    }
+
+    template<typename _Up>
+      value_ptr(const value_ptr<_Up>& other)
+      {
+        void* shadow{};
+        other.cloner_->clone_to(&shadow, other.val.get());
+        val.reset((_Up*)shadow);
+        cloner_ = other.cloner_->clone();
+      }
+
+    value_ptr(value_ptr&& other)
+    {
+      void* shadow{};
+      other.cloner_->clone_moving_to(&shadow, other.val.get());
+      val.reset((_Tp*)shadow);
+      cloner_ = other.cloner_->clone();
+    }
+
+    template<typename _Up>
+      value_ptr(value_ptr<_Up>&& other)
+      {
+        void* shadow{};
+        other.cloner_->clone_moving_to(&shadow, other.val.get());
+        val.reset((_Up*)shadow);
+        cloner_ = other.cloner_->clone();
+      }
+
+    value_ptr&
+    operator=(const value_ptr& other)
+    {
+      value_ptr tmp(other);
+      std::swap(val, tmp.val);
+      std::swap(cloner_, tmp.cloner_);
+      return *this;
+    }
+
+    template<typename _Up>
+      value_ptr&
+      operator=(const value_ptr<_Up>& other)
+      {
+        value_ptr tmp(other);
+        std::swap(val, tmp.val);
+        std::swap(cloner_, tmp.cloner_);
+        return *this;
+      }
+
+    value_ptr&
+    operator=(const value_ptr&& other)
+    {
+      value_ptr tmp(std::move(other));
+      std::swap(val, tmp.val);
+      std::swap(cloner_, tmp.cloner_);
+      return *this;
+    }
+
+    template<typename _Up>
+      value_ptr&
+      operator=(const value_ptr<_Up>&& other)
+      {
+        value_ptr tmp(std::move(other));
+        std::swap(val, tmp.val);
+        std::swap(cloner_, tmp.cloner_);
+        return *this;
+      }
+  };
+
+struct B {virtual ~B() {std::cout << "~B()" << std::endl;}};
+struct D : B {~D() {std::cout << "~D()" << std::endl;}};
+struct D2 : B {~D2() {std::cout << "~D2()" << std::endl;}};
+
+value_ptr<D>
+make_me_a_d()
+{
+  return value_ptr<D>{new D{}};
+}
+
+value_ptr<D2>
+make_me_a_d2()
+{
+  return value_ptr<D2>{new D2{}};
+}
+
+void
+gimme_bees(value_ptr<B>, value_ptr<B>)
+{
+}
+
+int
+main()
+{
+  value_ptr<B> x = make_me_a_d();
+  value_ptr<B> y = make_me_a_d2();
+  gimme_bees(x, y);
+  value_ptr<D> z{new D{}, another_cloner<D>{}};
+  value_ptr<B> zz{z};
+  value_ptr<B> zzz{zz};
+  value_ptr<B> zzzz{std::move(zzz)};
+  zz = y;
+  zz = z;
+  zz = std::move(z);
+}
