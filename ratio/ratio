@@ -54,12 +54,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   //typedef ratio<__safe_lshift<1, 70>::__value, 1> zebi;
   //typedef ratio<__safe_lshift<1, 80>::__value, 1> yobi;
 
-  typedef ratio<1, 100> percent;
-  typedef ratio<1, 1000> permille;
-  typedef ratio<1, 1000000> ppm;
-  typedef ratio<1, 1000000000> ppb;
-  //typedef ratio<1, 1000000000000> ppt;
-  //typedef ratio<1, 1000000000000000> ppq;
+  typedef ratio<1ULL, 100ULL> percent;
+  typedef ratio<1ULL, 1000ULL> permille;
+  typedef ratio<1ULL, 1000000ULL> ppm;
+  typedef ratio<1ULL, 1000000000ULL> ppb;
+  typedef ratio<1ULL, 1000000000000ULL> ppt;
+  typedef ratio<1ULL, 1000000000000000ULL> ppq;
 
 _GLIBCXX_END_NAMESPACE_VERSION
 }
