@@ -302,6 +302,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   {
   public:
 
+    // We're assuming POSIX for now.
     typedef char					value_type;
     typedef std::basic_string<value_type>		string_type;
     static constexpr value_type preferred_separator = '/';
@@ -352,7 +353,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     template<typename _Source>
       path& operator=(const _Source& __source)
       {
-	this->operator=(path(__source));
+	this->operator=(path{__source});
 	return *this;
       }
 
@@ -399,13 +400,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     path&
     operator/=(const value_type* __str)
     {
-      this->operator/=(string_type(__str));
+      this->operator/=(string_type{__str});
       return *this;
     }
 
     template<typename _Source>
       path& operator/=(const _Source& __source)
-      { return this->append(path(__source)); }
+      { return this->append(path{__source}); }
 
     path&
     append(const value_type* __str)
@@ -512,7 +513,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       return this->operator/=(__new_filename);
     }
 
-    path& replace_extension(const path& new_extension = path());
+    path& replace_extension(const path& new_extension = path{});
 
     void
     swap(path& __rhs) noexcept
@@ -554,14 +555,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { return this->_M_pathname; }
 
     std::wstring wstring() const { return L"FIXME!!!"; };
-    std::string u8string() const { return u8"FIXME!!!"; };
+
+    // We're assuming POSIX for now.
+    std::string
+    u8string() const
+    { return string(); };
+
     std::u16string u16string() const { return u"FIXME!!!"; };
     std::u32string u32string() const { return U"FIXME!!!"; };
 
-    // Generic format observers.
+    // Generic format observers.  We're assuming POSIX for now.
 
     template <typename _CharT, typename _Traits = std::char_traits<_CharT>,
-              typename _Allocator = allocator<_CharT> >
+              typename _Allocator = std::allocator<_CharT> >
       std::basic_string<_CharT, _Traits, _Allocator>
       generic_string(const _Allocator& __alloc = _Allocator()) const
       { return this->string(); }
@@ -570,10 +576,21 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     generic_string() const
     { return this->string(); }
 
-    std::wstring generic_wstring() const;
-    std::string generic_u8string() const;
-    std::u16string generic_u16string() const;
-    std::u32string generic_u32string() const;
+    std::wstring
+    generic_wstring() const
+    { return this->wstring(); }
+
+    std::string
+    generic_u8string() const
+    { return this->u8string(); }
+
+    std::u16string
+    generic_u16string() const
+    { return this->u16string(); }
+
+    std::u32string
+    generic_u32string() const
+    { return this->u32string(); }
 
     // Comparison.
 
@@ -581,11 +598,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     int
     compare(const std::string& __str) const
-    { return compare(path(__str)); }
+    { return compare(path{__str}); }
 
     int
     compare(const value_type* __str) const
-    { return compare(path(__str)); }
+    { return compare(path{__str}); }
 
     // Decomposition
     path root_name() const;
@@ -768,19 +785,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   operator<(const path& __lhs, const path::string_type& __rhs)
-  { return __lhs < path(__rhs); }
+  { return __lhs < path{__rhs}; }
 
   inline bool
   operator<(const path::string_type& __lhs, const path& __rhs)
-  { return path(__lhs) < __rhs; }
+  { return path{__lhs} < __rhs; }
 
   inline bool
   operator<(const path& __lhs, const path::value_type* __rhs)
-  { return __lhs < path(__rhs); }
+  { return __lhs < path{__rhs}; }
 
   inline bool
   operator<(const path::value_type* __lhs, const path& __rhs)
-  { return path(__lhs) < __rhs; }
+  { return path{__lhs} < __rhs; }
 
   inline bool
   operator<=(const path& __lhs, const path& __rhs)
@@ -788,19 +805,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   operator<=(const path& __lhs, const path::string_type& __rhs)
-  { return __lhs <= path(__rhs); }
+  { return __lhs <= path{__rhs}; }
 
   inline bool
   operator<=(const path::string_type& __lhs, const path& __rhs)
-  { return path(__lhs) <= __rhs; }
+  { return path{__lhs} <= __rhs; }
 
   inline bool
   operator<=(const path& __lhs, const path::value_type* __rhs)
-  { return __lhs <= path(__rhs); }
+  { return __lhs <= path{__rhs}; }
 
   inline bool
   operator<=(const path::value_type* __lhs, const path& __rhs)
-  { return path(__lhs) <= __rhs; }
+  { return path{__lhs} <= __rhs; }
 
   inline bool
   operator>(const path& __lhs, const path& __rhs)
@@ -808,19 +825,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   operator>(const path& __lhs, const path::string_type& __rhs)
-  { return __lhs > path(__rhs); }
+  { return __lhs > path{__rhs}; }
 
   inline bool
   operator>(const path::string_type& __lhs, const path& __rhs)
-  { return path(__lhs) > __rhs; }
+  { return path{__lhs} > __rhs; }
 
   inline bool
   operator>(const path& __lhs, const path::value_type* __rhs)
-  { return __lhs > path(__rhs); }
+  { return __lhs > path{__rhs}; }
 
   inline bool
   operator>(const path::value_type* __lhs, const path& __rhs)
-  { return path(__lhs) > __rhs; }
+  { return path{__lhs} > __rhs; }
 
   inline bool
   operator>=(const path& __lhs, const path& __rhs)
@@ -828,69 +845,78 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   operator>=(const path& __lhs, const path::string_type& __rhs)
-  { return __lhs >= path(__rhs); }
+  { return __lhs >= path{__rhs}; }
 
   inline bool
   operator>=(const path::string_type& __lhs, const path& __rhs)
-  { return path(__lhs) >= __rhs; }
+  { return path{__lhs} >= __rhs; }
 
   inline bool
   operator>=(const path& __lhs, const path::value_type* __rhs)
-  { return __lhs >= path(__rhs); }
+  { return __lhs >= path{__rhs}; }
 
   inline bool
   operator>=(const path::value_type* __lhs, const path& __rhs)
-  { return path(__lhs) >= __rhs; }
+  { return path{__lhs} >= __rhs; }
 
   inline path
   operator/(const path& __lhs, const path& __rhs)
-  { return path(__lhs) /= __rhs; }
+  { return path{__lhs} /= __rhs; }
 
   inline path
   operator/(const path& __lhs, const path::string_type& __rhs)
-  { return __lhs / path(__rhs); }
+  { return __lhs / path{__rhs}; }
 
   inline path
   operator/(const path::string_type& __lhs, const path& __rhs)
-  { return path(__lhs) / __rhs; }
+  { return path{__lhs} / __rhs; }
 
   inline path
   operator/(const path& __lhs, const path::value_type* __rhs)
-  { return __lhs / path(__rhs); }
+  { return __lhs / path{__rhs}; }
 
   inline path
   operator/(const path::value_type* __lhs, const path& __rhs)
-  { return path(__lhs) / __rhs; }
+  { return path{__lhs} / __rhs; }
 
   inline path
   operator+(const path& __lhs, const path& __rhs)
-  { return path(__lhs) += __rhs; }
+  { return path{__lhs} += __rhs; }
 
   inline path
   operator+(const path& __lhs, const path::string_type& __rhs)
-  { return __lhs + path(__rhs); }
+  { return __lhs + path{__rhs}; }
 
   inline path
   operator+(const path::string_type& __lhs, const path& __rhs)
-  { return path(__lhs) + __rhs; }
+  { return path{__lhs} + __rhs; }
 
   inline path
   operator+(const path& __lhs, const path::value_type* __rhs)
-  { return __lhs + path(__rhs); }
+  { return __lhs + path{__rhs}; }
 
   inline path
   operator+(const path::value_type* __lhs, const path& __rhs)
-  { return path(__lhs) + __rhs; }
+  { return path{__lhs} + __rhs; }
 
   std::ostream& operator<<( std::ostream& os, const path& pth );
   std::wostream& operator<<( std::wostream& os, const path& pth );
   std::istream& operator>>( std::istream& is, path& pth );
   std::wistream& operator>>( std::wistream& is, path& pth );
 
-  path u8path(const char* s);
-  path u8path(const std::string& s);
-  template <class InputIterator>
-    path u8path(InputIterator begin, InputIterator end);
+  // We're assuming POSIX for now.
+  inline path
+  u8path(const char* __str)
+  { return path{__str}; }
+
+  inline path
+  u8path(const std::string& __str)
+  { return path{__str}; }
+
+  template<typename InputIterator>
+    inline path
+    u8path(InputIterator __begin, InputIterator __end)
+    { return path{__begin, __end}; }
 
   typedef std::chrono::time_point<std::chrono::system_clock> file_time_type;
 
@@ -1151,8 +1177,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     directory_entry(directory_entry&&) = default;
 
     explicit
-    directory_entry(const path& __pth, file_status __stat = file_status(),
-		    file_status __sym_stat = file_status())
+    directory_entry(const path& __pth, file_status __stat = file_status{},
+		    file_status __sym_stat = file_status{})
     : _M_path{__pth}, _M_status{__stat}, _M_symlink_status{__sym_stat}
     { }
 
@@ -1166,8 +1192,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     directory_entry& operator=(directory_entry&&) = default;
 
     void
-    assign(const path& __pth, file_status __st = file_status(),
-	   file_status __symlink_st = file_status())
+    assign(const path& __pth, file_status __st = file_status{},
+	   file_status __symlink_st = file_status{})
     {
       this->_M_path = __pth;
       this->_M_status = __st;
@@ -1175,8 +1201,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     }
 
     void
-    replace_filename(const path& pth, file_status st = file_status(),
-		     file_status symlink_st = file_status())
+    replace_filename(const path& pth, file_status st = file_status{},
+		     file_status symlink_st = file_status{})
     {
       this->_M_path.remove_filename();
       this->_M_path /= pth;
@@ -1196,7 +1222,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       std::error_code __ec;
       file_status __status = this->status(__ec);
       if (__ec)
-	throw filesystem_error("status", this->_M_path, __ec);
+	throw filesystem_error{"status", this->_M_path, __ec};
       return __status;
     }
 
@@ -1220,7 +1246,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       std::error_code __ec;
       file_status __symlink_status = this->symlink_status(__ec);
       if (__ec)
-	throw filesystem_error("symlink_status", this->_M_path, __ec);
+	throw filesystem_error{"symlink_status", this->_M_path, __ec};
       return __symlink_status;
     }
 
@@ -1393,7 +1419,7 @@ namespace _Path_traits
 	std::size_t __buf_size = (__from_end - __from_begin) * 4; // perhaps too large, but that's OK
 	__buf_size += 4; // encodings like shift-JIS need some prefix space
 
-	std::unique_ptr<_CharTo> __buf(new _CharTo[__buf_size]);
+	std::unique_ptr<_CharTo> __buf{new _CharTo[__buf_size]};
 	convert_aux(__from_begin, __from_end, __buf.get(), __buf.get() + __buf_size,
 		    __target, __cvt);
       }

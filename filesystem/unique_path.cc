@@ -56,7 +56,7 @@ unique_path(const path& model, std::error_code& ec)
   for (std::size_t c = 0; c < pathname.length(); ++c)
     {
       if (pathname[c] == '%')
-  {
+        {
 	  if (i == poo.str().length())
 	    {
 	      i = 0;
@@ -68,7 +68,7 @@ unique_path(const path& model, std::error_code& ec)
 	  ++i;
 	}
     }
-  return path(pathname);
+  return path{pathname};
 }
 
 } // filesystem

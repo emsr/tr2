@@ -96,12 +96,12 @@ path
 path::root_name() const
 {
   if (this->empty())
-    return path();
+    return path{};
   std::string first = this->begin()->string();
   if ((first.length() > 2) && (first[0] == preferred_separator) && (first[1] == preferred_separator))
     return *this->begin();
   else
-    return path();
+    return path{};
 }
 
 path
@@ -109,14 +109,14 @@ path::root_directory() const
 {
   const path::value_type sep_str[2]{preferred_separator, 0};
   if (this->empty())
-    return path();
+    return path{};
   iterator piter = this->begin();
   if (!this->root_name().empty())
     ++piter;
   if (piter != this->end() && piter->string() == sep_str)
     return *piter;
   else
-    return path();
+    return path{};
 }
 
 path
@@ -127,7 +127,7 @@ path
 path::relative_path() const
 {
   if (this->empty())
-    return path();
+    return path{};
   iterator piter = this->begin();
   if (!this->root_name().empty())
     ++piter;
@@ -143,7 +143,7 @@ path
 path::parent_path() const
 {
   if (this->empty() || this->begin() == --this->end())
-    return path();
+    return path{};
   else
     {
       path pp;
@@ -155,7 +155,7 @@ path::parent_path() const
 
 path
 path::filename() const
-{ return this->empty() ? path() : *--this->end(); }
+{ return this->empty() ? path{} : *--this->end(); }
 
 path
 path::stem() const
@@ -163,7 +163,7 @@ path::stem() const
   std::string filename = this->filename().string();
   std::size_t pos = filename.rfind('.');
   if (pos != string_type::npos && filename != "." && filename != "..")
-    return path(filename.substr(0, pos - 1));
+    return path{filename.substr(0, pos - 1)};
   else
     return filename;
 }
@@ -174,9 +174,9 @@ path::extension() const
   std::string filename = this->filename().string();
   std::size_t pos = filename.rfind('.');
   if (pos != std::string::npos && filename != "." && filename != "..")
-    return path(filename.substr(pos));
+    return path{filename.substr(pos)};
   else
-    return path();
+    return path{};
 }
 
 path&
@@ -232,23 +232,23 @@ struct path::iterator::_Impl
 	else if (pos == 0 && num_slashes > 0)
 	  {
 	    if (c - num_slashes > 0)
-	      _M_chunk.push_back(path(pathname.substr(0, c - num_slashes)));
+	      _M_chunk.push_back(path{pathname.substr(0, c - num_slashes)});
 	    else
-	      _M_chunk.push_back(path(std::string(sep_str)));
+	      _M_chunk.push_back(path{std::string{sep_str}});
 	    if (net)
-	      _M_chunk.push_back(path(std::string(sep_str)));
+	      _M_chunk.push_back(path{std::string{sep_str}});
 	    pos = c;
 	  }
 	else if (num_slashes > 0)
 	  {
-	    _M_chunk.push_back(path(pathname.substr(pos, c - num_slashes - pos)));
+	    _M_chunk.push_back(path{pathname.substr(pos, c - num_slashes - pos)});
 	    pos = c;
 	  }
       }
     if (pos < pathname.length())
-      _M_chunk.push_back(path(pathname.substr(pos)));
+      _M_chunk.push_back(path{pathname.substr(pos)});
     else if (pathname.length() > 1)
-      _M_chunk.push_back(path(std::string(".")));
+      _M_chunk.push_back(path{std::string(".")});
 
     if (begin && _M_chunk.size() > 0)
       _M_pos = 0;
@@ -364,7 +364,7 @@ struct directory_iterator::_Impl
     std::error_code ec;
     this->_M_incr(ec);
     if (ec)
-      throw filesystem_error("directory_iterator", this->_M_path, ec);
+      throw filesystem_error{"directory_iterator", this->_M_path, ec};
   }
 
   _Impl(const path& pth, std::error_code& ec)
@@ -437,7 +437,7 @@ directory_iterator::operator++()
   std::error_code ec;
   this->increment(ec);
   if (ec)
-    throw filesystem_error("operator++", ec);
+    throw filesystem_error{"operator++", ec};
   return *this;
 }
 
@@ -493,7 +493,7 @@ struct recursive_directory_iterator::_Impl
     else
       ec = std::make_error_code(static_cast<std::errc>(errno));
     if (ec)
-      throw filesystem_error("recursive_directory_iterator", this->_M_path, ec);
+      throw filesystem_error{"recursive_directory_iterator", this->_M_path, ec};
   }
 
   _Impl(const path& pth, symlink_option opt, std::error_code& ec)
@@ -582,7 +582,7 @@ struct recursive_directory_iterator::_Impl
     std::error_code ec;
     this->_M_pop(ec);
     if (ec)
-      throw filesystem_error("pop", ec);
+      throw filesystem_error{"pop", ec};
   }
 
   // NOTE: I added an error code version of pop.
@@ -660,7 +660,7 @@ recursive_directory_iterator::operator++()
   std::error_code ec;
   this->increment(ec);
   if (ec)
-    throw filesystem_error("operator++", ec);
+    throw filesystem_error{"operator++", ec};
   return *this;
 }
 
@@ -738,7 +738,7 @@ operator>>(std::istream& is, path& pth)
 
   is >> std::quoted(pathname, '"', '&');
 
-  pth = path(pathname);
+  pth = path{pathname};
 
   return is;
 }
@@ -751,7 +751,7 @@ operator>>(std::wistream& is, path& pth)
 
   is >> std::quoted(pathname, L'"', L'&');
 
-  pth = path(pathname);
+  pth = path{pathname};
 
   return is;
 }
@@ -762,7 +762,7 @@ copy_directory(const path& from, const path& to)
   std::error_code ec;
   copy_directory(from, to, ec);
   if (ec)
-    throw filesystem_error("copy_directory", from, to, ec);
+    throw filesystem_error{"copy_directory", from, to, ec};
 }
 
 // Operational functions
@@ -795,7 +795,7 @@ canonical(const path& pth, const path& base)
   std::error_code ec;
   path canon = canonical(pth, base, ec);
   if (ec)
-    throw filesystem_error("canonical", pth, ec);
+    throw filesystem_error{"canonical", pth, ec};
   return canon;
 }
 
@@ -807,7 +807,7 @@ canonical(const path& pth, std::error_code& ec)
   char* test = ::realpath(pth.c_str(), canon);
   if (test == nullptr)
     ec = std::make_error_code(static_cast<std::errc>(errno));
-  return path(std::string(canon));
+  return path{std::string{canon}};
 }
 
 path
@@ -823,7 +823,7 @@ copy(const path& from, const path& to, copy_options options)
   std::error_code ec;
   copy(from, to, options, ec);
   if (ec)
-    throw filesystem_error("copy", from, to, ec);
+    throw filesystem_error{"copy", from, to, ec};
 }
 
 void
@@ -920,7 +920,7 @@ copy_file(const path& from, const path& to, copy_options options)
   std::error_code ec;
   copy_file(from, to, options, ec);
   if (ec)
-    throw filesystem_error("copy_file", from, to, ec);
+    throw filesystem_error{"copy_file", from, to, ec};
 }
 
 void
@@ -972,7 +972,7 @@ copy_symlink(const path& existing_symlink, const path& new_symlink)
   std::error_code ec;
   copy_symlink(existing_symlink, new_symlink, ec);
   if (ec)
-    throw filesystem_error("copy_symlink", existing_symlink, new_symlink, ec);
+    throw filesystem_error{"copy_symlink", existing_symlink, new_symlink, ec};
 }
 
 void
@@ -987,7 +987,7 @@ create_directories(const path& pth)
   std::error_code ec;
   bool ok = create_directories(pth, ec);
   if (ec)
-    throw filesystem_error("create_directories", pth, ec);
+    throw filesystem_error{"create_directories", pth, ec};
   return ok;
 }
 
@@ -1019,7 +1019,7 @@ create_directory(const path& pth)
   std::error_code ec;
   bool ok = create_directory(pth, ec);
   if (ec)
-    throw filesystem_error("create_directory", pth, ec);
+    throw filesystem_error{"create_directory", pth, ec};
   return ok;
 }
 
@@ -1040,7 +1040,7 @@ create_directory_symlink(const path& to, const path& new_symlink)
   std::error_code ec;
   create_directory_symlink(to, new_symlink, ec);
   if (ec)
-    throw filesystem_error("create_directory_symlink", to, new_symlink, ec);
+    throw filesystem_error{"create_directory_symlink", to, new_symlink, ec};
 }
 
 void
@@ -1059,7 +1059,7 @@ create_hard_link(const path& to, const path& new_hard_link)
   std::error_code ec;
   create_hard_link(to, new_hard_link, ec);
   if (ec)
-    throw filesystem_error("create_hard_link", to, new_hard_link, ec);
+    throw filesystem_error{"create_hard_link", to, new_hard_link, ec};
 }
 
 void
@@ -1080,7 +1080,7 @@ create_file(const path& pth)
   std::error_code ec;
   create_file(pth, ec);
   if (ec)
-    throw filesystem_error("create_file", pth, ec);
+    throw filesystem_error{"create_file", pth, ec};
   return true;
 }
 
@@ -1101,7 +1101,7 @@ create_symlink(const path& to, const path& new_symlink)
   std::error_code ec;
   create_symlink(to, new_symlink, ec);
   if (ec)
-    throw filesystem_error("create_symlink", to, new_symlink, ec);
+    throw filesystem_error{"create_symlink", to, new_symlink, ec};
 }
 
 void
@@ -1120,7 +1120,7 @@ current_path()
   std::error_code ec;
   path curr_path = current_path(ec);
   if (ec)
-    throw filesystem_error("current_path", ec);
+    throw filesystem_error{"current_path", ec};
   return curr_path;
 }
 
@@ -1142,7 +1142,7 @@ current_path(const path& pth)
   std::error_code ec;
   current_path(pth, ec);
   if (ec)
-    throw filesystem_error("current_path", pth, ec);
+    throw filesystem_error{"current_path", pth, ec};
 }
 
 void
@@ -1160,7 +1160,7 @@ equivalent(const path& pth1, const path& pth2)
   std::error_code ec;
   bool ok = equivalent(pth1, pth2, ec);
   if (ec)
-    throw filesystem_error("equivalent", pth1, pth2, ec);
+    throw filesystem_error{"equivalent", pth1, pth2, ec};
   return ok;
 }
 
@@ -1196,7 +1196,7 @@ file_size(const path& pth)
   std::error_code ec;
   uintmax_t sz = file_size(pth, ec);
   if (ec)
-    throw filesystem_error("file_size", pth, ec);
+    throw filesystem_error{"file_size", pth, ec};
   return sz;
 }
 
@@ -1221,7 +1221,7 @@ hard_link_count(const path& pth)
   std::error_code ec;
   uintmax_t num_links = hard_link_count(pth, ec);
   if (ec)
-    throw filesystem_error("hard_link_count", pth, ec);
+    throw filesystem_error{"hard_link_count", pth, ec};
   return num_links;
 }
 
@@ -1246,7 +1246,7 @@ initial_path()
   std::error_code ec;
   const path& init_path = initial_path(ec);
   if (ec)
-    throw filesystem_error("initial_path", ec);
+    throw filesystem_error{"initial_path", ec};
   return init_path;
 }
 
@@ -1269,7 +1269,7 @@ is_empty(const path& pth)
   std::error_code ec;
   bool ok = is_empty(pth, ec);
   if (ec)
-    throw filesystem_error("is_empty", pth, ec);
+    throw filesystem_error{"is_empty", pth, ec};
   return ok;
 }
 
@@ -1291,7 +1291,7 @@ last_write_time(const path& pth)
   std::error_code ec;
   file_time_type wt = last_write_time(pth, ec);
   if (ec)
-    throw filesystem_error("last_write_time", pth, ec);
+    throw filesystem_error{"last_write_time", pth, ec};
   return wt;
 }
 
@@ -1317,7 +1317,7 @@ last_write_time(const path& pth,
   std::error_code ec;
   last_write_time(pth, new_time, ec);
   if (ec)
-    throw filesystem_error("last_write_time", pth, ec);
+    throw filesystem_error{"last_write_time", pth, ec};
 }
 
 void
@@ -1340,7 +1340,7 @@ permissions(const path& pth, perms prms)
   std::error_code ec;
   permissions(pth, prms, ec);
   if (ec)
-    throw filesystem_error("permissions", pth, ec);
+    throw filesystem_error{"permissions", pth, ec};
 }
 
 void
@@ -1370,7 +1370,7 @@ read_symlink(const path& pth)
   std::error_code ec;
   path link = read_symlink(pth, ec);
   if (ec)
-    throw filesystem_error("read_symlink", pth, ec);
+    throw filesystem_error{"read_symlink", pth, ec};
   return link;
 }
 
@@ -1409,7 +1409,7 @@ remove(const path& pth)
   std::error_code ec;
   bool ok = remove(pth, ec);
   if (ec)
-    throw filesystem_error("remove", pth, ec);
+    throw filesystem_error{"remove", pth, ec};
   return ok;
 }
 
@@ -1429,7 +1429,7 @@ remove_all(const path& pth)
   std::error_code ec;
   uintmax_t count = remove_all(pth, ec);
   if (ec)
-    throw filesystem_error("remove_all", pth, ec);
+    throw filesystem_error{"remove_all", pth, ec};
   return count;
 }
 
@@ -1461,7 +1461,7 @@ rename(const path& from, const path& to)
   std::error_code ec;
   rename(from, to, ec);
   if (ec)
-    throw filesystem_error("rename", from, to, ec);
+    throw filesystem_error{"rename", from, to, ec};
 }
 
 void
@@ -1479,7 +1479,7 @@ resize_file(const path& pth, uintmax_t size)
   std::error_code ec;
   resize_file(pth, size, ec);
   if (ec)
-    throw filesystem_error("resize", pth, ec);
+    throw filesystem_error{"resize", pth, ec};
 }
 
 void
@@ -1497,7 +1497,7 @@ space(const path& pth)
   std::error_code ec;
   space_info si = space(pth, ec);
   if (ec)
-    throw filesystem_error("space", pth, ec);
+    throw filesystem_error{"space", pth, ec};
   return si;
 }
 
@@ -1530,7 +1530,7 @@ status(const path& pth)
   std::error_code ec;
   file_status fs = status(pth, ec);
   if (fs.type() == file_type::status_error)
-    throw filesystem_error("status", pth, ec);
+    throw filesystem_error{"status", pth, ec};
   return fs;
 }
 
@@ -1586,7 +1586,7 @@ symlink_status(const path& pth)
   std::error_code ec;
   file_status fs = symlink_status(pth, ec);
   if (fs.type() == file_type::status_error)
-    throw filesystem_error("symlink_status", pth, ec);
+    throw filesystem_error{"symlink_status", pth, ec};
   return fs;
 }
 
@@ -1642,7 +1642,7 @@ system_complete(const path& pth)
   std::error_code ec;
   path comp_path = system_complete(pth, ec);
   if (ec)
-    throw filesystem_error("system_complete", pth, ec);
+    throw filesystem_error{"system_complete", pth, ec};
   return comp_path;
 }
 
@@ -1654,7 +1654,7 @@ system_complete(const path& pth, std::error_code& ec)
   char * ptr = ::realpath(pth.c_str(), real);
   if (!ptr)
     ec = std::make_error_code(static_cast<std::errc>(errno));
-  return path(std::string(real));
+  return path{std::string{real}};
 }
 
 path
@@ -1663,7 +1663,7 @@ temp_directory_path()
   std::error_code ec;
   path tmpdir = temp_directory_path(ec);
   if (ec)
-    throw filesystem_error("temp_directory_path", ec);
+    throw filesystem_error{"temp_directory_path", ec};
   return tmpdir;
 }
 

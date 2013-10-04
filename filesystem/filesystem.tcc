@@ -27,8 +27,8 @@
  *  Do not attempt to use it directly. @headername{filesystem}
  */
 
-#ifndef _GLIBCXX_TR2_FILESYSTEM_TCC
-#define _GLIBCXX_TR2_FILESYSTEM_TCC 1
+#ifndef _GLIBCXX_EXPTL_FILESYSTEM_TCC
+#define _GLIBCXX_EXPTL_FILESYSTEM_TCC 1
 
 #pragma GCC system_header
 
@@ -52,7 +52,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     basic_ifstream<_CharT, _Traits>::
     basic_ifstream(const path& __pth, std::ios_base::openmode __mode
   	   = std::ios_base::in)
-    : basic_ifstream(__pth.c_str(), __mode)
+    : basic_ifstream{__pth.c_str(), __mode}
     { }
   template<typename _CharT, typename _Traits>
     void
@@ -65,7 +65,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     basic_ofstream<_CharT, _Traits>::
     basic_ofstream(const path& __pth, std::ios_base::openmode __mode
 		   = std::ios_base::out)
-    : basic_ofstream(__pth.c_str(), __mode)
+    : basic_ofstream{__pth.c_str(), __mode}
     { }
   template<typename _CharT, typename _Traits>
     void
@@ -78,7 +78,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     basic_fstream<_CharT, _Traits>::
     basic_fstream(const path& __pth, std::ios_base::openmode __mode
 		  = std::ios_base::in | std::ios_base::out)
-    : basic_fstream(__pth.c_str(), __mode)
+    : basic_fstream{__pth.c_str(), __mode}
     { }
   template<typename _CharT, typename _Traits>
     void
@@ -88,3 +88,5 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { open(__pth.c_str(), __mode); }
 
 } // std
+
+#endif // _GLIBCXX_EXPTL_FILESYSTEM_TCC
