@@ -184,6 +184,18 @@ template<typename _Tp>
   }
 
 
+/**
+ *   @brief  Return the regularized lower incomplete gamma function.
+ *   The regularized lower incomplete gamma function is defined by
+ *   @f[
+ *     P(a,x) = \frac{\gamma(a,x)}{\Gamma(a)}
+ *   @f]
+ *   where @f$ \Gamma(a) @f$ is the gamma function and
+ *   @f[
+ *     \gamma(a,x) = \int_0^x e^{-t}t^{a-1}dt  (a > 0)
+ *   @f]
+ *   is the lower incomplete gamma function.
+ */
 template<typename _Tp>
   _Tp
   __gamma_p(_Tp __a, _Tp __x)
@@ -198,6 +210,18 @@ template<typename _Tp>
   }
 
 
+/**
+ *   @brief  Return the regularized upper incomplete gamma function.
+ *   The regularized upper incomplete gamma function is defined by
+ *   @f[
+ *     Q(a,x) = \frac{\Gamma(a,x)}{\Gamma(a)}
+ *   @f]
+ *   where @f$ \Gamma(a) @f$ is the gamma function and
+ *   @f[
+ *     \Gamma(a,x) = \int_x^\infty e^{-t}t^{a-1}dt  (a > 0)
+ *   @f]
+ *   is the upper incomplete gamma function.
+ */
 template<typename _Tp>
   _Tp
   __gamma_q(_Tp __a, _Tp __x)
@@ -240,10 +264,10 @@ template<typename _Tp>
 
 
 /**
- *   @brief  Return the lower incomplete gamma function.
+ *   @brief  Return the upper incomplete gamma function.
  *   The lower incomplete gamma function is defined by
  *   @f[
- *     \gamma(a,x) = \int_0^x e^{-t}t^{a-1}dt  (a > 0)
+ *     \Gamma(a,x) = \int_x^\infty e^{-t}t^{a-1}dt  (a > 0)
  *   @f]
  */
 template<typename _Tp>
