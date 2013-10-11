@@ -30,11 +30,12 @@ main()
                   << std::setw(12) << logint(x)
                   << std::endl;
     }
-////  FAIL Past |2|
+
+    //
     std::cout << std::endl << "x cosint sinint" << std::endl;
-    for (int i = 0; i <= 400; ++i)
+    for (int i = 0; i <= 1000; ++i)
     {
-        double x = 0.01 * (i - 200);
+        double x = 0.01 * (i - 500);
         std::cout << std::setw(12) << x
                   << std::setw(12) << cosint(x)
                   << std::setw(12) << sinint(x)

@@ -43,7 +43,7 @@ template<typename _Tp>
   {
     const unsigned int __max_iter = 100;
     const _Tp __eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
-    const _Tp __fp_min = std::numeric_limits<_Tp>::min();
+    const _Tp __fp_min = std::numeric_limits<_Tp>::epsilon();
     const _Tp __pi_2 = std::tr1::__detail::__numeric_constants<_Tp>::__pi_2();
 
     //  Evaluate Ci and Si by Lentz's modified method of continued fracions.
@@ -51,7 +51,7 @@ template<typename _Tp>
     std::complex<_Tp> __c(_Tp(1) / __fp_min);
     std::complex<_Tp> __d(_Tp(1) / __b);
     std::complex<_Tp> __h(__d);
-    unsigned int i = 2;
+    int i = 2;
     while (true)
       {
         _Tp __a = -(i - 1) * (i - 1);
@@ -60,7 +60,6 @@ template<typename _Tp>
         __c = __b + __a / __c;
         std::complex<_Tp> __del = __c * __d;
         __h *= __del;
-std::cout << __b << " " << __d << " " << __c << " " << __del << " " << __h << std::endl;
         if (std::abs(__del - _Tp(1)) < __eps)
           break;
         if (i > __max_iter)
@@ -73,7 +72,14 @@ std::cout << __b << " " << __d << " " << __c << " " << __del << " " << __h << st
 
     return;
   }
+/*
+(1,2.2) (0.171233,-0.376712) (4.5036e+15,0) (0.171233,-0.376712)
+(3,2.2) (2.32831e-10,5.12227e-10) (3,2.2) (-4.28408e-10,2.04891e-09) (6.98492e-10,5.12227e-10)
 
+(1.000000, 2.200000) (0.171233, -0.376712) (999999999999999879147136483328.000000, 0.000000) (0.171233, -0.376712)
+(3.000000, 2.200000) (0.193204, -0.175988) (3.000000, 2.200000) (0.966786, -0.102917) (0.126775, -0.381823)
+
+*/
 
 ///
 ///  @brief This routine computes the cosine @f$ Ci(x) @f$ and sine @f$ Si(x) @f$

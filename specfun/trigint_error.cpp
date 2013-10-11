@@ -6,7 +6,7 @@
 int
 main()
 {
-  double x = 2.001;
+  double x = 2.2;
   double c = cosint(x);
   double s = sinint(x);
 }
