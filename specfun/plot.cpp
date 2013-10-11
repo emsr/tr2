@@ -3,9 +3,12 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <iostream>
+#include <iomanip>
 
 void
-plot_func(std::function<double (double)> funk,
+plot_func(std::ostream & out,
+          std::function<double (double)> funk,
           double x1, double x2,
           const std::string & t1, const std::string & t2,
           const std::string & tx, const std::string & ty)
@@ -84,42 +87,41 @@ plot_func(std::function<double (double)> funk,
         screen.at(i).at(j) = FF;
       }
 
+    auto old_prec = out.precision(4);
+    auto old_flags = out.flags(out.flags() | std::ios::showpoint);
+
     //
     //  Print title(s)
     //
     if (len1 > 0)
       {
-        printf("\n");
+        out << std::endl;
         if (leny > 0)
-          printf("%3s", "");
+          out << std::setw(3) << "";
         for (int i = 0; i < 12; ++i)
-          printf("%c", BLANK);
-        for (int i = 0; i < ISCREEN; ++i)
-          printf("%c", title1[i]);
-        printf("\n");
+          out << BLANK;
+        out << title1 << std::endl;
       }
     if (len2 > 0)
       {
-        printf("\n");
+        out << std::endl;
         if (leny > 0)
-          printf("%3s", "");
+          out << std::setw(3) << "";
         for (int i = 0; i < 12; ++i)
-          printf("%c", BLANK);
-        for (int i = 0; i < ISCREEN; ++i)
-          printf("%c", title2[i]);
-        printf("\n");
+          out << BLANK;
+        out << title2 << std::endl;
       }
-    printf("\n");
+    out << std::endl;
 
     //
     //  Print upper limit and top line.
     //
     if (leny > 0)
-      printf(" %c ", titley[JSCREEN - 1]);
-    printf(" %10.3f ", ybig);
+      out << ' ' << titley[JSCREEN - 1] << ' ';
+    out << ' ' << std::setw(10) << std::showpos << ybig << ' ';
     for (int i = 0; i < ISCREEN; ++i)
-      printf("%c", screen[i][JSCREEN - 1]);
-    printf("\n");
+      out << screen[i][JSCREEN - 1];
+    out << std::endl;
 
     //
     //  Print graph.
@@ -127,51 +129,55 @@ plot_func(std::function<double (double)> funk,
     for (int j = JSCREEN - 2; j >= 1; --j)
       {
         if (leny > 0)
-          printf(" %c ", titley[j]);
+          out << ' ' << titley[j] << ' ';
         for (int i = 0; i < 12; ++i)
-          printf("%c", BLANK);
+          out << BLANK;
         for (int i = 0; i < ISCREEN; ++i)
-          printf("%c", screen[i][j]);
-        printf("\n");
+          out << screen[i][j];
+        out << std::endl;
       }
 
     //
     //  Print lower limit and bottom line.
     //
     if (leny > 0)
-      printf(" %c ", titley[0]);
-    printf(" %10.3f ", ysml);
+      out << ' ' << titley[0] << ' ';
+    out << ' ' << std::setw(10) << std::showpos << ysml << ' ';
     for (int i = 0; i < ISCREEN; ++i)
-      printf("%c", screen[i][0]);
-    printf("\n");
+      out << screen[i][0];
+    out << std::endl;
 
     //
     //  Print lower and upper x limits.
     //
     if (leny > 0)
-      printf("%3s", "");
-    char format_labelx[40];
-    sprintf(format_labelx, "%%5s %%10.3f %%%ds %%10.3f\n", ISCREEN - 12);
-    printf(format_labelx, "", x1, "", x2);
+      out << std::setw(3) << "";
+    out << "      "
+        << std::setw(10) << std::showpos << x1
+        << std::setw(ISCREEN - 9) << ""
+        << std::setw(10) << std::showpos << x2 << std::endl;
 
     if (lenx > 0)
-    {
-        printf("\n");
+      {
+        out << std::endl;
         if (leny > 0)
-          printf("%3s", "");
+          out << std::setw(3) << "";
         for (int i = 0; i < 12; ++i)
-          printf("%c", BLANK);
-        for (int i = 0; i < ISCREEN; ++i)
-          printf("%c", titlex[i]);
-        printf("\n");
-    }
-    printf("\n");
+          out << BLANK;
+        out << titlex << std::endl;
+      }
+    out << std::endl;
+
+    out.flags(old_flags);
+    out.precision(old_prec);
 }
+
+#include <iostream>
 
 int
 main()
 {
-  plot_func([](double x){ return x * x; },
+  plot_func(std::cout, [](double x){ return x * x; },
           -3.0, 3.0,
           "y = x^2", "Hello, World!",
           "x", "y = x^2");
