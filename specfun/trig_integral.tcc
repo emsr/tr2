@@ -43,7 +43,7 @@ template<typename _Tp>
   {
     const unsigned int __max_iter = 100;
     const _Tp __eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
-    const _Tp __fp_min = std::numeric_limits<_Tp>::epsilon();
+    const _Tp __fp_min = std::numeric_limits<_Tp>::min();
     const _Tp __pi_2 = std::tr1::__detail::__numeric_constants<_Tp>::__pi_2();
 
     //  Evaluate Ci and Si by Lentz's modified method of continued fracions.
@@ -72,14 +72,7 @@ template<typename _Tp>
 
     return;
   }
-/*
-(1,2.2) (0.171233,-0.376712) (4.5036e+15,0) (0.171233,-0.376712)
-(3,2.2) (2.32831e-10,5.12227e-10) (3,2.2) (-4.28408e-10,2.04891e-09) (6.98492e-10,5.12227e-10)
 
-(1.000000, 2.200000) (0.171233, -0.376712) (999999999999999879147136483328.000000, 0.000000) (0.171233, -0.376712)
-(3.000000, 2.200000) (0.193204, -0.175988) (3.000000, 2.200000) (0.966786, -0.102917) (0.126775, -0.381823)
-
-*/
 
 ///
 ///  @brief This routine computes the cosine @f$ Ci(x) @f$ and sine @f$ Si(x) @f$
@@ -142,6 +135,61 @@ template<typename _Tp>
 
 
 ///
+///  @brief This routine computes the cosine @f$ Ci(x) @f$ and sine @f$ Si(x) @f$
+///         integrals by asymptotic series summation for positive argument.
+///         The asymptotic series is very good for x > 50.
+///
+template<typename _Tp>
+  void
+  __csint_asymp(_Tp __t, _Tp& __ci, _Tp& __si)
+  {
+    const unsigned int __max_iter = 100;
+    const _Tp __eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
+    const _Tp __pi_2 = std::tr1::__detail::__numeric_constants<_Tp>::__pi_2();
+
+    _Tp __invt = _Tp{1} / __t;
+    _Tp __term{1}; // 0!
+    _Tp __sume{__term};
+    __term *= __invt; // 1! / t
+    _Tp __sumo{__term};
+    _Tp __sign{1};
+    bool __even{true};
+    int __k = 2;
+    while (true)
+      {
+	__term *= __k * __invt;
+
+	if (__even)
+	  {
+	    __sign = -__sign;
+	    __sume += __sign * __term;
+
+	  }
+	else
+	  {
+	    __sumo += __sign * __term;
+	    if (__term / std::abs(__sumo) < __eps)
+	      break;
+	  }
+
+	__even = !__even;
+
+	if (__k > __max_iter)
+	  throw std::logic_error("Series evaluation failed in __cisi.");
+	++__k;
+      }
+
+    __ci = std::sin(__t) * __invt * __sume
+         - std::cos(__t) * __invt * __sumo;
+    __si = __pi_2
+         - std::cos(__t) * __invt * __sume
+         - std::sin(__t) * __invt * __sumo;
+
+    return;
+  }
+
+
+///
 ///  @brief This routine returns the cosine @f$ Ci(x) @f$ and sine @f$ Si(x) @f$
 ///         integrals as a pair.
 ///
@@ -166,6 +214,8 @@ template<typename _Tp>
         __ci = -std::numeric_limits<_Tp>::infinity();
         __si = _Tp(0);
       }
+    else if (__t > _Tp(1000)) // Check this!
+      __csint_asymp(__t, __ci, __si);
     else if (__t > _Tp(2))
       __csint_cont_frac(__t, __ci, __si);
     else
