@@ -1,0 +1,17 @@
+
+2013-04-23  Edward Smith-Rowland  <3dw4rd@verizon.net>
+
+	* include/ext/random: Add hypergeometric_distribution.
+	* include/ext/random.tcc: Add hypergeometric_distribution.
+	* testsuite/ext/random/hypergeometric_distribution/operators/
+	serialize.cc: New.
+	* testsuite/ext/random/hypergeometric_distribution/operators/
+	equal.cc: New.
+	* testsuite/ext/random/hypergeometric_distribution/operators/
+	inequal.cc: New.
+	* testsuite/ext/random/hypergeometric_distribution/cons/parms.cc: New.
+	* testsuite/ext/random/hypergeometric_distribution/cons/default.cc: New.
+	* testsuite/ext/random/hypergeometric_distribution/requirements/
+	explicit_instantiation/1.cc: New.
+	* testsuite/ext/random/hypergeometric_distribution/requirements/
+	typedefs.cc: New.
