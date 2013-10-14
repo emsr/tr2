@@ -33,9 +33,9 @@ main()
 
     //
     std::cout << std::endl << "x cosint sinint" << std::endl;
-    for (int i = 0; i <= 1000; ++i)
+    for (int i = 0; i <= 2000; ++i)
     {
-        double x = 0.01 * (i - 500);
+        double x = 0.01 * (i - 1000);
         std::cout << std::setw(12) << x
                   << std::setw(12) << cosint(x)
                   << std::setw(12) << sinint(x)
