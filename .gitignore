@@ -1,15 +1,31 @@
 
 any/test_any
 
+binary_io/binary_literal
+binary_io/bintest
+
 dynarray/test_dynarray
+
+filesystem/new file
+filesystem/test.err
+filesystem/test.txt
+filesystem/test_filesystem
 
 specfun/test_gamma
 specfun/test_specfun
 specfun/trigint_error
 
+literal_bitset
+
 literals/test_suffixen
 
 optional/test_optional
+
+random2
+
+specfun/plot
+
+test_hypergeometric_distribution
 
 help
 help2
