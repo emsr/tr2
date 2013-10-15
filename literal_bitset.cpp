@@ -6,12 +6,12 @@
 #include <bitset>
 #include <iostream>
 
-template<typename _CharT, _CharT... chars>
-  /*constexpr*/ std::bitset<sizeof...(chars)>
+template<typename _CharT, _CharT... _Chars>
+  /*constexpr*/ std::bitset<sizeof...(_Chars)>
   operator""_bs()
   {
-    const _CharT __str[]{chars...};
-    return std::bitset<sizeof...(chars)>{__str, sizeof...(chars)};
+    const _CharT __str[]{_Chars...};
+    return std::bitset<sizeof...(_Chars)>{__str, sizeof...(_Chars)};
   }
 
 int
@@ -23,3 +23,5 @@ main()
 
 // A better way might be to loop through and set bits after default ctor.
 // This will work with constexpr after the latter gets C++1y freedoms.
+
+// Also, there's almost certainly a template metaprogramming way to do the operator.
