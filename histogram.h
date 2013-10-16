@@ -55,8 +55,13 @@ template<typename Tp>
 
     /**
      *  @brief  Insertion operator.
+     *
+     *  Design decision: return value rather than histogram reference so we can chain histograms
+     *  and possibly other accumulators rather than chain values.  We already have a means of chunking a range
+     *  into a histogram.
      */
-    histogram&
+    //histogram&
+    value_type
     operator<<(value_type x)
     {
       if (x < _M_bin.front())
