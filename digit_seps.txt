@@ -1,0 +1,292 @@
+
+init.c
+------
+
+Add a new digit_separators flag everywhere:
+
+struct lang_flags
+{
+  char c99;
+  char cplusplus;
+  char extended_numbers;
+  char extended_identifiers;
+  char std;
+  char cplusplus_comments;
+  char digraphs;
+  char uliterals;
+  char rliterals;
+  char user_literals;
+  char binary_constants;
+  char digit_separators;
+};
+
+
+static const struct lang_flags lang_defaults[] =
+{ /*              c99 c++ xnum xid std  //   digr ulit rlit udlit bin_cst dig_sep */
+  /* GNUC89   */  { 0,  0,  1,   0,  0,   1,   1,   0,   0,   0,    0,      0 },
+  /* GNUC99   */  { 1,  0,  1,   0,  0,   1,   1,   1,   1,   0,    0,      0 },
+  /* GNUC11   */  { 1,  0,  1,   0,  0,   1,   1,   1,   1,   0,    0,      0 },
+  /* STDC89   */  { 0,  0,  0,   0,  1,   0,   0,   0,   0,   0,    0,      0 },
+  /* STDC94   */  { 0,  0,  0,   0,  1,   0,   1,   0,   0,   0,    0,      0 },
+  /* STDC99   */  { 1,  0,  1,   0,  1,   1,   1,   0,   0,   0,    0,      0 },
+  /* STDC11   */  { 1,  0,  1,   0,  1,   1,   1,   1,   0,   0,    0,      0 },
+  /* GNUCXX   */  { 0,  1,  1,   0,  0,   1,   1,   0,   0,   0,    0,      0 },
+  /* CXX98    */  { 0,  1,  1,   0,  1,   1,   1,   0,   0,   0,    0,      0 },
+  /* GNUCXX11 */  { 1,  1,  1,   0,  0,   1,   1,   1,   1,   1,    0,      0 },
+  /* CXX11    */  { 1,  1,  1,   0,  1,   1,   1,   1,   1,   1,    0,      0 },
+  /* GNUCXX1Y */  { 1,  1,  1,   0,  0,   1,   1,   1,   1,   1,    1,      1 },
+  /* CXX1Y    */  { 1,  1,  1,   0,  1,   1,   1,   1,   1,   1,    1,      1 },
+  /* ASM      */  { 0,  0,  1,   0,  0,   1,   0,   0,   0,   0,    0,      0 }
+  /* xid should be 1 for GNUC99, STDC99, GNUCXX, CXX98, GNUCXX11, CXX11,
+     GNUCXX1Y, and CXX1Y when no longer experimental (when all uses of
+     identifiers in the compiler have been audited for correct handling
+     of extended identifiers).  */
+};
+
+/* Sets internal flags correctly for a given language.  */
+void
+cpp_set_lang (cpp_reader *pfile, enum c_lang lang)
+{
+  const struct lang_flags *l = &lang_defaults[(int) lang];
+
+  CPP_OPTION (pfile, lang) = lang;
+
+  CPP_OPTION (pfile, c99)			 = l->c99;
+  CPP_OPTION (pfile, cplusplus)			 = l->cplusplus;
+  CPP_OPTION (pfile, extended_numbers)		 = l->extended_numbers;
+  CPP_OPTION (pfile, extended_identifiers)	 = l->extended_identifiers;
+  CPP_OPTION (pfile, std)			 = l->std;
+  CPP_OPTION (pfile, trigraphs)			 = l->std;
+  CPP_OPTION (pfile, cplusplus_comments)	 = l->cplusplus_comments;
+  CPP_OPTION (pfile, digraphs)			 = l->digraphs;
+  CPP_OPTION (pfile, uliterals)			 = l->uliterals;
+  CPP_OPTION (pfile, rliterals)			 = l->rliterals;
+  CPP_OPTION (pfile, user_literals)		 = l->user_literals;
+  CPP_OPTION (pfile, binary_constants)		 = l->binary_constants;
+  CPP_OPTION (pfile, digit_separators)		 = l->digit_separators;
+}
+
+
+internal.h
+----------
+
+After #define VALID_SIGN(c, prevc) put a new macro:
+
+#define DIGIT_SEP(c) ((c) == '\'' && CPP_OPTION (pfile, digit_separators))
+
+
+lex.c
+-----
+
+In lex_number the while loop:
+
+      while (ISIDNUM (*cur) || *cur == '.' || DIGIT_SEP (*cur)
+	     || VALID_SIGN (*cur, cur[-1]))
+
+
+expr.c
+------
+Index: expr.c
+===================================================================
+--- expr.c      (revision 203719)
++++ expr.c      (working copy)
+@@ -64,6 +64,8 @@
+ static unsigned int interpret_int_suffix (cpp_reader *, const uchar *, size_t);
+ static void check_promotion (cpp_reader *, const struct op *);
+ 
++static cpp_num parse_has_include (cpp_reader *);
++
+ /* Token type abuse to create unary plus and minus operators.  */
+ #define CPP_UPLUS ((enum cpp_ttype) (CPP_LAST_CPP_OP + 1))
+ #define CPP_UMINUS ((enum cpp_ttype) (CPP_LAST_CPP_OP + 2))
+@@ -408,6 +410,7 @@
+   max_digit = 0;
+   radix = 10;
+   seen_digit = false;
++  seen_digit_sep = false;
+ 
+   /* First, interpret the radix.  */
+   if (*str == '0')
+@@ -436,13 +439,25 @@
+ 
+       if (ISDIGIT (c) || (ISXDIGIT (c) && radix == 16))
+        {
++         seen_digit_sep = false;
+          seen_digit = true;
+          c = hex_value (c);
+          if (c > max_digit)
+            max_digit = c;
+        }
++      else if (DIGIT_SEP (c))
++       {
++         if (seen_digit_sep)
++           SYNTAX_ERROR_AT (virtual_location,
++                            "adjacent digit separators");
++         seen_digit_sep = true;
++       }
+       else if (c == '.')
+        {
++         if (seen_digit_sep)
++           SYNTAX_ERROR_AT (virtual_location,
++                            "digit separator adjacent to decimal point");
++         seen_digit_sep = false;
+          if (float_flag == NOT_FLOAT)
+            float_flag = AFTER_POINT;
+          else
+@@ -452,6 +467,10 @@
+       else if ((radix <= 10 && (c == 'e' || c == 'E'))
+               || (radix == 16 && (c == 'p' || c == 'P')))
+        {
++         if (seen_digit_sep)
++           SYNTAX_ERROR_AT (virtual_location,
++                            "digit separator adjacent to exponent");
++         seen_digit_sep = false;
+          float_flag = AFTER_EXPON;
+          break;
+        }
+@@ -463,6 +482,10 @@
+        }
+     }
+ 
++  if (DIGIT_SEP (*str))
++    SYNTAX_ERROR_AT (virtual_location,
++                    "digit separator outside digit sequence");
++
+   /* The suffix may be for decimal fixed-point constants without exponent.  */
+   if (radix != 16 && float_flag == NOT_FLOAT)
+     {
+@@ -520,16 +543,24 @@
+ 
+          /* Exponent is decimal, even if string is a hex float.  */
+          if (!ISDIGIT (*str))
+-           SYNTAX_ERROR_AT (virtual_location, "exponent has no digits");
++           if (DIGIT_SEP (*str))
++             SYNTAX_ERROR_AT (virtual_location,
++                              "digit separator adjacent to exponent");
++           else
++             SYNTAX_ERROR_AT (virtual_location, "exponent has no digits");
+ 
+          do
+            str++;
+-         while (ISDIGIT (*str));
++         while (ISDIGIT (*str) || DIGIT_SEP (*str));
+        }
+       else if (radix == 16)
+        SYNTAX_ERROR_AT (virtual_location,
+                         "hexadecimal floating constants require an exponent");
+ 
++      if (DIGIT_SEP (*str))
++       SYNTAX_ERROR_AT (virtual_location,
++                        "digit separator outside digit sequence");
++
+       result = interpret_float_suffix (pfile, str, limit - str);
+       if (result == 0)
+        {
+@@ -996,6 +1027,8 @@
+     case CPP_NAME:
+       if (token->val.node.node == pfile->spec_nodes.n_defined)
+        return parse_defined (pfile);
++      else if (token->val.node.node == pfile->spec_nodes.n__has_include__)
++       return parse_has_include (pfile);
+       else if (CPP_OPTION (pfile, cplusplus)
+               && (token->val.node.node == pfile->spec_nodes.n_true
+                   || token->val.node.node == pfile->spec_nodes.n_false))
+@@ -2005,3 +2038,72 @@
+ 
+   return lhs;
+ }
++
++/* Handle meeting "__has_include__" in a preprocessor expression.  */
++static cpp_num
++parse_has_include (cpp_reader *pfile)
++{
++  cpp_num result;
++  bool paren = false;
++  cpp_hashnode *node = 0;
++  const cpp_token *token;
++  bool bracket = false;
++  char *fname = 0;
++
++  result.unsignedp = false;
++  result.high = 0;
++  result.overflow = false;
++  result.low = 0;
++
++  /* Don't expand macros.  */
++  pfile->state.prevent_expansion++;
++
++  token = cpp_get_token (pfile);
++  if (token->type == CPP_OPEN_PAREN)
++    {
++      paren = true;
++      token = cpp_get_token (pfile);
++    }
++  if (token->type == CPP_STRING || token->type == CPP_HEADER_NAME)
++    {
++      if (token->type == CPP_HEADER_NAME)
++       bracket = true;
++      fname = XNEWVEC (char, token->val.str.len - 1);
++      memcpy (fname, token->val.str.text + 1, token->val.str.len - 2);
++      fname[token->val.str.len - 2] = '\0';
++      node = token->val.node.node;
++    }
++  else if (token->type == CPP_LESS)
++    {
++      bracket = true;
++      fname = _cpp_bracket_include (pfile);
++    }
++  else
++    cpp_error (pfile, CPP_DL_ERROR,
++              "operator \"__has_include__\" requires a header string");
++
++  if (fname)
++    {
++      int angle_brackets = (bracket ? 1 : 0);
++
++      if (_cpp_has_header (pfile, fname, angle_brackets))
++       result.low = 0;
++      else
++       result.low = 1;
++
++      XDELETEVEC (fname);
++    }
++
++  if (paren && cpp_get_token (pfile)->type != CPP_CLOSE_PAREN)
++    cpp_error (pfile, CPP_DL_ERROR,
++              "missing ')' after \"__has_include__\"");
++
++  /* A possible controlling macro of the form #if !__has_include__ ().
++     _cpp_parse_expr checks there was no other junk on the line.  */
++  if (node)
++    pfile->mi_ind_cmacro = node;
++
++  pfile->state.prevent_expansion--;
++
++  return result;
++}
+
+
+c-family/c-lex.c
+----------------
+static tree
+interpret_float (const cpp_token *token, unsigned int flags,
+		 const char *suffix, enum overflow_type *overflow)
+
+is going to have to pop digit separators out of the number string.
+The thing already strips off suffixen to give a bare number to real_from_string3.
+
+
+  if (cxx_dialect > cxx11)
+    {
+      size_t maxlen = 0;
+      for (size_t i = 0; i < copylen; ++i)
+        if (token->val.str.text != '\'')
+          copy[maxlen++] = token->val.str.text[i];
+      copy[maxlen] = '\0';
+    }
+  else
+    {
+      copy = (char *) alloca (copylen + 1);
+      memcpy (copy, token->val.str.text, copylen);
+      copy[copylen] = '\0';
+    }
