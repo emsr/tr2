@@ -4,6 +4,9 @@ any/test_any
 binary_io/binary_literal
 binary_io/bintest
 
+deprecated_cxx11
+deprecated_cxx1y
+
 dynarray/test_dynarray
 
 filesystem/new file
