@@ -1,4 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o deprecated deprecated.cpp
+// /home/ed/bin/bin/g++ -std=c++1y -o deprecated_cxx1y deprecated.cpp
+
+// /home/ed/bin/bin/g++ -std=c++11 -o deprecated_cxx11 deprecated.cpp
 
 class [[gnu::deprecated]] gA
 {
@@ -31,6 +33,28 @@ int
 bar(int n)
 {
   return 42 + n;
+}
+
+#if __cplusplus > 201103L
+
+//  Deprecate C for C++14 onwards.
+class [[deprecated]] C;
+
+//  Deprecate foobar for C++14 onwards.
+[[deprecated]]
+int
+foobar(int n);
+
+#endif
+
+class C
+{
+};
+
+int
+foobar(int n)
+{
+  return 43 + n - 1;
 }
 
 int
