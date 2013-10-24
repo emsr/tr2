@@ -1,0 +1,259 @@
+//  Proposal: A constexpr Bitwise operations library
+//  Standardize machine-level bit twiddling functions.
+
+//  https://groups.google.com/a/isocpp.org/forum/?fromgroups#!topic/std-proposals/8WB2Z9d7A0w
+
+//  https://github.com/fmatthew5876/stdcxx/blob/master/bitops/include/bitops.hh
+
+#ifndef BITOPS
+#define BITOPS
+
+
+#include <limits>
+#include <type_traits>
+#include <cstdint>
+#include <climits>
+
+
+namespace std {
+
+
+/**
+ *  Return the number of trailing zero-bits,
+ *  starting at the least significant bit position.
+ *  If x is 0, the result is undefined.
+ */
+template<typename _UInt>
+  constexpr int
+  ctz(_UInt) noexcept = delete;
+
+template<>
+  constexpr int
+  ctz(unsigned int __x) noexcept
+  { return __builtin_ctz(__x); }
+
+template<>
+  constexpr int
+  ctz(unsigned long __x) noexcept
+  { return __builtin_ctzl(__x); }
+
+template<>
+  constexpr int
+  ctz(unsigned long long __x) noexcept
+  { return __builtin_ctzll(__x); }
+
+template<>
+  constexpr int
+  ctz(unsigned char __x) noexcept
+  { return ctz<unsigned int>(__x); }
+
+template<>
+  constexpr int
+  ctz(unsigned short __x) noexcept
+  { return ctz<unsigned int>(__x); }
+
+
+
+/**
+ *  Return the number of leading zero-bits,
+ *  starting at the most significant bit position.
+ *  If x is 0, the result is undefined.
+ */
+template<typename _UInt>
+  constexpr int
+  clz(_UInt) noexcept = delete;
+
+template<>
+  constexpr int
+  clz(unsigned int __x) noexcept
+  { return __builtin_clz(__x); }
+
+template<>
+  constexpr int
+  clz(unsigned long __x) noexcept
+  { return __builtin_clzl(__x); }
+
+template<>
+  constexpr int
+  clz(unsigned long long __x) noexcept
+  { return __builtin_clzll(__x); }
+
+template <>
+  constexpr int
+  clz(unsigned char __x) noexcept
+  {
+    return clz<unsigned int>(__x)
+	 - ((sizeof(unsigned int) - sizeof(__x)) * CHAR_BIT);
+  }
+
+template <>
+  constexpr int
+  clz(unsigned short __x) noexcept
+  {
+    return clz<unsigned int>(__x)
+	 - ((sizeof(unsigned int) - sizeof(__x)) * CHAR_BIT);
+  }
+
+
+
+/**
+ *  Return position of the first bit set in x.
+ */
+template <typename _UInt>
+  constexpr int
+  ffs(_UInt) noexcept = delete;
+
+template<>
+  constexpr int
+  ffs(unsigned int __x) noexcept
+  { return __builtin_ffs(__x); }
+
+template<>
+  constexpr int
+  ffs(unsigned long __x) noexcept
+  { return __builtin_ffsl(__x); }
+
+template<>
+  constexpr int
+  ffs(unsigned long long __x) noexcept
+  { return __builtin_ffsll(__x); }
+
+template<>
+  constexpr int
+  ffs(unsigned char __x) noexcept
+  { return ffs<unsigned int>(__x); }
+
+template<>
+  constexpr int
+  ffs(unsigned short __x) noexcept
+  { return ffs<unsigned int>(__x); }
+
+
+/**
+ *  Returns position of the last bit set in x.
+ */
+template<typename _UInt>
+  constexpr int
+  fls(_UInt __x) noexcept
+  {
+    static_assert(std::is_unsigned<_UInt>::value, "_UInt must be unsigned");
+    return (sizeof(__x) * CHAR_BIT) - clz(__x);
+  }
+
+
+/**
+ *  Returns the number of leading redundant sign bits in x,
+ *  i.e. the number of bits following the most significant bit
+ *  that are identical to it.
+ *  There are no special cases for 0 or other values.
+ */
+template<typename _UInt>
+  constexpr int
+  clrsb(_UInt) noexcept = delete;
+
+template<>
+  constexpr int
+  clrsb(unsigned int __x) noexcept
+  { return __builtin_clrsb(__x); }
+
+template<>
+  constexpr int
+  clrsb(unsigned long __x) noexcept
+  { return __builtin_clrsbl(__x); }
+
+template<>
+  constexpr int
+  clrsb(unsigned long long __x) noexcept
+  { return __builtin_clrsbll(__x); }
+
+template<>
+  constexpr int
+  clrsb(unsigned char __x) noexcept
+  {
+    return clrsb<unsigned int>(__x)
+	 - ((sizeof(unsigned int) - sizeof(__x)) * CHAR_BIT);
+  }
+
+template<>
+  constexpr int
+  clrsb(unsigned short __x) noexcept
+  {
+    return clrsb<unsigned int>(__x)
+	 - ((sizeof(unsigned int) - sizeof(__x)) * CHAR_BIT);
+  }
+
+
+
+/**
+ *  Returns the number of one-bits in x.
+ */
+template<typename _UInt>
+  constexpr int
+  popcount(_UInt) noexcept = delete;
+
+template<>
+  constexpr int
+  popcount(unsigned int __x) noexcept
+  { return __builtin_popcount(__x); }
+
+template<>
+  constexpr int
+  popcount(unsigned long __x) noexcept
+  { return __builtin_popcountl(__x); }
+
+template<>
+  constexpr int
+  popcount(unsigned long long __x) noexcept
+  { return __builtin_popcountll(__x); }
+
+template<>
+  constexpr int
+  popcount(unsigned char __x) noexcept
+  { return popcount<unsigned int>(__x); }
+
+template<>
+  constexpr int
+  popcount(unsigned short __x) noexcept
+  { return popcount<unsigned int>(__x); }
+
+
+/**
+ *  Returns the parity of x, i.e. the number of 1-bits in x modulo 2.
+ */
+template<typename _UInt>
+  constexpr int
+  parity(_UInt) noexcept = delete;
+
+template<> 
+ constexpr int
+  parity(unsigned int __x) noexcept
+  { return __builtin_parity(__x); }
+
+template<>
+  constexpr int
+  parity(unsigned long __x) noexcept
+  { return __builtin_parityl(__x); }
+
+template<>
+  constexpr int
+  parity(unsigned long long __x) noexcept
+  { return __builtin_parityll(__x); }
+
+template<>
+  constexpr int
+  parity(unsigned char __x) noexcept
+  { return parity<unsigned int>(__x); }
+
+template<>
+  constexpr int
+  parity(unsigned short __x) noexcept
+  { return parity<unsigned int>(__x); }
+
+
+//  More algorithms follow in the paper but this is the end of the truly machine-level ones.
+
+
+} //namespace std
+
+
+#endif // BITOPS
