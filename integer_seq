@@ -1,0 +1,35 @@
+// 20.x Compile-time integer sequences
+
+template<class _IntTp, _IntTp...> struct integer_seq;
+
+template<int... _Ints>
+  using int_seq = integer_seq<int, _Ints...>;
+
+template<unsigned... _Ints>
+  using uint_seq = integer_seq<unsigned, _Ints...>;
+
+template<size_t... _Ints>
+  using index_seq = integer_seq<size_t, _Ints...>;
+
+
+template<class _IntTp, _IntTp _Num>
+  using make_integer_seq = integer_seq<_IntTp, see below>;
+
+template<int _Num>
+  using make_int_seq = make_integer_seq<int, _Num>;
+
+template<unsigned _Num>
+  using make_uint_seq = make_integer_seq<unsigned, _Num>;
+
+template<size_t _Num>
+  using make_index_seq = make_integer_seq<size_t, _Num>;
+
+
+template<class... _IntTp>
+  using to_int_seq = make_int_seq<sizeof...(_IntTp)>;
+
+template<class... _IntTp>
+  using to_uint_seq = make_uint_seq<sizeof...(_IntTp)>;
+
+template<class... _IntTp>
+  using to_index_seq = make_index_seq<sizeof...(_IntTp)>;
