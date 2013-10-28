@@ -1,0 +1,288 @@
+Index: libcpp/include/cpplib.h
+===================================================================
+--- libcpp/include/cpplib.h	(revision 204043)
++++ libcpp/include/cpplib.h	(working copy)
+@@ -437,6 +437,9 @@
+   /* Nonzero for C++ 2014 Standard binary constants.  */
+   unsigned char binary_constants;
+ 
++  /* Nonzero for C++ 2014 Standard digit separators.  */
++  unsigned char digit_separators;
++
+   /* Holds the name of the target (execution) character set.  */
+   const char *narrow_charset;
+ 
+Index: libcpp/internal.h
+===================================================================
+--- libcpp/internal.h	(revision 204043)
++++ libcpp/internal.h	(working copy)
+@@ -59,6 +59,8 @@
+     || (((prevc) == 'p' || (prevc) == 'P') \
+         && CPP_OPTION (pfile, extended_numbers))))
+ 
++#define DIGIT_SEP(c) ((c) == '\'' && CPP_OPTION (pfile, digit_separators))
++
+ #define CPP_OPTION(PFILE, OPTION) ((PFILE)->opts.OPTION)
+ #define CPP_BUFFER(PFILE) ((PFILE)->buffer)
+ #define CPP_BUF_COLUMN(BUF, CUR) ((CUR) - (BUF)->line_base)
+Index: libcpp/expr.c
+===================================================================
+--- libcpp/expr.c	(revision 204043)
++++ libcpp/expr.c	(working copy)
+@@ -394,6 +394,7 @@
+   unsigned int max_digit, result, radix;
+   enum {NOT_FLOAT = 0, AFTER_POINT, AFTER_EXPON} float_flag;
+   bool seen_digit;
++  bool seen_digit_sep;
+ 
+   if (ud_suffix)
+     *ud_suffix = NULL;
+@@ -408,6 +409,7 @@
+   max_digit = 0;
+   radix = 10;
+   seen_digit = false;
++  seen_digit_sep = false;
+ 
+   /* First, interpret the radix.  */
+   if (*str == '0')
+@@ -436,13 +438,24 @@
+ 
+       if (ISDIGIT (c) || (ISXDIGIT (c) && radix == 16))
+ 	{
++	  seen_digit_sep = false;
+ 	  seen_digit = true;
+ 	  c = hex_value (c);
+ 	  if (c > max_digit)
+ 	    max_digit = c;
+ 	}
++      else if (DIGIT_SEP (c))
++	{
++	  if (seen_digit_sep)
++	    SYNTAX_ERROR_AT (virtual_location, "adjacent digit separators");
++	  seen_digit_sep = true;
++	}
+       else if (c == '.')
+ 	{
++	  if (seen_digit_sep)
++	    SYNTAX_ERROR_AT (virtual_location,
++			     "digit separator adjacent to decimal point");
++	  seen_digit_sep = false;
+ 	  if (float_flag == NOT_FLOAT)
+ 	    float_flag = AFTER_POINT;
+ 	  else
+@@ -452,6 +465,10 @@
+       else if ((radix <= 10 && (c == 'e' || c == 'E'))
+ 	       || (radix == 16 && (c == 'p' || c == 'P')))
+ 	{
++	  if (seen_digit_sep)
++	    SYNTAX_ERROR_AT (virtual_location,
++			     "digit separator adjacent to exponent");
++	  seen_digit_sep = false;
+ 	  float_flag = AFTER_EXPON;
+ 	  break;
+ 	}
+@@ -463,6 +480,10 @@
+ 	}
+     }
+ 
++  if (DIGIT_SEP (*str))
++    SYNTAX_ERROR_AT (virtual_location,
++		     "digit separator outside digit sequence");
++
+   /* The suffix may be for decimal fixed-point constants without exponent.  */
+   if (radix != 16 && float_flag == NOT_FLOAT)
+     {
+@@ -520,8 +541,13 @@
+ 
+ 	  /* Exponent is decimal, even if string is a hex float.  */
+ 	  if (!ISDIGIT (*str))
+-	    SYNTAX_ERROR_AT (virtual_location, "exponent has no digits");
+-
++	    {
++	      if (DIGIT_SEP (*str))
++		SYNTAX_ERROR_AT (virtual_location,
++				 "digit separator adjacent to exponent");
++	      else
++		SYNTAX_ERROR_AT (virtual_location, "exponent has no digits");
++	    }
+ 	  do
+ 	    str++;
+ 	  while (ISDIGIT (*str));
+@@ -530,6 +556,10 @@
+ 	SYNTAX_ERROR_AT (virtual_location,
+ 			 "hexadecimal floating constants require an exponent");
+ 
++      if (DIGIT_SEP (*str))
++	SYNTAX_ERROR_AT (virtual_location,
++			 "digit separator outside digit sequence");
++
+       result = interpret_float_suffix (pfile, str, limit - str);
+       if (result == 0)
+ 	{
+@@ -723,6 +753,8 @@
+ 
+ 	  if (ISDIGIT (c) || (base == 16 && ISXDIGIT (c)))
+ 	    c = hex_value (c);
++	  else if (DIGIT_SEP (c))
++	    continue;
+ 	  else
+ 	    break;
+ 
+Index: libcpp/init.c
+===================================================================
+--- libcpp/init.c	(revision 204043)
++++ libcpp/init.c	(working copy)
+@@ -84,24 +84,25 @@
+   char rliterals;
+   char user_literals;
+   char binary_constants;
++  char digit_separators;
+ };
+ 
+ static const struct lang_flags lang_defaults[] =
+-{ /*              c99 c++ xnum xid std  //   digr ulit rlit udlit bin_cst */
+-  /* GNUC89   */  { 0,  0,  1,   0,  0,   1,   1,   0,   0,   0,    0 },
+-  /* GNUC99   */  { 1,  0,  1,   0,  0,   1,   1,   1,   1,   0,    0 },
+-  /* GNUC11   */  { 1,  0,  1,   0,  0,   1,   1,   1,   1,   0,    0 },
+-  /* STDC89   */  { 0,  0,  0,   0,  1,   0,   0,   0,   0,   0,    0 },
+-  /* STDC94   */  { 0,  0,  0,   0,  1,   0,   1,   0,   0,   0,    0 },
+-  /* STDC99   */  { 1,  0,  1,   0,  1,   1,   1,   0,   0,   0,    0 },
+-  /* STDC11   */  { 1,  0,  1,   0,  1,   1,   1,   1,   0,   0,    0 },
+-  /* GNUCXX   */  { 0,  1,  1,   0,  0,   1,   1,   0,   0,   0,    0 },
+-  /* CXX98    */  { 0,  1,  1,   0,  1,   1,   1,   0,   0,   0,    0 },
+-  /* GNUCXX11 */  { 1,  1,  1,   0,  0,   1,   1,   1,   1,   1,    0 },
+-  /* CXX11    */  { 1,  1,  1,   0,  1,   1,   1,   1,   1,   1,    0 },
+-  /* GNUCXX1Y */  { 1,  1,  1,   0,  0,   1,   1,   1,   1,   1,    1 },
+-  /* CXX1Y    */  { 1,  1,  1,   0,  1,   1,   1,   1,   1,   1,    1 },
+-  /* ASM      */  { 0,  0,  1,   0,  0,   1,   0,   0,   0,   0,    0 }
++{ /*              c99 c++ xnum xid std  //   digr ulit rlit udlit bin_cst dig_sep */
++  /* GNUC89   */  { 0,  0,  1,   0,  0,   1,   1,   0,   0,   0,    0,      0 },
++  /* GNUC99   */  { 1,  0,  1,   0,  0,   1,   1,   1,   1,   0,    0,      0 },
++  /* GNUC11   */  { 1,  0,  1,   0,  0,   1,   1,   1,   1,   0,    0,      0 },
++  /* STDC89   */  { 0,  0,  0,   0,  1,   0,   0,   0,   0,   0,    0,      0 },
++  /* STDC94   */  { 0,  0,  0,   0,  1,   0,   1,   0,   0,   0,    0,      0 },
++  /* STDC99   */  { 1,  0,  1,   0,  1,   1,   1,   0,   0,   0,    0,      0 },
++  /* STDC11   */  { 1,  0,  1,   0,  1,   1,   1,   1,   0,   0,    0,      0 },
++  /* GNUCXX   */  { 0,  1,  1,   0,  0,   1,   1,   0,   0,   0,    0,      0 },
++  /* CXX98    */  { 0,  1,  1,   0,  1,   1,   1,   0,   0,   0,    0,      0 },
++  /* GNUCXX11 */  { 1,  1,  1,   0,  0,   1,   1,   1,   1,   1,    0,      0 },
++  /* CXX11    */  { 1,  1,  1,   0,  1,   1,   1,   1,   1,   1,    0,      0 },
++  /* GNUCXX1Y */  { 1,  1,  1,   0,  0,   1,   1,   1,   1,   1,    1,      1 },
++  /* CXX1Y    */  { 1,  1,  1,   0,  1,   1,   1,   1,   1,   1,    1,      1 },
++  /* ASM      */  { 0,  0,  1,   0,  0,   1,   0,   0,   0,   0,    0,      0 }
+   /* xid should be 1 for GNUC99, STDC99, GNUCXX, CXX98, GNUCXX11, CXX11,
+      GNUCXX1Y, and CXX1Y when no longer experimental (when all uses of
+      identifiers in the compiler have been audited for correct handling
+@@ -128,6 +129,7 @@
+   CPP_OPTION (pfile, rliterals)			 = l->rliterals;
+   CPP_OPTION (pfile, user_literals)		 = l->user_literals;
+   CPP_OPTION (pfile, binary_constants)		 = l->binary_constants;
++  CPP_OPTION (pfile, digit_separators)		 = l->digit_separators;
+ }
+ 
+ /* Initialize library global state.  */
+Index: libcpp/lex.c
+===================================================================
+--- libcpp/lex.c	(revision 204043)
++++ libcpp/lex.c	(working copy)
+@@ -1274,7 +1274,8 @@
+       cur = pfile->buffer->cur;
+ 
+       /* N.B. ISIDNUM does not include $.  */
+-      while (ISIDNUM (*cur) || *cur == '.' || VALID_SIGN (*cur, cur[-1]))
++      while (ISIDNUM (*cur) || *cur == '.' || DIGIT_SEP (*cur)
++	     || VALID_SIGN (*cur, cur[-1]))
+ 	{
+ 	  cur++;
+ 	  NORMALIZE_STATE_UPDATE_IDNUM (nst);
+Index: gcc/c-family/c-lex.c
+===================================================================
+--- gcc/c-family/c-lex.c	(revision 204043)
++++ gcc/c-family/c-lex.c	(working copy)
+@@ -776,8 +776,19 @@
+     }
+ 
+   copy = (char *) alloca (copylen + 1);
+-  memcpy (copy, token->val.str.text, copylen);
+-  copy[copylen] = '\0';
++  if (cxx_dialect > cxx11)
++    {
++      size_t maxlen = 0;
++      for (size_t i = 0; i < copylen; ++i)
++        if (token->val.str.text[i] != '\'')
++          copy[maxlen++] = token->val.str.text[i];
++      copy[maxlen] = '\0';
++    }
++  else
++    {
++      memcpy (copy, token->val.str.text, copylen);
++      copy[copylen] = '\0';
++    }
+ 
+   real_from_string3 (&real, copy, TYPE_MODE (const_type));
+   if (const_type != type)
+Index: libstdc++-v3/include/bits/parse_numbers.h
+===================================================================
+--- libstdc++-v3/include/bits/parse_numbers.h	(revision 204043)
++++ libstdc++-v3/include/bits/parse_numbers.h	(working copy)
+@@ -32,7 +32,7 @@
+ 
+ #pragma GCC system_header
+ 
+-// From n3642.pdf except I added binary literals and digit separator '`'.
++// From n3642.pdf except I added binary literals and digit separator '\''.
+ 
+ #if __cplusplus > 201103L
+ 
+@@ -221,7 +221,7 @@
+ 
+   //  Digit separator
+   template<unsigned _Base>
+-    struct _Digit<_Base, '`'>
++    struct _Digit<_Base, '\''>
+     {
+       static constexpr bool valid{false};
+       static constexpr unsigned value{0};
+Index: gcc/testsuite/g++.dg/cpp1y/digit-sep.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp1y/digit-sep.C	(revision 0)
++++ gcc/testsuite/g++.dg/cpp1y/digit-sep.C	(working copy)
+@@ -0,0 +1,16 @@
++// { dg-options -std=c++1y }
++
++#define assert(E) if(!(E))__builtin_abort();
++
++int
++main()
++{
++  assert(1048576 == 1'048'576);
++  assert(1048576 == 0X100000);
++  assert(1048576 == 0x10'0000);
++  assert(1048576 == 0'004'000'000);
++  assert(1048576 == 0B100000000000000000000);
++  assert(1048576 == 0b0001'0000'0000'0000'0000'0000);
++
++  assert(1.602'176'565e-19 == 1.602176565e-19);
++}
+Index: gcc/testsuite/g++.dg/cpp1y/digit-sep-neg.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp1y/digit-sep-neg.C	(revision 0)
++++ gcc/testsuite/g++.dg/cpp1y/digit-sep-neg.C	(working copy)
+@@ -0,0 +1,17 @@
++// { dg-options -std=c++1y }
++
++#define assert(E) if(!(E))__builtin_abort();
++
++int
++main()
++{
++  (1048576 == 1048''576);
++  (1048576 == 0X'100000);
++  (1048576 == 0x'100000);
++  (1048576 == 0'004'000'000);
++  (1048576 == 0B100000000000000000000);
++  (1048576 == 0b0001'0000'0000'0000'0000'0000);
++
++  (1.'602'176'565e-19 == 1.602176565e-19);
++  (1.602'176'565e'-19 == 1.602176565e-19);
++}
