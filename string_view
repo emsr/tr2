@@ -1,7 +1,47 @@
-#ifndef STRING_VIEW
-#define STRING_VIEW 1
+// Components for manipulating non-owning sequences of characters -*- C++ -*-
 
-namespace std {
+// Copyright (C) 2013 Free Software Foundation, Inc.
+//
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or (at your option)
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+/** @file include/string_view
+ *  This is a Standard C++ Library header.
+ */
+
+//
+// ISO C++ 14882: 21  Strings library
+//
+
+#ifndef _GLIBCXX_STRING_VIEW
+#define _GLIBCXX_STRING_VIEW 1
+
+#pragma GCC system_header
+
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
+
+namespace std _GLIBCXX_VISIBILITY(default)
+{
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _CharT, typename _Traits = char_traits<_CharT>>
     class basic_string_view
@@ -10,62 +50,138 @@ namespace std {
     public:
 
       // types
-      typedef _Traits traits_type;
-      typedef _CharT value_type;
-      typedef const _CharT* pointer;
-      typedef const _CharT* const_pointer;
-      typedef const _CharT& reference;
-      typedef const _CharT& const_reference;
-      typedef implementation-defined const_iterator; // See [string.view.iterators]
-      typedef const_iterator iterator;
-      typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-      typedef const_reverse_iterator reverse_iterator;
-      typedef size_t size_type;
-      typedef ptrdiff_t difference_type;
+      using traits_type = _Traits;
+      using value_type = _CharT;
+      using pointer = const _CharT*;
+      using const_pointer = const _CharT*;
+      using reference = const _CharT&;
+      using const_reference = const _CharT&;
+      using const_iterator = implementation-defined; // See [string.view.iterators]
+      using iterator = const_iterator;
+      using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+      using reverse_iterator = const_reverse_iterator;
+      using size_type = size_t;
+      using difference_type = ptrdiff_t;
       static constexpr size_type npos = size_type(-1);
 
       // [string.view.cons], construct/copy
-      constexpr basic_string_view() noexcept;
+      constexpr
+      basic_string_view() noexcept
+      : _M_len{0}, _M_str{nullptr}
+      { }
+
       constexpr basic_string_view(const basic_string_view&) noexcept = default;
+
+      template<typename _Allocator>
+        basic_string_view(const basic_string<_CharT, _Traits, _Allocator>& __str) noexcept
+        : _M_len{__str.length()}, _M_str{__str.data()}
+        { }
+
+      constexpr basic_string_view(const _CharT* str)
+      : _M_len{__builting_strlen(__str)}, _M_str{__str}
+      { }
+
+      constexpr basic_string_view(const _CharT* __str, size_type __len)
+      : _M_len{__len}, _M_str{__str}
+      { }
+
       basic_string_view&
       operator=(const basic_string_view&) noexcept = default;
-      template<typename _Allocator>
-        basic_string_view(const basic_string<_CharT, _Traits, _Allocator>& str) noexcept;
-      constexpr basic_string_view(const _CharT* str);
-      constexpr basic_string_view(const _CharT* str, size_type len);
 
       // [string.view.iterators], iterators
-      constexpr const_iterator begin() const noexcept;
-      constexpr const_iterator end() const noexcept;
-      constexpr const_iterator cbegin() const noexcept;
-      constexpr const_iterator cend() const noexcept;
-      const_reverse_iterator rbegin() const noexcept;
-      const_reverse_iterator rend() const noexcept;
-      const_reverse_iterator crbegin() const noexcept;
-      const_reverse_iterator crend() const noexcept;
+
+      constexpr const_iterator
+      begin() const noexcept
+      { return this->_M_str; }
+
+      constexpr const_iterator
+      end() const noexcept
+      { return this->_M_str + this->_M_len; }
+
+      constexpr const_iterator
+      cbegin() const noexcept
+      { return this->_M_str; }
+
+      constexpr const_iterator
+      cend() const noexcept
+      { return this->_M_str + this->_M_len; }
+
+      const_reverse_iterator
+      rbegin() const noexcept;
+
+      const_reverse_iterator
+      rend() const noexcept;
+
+      const_reverse_iterator
+      crbegin() const noexcept;
+
+      const_reverse_iterator
+      crend() const noexcept;
 
       // [string.view.capacity], capacity
-      constexpr size_type size() const noexcept;
-      constexpr size_type length() const noexcept;
-      constexpr size_type max_size() const noexcept;
-      constexpr bool empty() const noexcept;
+
+      constexpr size_type
+      size() const noexcept
+      { return this->_M_len; }
+
+      constexpr size_type
+      length() const noexcept
+      { return _M_len; }
+
+      constexpr size_type
+      max_size() const noexcept
+      { return this->_M_len; }
+
+      constexpr bool
+      empty() const noexcept
+      { return this->_M_len == 0; }
 
       // [string.view.access], element access
-      constexpr const _CharT& operator[](size_type pos) const;
-      constexpr const _CharT& at(size_type pos) const;
-      constexpr const _CharT& front() const;
-      constexpr const _CharT& back() const;
-      constexpr const _CharT* data() const noexcept;
+
+      constexpr const _CharT&
+      operator[](size_type __pos) const
+      { return *(this->_M_str + __pos); }
+
+      constexpr const _CharT&
+      at(size_type __pos) const
+      { return *(this->_M_str + __pos); } // THROW
+
+      constexpr const _CharT&
+      front() const
+      { return *this->_M_str; }
+
+      constexpr const _CharT&
+      back() const
+      { return *(this->_M_str + this->_M_len); } // CHECK!!!
+
+      constexpr const _CharT*
+      data() const noexcept
+      { return this->_M_str; }
 
       // [string.view.modifiers], modifiers:
-      void clear() noexcept;
-      void remove_prefix(size_type n);
-      void remove_suffix(size_type n);
-      void swap(basic_string_view& s) noexcept;
+      void
+      clear() noexcept
+      { this->_M_len = 0; }
+
+      void
+      remove_prefix(size_type __n)
+      { this->_M_str += __n; }
+
+      void
+      remove_suffix(size_type __n)
+      { this->_M_len -= __n; }
+
+      void
+      swap(basic_string_view& __sv) noexcept
+      {
+	swap(this->_M_len, __sv._M_len);
+	swap(this->_M_str, __sv._M_str);
+      }
 
       // [string.view.ops], string operations:
       template<typename _Allocator>
-        explicit operator basic_string<_CharT, _Traits, _Allocator>() const;
+        explicit operator basic_string<_CharT, _Traits, _Allocator>() const
+        { return basic_string<_CharT, _Traits, _Allocator>(this->_M_len, this->_M_str); }
 
       size_type copy(_CharT* s, size_type n, size_type pos = 0) const;
 
@@ -105,7 +221,8 @@ namespace std {
       size_type find_last_not_of(const _CharT* s, size_type pos=0) const noexcept;
 
     private:
-
+      const size_t _M_len;
+      const _CharT* _M_str;
     };
 
   // [string.view.comparison], non-member basic_string_view comparison functions
@@ -160,10 +277,10 @@ namespace std {
                  basic_string_view<_CharT,_Traits> str);
 
   // basic_string_view typedef names
-  typedef basic_string_view<char> string_view;
-  typedef basic_string_view<char16_t> u16string_view;
-  typedef basic_string_view<char32_t> u32string_view;
-  typedef basic_string_view<wchar_t> wstring_view;
+  using string_view = basic_string_view<char>;
+  using u16string_view = basic_string_view<char16_t>;
+  using u32string_view = basic_string_view<char32_t>;
+  using wstring_view = basic_string_view<wchar_t>;
 
   // [string.view.hash], hash support:
   template<typename _Tp>
@@ -181,6 +298,7 @@ namespace std {
   template<>
     struct hash<wstring_view>;
 
+_GLIBCXX_END_NAMESPACE_VERSION
 } // namespace std
 
-#endif // STRING_VIEW
+#endif // _GLIBCXX_STRING_VIEW
