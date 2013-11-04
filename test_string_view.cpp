@@ -173,6 +173,6 @@ main()
   std::cout << "haystack.find(\"mm\")     = " << haystack.find("mm") << std::endl;
   std::cout << "haystack.rfind(mm)       = " << haystack.rfind(mm) << std::endl;
   std::cout << "haystack.rfind('m',2)    = " << haystack.rfind('m') << std::endl;
-  std::cout << "haystack.rfind(\"mm\",20,0) = " << haystack.rfind("mm",20,0) << std::endl;
+  std::cout << "haystack.rfind(\"mm\",20,2) = " << haystack.rfind("mm",20,2) << std::endl;
   std::cout << "haystack.rfind(\"mm\")     = " << haystack.rfind("mm") << std::endl;
 }
