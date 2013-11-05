@@ -175,4 +175,8 @@ main()
   std::cout << "haystack.rfind('m',2)    = " << haystack.rfind('m') << std::endl;
   std::cout << "haystack.rfind(\"mm\",20,2) = " << haystack.rfind("mm",20,2) << std::endl;
   std::cout << "haystack.rfind(\"mm\")     = " << haystack.rfind("mm") << std::endl;
+
+  std::string haystring{"Buy the commemorative boogerand today!"};
+  std::cout << std::endl;
+  std::cout << "haystring.rfind('m',2)    = " << haystring.rfind('m') << std::endl;
 }
