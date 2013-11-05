@@ -41,6 +41,8 @@
 
 namespace std //_GLIBCXX_VISIBILITY(default)
 {
+namespace experimental
+{
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _CharT, typename _Traits>
@@ -219,6 +221,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     }
 
 _GLIBCXX_END_NAMESPACE_VERSION
+} // namespace experimental
 } // namespace std
 
 #endif // __cplusplus <= 201103L

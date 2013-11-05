@@ -45,6 +45,8 @@
 
 namespace std //_GLIBCXX_VISIBILITY(default)
 {
+namespace experimental
+{
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   /**
@@ -302,7 +304,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       }
 
       size_type
-      find(basic_string_view __str, size_type __pos=0) const noexcept
+      find(basic_string_view __str, size_type __pos = 0) const noexcept
       { return this->find(__str._M_str, __pos, __str._M_len); }
 
       size_type
@@ -316,73 +318,79 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       { return this->find(__str, __pos, __builtin_strlen(__str)); }
 
       size_type
-      rfind(basic_string_view __str, size_type __pos=npos) const noexcept
+      rfind(basic_string_view __str, size_type __pos = npos) const noexcept
       { return this->rfind(__str._M_str, __pos, __str._M_len); }
 
       size_type
-      rfind(_CharT __c, size_type __pos=npos) const noexcept;
+      rfind(_CharT __c, size_type __pos = npos) const noexcept;
 
       size_type
       rfind(const _CharT* __str, size_type __pos, size_type __n) const;
 
       size_type
-      rfind(const _CharT* __str, size_type __pos=npos) const noexcept
+      rfind(const _CharT* __str, size_type __pos = npos) const noexcept
       { return this->rfind(__str, __pos, __builtin_strlen(__str)); }
 
       size_type
-      find_first_of(basic_string_view __str, size_type __pos=0) const noexcept
+      find_first_of(basic_string_view __str, size_type __pos = 0) const noexcept
       { return this->find_first_of(__str._M_str, __pos, __str._M_len); }
 
       size_type
-      find_first_of(_CharT __c, size_type __pos=0) const noexcept;
+      find_first_of(_CharT __c, size_type __pos = 0) const noexcept
+      { return this->find(__c, __pos); }
 
       size_type
       find_first_of(const _CharT* __str, size_type __pos, size_type __n) const;
 
       size_type
-      find_first_of(const _CharT* __str, size_type __pos=0) const noexcept
+      find_first_of(const _CharT* __str, size_type __pos = 0) const noexcept
       { return this->find_first_of(__str, __pos, __builtin_strlen(__str)); }
 
       size_type
-      find_last_of(basic_string_view __str, size_type __pos=npos) const noexcept
+      find_last_of(basic_string_view __str,
+		   size_type __pos = npos) const noexcept
       { return this->find_last_of(__str._M_str, __pos, __str._M_len); }
 
       size_type
-      find_last_of(_CharT __c, size_type __pos=npos) const noexcept;
+      find_last_of(_CharT __c, size_type __pos=npos) const noexcept
+      { return this->rfind(__c, __pos); }
 
       size_type
       find_last_of(const _CharT* __str, size_type __pos, size_type __n) const;
 
       size_type
-      find_last_of(const _CharT* __str, size_type __pos=npos) const noexcept
+      find_last_of(const _CharT* __str, size_type __pos = npos) const noexcept
       { return this->find_last_of(__str, __pos, __builtin_strlen(__str)); }
 
       size_type
-      find_first_not_of(basic_string_view __str, size_type __pos=0) const noexcept
+      find_first_not_of(basic_string_view __str,
+			size_type __pos = 0) const noexcept
       { return this->find_first_not_of(__str._M_str, __pos, __str._M_len); }
 
       size_type
-      find_first_not_of(_CharT __c, size_type __pos=0) const noexcept;
+      find_first_not_of(_CharT __c, size_type __pos = 0) const noexcept;
 
       size_type
-      find_first_not_of(const _CharT* __str, size_type __pos, size_type __n) const;
+      find_first_not_of(const _CharT* __str,
+			size_type __pos, size_type __n) const;
 
       size_type
-      find_first_not_of(const _CharT* __str, size_type __pos=0) const noexcept
+      find_first_not_of(const _CharT* __str, size_type __pos = 0) const noexcept
       { return this->find_first_not_of(__str, __pos, __builtin_strlen(__str)); }
 
       size_type
-      find_last_not_of(basic_string_view __str, size_type __pos=npos) const noexcept
+      find_last_not_of(basic_string_view __str,
+		       size_type __pos = npos) const noexcept
       { return this->find_last_not_of(__str._M_str, __pos, __str._M_len); }
 
       size_type
-      find_last_not_of(_CharT __c, size_type __pos=npos) const noexcept;
+      find_last_not_of(_CharT __c, size_type __pos = npos) const noexcept;
 
       size_type
       find_last_not_of(const _CharT* __str, size_type __pos, size_type __n) const;
 
       size_type
-      find_last_not_of(const _CharT* __str, size_type __pos=npos) const noexcept
+      find_last_not_of(const _CharT* __str, size_type __pos = npos) const noexcept
       { return this->find_last_not_of(__str, __pos, __builtin_strlen(__str)); }
 
     private:
@@ -554,6 +562,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   using wstring_view = basic_string_view<wchar_t>;
 #endif
 
+_GLIBCXX_END_NAMESPACE_VERSION
+} // namespace experimental
+
 
   // [string.view.hash], hash support:
 
@@ -561,63 +572,67 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct hash;
 
   template<>
-    struct hash<string_view>
-    : public __hash_base<size_t, string_view>
+    struct hash<experimental::string_view>
+    : public __hash_base<size_t, experimental::string_view>
     {
       size_t
-      operator()(const string_view& __str) const noexcept
+      operator()(const experimental::string_view& __str) const noexcept
       { return std::_Hash_impl::hash(__str.data(), __str.length()); }
     };
 
   template<>
-    struct __is_fast_hash<hash<string_view>> : std::false_type
+    struct __is_fast_hash<hash<experimental::string_view>> : std::false_type
     { };
 
 #ifdef _GLIBCXX_USE_WCHAR_T
   template<>
-    struct hash<wstring_view>
+    struct hash<experimental::wstring_view>
     : public __hash_base<size_t, wstring>
     {
       size_t
-      operator()(const wstring_view& __s) const noexcept
+      operator()(const experimental::wstring_view& __s) const noexcept
       { return std::_Hash_impl::hash(__s.data(),
                                      __s.length() * sizeof(wchar_t)); }
     };
 
   template<>
-    struct __is_fast_hash<hash<wstring_view>> : std::false_type
+    struct __is_fast_hash<hash<experimental::wstring_view>> : std::false_type
     { };
 #endif
 
 #ifdef _GLIBCXX_USE_C99_STDINT_TR1
   template<>
-    struct hash<u16string_view>
-    : public __hash_base<size_t, u16string_view>
+    struct hash<experimental::u16string_view>
+    : public __hash_base<size_t, experimental::u16string_view>
     {
       size_t
-      operator()(const u16string_view& __s) const noexcept
+      operator()(const experimental::u16string_view& __s) const noexcept
       { return std::_Hash_impl::hash(__s.data(),
                                      __s.length() * sizeof(char16_t)); }
     };
 
   template<>
-    struct __is_fast_hash<hash<u16string_view>> : std::false_type
+    struct __is_fast_hash<hash<experimental::u16string_view>> : std::false_type
     { };
 
   template<>
-    struct hash<u32string_view>
-    : public __hash_base<size_t, u32string_view>
+    struct hash<experimental::u32string_view>
+    : public __hash_base<size_t, experimental::u32string_view>
     {
       size_t
-      operator()(const u32string_view& __s) const noexcept
+      operator()(const experimental::u32string_view& __s) const noexcept
       { return std::_Hash_impl::hash(__s.data(),
                                      __s.length() * sizeof(char32_t)); }
     };
 
   template<>
-    struct __is_fast_hash<hash<u32string_view>> : std::false_type
+    struct __is_fast_hash<hash<experimental::u32string_view>> : std::false_type
     { };
 #endif
+
+namespace experimental
+{
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   // I added these EMSR.
   inline namespace literals
@@ -649,6 +664,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   }
 
 _GLIBCXX_END_NAMESPACE_VERSION
+} // namespace experimental
 } // namespace std
 
 #include "string_view.tcc"

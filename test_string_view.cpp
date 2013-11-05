@@ -11,9 +11,9 @@ int
 main()
 {
   std::cout << std::endl;
-  std::cout << "std::string_view::npos = " << std::string_view::npos << std::endl;
+  std::cout << "std::experimental::string_view::npos = " << std::experimental::string_view::npos << std::endl;
 
-  std::string_view sv{"Hello, World!"};
+  std::experimental::string_view sv{"Hello, World!"};
   std::cout << std::endl;
   std::cout << "sv            = " << sv << std::endl;
   std::cout << "sv.empty()    = " << std::boolalpha << sv.empty() << std::endl;
@@ -62,7 +62,7 @@ main()
   std::cout << std::endl;
   std::cout << "operator[](5) = " << sv[5] << std::endl;
 
-  std::string_view pre_prefix = sv;
+  std::experimental::string_view pre_prefix = sv;
   std::cout << std::endl;
   std::cout << "pre_prefix = " << pre_prefix << std::endl;
 
@@ -70,7 +70,7 @@ main()
   std::cout << "remove_prefix(3) = " << sv << std::endl;
   std::cout << "length()         = " << sv.length() << std::endl;
 
-  std::string_view pre_suffix = sv;
+  std::experimental::string_view pre_suffix = sv;
   std::cout << std::endl;
   std::cout << "pre_suffix = " << pre_suffix << std::endl;
 
@@ -95,14 +95,14 @@ main()
   std::cout << "sv.back()     = " << sv.back() << std::endl;
   std::cout << "sv.max_size() = " << sv.max_size() << std::endl;
 
-  std::string_view hw1{"Hello, World!"};
+  std::experimental::string_view hw1{"Hello, World!"};
   std::cout << std::endl;
   std::cout << "hw1 = " << hw1 << std::endl;
   hw1.remove_suffix(3);
   std::cout << "hw1.remove_suffix(3) = " << hw1 << std::endl;
 
-  std::string_view ca{"boogerand"};
-  std::string_view cb{"boogerbear"};
+  std::experimental::string_view ca{"boogerrand"};
+  std::experimental::string_view cb{"boogerbear"};
   std::cout << std::endl;
   std::cout << "ca             = " << ca << std::endl;
   std::cout << "cb             = " << cb << std::endl;
@@ -132,7 +132,7 @@ main()
 
   // I added literals.
 
-  using namespace std::literals::string_view_literals;
+  using namespace std::experimental::literals::string_view_literals;
 
   auto uh = "Uranus-Hertz"sv;
   std::cout << std::endl;
@@ -144,39 +144,119 @@ main()
   std::cout << "uh.back()     = " << uh.back() << std::endl;
   std::cout << "uh.max_size() = " << uh.max_size() << std::endl;
 
-  auto uhs = std::to_string(uh);
+  auto uhs = std::experimental::to_string(uh);
   std::cout << std::endl;
-  std::cout << "uhs            = " << uhs << std::endl;
-  std::cout << "uhs.empty()    = " << std::boolalpha << uhs.empty() << std::endl;
-  std::cout << "uhs.size()     = " << uhs.size() << std::endl;
-  std::cout << "uhs.capacity() = " << uhs.capacity() << std::endl;
-  std::cout << "uhs.length()   = " << uhs.length() << std::endl;
-  std::cout << "uhs.front()    = " << uhs.front() << std::endl;
-  std::cout << "uhs.back()     = " << uhs.back() << std::endl;
-  std::cout << "uhs.max_size() = " << uhs.max_size() << std::endl;
-  std::cout << "uhs.append(\"x\")= " << uhs.append("x") << std::endl;
+  std::cout << "uhs             = " << uhs << std::endl;
+  std::cout << "uhs.empty()     = " << std::boolalpha << uhs.empty() << std::endl;
+  std::cout << "uhs.size()      = " << uhs.size() << std::endl;
+  std::cout << "uhs.capacity()  = " << uhs.capacity() << std::endl;
+  std::cout << "uhs.length()    = " << uhs.length() << std::endl;
+  std::cout << "uhs.front()     = " << uhs.front() << std::endl;
+  std::cout << "uhs.back()      = " << uhs.back() << std::endl;
+  std::cout << "uhs.max_size()  = " << uhs.max_size() << std::endl;
+  std::cout << "uhs.append(\"x\") = " << uhs.append("x") << std::endl;
 
   char arr[10]{};
+  std::cout << std::endl;
+  std::cout << "arr = ";
+  for (auto c : arr)
+    std::cout << c;
   uh.copy(arr, 10, 1);
   std::cout << std::endl;
+  std::cout << "arr = ";
   for (auto c : arr)
     std::cout << c;
   std::cout << std::endl;
 
-  std::string_view haystack{"Buy the commemorative boogerand today!"};
-  std::string_view mm{"mm"};
+  //                                   11111111112222222222333333333
+  //                         012345678901234567890123456879012345678
+  std::experimental::string_view haystack{"Buy the commemorative boogerrand today!"};
+  std::experimental::string_view mm{"mm"};
   std::cout << std::endl;
-  std::cout << "haystack                = " << haystack << std::endl;
-  std::cout << "haystack.find(mm)       = " << haystack.find(mm) << std::endl;
-  std::cout << "haystack.find('m',2)    = " << haystack.find('m') << std::endl;
-  std::cout << "haystack.find(\"mm\",0,2) = " << haystack.find("mm",0,2) << std::endl;
-  std::cout << "haystack.find(\"mm\")     = " << haystack.find("mm") << std::endl;
-  std::cout << "haystack.rfind(mm)       = " << haystack.rfind(mm) << std::endl;
-  std::cout << "haystack.rfind('m',2)    = " << haystack.rfind('m') << std::endl;
-  std::cout << "haystack.rfind(\"mm\",20,2) = " << haystack.rfind("mm",20,2) << std::endl;
-  std::cout << "haystack.rfind(\"mm\")     = " << haystack.rfind("mm") << std::endl;
+  std::cout << "haystack                    = " << haystack << std::endl;
+  std::cout << "haystack.find(mm)           = " << haystack.find(mm) << std::endl;
+  std::cout << "haystack.find('m',2)        = " << haystack.find('m',2) << std::endl;
+  std::cout << "haystack.find('m',12)       = " << haystack.find('m',12) << std::endl;
+  std::cout << "haystack.find(\"mm\",0,2)     = " << haystack.find("mm",0,2) << std::endl;
+  std::cout << "haystack.find(\"mm\",12,2)    = " << haystack.find("mm",12,2) << std::endl;
+  std::cout << "haystack.find(\"mm\")         = " << haystack.find("mm") << std::endl;
 
-  std::string haystring{"Buy the commemorative boogerand today!"};
+  std::cout << "haystack.rfind(mm)           = " << haystack.rfind(mm) << std::endl;
+  std::cout << "haystack.rfind('m',2)        = " << haystack.rfind('m',2) << std::endl;
+  std::cout << "haystack.rfind(\"m\",2)        = " << haystack.rfind("m",2) << std::endl;
+  std::cout << "haystack.rfind('m',12)       = " << haystack.rfind('m',12) << std::endl;
+  std::cout << "haystack.rfind(\"m\",12)       = " << haystack.rfind("m",12) << std::endl;
+  std::cout << "haystack.rfind(\"mm\",20,2)    = " << haystack.rfind("mm",20,2) << std::endl;
+  std::cout << "haystack.rfind(\"mm\")         = " << haystack.rfind("mm") << std::endl;
+
+  std::experimental::string_view myo{"myo"};
+
+  std::cout << "haystack.find_first_of(mm)            = " << haystack.find_first_of(mm) << std::endl;
+  std::cout << "haystack.find_first_of('m',2)         = " << haystack.find_first_of('m',2) << std::endl;
+  std::cout << "haystack.find_first_of(\"m\",2)         = " << haystack.find_first_of("m",2) << std::endl;
+  std::cout << "haystack.find_first_of('m',12)        = " << haystack.find_first_of('m',12) << std::endl;
+  std::cout << "haystack.find_first_of(\"m\",12)        = " << haystack.find_first_of("m",12) << std::endl;
+  std::cout << "haystack.find_first_of(\"mm\",20,2)     = " << haystack.find_first_of("mm",20,2) << std::endl;
+  std::cout << "haystack.find_first_of(\"mm\")          = " << haystack.find_first_of("mm") << std::endl;
+  std::cout << "haystack.find_first_of(myo)           = " << haystack.find_first_of(myo) << std::endl;
+  std::cout << "haystack.find_first_of(\"myo\",2)       = " << haystack.find_first_of("myo",2) << std::endl;
+  std::cout << "haystack.find_first_of(\"myo\",2,3)     = " << haystack.find_first_of("myo",2,3) << std::endl;
+  std::cout << "haystack.find_first_of(\"myo\",20,3)    = " << haystack.find_first_of("myo",20,3) << std::endl;
+
+  std::cout << "haystack.find_last_of(mm)             = " << haystack.find_last_of(mm) << std::endl;
+  std::cout << "haystack.find_last_of('m',2)          = " << haystack.find_last_of('m',2) << std::endl;
+  std::cout << "haystack.find_last_of(\"m\",2)          = " << haystack.find_last_of("m",2) << std::endl;
+  std::cout << "haystack.find_last_of('m',12)         = " << haystack.find_last_of('m',12) << std::endl;
+  std::cout << "haystack.find_last_of(\"m\",12)         = " << haystack.find_last_of("m",12) << std::endl;
+  std::cout << "haystack.find_last_of(\"mm\",20,2)      = " << haystack.find_last_of("mm",20,2) << std::endl;
+  std::cout << "haystack.find_last_of(\"mm\")           = " << haystack.find_last_of("mm") << std::endl;
+  std::cout << "haystack.find_last_of(myo)            = " << haystack.find_last_of(myo) << std::endl;
+  std::cout << "haystack.find_last_of(\"myo\",2)        = " << haystack.find_last_of("myo",2) << std::endl;
+  std::cout << "haystack.find_last_of(\"myo\",2,3)      = " << haystack.find_last_of("myo",2,3) << std::endl;
+  std::cout << "haystack.find_last_of(\"myo\",20,3)     = " << haystack.find_last_of("myo",20,3) << std::endl;
+  std::cout << "haystack.find_last_of(\"myo\",20,1)     = " << haystack.find_last_of("myo",20,1) << std::endl;
+
+  std::experimental::string_view myoer_{"myoer "};
+
+  std::cout << "haystack.find_first_not_of(mm)         = " << haystack.find_first_not_of(mm) << std::endl;
+  std::cout << "haystack.find_first_not_of('m',2)      = " << haystack.find_first_not_of('m',2) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"m\",2)      = " << haystack.find_first_not_of("m",2) << std::endl;
+  std::cout << "haystack.find_first_not_of('m',12)     = " << haystack.find_first_not_of('m',12) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"m\",12)     = " << haystack.find_first_not_of("m",12) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"mm\",20,2)  = " << haystack.find_first_not_of("mm",20,2) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"mm\")       = " << haystack.find_first_not_of("mm") << std::endl;
+  std::cout << "haystack.find_first_not_of(myo)        = " << haystack.find_first_not_of(myo) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"myo\",2)    = " << haystack.find_first_not_of("myo",2) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"myo\",2,3)  = " << haystack.find_first_not_of("myo",2,3) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"myo\",20,3) = " << haystack.find_first_not_of("myo",20,3) << std::endl;
+  std::cout << "haystack.find_first_not_of(myoer_)       = " << haystack.find_first_not_of(myoer_) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"myoer \",2)   = " << haystack.find_first_not_of("myoer ",2) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"myoer \",2,6) = " << haystack.find_first_not_of("myoer ",2,6) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"myoer \",20,6)= " << haystack.find_first_not_of("myoer ",20,6) << std::endl;
+  std::cout << "haystack.find_first_not_of(\"myoer \",20,4)= " << haystack.find_first_not_of("myoer ",20,4) << std::endl;
+
+  std::cout << "haystack.find_last_not_of(mm)         = " << haystack.find_last_not_of(mm) << std::endl;
+  std::cout << "haystack.find_last_not_of('m',2)      = " << haystack.find_last_not_of('m',2) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"m\",2)      = " << haystack.find_last_not_of("m",2) << std::endl;
+  std::cout << "haystack.find_last_not_of('m',12)     = " << haystack.find_last_not_of('m',12) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"m\",12)     = " << haystack.find_last_not_of("m",12) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"mm\",20,2)  = " << haystack.find_last_not_of("mm",20,2) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"mm\")       = " << haystack.find_last_not_of("mm") << std::endl;
+  std::cout << "haystack.find_last_not_of(myo)        = " << haystack.find_last_not_of(myo) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myo\",2)    = " << haystack.find_last_not_of("myo",2) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myo\",2,3)  = " << haystack.find_last_not_of("myo",2,3) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myo\",20,3) = " << haystack.find_last_not_of("myo",20,3) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myo\",20,1) = " << haystack.find_last_not_of("myo",20,1) << std::endl;
+  std::cout << "haystack.find_last_not_of(myoer_)        = " << haystack.find_last_not_of(myoer_) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myoer \",2)    = " << haystack.find_last_not_of("myoer ",2) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myoer \",2,6)  = " << haystack.find_last_not_of("myoer ",2,6) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myoer \",20,6) = " << haystack.find_last_not_of("myoer ",20,6) << std::endl;
+  std::cout << "haystack.find_last_not_of(\"myoer \",20,4) = " << haystack.find_last_not_of("myoer ",20,4) << std::endl;
+
+  std::string haystring{"Buy the commemorative boogerrand today!"};
   std::cout << std::endl;
-  std::cout << "haystring.rfind('m',2)    = " << haystring.rfind('m') << std::endl;
+  std::cout << "haystring.rfind('m',2)    = " << haystring.rfind('m',2) << std::endl;
+  std::cout << "haystring.rfind(\"m\",2)    = " << haystring.rfind("m",2) << std::endl;
+  std::cout << "haystring.rfind('m',12)    = " << haystring.rfind('m',12) << std::endl;
+  std::cout << "haystring.rfind(\"m\",12)    = " << haystring.rfind("m",12) << std::endl;
 }
