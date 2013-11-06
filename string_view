@@ -558,11 +558,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   using string_view = basic_string_view<char>;
 #ifdef _GLIBCXX_USE_WCHAR_T
-  using u16string_view = basic_string_view<char16_t>;
+  using wstring_view = basic_string_view<wchar_t>;
 #endif
 #ifdef _GLIBCXX_USE_C99_STDINT_TR1
+  using u16string_view = basic_string_view<char16_t>;
   using u32string_view = basic_string_view<char32_t>;
-  using wstring_view = basic_string_view<wchar_t>;
 #endif
 
 _GLIBCXX_END_NAMESPACE_VERSION
