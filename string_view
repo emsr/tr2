@@ -206,7 +206,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       // [string.view.modifiers], modifiers:
       void
       clear() noexcept
-      { this->_M_len = 0; }
+      {
+	this->_M_len = 0;
+	this->_M_str = nullptr;
+      }
 
       void
       remove_prefix(size_type __n)
