@@ -180,10 +180,28 @@ main()
   std::cout << std::endl;
   std::cout << "haystack                    = " << haystack << std::endl;
 
-  std::experimental::string_view csv{"booger"};
+  std::experimental::string_view csv{"booger"}, csu{"boogeq"}, csw{"booges"};
+  std::cout << "csu                         = " << csu << std::endl;
   std::cout << "csv                         = " << csv << std::endl;
-  std::cout << "haystack.compare(csv,22,6)  = " << haystack.compare(csv,22,6) << std::endl;
+  std::cout << "csw                         = " << csw << std::endl;
+  std::cout << "csv.compare(csu)            = " << csv.compare(csu) << std::endl;
+  std::cout << "csv.compare(csv)            = " << csv.compare(csv) << std::endl;
+  std::cout << "csv.compare(csw)            = " << csv.compare(csw) << std::endl;
+  std::cout << "csv.compare(22,6,csv)       = " << haystack.compare(22,6,csv) << std::endl;
+  std::cout << "csv.compare(22,6,csv,0,6)   = " << haystack.compare(22,6,csv,0,6) << std::endl;
+  std::cout << "csv.compare(22,6,csv,0,7)   = " << haystack.compare(22,6,csv,0,7) << std::endl;
+  std::cout << "csv.compare(22,7,csv,0,6)   = " << haystack.compare(22,7,csv,0,6) << std::endl;
+  std::cout << "csv.compare(22,5,csv,0,6)   = " << haystack.compare(22,5,csv,0,6) << std::endl;
+  std::cout << "csv.compare(\"boogeq\")       = " << csv.compare("boogeq") << std::endl;
+  std::cout << "csv.compare(\"booger\")       = " << csv.compare("booger") << std::endl;
+  std::cout << "csv.compare(\"booges\")       = " << csv.compare("booges") << std::endl;
+  std::cout << "csv.compare(22,6,\"booger\")  = " << haystack.compare(22,6,"booger") << std::endl;
+  std::cout << "csv.compare(22,6,\"booger\",6)= " << haystack.compare(22,6,"booger",6) << std::endl;
+  std::cout << "csv.compare(22,6,\"booger\",5)= " << haystack.compare(22,6,"booger",5) << std::endl;
+  std::cout << "csv.compare(22,6,\"boogers\",6)= " << haystack.compare(22,6,"boogers",6) << std::endl;
+  std::cout << "csv.compare(22,6,\"boogers\",7)= " << haystack.compare(22,6,"boogers",7) << std::endl;
 
+  std::cout << std::endl;
   std::cout << "haystack.find(mm)           = " << haystack.find(mm) << std::endl;
   std::cout << "haystack.find('m',2)        = " << haystack.find('m',2) << std::endl;
   std::cout << "haystack.find('m',12)       = " << haystack.find('m',12) << std::endl;
@@ -191,6 +209,7 @@ main()
   std::cout << "haystack.find(\"mm\",12,2)    = " << haystack.find("mm",12,2) << std::endl;
   std::cout << "haystack.find(\"mm\")         = " << haystack.find("mm") << std::endl;
 
+  std::cout << std::endl;
   std::cout << "haystack.rfind(mm)           = " << haystack.rfind(mm) << std::endl;
   std::cout << "haystack.rfind('m',2)        = " << haystack.rfind('m',2) << std::endl;
   std::cout << "haystack.rfind(\"m\",2)        = " << haystack.rfind("m",2) << std::endl;
@@ -201,6 +220,7 @@ main()
 
   std::experimental::string_view myo{"myo"};
 
+  std::cout << std::endl;
   std::cout << "haystack.find_first_of(mm)            = " << haystack.find_first_of(mm) << std::endl;
   std::cout << "haystack.find_first_of('m',2)         = " << haystack.find_first_of('m',2) << std::endl;
   std::cout << "haystack.find_first_of(\"m\",2)         = " << haystack.find_first_of("m",2) << std::endl;
@@ -213,6 +233,7 @@ main()
   std::cout << "haystack.find_first_of(\"myo\",2,3)     = " << haystack.find_first_of("myo",2,3) << std::endl;
   std::cout << "haystack.find_first_of(\"myo\",20,3)    = " << haystack.find_first_of("myo",20,3) << std::endl;
 
+  std::cout << std::endl;
   std::cout << "haystack.find_last_of(mm)             = " << haystack.find_last_of(mm) << std::endl;
   std::cout << "haystack.find_last_of('m',2)          = " << haystack.find_last_of('m',2) << std::endl;
   std::cout << "haystack.find_last_of(\"m\",2)          = " << haystack.find_last_of("m",2) << std::endl;
@@ -228,6 +249,7 @@ main()
 
   std::experimental::string_view myoer_{"myoer "};
 
+  std::cout << std::endl;
   std::cout << "haystack.find_first_not_of(mm)         = " << haystack.find_first_not_of(mm) << std::endl;
   std::cout << "haystack.find_first_not_of('m',2)      = " << haystack.find_first_not_of('m',2) << std::endl;
   std::cout << "haystack.find_first_not_of(\"m\",2)      = " << haystack.find_first_not_of("m",2) << std::endl;
@@ -245,6 +267,7 @@ main()
   std::cout << "haystack.find_first_not_of(\"myoer \",20,6)= " << haystack.find_first_not_of("myoer ",20,6) << std::endl;
   std::cout << "haystack.find_first_not_of(\"myoer \",20,4)= " << haystack.find_first_not_of("myoer ",20,4) << std::endl;
 
+  std::cout << std::endl;
   std::cout << "haystack.find_last_not_of(mm)         = " << haystack.find_last_not_of(mm) << std::endl;
   std::cout << "haystack.find_last_not_of('m',2)      = " << haystack.find_last_not_of('m',2) << std::endl;
   std::cout << "haystack.find_last_not_of(\"m\",2)      = " << haystack.find_last_not_of("m",2) << std::endl;
