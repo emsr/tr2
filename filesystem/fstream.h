@@ -31,6 +31,10 @@
 
 #pragma GCC system_header
 
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
+
 #include "filesystem"
 #include <fstream>
 
@@ -163,5 +167,7 @@ namespace filesystem {
 } // filesystem
 } // experimental
 } // std
+
+#endif // __cplusplus <= 201103L
 
 #endif // _GLIBCXX_EXPTL_FSTREAM_H

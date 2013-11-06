@@ -31,6 +31,10 @@
 
 #pragma GCC system_header
 
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
+
 #include <list>
 #include <vector>
 
@@ -287,5 +291,7 @@ _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace filesystem
 } // namespace experimental
 } // namespace std
+
+#endif // __cplusplus <= 201103L
 
 #endif // _GLIBCXX_EXPTL_PATH_TRAITS_H
