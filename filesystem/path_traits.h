@@ -50,11 +50,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 namespace _Path_traits
 {
 
-  typedef std::codecvt<wchar_t, char, std::mbstate_t> codecvt_type;
+#ifdef _GLIBCXX_USE_WCHAR_T
+  using codecvt_type = std::codecvt<wchar_t, char, std::mbstate_t>;
+#endif
 
-  //  is_pathable type trait; allows disabling over-agressive class path member templates
+  //  is_pathable type trait;
+  //  Allows disabling over-agressive class path member templates
 
-  template <class _Tp>
+  template<typename _Tp>
     struct is_pathable
     {
       static const bool value = false;
@@ -72,6 +75,7 @@ namespace _Path_traits
       static const bool value = true;
     };
 
+#ifdef _GLIBCXX_USE_WCHAR_T
   template<>
     struct is_pathable<wchar_t*>
     {
@@ -83,6 +87,7 @@ namespace _Path_traits
     {
       static const bool value = true;
     };
+#endif
 
   template<>
     struct is_pathable<std::string>
@@ -90,11 +95,13 @@ namespace _Path_traits
       static const bool value = true;
     };
 
+#ifdef _GLIBCXX_USE_WCHAR_T
   template<>
     struct is_pathable<std::wstring>
     {
       static const bool value = true;
     };
+#endif
 
   template<>
     struct is_pathable<std::vector<char>>
@@ -102,11 +109,13 @@ namespace _Path_traits
       static const bool value = true;
     };
 
+#ifdef _GLIBCXX_USE_WCHAR_T
   template<>
     struct is_pathable<std::vector<wchar_t>>
     {
       static const bool value = true;
     };
+#endif
 
   template<>
     struct is_pathable<std::list<char>>
@@ -114,16 +123,18 @@ namespace _Path_traits
       static const bool value = true;
     };
 
+#ifdef _GLIBCXX_USE_WCHAR_T
   template<>
     struct is_pathable<std::list<wchar_t>>
     {
       static const bool value = true;
     };
+#endif
 
   //  Pathable empty
 
   template<typename _Container>
-    inline typename std::enable_if<!std::is_array<_Container>::value, bool>::type
+    inline std::enable_if_t<!std::is_array<_Container>::value, bool>
     empty(const _Container & __c)
     { return __c.begin() == __c.end(); }
 
@@ -140,16 +151,12 @@ namespace _Path_traits
     empty(_Tp (&x)[_Num])
     { return _Num == 0 || !x[0]; }
 
-  // value types differ  ---------------------------------------------------------------//
-  //
-  //   A from_end argument of 0 is less efficient than a known end, so use only if needed
+  // value types differ  -----------------------------------------------------//
 
-  void convert(const char* from, const char* from_end, // 0 for null terminated MBCS
-         std::wstring& to,
-	       const codecvt_type& cvt);
-
-  void convert(const wchar_t* from, const wchar_t* from_end, // 0 for null terminated MBCS
-	       std::string& to, const codecvt_type& cvt);
+  // Use from_end = 0 for null terminated MBCS.
+  // A from_end argument of 0 is less efficient than a known end, so use only if needed
+  void convert(const char* from, const char* from_end,
+	       std::wstring& to, const codecvt_type& cvt);
 
   inline void
   convert(const char* __from, std::wstring& __to, const codecvt_type& __cvt)
@@ -158,14 +165,21 @@ namespace _Path_traits
     convert(__from, 0, __to, __cvt);
   }
 
+#ifdef _GLIBCXX_USE_WCHAR_T
+  // Use from_end = 0 for null terminated MBCS.
+  // A from_end argument of 0 is less efficient than a known end, so use only if needed
+  void convert(const wchar_t* from, const wchar_t* from_end,
+	       std::string& to, const codecvt_type& cvt);
+
   inline void
   convert(const wchar_t* __from, std::string& __to, const codecvt_type& __cvt)
   {
     assert(__from);
     convert(__from, 0, __to, __cvt);
   }
+#endif
 
-  // value types same  -----------------------------------------------------------------//
+  // value types same  -------------------------------------------------------//
 
   // char
 
@@ -185,6 +199,7 @@ namespace _Path_traits
     __to += __from;
   }
 
+#ifdef _GLIBCXX_USE_WCHAR_T
   // wchar_t
 
   inline void
@@ -203,8 +218,9 @@ namespace _Path_traits
     assert(__from);
     __to += __from;
   }
+#endif
 
-  //  Source dispatch  -----------------------------------------------------------------//
+  //  Source dispatch  -------------------------------------------------------//
 
   //  contiguous containers
   template<typename _Up>
@@ -217,6 +233,15 @@ namespace _Path_traits
 
   template<typename _Up>
     inline void
+    dispatch(const std::vector<char>& c, _Up& to, const codecvt_type& cvt)
+    {
+      if (c.size() > 0)
+	convert(&*c.begin(), &*c.begin() + c.size(), to, cvt);
+    }
+
+#ifdef _GLIBCXX_USE_WCHAR_T
+  template<typename _Up>
+    inline void
     dispatch(const std::wstring& c, _Up& to, const codecvt_type& cvt)
     {
       if (c.size() > 0)
@@ -225,23 +250,17 @@ namespace _Path_traits
 
   template<typename _Up>
     inline void
-    dispatch(const std::vector<char>& c, _Up& to, const codecvt_type& cvt)
-    {
-      if (c.size() > 0)
-	convert(&*c.begin(), &*c.begin() + c.size(), to, cvt);
-    }
-
-  template<typename _Up>
-    inline void
-    dispatch(const std::vector<wchar_t>& __str, _Up& __to, const codecvt_type& __cvt)
+    dispatch(const std::vector<wchar_t>& __str, _Up& __to,
+	     const codecvt_type& __cvt)
     {
       if (__str.size() > 0)
 	convert(&*__str.begin(), &*__str.begin() + __str.size(), __to, __cvt);
     }
+#endif
 
   //  non-contiguous containers
   template<typename _Container, typename _Up>
-    inline typename std::enable_if<!std::is_array<_Container>::value, void>::type
+    inline std::enable_if_t<!std::is_array<_Container>::value, void>
       dispatch(const _Container& __str, _Up& __to, const codecvt_type& __cvt)
   {
     if (__str.size() > 0)

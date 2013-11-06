@@ -14,7 +14,8 @@
 #include "fstream.h"
 
 
-std::string type[]{
+std::string type[]
+{
     "status_error",
     "file_not_found",
     "regular_file",

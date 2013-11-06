@@ -56,8 +56,10 @@ namespace filesystem {
       operator=(const basic_filebuf&) = delete;
 
       basic_filebuf<_CharT, _Traits>*
-  open(const path& __pth, std::ios_base::openmode __mode) 
-      { return std::basic_filebuf<_CharT, _Traits>::open(__pth.c_str(), __mode); }
+      open(const path& __pth, std::ios_base::openmode __mode) 
+      {
+	return std::basic_filebuf<_CharT, _Traits>::open(__pth.c_str(), __mode);
+      }
     };
 
   template <typename _CharT, typename _Traits = std::char_traits<_CharT>>
@@ -76,7 +78,8 @@ namespace filesystem {
       { }
 
       void
-      open(const path& __pth, std::ios_base::openmode __mode = std::ios_base::in)
+      open(const path& __pth,
+	   std::ios_base::openmode __mode = std::ios_base::in)
       { std::basic_ifstream<_CharT, _Traits>::open(__pth.c_str(), __mode); }
 
       virtual
@@ -104,7 +107,8 @@ namespace filesystem {
       { }
 
       void
-      open(const path& __pth, std::ios_base::openmode __mode = std::ios_base::out)
+      open(const path& __pth,
+	   std::ios_base::openmode __mode = std::ios_base::out)
       { std::basic_ofstream<_CharT, _Traits>::open(__pth.c_str(), __mode); }
 
       virtual

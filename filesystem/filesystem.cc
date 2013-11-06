@@ -98,7 +98,9 @@ path::root_name() const
   if (this->empty())
     return path{};
   std::string first = this->begin()->string();
-  if ((first.length() > 2) && (first[0] == preferred_separator) && (first[1] == preferred_separator))
+  if ((first.length() > 2)
+	&& (first[0] == preferred_separator)
+	&& (first[1] == preferred_separator))
     return *this->begin();
   else
     return path{};
@@ -241,7 +243,8 @@ struct path::iterator::_Impl
 	  }
 	else if (num_slashes > 0)
 	  {
-	    _M_chunk.push_back(path{pathname.substr(pos, c - num_slashes - pos)});
+	    _M_chunk.push_back(path{pathname.substr(pos,
+						    c - num_slashes - pos)});
 	    pos = c;
 	  }
       }
@@ -827,7 +830,8 @@ copy(const path& from, const path& to, copy_options options)
 }
 
 void
-copy(const path& from, const path& to, copy_options options, std::error_code& ec)
+copy(const path& from, const path& to,
+     copy_options options, std::error_code& ec)
 {
   file_status from_stat;
   if ((options & copy_options::create_symlinks) == copy_options::create_symlinks
@@ -980,7 +984,8 @@ copy_symlink(const path& existing_symlink, const path& new_symlink,
 	     std::error_code& ec)
 { create_symlink(read_symlink(existing_symlink, ec), new_symlink, ec); }
 
-//  This is "mkdir -p" - create the directory and any required intermediate directories.
+//  This is "mkdir -p" - create the directory and
+//  any required intermediate directories.
 bool
 create_directories(const path& pth)
 {
@@ -1000,7 +1005,8 @@ create_directories(const path& pth, std::error_code& ec)
   if (pth.empty() || exists(fs))
     {
       if (!pth.empty() && !is_directory(fs))
-	ec = std::make_error_code(static_cast<std::errc>(ENOTEMPTY)); // ENOTEMPTY or ENOTDIR
+        // ENOTEMPTY or ENOTDIR
+	ec = std::make_error_code(static_cast<std::errc>(ENOTEMPTY));
       return false;
     }
 
@@ -1693,14 +1699,16 @@ namespace __detail
 {
 namespace _Path_traits
 {
+  //  from_end is 0 for null terminated MBCS
   void
-  convert(const char* from, const char* from_end, // 0 for null terminated MBCS
+  convert(const char* from, const char* from_end,
 	  std::wstring & to, const codecvt_type& cvt)
   {
   }
 
+  //  from_end is 0 for null terminated MBCS
   void
-  convert(const wchar_t* from, const wchar_t* from_end, // 0 for null terminated MBCS
+  convert(const wchar_t* from, const wchar_t* from_end,
 	  std::string & to, const codecvt_type& cvt)
   {
   }

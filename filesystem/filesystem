@@ -158,7 +158,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     set_gid_on_exe	= 02000,
     sticky_bit		= 01000,
 
-    perms_mask		= all_all | set_uid_on_exe | set_gid_on_exe | sticky_bit, // 07777
+    perms_mask		= all_all | set_uid_on_exe
+			| set_gid_on_exe | sticky_bit, // 07777
 
     perms_not_known	= 0xffff,
 
@@ -289,7 +290,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   private:
 
-    //  Should I put more of stat in here?  I would need non-standard accessors to be useful.
+    //  Should I put more of stat in here?
+    //  I would need non-standard accessors to be useful.
     file_type _M_file_type;
     perms _M_perms;
   };
@@ -302,9 +304,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   {
   public:
 
-    // We're assuming POSIX for now.
-    typedef char					value_type;
-    typedef std::basic_string<value_type>		string_type;
+    // Just POSIX for now.
+    using value_type = char;
+    using string_type = std::basic_string<value_type>;
     static constexpr value_type preferred_separator = '/';
 
     // Constructors and destructor
@@ -316,7 +318,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     template<typename _Source>
       path(const _Source& __source)
-      { __detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt); }
+      { __detail::_Path_traits::dispatch(__source, this->_M_pathname,
+					 *_S_codecvt); }
 
     template<typename _InIter>
       path(_InIter __begin, _InIter __end)
@@ -330,7 +333,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     template<typename _Source>
       path(const _Source& __source, const std::locale& __loc)
-      { __detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt); }
+      { __detail::_Path_traits::dispatch(__source, this->_M_pathname,
+					 *_S_codecvt); }
 
     template<typename _InIter>
       path(_InIter __begin, _InIter __end, const std::locale& __loc)
@@ -362,7 +366,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       assign(const _Source& __source)
       {
 	this->_M_pathname.clear();
-	__detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt);
+	__detail::_Path_traits::dispatch(__source, this->_M_pathname,
+					 *_S_codecvt);
 	return *this;
       }
 
@@ -375,8 +380,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	{
 	  std::basic_string<typename std::iterator_traits<_InIter>::value_type>
 	    __stemp(__begin, __end);
-	  __detail::_Path_traits::convert(__stemp.c_str(), __stemp.c_str() + __stemp.size(),
-			       this->_M_pathname, *_S_codecvt);
+	  __detail::_Path_traits::convert(__stemp.c_str(),
+					  __stemp.c_str() + __stemp.size(),
+					  this->_M_pathname, *_S_codecvt);
 	}
 	return *this;
       }
@@ -455,13 +461,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     }
 
     template<typename _Source>
-      typename std::enable_if<__detail::_Path_traits::is_pathable<
-	typename std::decay<_Source>::type>::value, path&>::type
+      std::enable_if_t<__detail::_Path_traits::
+	is_pathable<std::decay_t<_Source>>::value, path&>
       operator+=(_Source const& __source)
       { return this->concat(__source); }
 
     template<typename _CharT>
-      typename std::enable_if<std::is_integral<_CharT>::value, path&>::type
+      std::enable_if_t<std::is_integral<_CharT>::value, path&>
       operator+=(_CharT __c)
       {
 	_CharT __tmp[2]{__c, 0};
@@ -472,7 +478,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       path&
       concat(const _Source& __source)
       {
-	__detail::_Path_traits::dispatch(__source, this->_M_pathname, *_S_codecvt);
+	__detail::_Path_traits::dispatch(__source, this->_M_pathname,
+					 *_S_codecvt);
 	return *this;
       }
 
@@ -484,8 +491,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
           return *this;
 	std::basic_string<typename std::iterator_traits<_InIter>::value_type>
           __stemp(__begin, __end);
-	__detail::_Path_traits::convert(__stemp.c_str(), __stemp.c_str() + __stemp.size(),
-			     this->_M_pathname, *_S_codecvt);
+	__detail::_Path_traits::convert(__stemp.c_str(),
+					__stemp.c_str() + __stemp.size(),
+					this->_M_pathname, *_S_codecvt);
 	return *this;
       }
 
@@ -554,15 +562,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     string() const
     { return this->_M_pathname; }
 
+#ifdef _GLIBCXX_USE_WCHAR_T
     std::wstring wstring() const { return L"FIXME!!!"; };
+#endif
 
     // We're assuming POSIX for now.
     std::string
     u8string() const
     { return string(); };
 
+#ifdef _GLIBCXX_USE_C99_STDINT_TR1
     std::u16string u16string() const { return u"FIXME!!!"; };
     std::u32string u32string() const { return U"FIXME!!!"; };
+#endif
 
     // Generic format observers.  We're assuming POSIX for now.
 
@@ -576,14 +588,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     generic_string() const
     { return this->string(); }
 
+#ifdef _GLIBCXX_USE_WCHAR_T
     std::wstring
     generic_wstring() const
     { return this->wstring(); }
+#endif
 
     std::string
     generic_u8string() const
     { return this->u8string(); }
 
+#ifdef _GLIBCXX_USE_C99_STDINT_TR1
     std::u16string
     generic_u16string() const
     { return this->u16string(); }
@@ -591,6 +606,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     std::u32string
     generic_u32string() const
     { return this->u32string(); }
+#endif
 
     // Comparison.
 
@@ -664,7 +680,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     // Iterators.
 
     class iterator;
-    typedef iterator const_iterator;
+    using const_iterator = iterator;
 
     iterator begin() const;
     iterator end() const;
@@ -674,7 +690,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     imbue(const std::locale& __loc)
     {
       if (std::has_facet<__detail::_Path_traits::codecvt_type>(__loc))
-	_S_codecvt = &std::use_facet<__detail::_Path_traits::codecvt_type>(__loc);
+	_S_codecvt = &std::use_facet<__detail::_Path_traits::codecvt_type>
+							(__loc);
     }
 
   private:
@@ -696,11 +713,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     friend class path;
 
-    typedef path			    value_type;
-    typedef std::ptrdiff_t		    difference_type;
-    typedef const value_type*		    pointer;
-    typedef const value_type&		    reference;
-    typedef std::bidirectional_iterator_tag iterator_category;
+    using value_type = path;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const value_type*;
+    using reference = const value_type&;
+    using iterator_category = std::bidirectional_iterator_tag;
 
     iterator();
     iterator(const iterator& iter);
@@ -918,7 +935,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     u8path(InputIterator __begin, InputIterator __end)
     { return path{__begin, __end}; }
 
-  typedef std::chrono::time_point<std::chrono::system_clock> file_time_type;
+  using file_time_type = std::chrono::time_point<std::chrono::system_clock>;
 
   // Operational functions
 
@@ -934,7 +951,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   path canonical(const path& pth, const path& base, std::error_code& ec);
 
   void copy(const path& from, const path& to, copy_options options);
-  void copy(const path& from, const path& to, copy_options options, std::error_code& ec);
+  void copy(const path& from, const path& to, copy_options options,
+	    std::error_code& ec);
 
   inline void
   copy(const path& __from, const path& __to)
@@ -1235,7 +1253,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    && !is_symlink(this->_M_symlink_status))
 	  this->_M_status = this->_M_symlink_status;
 	else
-	  this->_M_status = std::experimental::filesystem::status(this->_M_path, __ec);
+	  this->_M_status = std::experimental::filesystem::status(this->_M_path,
+								  __ec);
       }
       return this->_M_status;
     }
@@ -1319,11 +1338,11 @@ namespace _Path_traits
   {
   public:
 
-    typedef directory_entry	    value_type;
-    typedef std::ptrdiff_t	    difference_type;
-    typedef const value_type*	    pointer;
-    typedef const value_type&	    reference;
-    typedef std::input_iterator_tag iterator_category;
+    using value_type = directory_entry;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const value_type*;
+    using reference = const value_type&;
+    using iterator_category = std::input_iterator_tag;
 
     // constructors and destructor
     directory_iterator();
@@ -1360,15 +1379,16 @@ namespace _Path_traits
   {
   public:
 
-    typedef directory_entry	    value_type;
-    typedef std::ptrdiff_t	    difference_type;
-    typedef const value_type*	    pointer;
-    typedef const value_type&	    reference;
-    typedef std::input_iterator_tag iterator_category;
+    using value_type = directory_entry;
+    using difference_type = std::ptrdiff_t;
+    using pointer = const value_type*;
+    using reference = const value_type&;
+    using iterator_category = std::input_iterator_tag;
 
     // constructors and destructor
     recursive_directory_iterator();
-    recursive_directory_iterator(const recursive_directory_iterator& rdi) = delete;
+    recursive_directory_iterator(const recursive_directory_iterator& rdi)
+			 = delete;
     recursive_directory_iterator(recursive_directory_iterator&& rdi);
     explicit
     recursive_directory_iterator(const path& pth,
@@ -1380,10 +1400,11 @@ namespace _Path_traits
 
     // observers
     int level() const;
-    bool is_push_pending() const; // "Yes, we have no bananas." - Flipping the logic.
+    bool is_push_pending() const;
 
     // modifiers
-    recursive_directory_iterator& operator=(const recursive_directory_iterator& rdi) = delete;
+    recursive_directory_iterator&
+    operator=(const recursive_directory_iterator& rdi) = delete;
     recursive_directory_iterator& operator=(recursive_directory_iterator&& rdi);
     recursive_directory_iterator& operator++();
     recursive_directory_iterator& increment(std::error_code& ec);
@@ -1405,7 +1426,8 @@ namespace _Path_traits
     std::unique_ptr<_Impl> _M_impl;
   };
 
-  //  Hacked from boost but templatized because we have a 4x4 matrix of char types.
+  //  Hacked from boost but templatized because
+  //  we have a 4x4 matrix of char types.
 
   template<typename _CharFrom, typename _CharTo>
     struct path::_Convert
@@ -1416,12 +1438,13 @@ namespace _Path_traits
         	 std::basic_string<_CharTo>& __target,
         	 const __detail::_Path_traits::codecvt_type& __cvt)
       {
-	std::size_t __buf_size = (__from_end - __from_begin) * 4; // perhaps too large, but that's OK
+	// perhaps too large, but that's OK.
+	std::size_t __buf_size = (__from_end - __from_begin) * 4;
 	__buf_size += 4; // encodings like shift-JIS need some prefix space
 
 	std::unique_ptr<_CharTo> __buf{new _CharTo[__buf_size]};
-	convert_aux(__from_begin, __from_end, __buf.get(), __buf.get() + __buf_size,
-		    __target, __cvt);
+	convert_aux(__from_begin, __from_end, __buf.get(),
+		    __buf.get() + __buf_size, __target, __cvt);
       }
 
       void
@@ -1436,7 +1459,8 @@ namespace _Path_traits
 	_CharTo* __to_next;
 	std::codecvt_base::result __res = __cvt.out(__state, __from_begin,
 						    __from_end, __from_next,
-						    __to_begin, __to_end, __to_next);
+						    __to_begin, __to_end,
+						    __to_next);
 
 	if (__res != std::codecvt_base::ok)
 	  throw std::system_error("codecvt");
