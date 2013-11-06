@@ -6,6 +6,7 @@
 #include "string_view"
 #include <iostream>
 #include <stdexcept>
+#include <vector>
 
 int
 main()
@@ -85,14 +86,18 @@ main()
   std::cout << std::endl;
   std::cout << "substr(1, 5)     = " << sv.substr(1, 5) << std::endl;
 
+  std::vector<int> iv;
+  //std::cout << "iv.front()     = " << iv.front() << std::endl;
+  //std::cout << "iv.back()      = " << iv.back() << std::endl;
+
   sv.clear();
   std::cout << std::endl;
   std::cout << "clear()       = " << sv << std::endl;
   std::cout << "sv.empty()    = " << std::boolalpha << sv.empty() << std::endl;
   std::cout << "sv.size()     = " << sv.size() << std::endl;
   std::cout << "sv.length()   = " << sv.length() << std::endl;
-  std::cout << "sv.front()    = " << sv.front() << std::endl;
-  std::cout << "sv.back()     = " << sv.back() << std::endl;
+  //std::cout << "sv.front()    = " << sv.front() << std::endl;
+  //std::cout << "sv.back()     = " << sv.back() << std::endl;
   std::cout << "sv.max_size() = " << sv.max_size() << std::endl;
 
   std::experimental::string_view hw1{"Hello, World!"};
@@ -168,12 +173,17 @@ main()
     std::cout << c;
   std::cout << std::endl;
 
-  //                                   11111111112222222222333333333
-  //                         012345678901234567890123456879012345678
+  //                                                 11111111112222222222333333333
+  //                                       012345678901234567890123456879012345678
   std::experimental::string_view haystack{"Buy the commemorative boogerrand today!"};
   std::experimental::string_view mm{"mm"};
   std::cout << std::endl;
   std::cout << "haystack                    = " << haystack << std::endl;
+
+  std::experimental::string_view csv{"booger"};
+  std::cout << "csv                         = " << csv << std::endl;
+  std::cout << "haystack.compare(csv,22,6)  = " << haystack.compare(csv,22,6) << std::endl;
+
   std::cout << "haystack.find(mm)           = " << haystack.find(mm) << std::endl;
   std::cout << "haystack.find('m',2)        = " << haystack.find('m',2) << std::endl;
   std::cout << "haystack.find('m',12)       = " << haystack.find('m',12) << std::endl;
