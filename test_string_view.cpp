@@ -5,8 +5,22 @@
 
 #include "string_view"
 #include <iostream>
+#include <iomanip>
 #include <stdexcept>
 #include <vector>
+
+namespace std
+{
+  //  Try a more generic quoted manipulator.
+  template<typename _String, typename _CharT = typename _String::value_type>
+    inline auto
+    quoted(const _String& __string,
+	   _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
+    {
+      return __detail::_Quoted_string<const _String&, _CharT>
+				(__string, __delim, __escape);
+    }
+}
 
 int
 main()
@@ -31,6 +45,9 @@ main()
   std::cout << "sv.front()    = " << sv.front() << std::endl;
   std::cout << "sv.back()     = " << sv.back() << std::endl;
   std::cout << "sv.max_size() = " << sv.max_size() << std::endl;
+
+  std::cout << std::endl;
+  std::cout << "std::quoted(sv) = " << std::quoted(sv) << std::endl;
 
   std::cout << std::endl;
   std::cout << "range for loop         : ";
