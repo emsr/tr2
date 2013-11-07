@@ -268,7 +268,7 @@ path::iterator::iterator() = default;
 path::iterator::iterator(const iterator& iter) = default;
 
 path::iterator::iterator(const path& pth, bool begin)
-: _M_impl{new _Impl(pth, begin)}
+: _M_impl{std::make_unique<_Impl>(pth, begin)}
 { }
 
 path::iterator::~iterator() = default;
@@ -416,17 +416,17 @@ struct directory_iterator::_Impl
 
 // Create the "end" iterator.
 directory_iterator::directory_iterator()
-: _M_impl{new _Impl{}}
+: _M_impl{std::make_unique<_Impl>()}
 { }
 
 directory_iterator::directory_iterator(directory_iterator&& diter) = default;
 
 directory_iterator::directory_iterator(const path& pth)
-: _M_impl{new _Impl{pth}}
+: _M_impl{std::make_unique<_Impl>(pth)}
 { }
 
 directory_iterator::directory_iterator(const path& pth, std::error_code& ec)
-: _M_impl{new _Impl{pth, ec}}
+: _M_impl{std::make_unique<_Impl>(pth, ec)}
 { }
 
 directory_iterator::~directory_iterator() = default;
@@ -618,7 +618,7 @@ struct recursive_directory_iterator::_Impl
 
 // constructors and destructor
 recursive_directory_iterator::recursive_directory_iterator()
-: _M_impl{new _Impl{}}
+: _M_impl{std::make_unique<_Impl>()}
 { }
 
 recursive_directory_iterator::
@@ -626,18 +626,18 @@ recursive_directory_iterator(recursive_directory_iterator&&) = default;
 
 recursive_directory_iterator::
 recursive_directory_iterator(const path& pth, symlink_option opt)
-: _M_impl{new _Impl{pth, opt}}
+: _M_impl{std::make_unique<_Impl>(pth, opt)}
 { }
 
 recursive_directory_iterator::
 recursive_directory_iterator(const path& pth, symlink_option opt,
 			     std::error_code& ec)
-: _M_impl{new _Impl{pth, opt, ec}}
+: _M_impl{std::make_unique<_Impl>(pth, opt, ec)}
 { }
 
 recursive_directory_iterator::
 recursive_directory_iterator(const path& pth, std::error_code& ec)
-: _M_impl{new _Impl{pth, ec}}
+: _M_impl{std::make_unique<_Impl>(pth, ec)}
 { }
 
 recursive_directory_iterator::
@@ -1135,7 +1135,7 @@ current_path(std::error_code& ec)
 {
   errno = 0;
   long size = ::pathconf(".", _PC_PATH_MAX);
-  std::unique_ptr<char> buf{new char[size + 1]};
+  std::unique_ptr<char> buf{std::make_unique<char>(size + 1)};
   char * pwd = ::getcwd(buf.get(), static_cast<std::size_t>(size));
   if (!pwd)
     ec = std::make_error_code(static_cast<std::errc>(errno));
@@ -1174,9 +1174,14 @@ bool
 equivalent(const path& pth1, const path& pth2, std::error_code& ec)
 {
   file_status fs1 = status(pth1, ec);
+  if (ec)
+    return false;
   file_status fs2 = status(pth2, ec);
+  if (ec)
+    return false;
   if (fs1.type() == fs2.type()) // Want s1 == s2.
     {
+      errno = 0;
       struct stat buf1, buf2;
       if (::stat(pth1.c_str(), &buf1) != 0)
 	ec = std::make_error_code(static_cast<std::errc>(errno));
@@ -1390,7 +1395,7 @@ read_symlink(const path& pth, std::error_code& ec)
       std::size_t size = 128;
       while (true)
 	{
-	  std::unique_ptr<char> buffer(new char[size]);
+	  std::unique_ptr<char> buffer{std::make_unique<char>(size)};
 	  int nchars = ::readlink(pth.c_str(), buffer.get(), size);
 	  if (nchars == -1)
 	    {
@@ -1702,14 +1707,14 @@ namespace _Path_traits
   //  from_end is 0 for null terminated MBCS
   void
   convert(const char* from, const char* from_end,
-	  std::wstring & to, const codecvt_type& cvt)
+	  std::wstring& to, const codecvt_type& cvt)
   {
   }
 
   //  from_end is 0 for null terminated MBCS
   void
   convert(const wchar_t* from, const wchar_t* from_end,
-	  std::string & to, const codecvt_type& cvt)
+	  std::string& to, const codecvt_type& cvt)
   {
   }
 } // _Path_traits

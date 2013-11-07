@@ -26,8 +26,8 @@
  *  This is an experimental C++ Library header.
  */
 
-#ifndef _GLIBCXX_EXPTL_PATH_TRAITS_H
-#define _GLIBCXX_EXPTL_PATH_TRAITS_H 1
+#ifndef _GLIBCXX_EXPERIMENTAL_PATH_TRAITS_H
+#define _GLIBCXX_EXPERIMENTAL_PATH_TRAITS_H 1
 
 #pragma GCC system_header
 
@@ -294,4 +294,4 @@ _GLIBCXX_END_NAMESPACE_VERSION
 
 #endif // __cplusplus <= 201103L
 
-#endif // _GLIBCXX_EXPTL_PATH_TRAITS_H
+#endif // _GLIBCXX_EXPERIMENTAL_PATH_TRAITS_H
