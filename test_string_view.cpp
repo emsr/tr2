@@ -14,6 +14,14 @@ main()
   std::cout << std::endl;
   std::cout << "std::experimental::string_view::npos = " << std::experimental::string_view::npos << std::endl;
 
+  std::experimental::string_view snull{nullptr};
+  std::cout << std::endl;
+  std::cout << "snull            = " << snull << std::endl;
+  std::cout << "snull.empty()    = " << std::boolalpha << snull.empty() << std::endl;
+  std::cout << "snull.size()     = " << snull.size() << std::endl;
+  std::cout << "snull.length()   = " << snull.length() << std::endl;
+  std::cout << "snull.max_size() = " << snull.max_size() << std::endl;
+
   std::experimental::string_view sv{"Hello, World!"};
   std::cout << std::endl;
   std::cout << "sv            = " << sv << std::endl;

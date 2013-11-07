@@ -30,8 +30,8 @@
 // ISO C++ 14882: 21  Strings library
 //
 
-#ifndef _GLIBCXX_STRING_VIEW
-#define _GLIBCXX_STRING_VIEW 1
+#ifndef _GLIBCXX_EXPERIMENTAL_STRING_VIEW
+#define _GLIBCXX_EXPERIMENTAL_STRING_VIEW 1
 
 #pragma GCC system_header
 
@@ -80,7 +80,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       using const_pointer = const _CharT*;
       using reference = const _CharT&;
       using const_reference = const _CharT&;
-      using const_iterator = const _CharT*; //implementation-defined; // See [string.view.iterators]
+      using const_iterator = const _CharT*;
       using iterator = const_iterator;
       using const_reverse_iterator = std::reverse_iterator<const_iterator>;
       using reverse_iterator = const_reverse_iterator;
@@ -103,7 +103,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
         { }
 
       constexpr basic_string_view(const _CharT* __str)
-      : _M_len{__builtin_strlen(__str)}, _M_str{__str}
+      : _M_len{__str == nullptr ? 0 : __builtin_strlen(__str)}, _M_str{__str}
       { }
 
       constexpr basic_string_view(const _CharT* __str, size_type __len)
@@ -674,4 +674,4 @@ _GLIBCXX_END_NAMESPACE_VERSION
 
 #endif // __cplusplus <= 201103L
 
-#endif // _GLIBCXX_STRING_VIEW
+#endif // _GLIBCXX_EXPERIMENTAL_STRING_VIEW
