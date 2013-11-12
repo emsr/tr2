@@ -103,7 +103,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
         { }
 
       constexpr basic_string_view(const _CharT* __str)
-      : _M_len{__str == nullptr ? 0 : __builtin_strlen(__str)}, _M_str{__str}
+      : _M_len{__str == nullptr ? 0 : traits_type::length(__str)}, _M_str{__str}
       { }
 
       constexpr basic_string_view(const _CharT* __str, size_type __len)
