@@ -27,8 +27,8 @@
  *  Do not attempt to use it directly. @headername{chrono}
  */
 
-#ifndef _PARSE_NUMBERS_H
-#define _PARSE_NUMBERS_H 1
+#ifndef _GLIBCXX_PARSE_NUMBERS_H
+#define _GLIBCXX_PARSE_NUMBERS_H 1
 
 #pragma GCC system_header
 
@@ -36,11 +36,14 @@
 
 #if __cplusplus > 201103L
 
+#include <limits>
+
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
-namespace __parse_int {
+namespace __parse_int
+{
 
   template<unsigned _Base, char _Dig>
     struct _Digit;
@@ -288,28 +291,28 @@ namespace __parse_int {
 
 //------------------------------------------------------------------------------
 
-  template<unsigned _Base, unsigned _Pow, char _Dig, char... _Digs>
+  template<unsigned _Base, unsigned long long _Pow, char _Dig, char... _Digs>
     struct _Number_help
     {
-      static constexpr unsigned
+      static constexpr unsigned long long
 	value{_Digit<_Base, _Dig>::valid ?
 	      _Pow * _Digit<_Base, _Dig>::value
 	      + _Number_help<_Base, _Pow / _Base, _Digs...>::value :
 	      _Number_help<_Base, _Pow, _Digs...>::value};
     };
 
-  template<unsigned _Base, unsigned _Pow, char _Dig>
+  template<unsigned _Base, unsigned long long _Pow, char _Dig>
     struct _Number_help<_Base, _Pow, _Dig>
     {
-      //static_assert(_Pow == 1U, "power should be one");
-      static constexpr unsigned
-	value{_Digit<_Base, _Dig>::valid ? _Digit<_Base, _Dig>::value : 0U};
+      //static_assert(_Pow == 1ULL, "power should be one");
+      static constexpr unsigned long long
+	value{_Digit<_Base, _Dig>::valid ? _Digit<_Base, _Dig>::value : 0ULL};
     };
 
   template<unsigned _Base, char... _Digs>
     struct _Number
     {
-      static constexpr unsigned
+      static constexpr unsigned long long
 	value{_Number_help<_Base, _Power<_Base, _Digs...>::value,
 			   _Digs...>::value};
     };
@@ -317,7 +320,7 @@ namespace __parse_int {
   template<unsigned _Base>
     struct _Number<_Base>
     {
-      static constexpr unsigned value{0U};
+      static constexpr unsigned long long value{0ULL};
     };
 
 //------------------------------------------------------------------------------
@@ -371,7 +374,8 @@ namespace __parse_int {
 } // namespace __parse_int
 
 
-namespace __select_int {
+namespace __select_int
+{
 
   template<unsigned long long _Val, typename... _Ints>
     struct _Select_int_base;
@@ -414,4 +418,4 @@ _GLIBCXX_END_NAMESPACE_VERSION
 
 #endif // __cplusplus > 201103L
 
-#endif // _PARSE_NUMBERS_H
+#endif // _GLIBCXX_PARSE_NUMBERS_H
