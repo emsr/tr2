@@ -37,6 +37,7 @@
 
 #include <list>
 #include <vector>
+#include <array>
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {
@@ -107,6 +108,20 @@ namespace _Path_traits
     };
 #endif
 
+  template<std::size_t _Num>
+    struct is_pathable<std::array<char, _Num>>
+    {
+      static const bool value = true;
+    };
+
+#ifdef _GLIBCXX_USE_WCHAR_T
+  template<std::size_t _Num>
+    struct is_pathable<std::array<wchar_t, _Num>>
+    {
+      static const bool value = true;
+    };
+#endif
+
   template<>
     struct is_pathable<std::vector<char>>
     {
@@ -152,8 +167,8 @@ namespace _Path_traits
 
   template<typename _Tp, size_t _Num>
     inline bool
-    empty(_Tp (&x)[_Num])
-    { return _Num == 0 || !x[0]; }
+    empty(_Tp (&__arr)[_Num])
+    { return _Num == 0 || !__arr[0]; }
 
   // value types differ  -----------------------------------------------------//
 
