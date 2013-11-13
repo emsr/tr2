@@ -167,8 +167,8 @@ namespace _Path_traits
 
   template<typename _Tp, size_t _Num>
     inline bool
-    empty(_Tp (&x)[_Num])
-    { return _Num == 0 || !x[0]; }
+    empty(_Tp (&__arr)[_Num])
+    { return _Num == 0 || !__arr[0]; }
 
   // value types differ  -----------------------------------------------------//
 

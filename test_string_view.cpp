@@ -15,10 +15,10 @@ namespace std
   template<typename _String, typename _CharT = typename _String::value_type>
     inline auto
     quoted(const _String& __string,
-	  _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
+           _CharT __delim = _CharT('"'), _CharT __escape = _CharT('\\'))
     {
       return __detail::_Quoted_string<const _String&, _CharT>
-			       (__string, __delim, __escape);
+                               (__string, __delim, __escape);
     }
 }
 
@@ -30,9 +30,9 @@ main()
 
   std::experimental::string_view snull{nullptr};
   std::cout << std::endl;
-  std::cout << "snull		 = " << snull << std::endl;
-  std::cout << "snull.empty()	 = " << std::boolalpha << snull.empty() << std::endl;
-  std::cout << "snull.size()	 = " << snull.size() << std::endl;
+  std::cout << "snull            = " << snull << std::endl;
+  std::cout << "snull.empty()    = " << std::boolalpha << snull.empty() << std::endl;
+  std::cout << "snull.size()     = " << snull.size() << std::endl;
   std::cout << "snull.length()   = " << snull.length() << std::endl;
   std::cout << "snull.max_size() = " << snull.max_size() << std::endl;
 
@@ -49,9 +49,9 @@ main()
   unsigned long long ullptr[] = {1ULL, 2ULL, 3ULL, 0ULL};
   std::experimental::basic_string_view<unsigned long long> ullsv{ullptr};
   std::cout << std::endl;
-  //std::cout << "ullsv 	   = " << ullsv << std::endl;
-  std::cout << "ullsv.empty()	 = " << std::boolalpha << ullsv.empty() << std::endl;
-  std::cout << "ullsv.size()	 = " << ullsv.size() << std::endl;
+  //std::cout << "ullsv            = " << ullsv << std::endl;
+  std::cout << "ullsv.empty()    = " << std::boolalpha << ullsv.empty() << std::endl;
+  std::cout << "ullsv.size()     = " << ullsv.size() << std::endl;
   std::cout << "ullsv.length()   = " << ullsv.length() << std::endl;
   std::cout << "ullsv.max_size() = " << ullsv.max_size() << std::endl;
 
@@ -59,9 +59,9 @@ main()
   char128_t u128ptr[] = {1ULL, 2ULL, 3ULL, 4ULL, 5ULL, 0ULL};
   std::experimental::basic_string_view<char128_t> u128sv{u128ptr};
   std::cout << std::endl;
-  //std::cout << "u128sv	    = " << u128sv << std::endl;
+  //std::cout << "u128sv            = " << u128sv << std::endl;
   std::cout << "u128sv.empty()    = " << std::boolalpha << u128sv.empty() << std::endl;
-  std::cout << "u128sv.size()	  = " << u128sv.size() << std::endl;
+  std::cout << "u128sv.size()     = " << u128sv.size() << std::endl;
   std::cout << "u128sv.length()   = " << u128sv.length() << std::endl;
   std::cout << "u128sv.max_size() = " << u128sv.max_size() << std::endl;
 
