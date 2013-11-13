@@ -65,7 +65,7 @@ tab(int level)
 
 
 int
-main(int, char **)
+main()
 {
   std::experimental::filesystem::path empty;
   std::cout << "empty: " << empty << '\n';
