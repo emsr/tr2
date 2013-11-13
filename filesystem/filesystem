@@ -1484,11 +1484,11 @@ namespace _Path_traits
       { __target.append(__from_begin, __from_end); }
     };
 
-#endif // __cplusplus <= 201103L
-
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace filesystem
 } // namespace experimental
 } // namespace std
+
+#endif // __cplusplus <= 201103L
 
 #endif // _GLIBCXX_EXPERIMENTAL_FILESYSTEM
