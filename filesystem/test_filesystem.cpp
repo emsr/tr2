@@ -95,7 +95,7 @@ main(int, char **)
   std::experimental::filesystem::path listpath(charlist);
   std::cout << "listpath: " << listpath << '\n';
 
-  std::string latin1_string = "R<E9>sum<E9>";
+  std::string latin1_string = "Résumé";
   using cvt_t = std::codecvt_byname<wchar_t, char, std::mbstate_t>;
   std::locale latin1_locale{std::locale(),
 			    new cvt_t{"fr_FR.ISO-8859-1"}}; // "fr_FR.UTF-8"
