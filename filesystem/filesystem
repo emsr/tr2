@@ -31,6 +31,10 @@
 
 #pragma GCC system_header
 
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
+
 #include <system_error>
 #include <string>
 #include <locale>
@@ -1479,6 +1483,8 @@ namespace _Path_traits
         	 const __detail::_Path_traits::codecvt_type&)
       { __target.append(__from_begin, __from_end); }
     };
+
+#endif // __cplusplus <= 201103L
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace filesystem
