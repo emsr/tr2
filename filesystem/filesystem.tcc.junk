@@ -27,8 +27,8 @@
  *  Do not attempt to use it directly. @headername{filesystem}
  */
 
-#ifndef _GLIBCXX_EXPTL_FILESYSTEM_TCC
-#define _GLIBCXX_EXPTL_FILESYSTEM_TCC 1
+#ifndef _GLIBCXX_EXPERIMENTAL_FILESYSTEM_TCC
+#define _GLIBCXX_EXPERIMENTAL_FILESYSTEM_TCC 1
 
 #pragma GCC system_header
 
@@ -89,4 +89,4 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 } // std
 
-#endif // _GLIBCXX_EXPTL_FILESYSTEM_TCC
+#endif // _GLIBCXX_EXPERIMENTAL_FILESYSTEM_TCC

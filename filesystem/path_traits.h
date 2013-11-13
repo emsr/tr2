@@ -26,13 +26,18 @@
  *  This is an experimental C++ Library header.
  */
 
-#ifndef _GLIBCXX_EXPTL_PATH_TRAITS_H
-#define _GLIBCXX_EXPTL_PATH_TRAITS_H 1
+#ifndef _GLIBCXX_EXPERIMENTAL_PATH_TRAITS_H
+#define _GLIBCXX_EXPERIMENTAL_PATH_TRAITS_H 1
 
 #pragma GCC system_header
 
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
+
 #include <list>
 #include <vector>
+#include <array>
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {
@@ -98,6 +103,20 @@ namespace _Path_traits
 #ifdef _GLIBCXX_USE_WCHAR_T
   template<>
     struct is_pathable<std::wstring>
+    {
+      static const bool value = true;
+    };
+#endif
+
+  template<std::size_t _Num>
+    struct is_pathable<std::array<char, _Num>>
+    {
+      static const bool value = true;
+    };
+
+#ifdef _GLIBCXX_USE_WCHAR_T
+  template<std::size_t _Num>
+    struct is_pathable<std::array<wchar_t, _Num>>
     {
       static const bool value = true;
     };
@@ -288,4 +307,4 @@ _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace experimental
 } // namespace std
 
-#endif // _GLIBCXX_EXPTL_PATH_TRAITS_H
+#endif // _GLIBCXX_EXPERIMENTAL_PATH_TRAITS_H

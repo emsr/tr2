@@ -26,8 +26,8 @@
  *  This is an experimental C++ Library header.
  */
 
-#ifndef _GLIBCXX_EXPTL_FILESYSTEM
-#define _GLIBCXX_EXPTL_FILESYSTEM 1
+#ifndef _GLIBCXX_EXPERIMENTAL_FILESYSTEM
+#define _GLIBCXX_EXPERIMENTAL_FILESYSTEM 1
 
 #pragma GCC system_header
 
@@ -550,7 +550,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	string_type::value_type* __nxt_str;
 	std::size_t __len = this->_M_pathname.length();
 	std::size_t __olen = __len * _S_codecvt->max_length();
-	std::unique_ptr<_CharT> __ostr(new _CharT[__olen]);
+	std::unique_ptr<_CharT> __ostr{std::make_unique<_CharT>(__olen)};
 	_CharT* __nxt_ostr;
 	__detail::_Path_traits::codecvt_type::state_type __st;
 	_S_codecvt->out(__st, __str, __str + __len, __nxt_str,
@@ -563,17 +563,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { return this->_M_pathname; }
 
 #ifdef _GLIBCXX_USE_WCHAR_T
-    std::wstring wstring() const { return L"FIXME!!!"; };
+    std::wstring wstring() const { return L"FIXME!!!"; }
 #endif
 
     // We're assuming POSIX for now.
     std::string
     u8string() const
-    { return string(); };
+    { return string(); }
 
 #ifdef _GLIBCXX_USE_C99_STDINT_TR1
-    std::u16string u16string() const { return u"FIXME!!!"; };
-    std::u32string u32string() const { return U"FIXME!!!"; };
+    std::u16string u16string() const { return u"FIXME!!!"; }
+    std::u32string u32string() const { return U"FIXME!!!"; }
 #endif
 
     // Generic format observers.  We're assuming POSIX for now.
@@ -1442,7 +1442,7 @@ namespace _Path_traits
 	std::size_t __buf_size = (__from_end - __from_begin) * 4;
 	__buf_size += 4; // encodings like shift-JIS need some prefix space
 
-	std::unique_ptr<_CharTo> __buf{new _CharTo[__buf_size]};
+	std::unique_ptr<_CharTo> __buf{std::make_unique<_CharTo>(__buf_size)};
 	convert_aux(__from_begin, __from_end, __buf.get(),
 		    __buf.get() + __buf_size, __target, __cvt);
       }
@@ -1485,4 +1485,4 @@ _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace experimental
 } // namespace std
 
-#endif // _GLIBCXX_EXPTL_FILESYSTEM
+#endif // _GLIBCXX_EXPERIMENTAL_FILESYSTEM

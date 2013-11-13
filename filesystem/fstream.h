@@ -26,10 +26,14 @@
  *  This is an experimental C++ Library header.
  */
 
-#ifndef _GLIBCXX_EXPTL_FSTREAM_H
-#define _GLIBCXX_EXPTL_FSTREAM_H 1
+#ifndef _GLIBCXX_EXPERIMENTAL_FSTREAM_H
+#define _GLIBCXX_EXPERIMENTAL_FSTREAM_H 1
 
 #pragma GCC system_header
+
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
 
 #include "filesystem"
 #include <fstream>
@@ -164,4 +168,6 @@ namespace filesystem {
 } // experimental
 } // std
 
-#endif // _GLIBCXX_EXPTL_FSTREAM_H
+#endif // __cplusplus <= 201103L
+
+#endif // _GLIBCXX_EXPERIMENTAL_FSTREAM_H

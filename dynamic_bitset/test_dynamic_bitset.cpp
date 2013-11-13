@@ -1,5 +1,7 @@
 
-// /home/ed/bin-c++/bin/g++ -g -std=c++0x -o test_dynamic_bitset test_dynamic_bitset.cpp
+// /home/ed/bin/bin/g++ -std=c++0x -g -o test_dynamic_bitset test_dynamic_bitset.cpp
+
+// /home/ed/bin/bin/g++ -std=c++0x -g -m32 -o test_dynamic_bitset test_dynamic_bitset.cpp
 
 // LD_LIBRARY_PATH=/home/ed/bin-c++/lib64:$LD_LIBRARY_PATH ./test_dynamic_bitset
 

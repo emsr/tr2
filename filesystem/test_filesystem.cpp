@@ -5,8 +5,11 @@
 
 // LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.txt 2> test.err
 
+// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.new.txt 2> test.new.err
+
 
 #include <iostream>
+#include <array>
 #include <vector>
 #include <sstream>
 #include <algorithm>
@@ -77,6 +80,11 @@ main(int, char **)
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
   }
 
+  std::array<char, 8 + 1 + 3> chararr;
+  std::iota(std::begin(chararr), std::end(chararr), 'a');
+  std::experimental::filesystem::path arrpath(chararr);
+  std::cout << "arrpath: " << arrpath << '\n';
+
   std::vector<char> charvec(26);
   std::iota(std::begin(charvec), std::end(charvec), 'a');
   std::experimental::filesystem::path vecpath(charvec);
@@ -86,6 +94,13 @@ main(int, char **)
   std::iota(std::begin(charlist), std::end(charlist), 'A');
   std::experimental::filesystem::path listpath(charlist);
   std::cout << "listpath: " << listpath << '\n';
+
+  std::string latin1_string = "R<E9>sum<E9>";
+  using cvt_t = std::codecvt_byname<wchar_t, char, std::mbstate_t>;
+  std::locale latin1_locale{std::locale(),
+			    new cvt_t{"fr_FR.ISO-8859-1"}}; // "fr_FR.UTF-8"
+  std::experimental::filesystem::path latin1_path{latin1_string, latin1_locale};
+  std::experimental::filesystem::create_directory(latin1_path);
 
   std::experimental::filesystem::path path(std::string("./filesystem"));
   std::cout << "path: " << path << '\n';
