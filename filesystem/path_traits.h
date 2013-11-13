@@ -307,4 +307,6 @@ _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace experimental
 } // namespace std
 
+#endif // __cplusplus <= 201103L
+
 #endif // _GLIBCXX_EXPERIMENTAL_PATH_TRAITS_H
