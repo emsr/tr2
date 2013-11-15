@@ -545,7 +545,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { return this->_M_pathname; }
 
     template <typename _CharT, typename _Traits = std::char_traits<_CharT>,
-              typename _Allocator = allocator<_CharT> >
+              typename _Allocator = std::allocator<_CharT> >
       std::basic_string<_CharT, _Traits, _Allocator>
       string(const _Allocator& __alloc = _Allocator()) const
       {
@@ -567,7 +567,23 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { return this->_M_pathname; }
 
 #ifdef _GLIBCXX_USE_WCHAR_T
-    std::wstring wstring() const { return L"FIXME!!!"; }
+    std::wstring
+    wstring() const
+    {
+      std::wstring __tmp;
+      if (!this->_M_pathname.empty())
+        __detail::_Path_traits::convert(this->_M_pathname.data(), this->_M_pathname.data() + this->_M_pathname.size(),
+          __tmp, *_S_codecvt);
+      return __tmp;
+    }
+//    {
+//      std::wstring __out;
+//      _Convert<char, wchar_t> __cnvt;
+//      const string_type::value_type* __str = this->_M_pathname.data();
+//      const std::size_t __len = this->_M_pathname.length();
+//      __cnvt(__str, __str + __len, __out, _S_codecvt);
+//      return __out;
+//    }
 #endif
 
     // We're assuming POSIX for now.
@@ -1467,9 +1483,9 @@ namespace _Path_traits
 						    __to_next);
 
 	if (__res != std::codecvt_base::ok)
-	  throw std::system_error("codecvt");
+	  throw std::system_error(std::error_code(static_cast<int>(__res), std::system_category()), "codecvt");
 
-	__target.append(__to_begin, __to_next); 
+	__target.append(__to_begin, __to_next);
       }
     };
 
@@ -1483,6 +1499,7 @@ namespace _Path_traits
         	 const __detail::_Path_traits::codecvt_type&)
       { __target.append(__from_begin, __from_end); }
     };
+
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace filesystem
