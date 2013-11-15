@@ -182,7 +182,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	     : (__throw_out_of_range_fmt(__N("basic_string_view::at: __pos "
 					     "(which is %zu) >= this->size() "
 					     "(which is %zu)"),
-					 __pos, this->size()), *this->_M_str);
+					 __pos, this->size()),
+		*static_cast<pointer>(nullptr));
       }
 
       constexpr const _CharT&
@@ -266,9 +267,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	     ? basic_string_view{this->_M_str + __pos,
 				std::min(__n, size_type{this->_M_len  - __pos})}
 	     : (__throw_out_of_range_fmt(__N("basic_string_view::at: __pos "
-				       "(which is %zu) >= this->size() "
-				       "(which is %zu)"),
-				   __pos, this->size()), basic_string_view{});
+					     "(which is %zu) >= this->size() "
+					     "(which is %zu)"),
+				     __pos, this->size()), basic_string_view{});
       }
 
       int
@@ -411,17 +412,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 					  - sizeof(size_type) - sizeof(void*))
 					 / sizeof(value_type) / 4;
 
-      static /*constexpr*/const int
+      static constexpr const int
       _S_compare(size_type __n1, size_type __n2) noexcept
       {
-	const difference_type __diff = difference_type(__n1 - __n2);
-
-	if (__diff > std::numeric_limits<int>::max())
-	  return std::numeric_limits<int>::max();
-	else if (__diff < std::numeric_limits<int>::min())
-	  return std::numeric_limits<int>::min();
-	else
-	  return int{__diff};
+	return difference_type{__n1 - __n2} > std::numeric_limits<int>::max()
+	     ? std::numeric_limits<int>::max()
+	     : difference_type{__n1 - __n2} < std::numeric_limits<int>::min()
+	     ? std::numeric_limits<int>::min()
+	     : static_cast<int>(difference_type{__n1 - __n2});
       }
 
       size_t	    _M_len;

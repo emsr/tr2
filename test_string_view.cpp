@@ -31,7 +31,8 @@ int
 main()
 {
   std::cout << std::endl;
-  std::cout << "std::experimental::string_view::npos = " << std::experimental::string_view::npos << std::endl;
+  std::cout << "sizeof(std::experimental::string_view) = " << sizeof(std::experimental::string_view) << std::endl;
+  std::cout << "std::experimental::string_view::npos   = " << std::experimental::string_view::npos << std::endl;
 
   std::experimental::string_view snull{nullptr};
   std::cout << std::endl;
@@ -41,25 +42,25 @@ main()
   std::cout << "snull.length()   = " << snull.length() << std::endl;
   std::cout << "snull.max_size() = " << snull.max_size() << std::endl;
 
-  std::experimental::string_view sv{"Hello, World!"};
+  std::experimental::string_view sview{"Hello, World!"};
   std::cout << std::endl;
-  std::cout << "sv            = " << sv << std::endl;
-  std::cout << "sv.empty()    = " << std::boolalpha << sv.empty() << std::endl;
-  std::cout << "sv.size()     = " << sv.size() << std::endl;
-  std::cout << "sv.length()   = " << sv.length() << std::endl;
-  std::cout << "sv.front()    = " << sv.front() << std::endl;
-  std::cout << "sv.back()     = " << sv.back() << std::endl;
-  std::cout << "sv.max_size() = " << sv.max_size() << std::endl;
+  std::cout << "sview            = " << sview << std::endl;
+  std::cout << "sview.empty()    = " << std::boolalpha << sview.empty() << std::endl;
+  std::cout << "sview.size()     = " << sview.size() << std::endl;
+  std::cout << "sview.length()   = " << sview.length() << std::endl;
+  std::cout << "sview.front()    = " << sview.front() << std::endl;
+  std::cout << "sview.back()     = " << sview.back() << std::endl;
+  std::cout << "sview.max_size() = " << sview.max_size() << std::endl;
 
-  snull.swap(sv);
-  
+  snull.swap(sview);
+  std::swap(snull, sview);
 
   //std::experimental::string_view bad{nullptr, 5};
   //std::cout << std::endl;
-  //std::cout << "bad            = " << bad << std::endl;
-  //std::cout << "bad.empty()    = " << std::boolalpha << bad.empty() << std::endl;
-  //std::cout << "bad.size()     = " << bad.size() << std::endl;
-  //std::cout << "bad.length()   = " << bad.length() << std::endl;
+  //std::cout << "bad              = " << bad << std::endl;
+  //std::cout << "bad.empty()      = " << std::boolalpha << bad.empty() << std::endl;
+  //std::cout << "bad.size()       = " << bad.size() << std::endl;
+  //std::cout << "bad.length()     = " << bad.length() << std::endl;
 
   unsigned long long ullptr[] = {1ULL, 2ULL, 3ULL, 0ULL};
   std::experimental::basic_string_view<unsigned long long> ullsv{ullptr};
@@ -81,38 +82,47 @@ main()
   std::cout << "u128sv.max_size() = " << u128sv.max_size() << std::endl;
 
   std::cout << std::endl;
-  std::cout << "std::quoted(sv) = " << std::quoted(sv) << std::endl;
+  std::cout << "std::quoted(sv) = " << std::quoted(sview) << std::endl;
 
   std::cout << std::endl;
   std::cout << "range for loop         : ";
-  for (auto c : sv)
+  for (auto c : sview)
     std::cout << char(c);
   std::cout << std::endl;
 
   std::cout << "iterator loop          : ";
-  for (auto c = sv.begin(); c != sv.end(); ++c)
+  for (auto c = sview.begin(); c != sview.end(); ++c)
     std::cout << char(*c);
   std::cout << std::endl;
 
   std::cout << "const iter loop        : ";
-  for (auto c = sv.cbegin(); c != sv.cend(); ++c)
+  for (auto c = sview.cbegin(); c != sview.cend(); ++c)
     std::cout << char(*c);
   std::cout << std::endl;
 
   std::cout << "reverse iter loop      : ";
-  for (auto c = sv.rbegin(); c != sv.rend(); ++c)
+  for (auto c = sview.rbegin(); c != sview.rend(); ++c)
     std::cout << char(*c);
   std::cout << std::endl;
 
   std::cout << "const reverse iter loop: ";
-  for (auto c = sv.crbegin(); c != sv.crend(); ++c)
+  for (auto c = sview.crbegin(); c != sview.crend(); ++c)
     std::cout << char(*c);
   std::cout << std::endl;
+
+  //snull.swap(sview);
+
+  std::cout << "snull            = " << snull << std::endl;
+  std::cout << "snull.data()     = " << snull.data() << std::endl;
+  std::cout << "snull.length()   = " << snull.length() << std::endl;
+  std::cout << "sview            = " << sview << std::endl;
+  std::cout << "sview.data()     = " << sview.data() << std::endl;
+  std::cout << "sview.length()   = " << sview.length() << std::endl;
 
   std::cout << std::endl;
   try
   {
-    std::cout << "at(16)        = " << sv.at(16) << std::endl;
+    std::cout << "sview.at(16)   = " << sview.at(16) << std::endl;
   }
   catch(std::out_of_range err)
   {
@@ -120,44 +130,54 @@ main()
   }
 
   std::cout << std::endl;
-  std::cout << "operator[](5) = " << sv[5] << std::endl;
+  try
+  {
+    std::cout << "snull.at(16)  = " << snull.at(16) << std::endl;
+  }
+  catch(std::out_of_range err)
+  {
+    std::cerr << err.what() << std::endl;
+  }
 
-  std::experimental::string_view pre_prefix = sv;
+  std::cout << std::endl;
+  std::cout << "operator[](5) = " << sview[5] << std::endl;
+
+  std::experimental::string_view pre_prefix = sview;
   std::cout << std::endl;
   std::cout << "pre_prefix = " << pre_prefix << std::endl;
 
-  sv.remove_prefix(3);
-  std::cout << "remove_prefix(3) = " << sv << std::endl;
-  std::cout << "length()         = " << sv.length() << std::endl;
+  sview.remove_prefix(3);
+  std::cout << "remove_prefix(3) = " << sview << std::endl;
+  std::cout << "length()         = " << sview.length() << std::endl;
 
-  std::experimental::string_view pre_suffix = sv;
+  std::experimental::string_view pre_suffix = sview;
   std::cout << std::endl;
   std::cout << "pre_suffix = " << pre_suffix << std::endl;
 
-  sv.remove_suffix(1);
-  std::cout << "remove_suffix(1) = " << sv << std::endl;
-  std::cout << "length()         = " << sv.length() << std::endl;
+  sview.remove_suffix(1);
+  std::cout << "remove_suffix(1) = " << sview << std::endl;
+  std::cout << "length()         = " << sview.length() << std::endl;
 
   std::cout << std::endl;
   std::cout << "pre_prefix = " << pre_prefix << std::endl;
   std::cout << "pre_suffix = " << pre_suffix << std::endl;
 
   std::cout << std::endl;
-  std::cout << "substr(1, 5)     = " << sv.substr(1, 5) << std::endl;
+  std::cout << "substr(1, 5)     = " << sview.substr(1, 5) << std::endl;
 
   std::vector<int> iv;
   //std::cout << "iv.front()     = " << iv.front() << std::endl;
   //std::cout << "iv.back()      = " << iv.back() << std::endl;
 
-  sv.clear();
+  sview.clear();
   std::cout << std::endl;
-  std::cout << "clear()       = " << sv << std::endl;
-  std::cout << "sv.empty()    = " << std::boolalpha << sv.empty() << std::endl;
-  std::cout << "sv.size()     = " << sv.size() << std::endl;
-  std::cout << "sv.length()   = " << sv.length() << std::endl;
-  //std::cout << "sv.front()    = " << sv.front() << std::endl;
-  //std::cout << "sv.back()     = " << sv.back() << std::endl;
-  std::cout << "sv.max_size() = " << sv.max_size() << std::endl;
+  std::cout << "clear()       = " << sview << std::endl;
+  std::cout << "sview.empty()    = " << std::boolalpha << sview.empty() << std::endl;
+  std::cout << "sview.size()     = " << sview.size() << std::endl;
+  std::cout << "sview.length()   = " << sview.length() << std::endl;
+  //std::cout << "sview.front()    = " << sview.front() << std::endl;
+  //std::cout << "sview.back()     = " << sview.back() << std::endl;
+  std::cout << "sview.max_size() = " << sview.max_size() << std::endl;
 
   std::experimental::string_view hw1{"Hello, World!"};
   std::cout << std::endl;
