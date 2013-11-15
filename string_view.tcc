@@ -23,7 +23,8 @@
 // <http://www.gnu.org/licenses/>.
 
 /** @file experimantal/string_view.tcc
- *  This is a Standard C++ Library header.
+ *  This is an internal header file, included by other library headers.
+ *  Do not attempt to use it directly. @headername{string_view}
  */
 
 //
