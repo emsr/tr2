@@ -92,7 +92,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       constexpr
       basic_string_view() noexcept
-      : _M_len{0}, _M_str{nullptr}
+      : _M_len{0}, _M_str{_S_empty_string}
       { }
 
       constexpr basic_string_view(const basic_string_view&) noexcept = default;
@@ -118,19 +118,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       constexpr const_iterator
       begin() const noexcept
-      { return this->_M_str; }
+      { return this->data(); }
 
       constexpr const_iterator
       end() const noexcept
-      { return this->_M_str + this->_M_len; }
+      { return this->data() + this->_M_len; }
 
       constexpr const_iterator
       cbegin() const noexcept
-      { return this->_M_str; }
+      { return this->data(); }
 
       constexpr const_iterator
       cend() const noexcept
-      { return this->_M_str + this->_M_len; }
+      { return this->data() + this->_M_len; }
 
       const_reverse_iterator
       rbegin() const noexcept
@@ -173,14 +173,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       operator[](size_type __pos) const
       {
 	_GLIBCXX_DEBUG_ASSERT(__pos <= this->_M_len);
-	return *(this->_M_str + __pos);
+	return *(this->data() + __pos);
       }
 
       constexpr const _CharT&
       at(size_type __pos) const
       {
 	return __pos < this->_M_len
-	     ? *(this->_M_str + __pos)
+	     ? *(this->data() + __pos)
 	     : (__throw_out_of_range_fmt(__N("basic_string_view::at: __pos "
 					     "(which is %zu) >= this->size() "
 					     "(which is %zu)"),
@@ -192,26 +192,26 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       front() const
       {
 	_GLIBCXX_DEBUG_ASSERT(this->_M_len > 0);
-	return *this->_M_str;
+	return *this->data();
       }
 
       constexpr const _CharT&
       back() const
       {
 	_GLIBCXX_DEBUG_ASSERT(this->_M_len > 0);
-	return *(this->_M_str + this->_M_len - 1);
+	return *(this->data() + this->_M_len - 1);
       }
 
       constexpr const _CharT*
       data() const noexcept
-      { return this->_M_str; }
+      { return this->_M_len > 0 ? this->_M_str : _S_empty_string; }
 
       // [string.view.modifiers], modifiers:
       void
       clear() noexcept
       {
 	this->_M_len = 0;
-	this->_M_str = nullptr;
+	this->_M_str = _S_empty_string;
       }
 
       void
@@ -240,7 +240,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
         explicit operator basic_string<_CharT, _Traits, _Allocator>() const
         {
 	  return basic_string<_CharT, _Traits, _Allocator>
-					(this->_M_len, this->_M_str);
+					(this->_M_len, this->data());
 	}
 
       size_type
@@ -277,7 +277,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       int
       compare(basic_string_view __str) const noexcept
       {
-	int __ret = traits_type::compare(this->_M_str, __str._M_str,
+	int __ret = traits_type::compare(this->data(), __str.data(),
 					 std::min(this->_M_len, __str._M_len));
 	if (__ret == 0)
 	  __ret = _S_compare(this->_M_len, __str._M_len);
@@ -409,7 +409,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     private:
 
-      static value_type _S_empty_string[1];
+      static const value_type _S_empty_string[1];
 
       static constexpr const int
       _S_compare(size_type __n1, size_type __n2) noexcept

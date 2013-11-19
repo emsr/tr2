@@ -115,9 +115,13 @@ main()
   std::cout << "snull            = " << snull << std::endl;
   std::cout << "snull.data()     = " << snull.data() << std::endl;
   std::cout << "snull.length()   = " << snull.length() << std::endl;
+  std::cout << "snull.begin()    = " << snull.begin() << std::endl;
+  std::cout << "snull.end        = " << snull.end() << std::endl;
   std::cout << "sview            = " << sview << std::endl;
   std::cout << "sview.data()     = " << sview.data() << std::endl;
   std::cout << "sview.length()   = " << sview.length() << std::endl;
+  std::cout << "sview.begin()    = " << sview.begin() << std::endl;
+  std::cout << "sview.end        = " << sview.end() << std::endl;
 
   std::cout << std::endl;
   try
