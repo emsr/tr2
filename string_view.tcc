@@ -22,13 +22,13 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file experimantal/string_view.tcc
+/** @file experimental/string_view.tcc
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{string_view}
  */
 
 //
-// ISO C++ 14882: 21  Strings library
+// N3762 basic_string_view library
 //
 
 #ifndef _GLIBCXX_EXPERIMENTAL_STRING_VIEW_TCC
@@ -47,8 +47,8 @@ namespace experimental
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   template<typename _CharT, typename _Traits>
-    const _CharT
-    basic_string_view<_CharT, _Traits>::_S_empty_string[1]{0};
+    constexpr _CharT
+    basic_string_view<_CharT, _Traits>::_S_empty_str[1];
 
   template<typename _CharT, typename _Traits>
     typename basic_string_view<_CharT, _Traits>::size_type
