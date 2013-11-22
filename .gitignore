@@ -29,6 +29,10 @@ random2
 specfun/plot
 
 test_hypergeometric_distribution
+test_optional
+test_pr58781
+test_string_view
+parse_int
 
 help
 help2
