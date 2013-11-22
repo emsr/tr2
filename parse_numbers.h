@@ -224,6 +224,14 @@ namespace __parse_int
 
   //  Digit separator
   template<unsigned _Base>
+    struct _Digit<_Base, '.'>
+    {
+      static constexpr bool valid{false};
+      static constexpr unsigned value{0};
+    };
+
+  //  Radix
+  template<unsigned _Base>
     struct _Digit<_Base, '\''>
     {
       static constexpr bool valid{false};
@@ -265,28 +273,30 @@ namespace __parse_int
   template<unsigned _Base, char _Dig, char... _Digs>
     struct _Power_help
     {
-      static constexpr unsigned
-	value{_Digit<_Base, _Dig>::valid ?
-	      _Base * _Power_help<_Base, _Digs...>::value :
-	      _Power_help<_Base, _Digs...>::value};
+      static constexpr unsigned long long
+	value{_Digit<_Base, _Dig>::valid
+	    ? _Base * _Power_help<_Base, _Digs...>::value
+	    : _Power_help<_Base, _Digs...>::value};
     };
 
   template<unsigned _Base, char _Dig>
     struct _Power_help<_Base, _Dig>
     {
-      static constexpr unsigned value{_Digit<_Base, _Dig>::valid ? 1U : 0U};
+      static constexpr unsigned long long
+	value{_Digit<_Base, _Dig>::valid ? 1ULL : 0ULL};
     };
 
   template<unsigned _Base, char... _Digs>
     struct _Power
     {
-      static constexpr unsigned value{_Power_help<_Base, _Digs...>::value};
+      static constexpr unsigned long long
+	value{_Power_help<_Base, _Digs...>::value};
     };
 
   template<unsigned _Base>
     struct _Power<_Base>
     {
-      static constexpr unsigned value{0U};
+      static constexpr unsigned long long value{0ULL};
     };
 
 //------------------------------------------------------------------------------
