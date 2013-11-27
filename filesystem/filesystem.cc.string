@@ -36,7 +36,6 @@
 #include <stack>  //  for recursive_directory_iterator
 #include <vector>  //  for recursive_directory_iterator
 #include <iomanip> // for quoted
-#include <experimental/string_view>
 
 namespace std {
 namespace experimental {
@@ -218,7 +217,7 @@ struct path::iterator::_Impl
   _Impl(const path& pth, bool begin = false)
   {
     const path::value_type sep_str[2]{preferred_separator, 0};
-    std::experimental::string_view pathname{pth.string()};
+    std::string pathname{pth.string()};
     bool net{false};
     std::size_t pos{0};
     for (std::size_t c = 0; c < pathname.length(); ++c)
@@ -235,23 +234,24 @@ struct path::iterator::_Impl
 	else if (pos == 0 && num_slashes > 0)
 	  {
 	    if (c - num_slashes > 0)
-	      _M_chunk.push_back(pathname.substr(0, c - num_slashes));
+	      _M_chunk.push_back(path{pathname.substr(0, c - num_slashes)});
 	    else
-	      _M_chunk.push_back(sep_str);
+	      _M_chunk.push_back(path{std::string{sep_str}});
 	    if (net)
-	      _M_chunk.push_back(sep_str);
+	      _M_chunk.push_back(path{std::string{sep_str}});
 	    pos = c;
 	  }
 	else if (num_slashes > 0)
 	  {
-	    _M_chunk.push_back(pathname.substr(pos, c - num_slashes - pos));
+	    _M_chunk.push_back(path{pathname.substr(pos,
+						    c - num_slashes - pos)});
 	    pos = c;
 	  }
       }
     if (pos < pathname.length())
-      _M_chunk.push_back(pathname.substr(pos));
+      _M_chunk.push_back(path{pathname.substr(pos)});
     else if (pathname.length() > 1)
-      _M_chunk.push_back("."sv);
+      _M_chunk.push_back(path{std::string(".")});
 
     if (begin && _M_chunk.size() > 0)
       _M_pos = 0;
