@@ -234,24 +234,23 @@ struct path::iterator::_Impl
 	else if (pos == 0 && num_slashes > 0)
 	  {
 	    if (c - num_slashes > 0)
-	      _M_chunk.push_back(path{pathname.substr(0, c - num_slashes)});
+	      _M_chunk.push_back(pathname.substr(0, c - num_slashes));
 	    else
-	      _M_chunk.push_back(path{std::string{sep_str}});
+	      _M_chunk.push_back(sep_str);
 	    if (net)
-	      _M_chunk.push_back(path{std::string{sep_str}});
+	      _M_chunk.push_back(sep_str);
 	    pos = c;
 	  }
 	else if (num_slashes > 0)
 	  {
-	    _M_chunk.push_back(path{pathname.substr(pos,
-						    c - num_slashes - pos)});
+	    _M_chunk.push_back(pathname.substr(pos, c - num_slashes - pos));
 	    pos = c;
 	  }
       }
     if (pos < pathname.length())
-      _M_chunk.push_back(path{pathname.substr(pos)});
+      _M_chunk.push_back(pathname.substr(pos));
     else if (pathname.length() > 1)
-      _M_chunk.push_back(path{std::string(".")});
+      _M_chunk.push_back("."s);
 
     if (begin && _M_chunk.size() > 0)
       _M_pos = 0;
