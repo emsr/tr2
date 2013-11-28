@@ -22,13 +22,13 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file experimantal/string_view.tcc
+/** @file experimental/string_view.tcc
  *  This is an internal header file, included by other library headers.
  *  Do not attempt to use it directly. @headername{string_view}
  */
 
 //
-// ISO C++ 14882: 21  Strings library
+// N3762 basic_string_view library
 //
 
 #ifndef _GLIBCXX_EXPERIMENTAL_STRING_VIEW_TCC

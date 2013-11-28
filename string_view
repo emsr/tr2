@@ -66,6 +66,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    *    _CharT*    _M_str
    *    size_t     _M_len
    *  @endcode
+   *
+   *  A basic_string_view represents an empty string with a static constexpr
+   *  length one string:
+   *
+   *  @code
+   *    static constexpr value_type _S_empty_str[1]{0};
+   *  @endcode
    */
   template<typename _CharT, typename _Traits = char_traits<_CharT>>
     class basic_string_view
@@ -109,7 +116,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       { }
 
       constexpr basic_string_view(const _CharT* __str, size_type __len)
-      : _M_len{__len}, _M_str{__str}
+      : _M_len{__str == nullptr ? 0 :__len},
+	_M_str{__str == nullptr || __len == 0 ? _S_empty_str : __str}
       { }
 
       basic_string_view&
@@ -420,7 +428,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	     : static_cast<int>(difference_type{__n1 - __n2});
       }
 
-      static constexpr value_type _S_empty_str[1]{0};
+      static constexpr value_type _S_empty_str[1]{};
 
       size_t	    _M_len;
       const _CharT* _M_str;
