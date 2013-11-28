@@ -100,19 +100,26 @@ main()
   std::locale latin1_locale{std::locale(),
                             new cvt_t{"fr_FR.ISO-8859-1"}}; // "fr_FR.UTF-8"
   std::experimental::filesystem::path latin1_path{latin1_string, latin1_locale};
-  std::cout << "latin1_path.empty() = " << latin1_path.empty() << std::endl;
-  std::cout << "latin1_path.string().length() = " << latin1_path.string().length() << std::endl;
-  std::cout << "latin1_path.string() = " << latin1_path.string() << std::endl;
-  std::cout << "latin1_path.wstring().length() = " << latin1_path.wstring().length() << std::endl;
-  std::wcout << L"latin1_path: " << latin1_path.wstring() << std::endl;
   try
   {
+    std::cout << "latin1_path.empty() = " << latin1_path.empty() << std::endl;
+    std::cout << "latin1_path.string().length() = " << latin1_path.string().length() << std::endl;
+    std::cout << "latin1_path.string() = " << latin1_path.string() << std::endl;
+    std::cout << "latin1_path.wstring().length() = " << latin1_path.wstring().length() << std::endl;
+    std::wcout << L"latin1_path: " << latin1_path.wstring() << std::endl;
     std::experimental::filesystem::create_directory(latin1_path);
   }
   catch(std::experimental::filesystem::filesystem_error& fe)
   {
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
+  }
+  catch(std::exception& ex)
+  {
+    std::cerr << "error: " << ex.what() << '\n';
+  }
+  catch(...)
+  {
   }
 
   std::experimental::filesystem::path path(std::string("./filesystem"));
