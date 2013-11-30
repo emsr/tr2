@@ -33,6 +33,8 @@ test_optional
 test_pr58781
 test_string_view
 parse_int
+features_test_cxx11
+features_test_cxx14
 
 help
 help2
