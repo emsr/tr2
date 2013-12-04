@@ -1,0 +1,903 @@
+Index: libcpp/internal.h
+===================================================================
+--- libcpp/internal.h	(revision 204912)
++++ libcpp/internal.h	(working copy)
+@@ -258,6 +258,9 @@
+   /* Nonzero when parsing arguments to a function-like macro.  */
+   unsigned char parsing_args;
+ 
++  /* Nonzero to prevent macro expansion.  */
++  unsigned char in__has_include__;
++
+   /* Nonzero if prevent_expansion is true only because output is
+      being discarded.  */
+   unsigned char discarding_output;
+@@ -279,6 +282,8 @@
+   cpp_hashnode *n_true;			/* C++ keyword true */
+   cpp_hashnode *n_false;		/* C++ keyword false */
+   cpp_hashnode *n__VA_ARGS__;		/* C99 vararg macros */
++  cpp_hashnode *n__has_include__;	/* __has_include__ operator */
++  cpp_hashnode *n__has_include_next__;	/* __has_include_next__ operator */
+ };
+ 
+ typedef struct _cpp_line_note _cpp_line_note;
+@@ -645,6 +650,8 @@
+ extern bool _cpp_read_file_entries (cpp_reader *, FILE *);
+ extern const char *_cpp_get_file_name (_cpp_file *);
+ extern struct stat *_cpp_get_file_stat (_cpp_file *);
++extern bool _cpp_has_header (cpp_reader *, const char *, int,
++			     enum include_type);
+ 
+ /* In expr.c */
+ extern bool _cpp_parse_expr (cpp_reader *, bool);
+@@ -680,6 +687,7 @@
+ extern void _cpp_do_file_change (cpp_reader *, enum lc_reason, const char *,
+ 				 linenum_type, unsigned int);
+ extern void _cpp_pop_buffer (cpp_reader *);
++extern char *_cpp_bracket_include (cpp_reader *);
+ 
+ /* In directives.c */
+ struct _cpp_dir_only_callbacks
+Index: libcpp/directives.c
+===================================================================
+--- libcpp/directives.c	(revision 204912)
++++ libcpp/directives.c	(working copy)
+@@ -549,6 +549,11 @@
+       if (is_def_or_undef && node == pfile->spec_nodes.n_defined)
+ 	cpp_error (pfile, CPP_DL_ERROR,
+ 		   "\"defined\" cannot be used as a macro name");
++      else if (is_def_or_undef
++	    && (node == pfile->spec_nodes.n__has_include__
++	     || node == pfile->spec_nodes.n__has_include_next__))
++	cpp_error (pfile, CPP_DL_ERROR,
++		   "\"__has_include__\" cannot be used as a macro name");
+       else if (! (node->flags & NODE_POISONED))
+ 	return node;
+     }
+@@ -2601,3 +2606,12 @@
+       node->directive_index = i;
+     }
+ }
++
++/* Extract header file from a bracket include. Parsing starts after '<'.
++   The string is malloced and must be freed by the caller.  */
++char *
++_cpp_bracket_include(cpp_reader *pfile)
++{
++  return glue_header_name (pfile);
++}
++
+Index: libcpp/expr.c
+===================================================================
+--- libcpp/expr.c	(revision 204912)
++++ libcpp/expr.c	(working copy)
+@@ -64,6 +64,8 @@
+ static unsigned int interpret_int_suffix (cpp_reader *, const uchar *, size_t);
+ static void check_promotion (cpp_reader *, const struct op *);
+ 
++static cpp_num parse_has_include (cpp_reader *, enum include_type);
++
+ /* Token type abuse to create unary plus and minus operators.  */
+ #define CPP_UPLUS ((enum cpp_ttype) (CPP_LAST_CPP_OP + 1))
+ #define CPP_UMINUS ((enum cpp_ttype) (CPP_LAST_CPP_OP + 2))
+@@ -1041,6 +1043,10 @@
+     case CPP_NAME:
+       if (token->val.node.node == pfile->spec_nodes.n_defined)
+ 	return parse_defined (pfile);
++      else if (token->val.node.node == pfile->spec_nodes.n__has_include__)
++	return parse_has_include (pfile, IT_INCLUDE);
++      else if (token->val.node.node == pfile->spec_nodes.n__has_include_next__)
++	return parse_has_include (pfile, IT_INCLUDE_NEXT);
+       else if (CPP_OPTION (pfile, cplusplus)
+ 	       && (token->val.node.node == pfile->spec_nodes.n_true
+ 		   || token->val.node.node == pfile->spec_nodes.n_false))
+@@ -2050,3 +2056,71 @@
+ 
+   return lhs;
+ }
++
++/* Handle meeting "__has_include__" in a preprocessor expression.  */
++static cpp_num
++parse_has_include (cpp_reader *pfile, enum include_type type)
++{
++  cpp_num result;
++  bool paren = false;
++  cpp_hashnode *node = 0;
++  const cpp_token *token;
++  bool bracket = false;
++  char *fname = 0;
++
++  result.unsignedp = false;
++  result.high = 0;
++  result.overflow = false;
++  result.low = 0;
++
++  pfile->state.in__has_include__++;
++
++  token = cpp_get_token (pfile);
++  if (token->type == CPP_OPEN_PAREN)
++    {
++      paren = true;
++      token = cpp_get_token (pfile);
++    }
++  if (token->type == CPP_STRING || token->type == CPP_HEADER_NAME)
++    {
++      if (token->type == CPP_HEADER_NAME)
++	bracket = true;
++      fname = XNEWVEC (char, token->val.str.len - 1);
++      memcpy (fname, token->val.str.text + 1, token->val.str.len - 2);
++      fname[token->val.str.len - 2] = '\0';
++      node = token->val.node.node;
++    }
++  else if (token->type == CPP_LESS)
++    {
++      bracket = true;
++      fname = _cpp_bracket_include (pfile);
++    }
++  else
++    cpp_error (pfile, CPP_DL_ERROR,
++	       "operator \"__has_include__\" requires a header string");
++
++  if (fname)
++    {
++      int angle_brackets = (bracket ? 1 : 0);
++
++      if (_cpp_has_header (pfile, fname, angle_brackets, type))
++	result.low = 0;
++      else
++	result.low = 1;
++
++      XDELETEVEC (fname);
++    }
++
++  if (paren && cpp_get_token (pfile)->type != CPP_CLOSE_PAREN)
++    cpp_error (pfile, CPP_DL_ERROR,
++	       "missing ')' after \"__has_include__\"");
++
++  /* A possible controlling macro of the form #if !__has_include__ ().
++     _cpp_parse_expr checks there was no other junk on the line.  */
++  if (node)
++    pfile->mi_ind_cmacro = node;
++
++  pfile->state.in__has_include__--;
++
++  return result;
++}
+Index: libcpp/identifiers.c
+===================================================================
+--- libcpp/identifiers.c	(revision 204912)
++++ libcpp/identifiers.c	(working copy)
+@@ -72,6 +72,8 @@
+   s->n_false		= cpp_lookup (pfile, DSC("false"));
+   s->n__VA_ARGS__       = cpp_lookup (pfile, DSC("__VA_ARGS__"));
+   s->n__VA_ARGS__->flags |= NODE_DIAGNOSTIC;
++  s->n__has_include__   = cpp_lookup (pfile, DSC("__has_include__"));
++  s->n__has_include_next__ = cpp_lookup (pfile, DSC("__has_include_next__"));
+ }
+ 
+ /* Tear down the identifier hash table.  */
+Index: libcpp/files.c
+===================================================================
+--- libcpp/files.c	(revision 204912)
++++ libcpp/files.c	(working copy)
+@@ -1023,6 +1023,9 @@
+   int sysp = pfile->line_table->highest_line > 1 && pfile->buffer ? pfile->buffer->sysp : 0;
+   bool print_dep = CPP_OPTION (pfile, deps.style) > (angle_brackets || !!sysp);
+ 
++  if (pfile->state.in__has_include__)
++    return;
++
+   errno = file->err_no;
+   if (print_dep && CPP_OPTION (pfile, deps.missing_files) && errno == ENOENT)
+     {
+@@ -1939,3 +1942,17 @@
+   return bsearch (&d, pchf->entries, pchf->count, sizeof (struct pchf_entry),
+ 		  pchf_compare) != NULL;
+ }
++
++/* Return true if the file FNAME is found in te appropriate include file path
++   as indicated by ANGLE_BRACKETS.  */
++
++bool
++_cpp_has_header (cpp_reader *pfile, const char *fname, int angle_brackets,
++		 enum include_type type)
++{
++  cpp_dir *start_dir = search_path_head (pfile, fname, angle_brackets, type);
++  return _cpp_find_failed (_cpp_find_file (pfile, fname, start_dir,
++			   /*fake=*/false, angle_brackets,
++			   /*implicit_preinclude=*/false));
++}
++
+Index: libcpp/pch.c
+===================================================================
+--- libcpp/pch.c	(revision 204912)
++++ libcpp/pch.c	(working copy)
+@@ -833,6 +833,8 @@
+     s->n_true		= cpp_lookup (r, DSC("true"));
+     s->n_false		= cpp_lookup (r, DSC("false"));
+     s->n__VA_ARGS__     = cpp_lookup (r, DSC("__VA_ARGS__"));
++    s->n__has_include__ = cpp_lookup (r, DSC("__has_include__"));
++    s->n__has_include_next__ = cpp_lookup (r, DSC("__has_include_next__"));
+   }
+ 
+   old_state = r->state;
+Index: libcpp/traditional.c
+===================================================================
+--- libcpp/traditional.c	(revision 204912)
++++ libcpp/traditional.c	(working copy)
+@@ -74,7 +74,9 @@
+ 	 ls_defined_close,	/* Looking for ')' of defined().  */
+ 	 ls_hash,		/* After # in preprocessor conditional.  */
+ 	 ls_predicate,		/* After the predicate, maybe paren?  */
+-	 ls_answer};		/* In answer to predicate.  */
++	 ls_answer,		/* In answer to predicate.  */
++	 ls_has_include,	/* After __has_include__.  */
++	 ls_has_include_close};	/* Looking for ')' of __has_include__.  */
+ 
+ /* Lexing TODO: Maybe handle space in escaped newlines.  Stop lex.c
+    from recognizing comments and directives during its lexing pass.  */
+@@ -524,6 +526,13 @@
+ 		  lex_state = ls_defined;
+ 		  continue;
+ 		}
++	      else if (pfile->state.in_expression
++		       && (node == pfile->spec_nodes.n__has_include__
++			|| node == pfile->spec_nodes.n__has_include_next__))
++		{
++		  lex_state = ls_has_include;
++		  continue;
++		}
+ 	    }
+ 	  break;
+ 
+@@ -547,6 +556,8 @@
+ 		lex_state = ls_answer;
+ 	      else if (lex_state == ls_defined)
+ 		lex_state = ls_defined_close;
++	      else if (lex_state == ls_has_include)
++		lex_state = ls_has_include_close;
+ 	    }
+ 	  break;
+ 
+@@ -584,7 +595,8 @@
+ 		      goto new_context;
+ 		    }
+ 		}
+-	      else if (lex_state == ls_answer || lex_state == ls_defined_close)
++	      else if (lex_state == ls_answer || lex_state == ls_defined_close
++			|| lex_state == ls_has_include_close)
+ 		lex_state = ls_none;
+ 	    }
+ 	  break;
+@@ -665,7 +677,8 @@
+ 	lex_state = ls_none;
+       else if (lex_state == ls_hash
+ 	       || lex_state == ls_predicate
+-	       || lex_state == ls_defined)
++	       || lex_state == ls_defined
++	       || lex_state == ls_has_include)
+ 	lex_state = ls_none;
+ 
+       /* ls_answer and ls_defined_close keep going until ')'.  */
+Index: gcc/c-family/c-cppbuiltin.c
+===================================================================
+--- gcc/c-family/c-cppbuiltin.c	(revision 204912)
++++ gcc/c-family/c-cppbuiltin.c	(working copy)
+@@ -803,7 +803,40 @@
+       if (flag_rtti)
+ 	cpp_define (pfile, "__GXX_RTTI");
+       if (cxx_dialect >= cxx11)
+-        cpp_define (pfile, "__GXX_EXPERIMENTAL_CXX0X__");
++	{
++          cpp_define (pfile, "__GXX_EXPERIMENTAL_CXX0X__");
++	  /* Set feature test macros for C++11  */
++	  cpp_define (pfile, "__has_include(STR)=__has_include__(STR)");
++	  cpp_define (pfile,
++		      "__has_include_next(STR)=__has_include_next__(STR)");
++
++	  cpp_define (pfile, "__cpp_unicode_characters=200704");
++	  cpp_define (pfile, "__cpp_raw_strings=200710");
++	  cpp_define (pfile, "__cpp_unicode_literals=200710");
++	  cpp_define (pfile, "__cpp_user_defined_literals=200809");
++	  cpp_define (pfile, "__cpp_lambdas=200907");
++	  cpp_define (pfile, "__cpp_constexpr=200704");
++	  cpp_define (pfile, "__cpp_static_assert=200410");
++	  cpp_define (pfile, "__cpp_decltype=200707");
++	  cpp_define (pfile, "__cpp_attributes=200809");
++	  cpp_define (pfile, "__cpp_rvalue_reference=200610");
++	  cpp_define (pfile, "__cpp_variadic_templates=200704");
++	}
++      if (cxx_dialect > cxx11)
++	{
++	  /* Set feature test macros for C++14  */
++	  cpp_define (pfile, "__cpp_binary_literals=201304");
++	  cpp_define (pfile, "__cpp_init_captures=201304");
++	  cpp_define (pfile, "__cpp_generic_lambdas=201304");
++	  cpp_undef (pfile, "__cpp_constexpr");
++	  cpp_define (pfile, "__cpp_constexpr=201304");
++	  cpp_define (pfile, "__cpp_decltype_auto=201304");
++	  cpp_define (pfile, "__cpp_return_type_deduction=201304");
++	  cpp_define (pfile, "__cpp_runtime_arrays=201304");
++	  //cpp_define (pfile, "__cpp_aggregate_nsdmi=201304");
++	  //cpp_define (pfile, "__cpp_variable_templates=201304");
++	  cpp_define (pfile, "__cpp_digit_separators=201310");
++	}
+     }
+   /* Note that we define this for C as well, so that we know if
+      __attribute__((cleanup)) will interface with EH.  */
+Index: libstdc++-v3/include/bits/basic_string.h
+===================================================================
+--- libstdc++-v3/include/bits/basic_string.h	(revision 204912)
++++ libstdc++-v3/include/bits/basic_string.h	(working copy)
+@@ -3124,6 +3124,8 @@
+ 
+ #if __cplusplus > 201103L
+ 
++#define __cpp_lib_string_udls=201304
++
+   inline namespace literals
+   {
+   inline namespace string_literals
+Index: libstdc++-v3/include/bits/stl_algobase.h
+===================================================================
+--- libstdc++-v3/include/bits/stl_algobase.h	(revision 204912)
++++ libstdc++-v3/include/bits/stl_algobase.h	(working copy)
+@@ -1091,6 +1091,7 @@
+     }
+ 
+ #if __cplusplus > 201103L
++#define __cpp_lib_robust_nonmodifying_seq_ops=201304
+   /**
+    *  @brief Tests a range for element-wise equality.
+    *  @ingroup non_mutating_algorithms
+Index: libstdc++-v3/include/bits/stl_function.h
+===================================================================
+--- libstdc++-v3/include/bits/stl_function.h	(revision 204912)
++++ libstdc++-v3/include/bits/stl_function.h	(working copy)
+@@ -217,6 +217,10 @@
+     };
+ 
+ #if __cplusplus > 201103L
++
++#define __cpp_lib_transparent_operators=201210
++#define __cpp_lib_generic_associative_lookup=201304
++
+   template<>
+     struct plus<void>
+     {
+Index: libstdc++-v3/include/bits/unique_ptr.h
+===================================================================
+--- libstdc++-v3/include/bits/unique_ptr.h	(revision 204912)
++++ libstdc++-v3/include/bits/unique_ptr.h	(working copy)
+@@ -743,6 +743,9 @@
+     };
+ 
+ #if __cplusplus > 201103L
++
++#define __cpp_lib_make_unique=201304
++
+   template<typename _Tp>
+     struct _MakeUniq
+     { typedef unique_ptr<_Tp> __single_object; };
+Index: libstdc++-v3/include/std/array
+===================================================================
+--- libstdc++-v3/include/std/array	(revision 204912)
++++ libstdc++-v3/include/std/array	(working copy)
+@@ -35,6 +35,8 @@
+ # include <bits/c++0x_warning.h>
+ #else
+ 
++#define __cpp_lib_constexpr_functions=201210
++
+ #include <stdexcept>
+ #include <bits/stl_algobase.h>
+ #include <bits/range_access.h>
+Index: libstdc++-v3/include/std/chrono
+===================================================================
+--- libstdc++-v3/include/std/chrono	(revision 204912)
++++ libstdc++-v3/include/std/chrono	(working copy)
+@@ -43,6 +43,8 @@
+ 
+ #ifdef _GLIBCXX_USE_C99_STDINT_TR1
+ 
++#define __cpp_lib_constexpr_functions=201210
++
+ namespace std _GLIBCXX_VISIBILITY(default)
+ {
+   /**
+@@ -782,6 +784,8 @@
+ 
+ #if __cplusplus > 201103L
+ 
++#define __cpp_lib_chrono_udls=201304
++
+   inline namespace literals
+   {
+   inline namespace chrono_literals
+Index: libstdc++-v3/include/std/complex
+===================================================================
+--- libstdc++-v3/include/std/complex	(revision 204912)
++++ libstdc++-v3/include/std/complex	(working copy)
+@@ -1929,6 +1929,8 @@
+ inline namespace literals {
+ inline namespace complex_literals {
+ 
++#define __cpp_lib_complex_udls=201310
++
+   constexpr std::complex<float>
+   operator""if(long double __num)
+   { return std::complex<float>{0.0F, static_cast<float>(__num)}; }
+Index: libstdc++-v3/include/std/iomanip
+===================================================================
+--- libstdc++-v3/include/std/iomanip	(revision 204912)
++++ libstdc++-v3/include/std/iomanip	(working copy)
+@@ -336,6 +336,8 @@
+ 
+ #if __cplusplus > 201103L
+ 
++#define __cpp_lib_quoted_string_io=201304
++
+   namespace __detail {
+ 
+     /**
+Index: libstdc++-v3/include/std/tuple
+===================================================================
+--- libstdc++-v3/include/std/tuple	(revision 204912)
++++ libstdc++-v3/include/std/tuple	(working copy)
+@@ -773,6 +773,7 @@
+ 	tuple<_Elements...>>::type&&>(get<__i>(__t)); }
+ 
+ #if __cplusplus > 201103L
++#define __cpp_lib_tuples_by_type=201304
+   template<typename _Head, size_t __i, typename... _Tail>
+     constexpr typename __add_ref<_Head>::type
+     __get_helper2(_Tuple_impl<__i, _Head, _Tail...>& __t) noexcept
+Index: libstdc++-v3/include/std/type_traits
+===================================================================
+--- libstdc++-v3/include/std/type_traits	(revision 204912)
++++ libstdc++-v3/include/std/type_traits	(working copy)
+@@ -61,6 +61,7 @@
+       typedef integral_constant<_Tp, __v>   type;
+       constexpr operator value_type() const { return value; }
+ #if __cplusplus > 201103L
++#define __cpp_lib_integral_constant_callable=201304
+       constexpr value_type operator()() const { return value; }
+ #endif
+     };
+@@ -1439,6 +1440,9 @@
+     };
+ 
+ #if __cplusplus > 201103L
++
++#define __cpp_lib_transformation_trait_aliases=201304
++
+   /// Alias template for remove_const
+   template<typename _Tp>
+     using remove_const_t = typename remove_const<_Tp>::type;
+@@ -2011,6 +2015,8 @@
+ 
+   // Sfinae-friendly result_of implementation:
+ 
++#define __cpp_lib_result_of_sfinae=201210
++
+   // [func.require] paragraph 1 bullet 1:
+   struct __result_of_memfun_ref_impl
+   {
+Index: libstdc++-v3/include/std/utility
+===================================================================
+--- libstdc++-v3/include/std/utility	(revision 204912)
++++ libstdc++-v3/include/std/utility	(working copy)
+@@ -70,6 +70,9 @@
+ #include <bits/stl_pair.h>
+ 
+ #if __cplusplus >= 201103L
++
++#define __cpp_lib_constexpr_functions=201210
++
+ #include <bits/move.h>
+ #include <initializer_list>
+ 
+@@ -153,6 +156,9 @@
+     { return __pair_get<_Int>::__const_get(__in); }
+ 
+ #if __cplusplus > 201103L
++
++#define __cpp_lib_tuples_by_type=201304
++
+   template <typename _Tp, typename _Up>
+     constexpr _Tp&
+     get(pair<_Tp, _Up>& __p) noexcept
+@@ -183,6 +189,8 @@
+     get(pair<_Up, _Tp>&& __p) noexcept
+     { return std::move(__p.second); }
+ 
++#define __cpp_lib_exchange_function=201304
++
+   /// Assign @p __new_val to @p __obj and return its previous value.
+   template <typename _Tp, typename _Up = _Tp>
+     inline _Tp
+@@ -216,6 +224,9 @@
+     };
+ 
+ #if __cplusplus > 201103L
++
++#define __cpp_lib_integer_sequence=201304
++
+   /// Class template integer_sequence
+   template<typename _Tp, _Tp... _Idx>
+     struct integer_sequence
+Index: libstdc++-v3/testsuite/experimental/feat-cxx14.cc
+===================================================================
+--- libstdc++-v3/testsuite/experimental/feat-cxx14.cc	(revision 0)
++++ libstdc++-v3/testsuite/experimental/feat-cxx14.cc	(working copy)
+@@ -0,0 +1,65 @@
++// { dg-options "-std=gnu++1y" }
++// { dg-do compile }
++
++#include <utility>
++#include <tuple>
++#include <memory>
++#include <functional>
++#include <type_traits>
++#include <chrono>
++#include <string>
++#include <complex>
++#include <iomanip>
++
++#ifndef  __cpp_lib_integer_sequence
++#  error "__cpp_lib_integer_sequence"
++#endif
++#ifndef  __cpp_lib_exchange_function
++#  error "__cpp_lib_exchange_function"
++#endif
++#ifndef  __cpp_lib_tuples_by_type
++#  error "__cpp_lib_tuples_by_type"
++#endif
++#ifndef  __cpp_lib_make_unique
++#  error "__cpp_lib_make_unique"
++#endif
++#ifndef  __cpp_lib_transparent_operators
++#  error "__cpp_lib_transparent_operators"
++#endif
++#ifndef  __cpp_lib_result_of_sfinae
++#  error "__cpp_lib_result_of_sfinae"
++#endif
++#ifndef  __cpp_lib_integral_constant_callable
++#  error "__cpp_lib_integral_constant_callable"
++#endif
++#ifndef  __cpp_lib_transformation_trait_aliases
++#  error "__cpp_lib_transformation_trait_aliases"
++#endif
++#ifndef  __cpp_lib_chrono_udls
++#  error "__cpp_lib_chrono_udls"
++#endif
++#ifndef  __cpp_lib_string_udls
++#  error "__cpp_lib_string_udls"
++#endif
++#ifndef __cpp_lib_complex_udls
++#  error "__cpp_lib_complex_udls"
++#endif
++#ifndef  __cpp_lib_generic_associative_lookup
++#  error "__cpp_lib_generic_associative_lookup"
++#endif
++//#ifndef  __cpp_lib_null_iterators
++//#  error "__cpp_lib_null_iterators"
++//#endif
++#ifndef  __cpp_lib_robust_nonmodifying_seq_ops
++#  error "__cpp_lib_robust_nonmodifying_seq_ops"
++#endif
++#ifndef  __cpp_lib_quoted_string_io
++#  error "__cpp_lib_quoted_string_io"
++#endif
++
++#if !__has_include(<experimental/optional>)
++#  error "<experimental/optional>"
++#endif
++#if !__has_include(<shared_mutex>)
++#  error "<shared_mutex>"
++#endif
+Index: gcc/testsuite/g++.dg/cpp1y/feat-cxx11-neg.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp1y/feat-cxx11-neg.C	(revision 0)
++++ gcc/testsuite/g++.dg/cpp1y/feat-cxx11-neg.C	(working copy)
+@@ -0,0 +1,26 @@
++// { dg-options -std=c++11 }
++// { dg-do compile }
++
++#ifndef __cpp_binary_literals
++#  error "__cpp_binary_literals" // { dg-error "error" }
++#endif
++
++#ifndef __cpp_init_captures
++#  error "__cpp_init_captures" // { dg-error "error" }
++#endif
++
++#ifndef __cpp_generic_lambdas
++#  error "__cpp_generic_lambdas" // { dg-error "error" }
++#endif
++
++#ifndef __cpp_decltype_auto
++#  error "__cpp_decltype_auto" // { dg-error "error" }
++#endif
++
++#ifndef __cpp_return_type_deduction
++#  error "__cpp_return_type_deduction" // { dg-error "error" }
++#endif
++
++#ifndef __cpp_runtime_arrays
++#  error "__cpp_runtime_arrays" // { dg-error "error" }
++#endif
+Index: gcc/testsuite/g++.dg/cpp1y/feat-cxx11.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp1y/feat-cxx11.C	(revision 0)
++++ gcc/testsuite/g++.dg/cpp1y/feat-cxx11.C	(working copy)
+@@ -0,0 +1,50 @@
++// { dg-options -std=c++11 }
++// { dg-do compile }
++
++#ifndef __cpp_unicode_characters
++#  error "__cpp_unicode_characters"
++#endif
++
++#ifndef __cpp_raw_strings
++#  error "__cpp_raw_strings"
++#endif
++
++#ifndef __cpp_unicode_literals
++#  error "__cpp_unicode_literals"
++#endif
++
++#ifndef __cpp_user_defined_literals
++#  error "__cpp_user_defined_literals"
++#endif
++
++#ifndef __cpp_lambdas
++#  error "__cpp_lambdas"
++#endif
++
++#ifdef __cpp_constexpr
++#  if __cpp_constexpr != 200704
++#    error "__cpp_constexpr"
++#  endif
++#else
++#  error "__cpp_constexpr"
++#endif
++
++#ifndef __cpp_static_assert
++#  error "__cpp_static_assert"
++#endif
++
++#ifndef __cpp_decltype
++#  error "__cpp_decltype"
++#endif
++
++#ifndef __cpp_attributes
++#  error "__cpp_attributes"
++#endif
++
++#ifndef __cpp_rvalue_reference
++#  error "__cpp_rvalue_reference"
++#endif
++
++#ifndef __cpp_variadic_templates
++#  error "__cpp_variadic_templates"
++#endif
+Index: gcc/testsuite/g++.dg/cpp1y/feat-cxx14-neg.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp1y/feat-cxx14-neg.C	(revision 0)
++++ gcc/testsuite/g++.dg/cpp1y/feat-cxx14-neg.C	(working copy)
+@@ -0,0 +1,10 @@
++// { dg-options -std=c++1y }
++// { dg-do compile }
++
++#ifdef __cpp_constexpr
++#  if __cpp_constexpr != 200704
++#    error "__cpp_constexpr" // { dg-error "error" }
++#  endif
++#else
++#  error "__cpp_constexpr"
++#endif
+Index: gcc/testsuite/g++.dg/cpp1y/feat-cxx14.C
+===================================================================
+--- gcc/testsuite/g++.dg/cpp1y/feat-cxx14.C	(revision 0)
++++ gcc/testsuite/g++.dg/cpp1y/feat-cxx14.C	(working copy)
+@@ -0,0 +1,174 @@
++// { dg-options "-std=c++1y -Itestinc" }
++// { dg-do compile }
++
++#ifndef __cpp_unicode_characters
++#  error "__cpp_unicode_characters"
++#endif
++
++#ifndef __cpp_raw_strings
++#  error "__cpp_raw_strings"
++#endif
++
++#ifndef __cpp_unicode_literals
++#  error "__cpp_unicode_literals"
++#endif
++
++#ifndef __cpp_user_defined_literals
++#  error "__cpp_user_defined_literals"
++#endif
++
++#ifndef __cpp_lambdas
++#  error "__cpp_lambdas"
++#endif
++
++#ifndef __cpp_constexpr
++#  error "__cpp_constexpr"
++#endif
++
++#ifndef __cpp_static_assert
++#  error "__cpp_static_assert"
++#endif
++
++#ifndef __cpp_decltype
++#  error "__cpp_decltype"
++#endif
++
++#ifndef __cpp_attributes
++#  error "__cpp_attributes"
++#endif
++
++#ifndef __cpp_rvalue_reference
++#  error "__cpp_rvalue_reference"
++#endif
++
++#ifndef __cpp_variadic_templates
++#  error "__cpp_variadic_templates"
++#endif
++
++// Begin C++14 tests.
++
++#ifndef __cpp_binary_literals
++#  error "__cpp_binary_literals"
++#endif
++
++#ifndef __cpp_init_captures
++#  error "__cpp_init_captures"
++#endif
++
++#ifndef __cpp_generic_lambdas
++#  error "__cpp_generic_lambdas"
++#endif
++
++#ifdef __cpp_constexpr
++#  if __cpp_constexpr < 201304
++#    error "__cpp_constexpr"
++#  endif
++#endif
++
++#ifndef __cpp_decltype_auto
++#  error "__cpp_decltype_auto"
++#endif
++
++#ifndef __cpp_return_type_deduction
++#  error "__cpp_return_type_deduction"
++#endif
++
++#ifndef __cpp_runtime_arrays
++#  error "__cpp_runtime_arrays"
++#endif
++
++//  Aggregate initializers not in yet.
++#ifdef __cpp_aggregate_nsdmi
++#  error "__cpp_aggregate_nsdmi"
++#endif
++
++//  Variable templates not in yet.
++#ifdef __cpp_variable_templates
++#  error "__cpp_variable_templates"
++#endif
++
++//  Check undefined macro.
++#if defined(gnu_poo)
++#  error "defined(gnu_poo)"
++#endif
++
++//  Check for __has_include macro.
++#ifndef __has_include
++#  error "__has_include"
++#endif
++
++//  Quoted complex.h should find at least the bracket version (use operator).
++#if __has_include__ "complex.h"
++#else
++#  error "complex.h"
++#endif
++
++//  Try known bracket header (use operator).
++#if __has_include__(<complex>)
++#else
++#  error "<complex>"
++#endif
++
++//  Define and use a macro to invoke the operator.
++#define sluggo(TXT) __has_include__(TXT)
++
++#if sluggo(<complex>)
++#else
++#  error "<complex>"
++#endif
++
++#if ! sluggo(<complex>)
++#  error "<complex>"
++#else
++#endif
++
++//  Quoted complex.h should find at least the bracket version.
++#if __has_include("complex.h")
++#else
++#  error "complex.h"
++#endif
++
++//  Try known local quote header.
++#if __has_include("complex_literals.h")
++#else
++#  error "\"complex_literals.h\""
++#endif
++
++//  Try nonexistent bracket header.
++#if __has_include(<stuff>)
++#  error "<stuff>"
++#else
++#endif
++
++//  Try nonexistent quote header.
++#if __has_include("phlegm")
++#  error "\"phlegm\""
++#else
++#endif
++
++//  Test __has_include_next.
++#if __has_include("phoobhar.h")
++#  include "phoobhar.h"
++#else
++#  error "phoobhar.h"
++#endif
++
++//  Try a macro.
++#define COMPLEX_INC "complex.h"
++#if __has_include(COMPLEX_INC)
++#else
++#  error COMPLEX_INC
++#endif
++
++//  Realistic use of __has_include.
++#if __has_include(<array>)
++#  define STD_ARRAY 1
++#  include <array>
++  template<typename _Tp, size_t _Num>
++    using array = std::array<_Tp, _Num>;
++#elif __has_include(<tr1/array>)
++#  define TR1_ARRAY 1
++#  include <tr1/array>
++  template<typename _Tp, size_t _Num>
++    typedef std::tr1::array<_Tp, _Num> array;
++#endif
+Index: gcc/testsuite/g++.dg/cpp1y/phoobhar.h
+===================================================================
+--- gcc/testsuite/g++.dg/cpp1y/phoobhar.h	(revision 0)
++++ gcc/testsuite/g++.dg/cpp1y/phoobhar.h	(working copy)
+@@ -0,0 +1,16 @@
++
++int
++phoo();
++
++int
++bhar();
++
++#ifdef __has_include_next
++#  if __has_include_next("phoobhar.h")
++#    include_next "phoobhar.h"
++#  else
++#    error "phoobhar.h"
++#  endif
++#else
++#  error "phoobhar.h"
++#endif
+Index: gcc/testsuite/g++.dg/cpp1y/testinc/phoobhar.h
+===================================================================
+Index: gcc/testsuite/g++.dg/cpp1y/testinc/phoobhar.h
+===================================================================
