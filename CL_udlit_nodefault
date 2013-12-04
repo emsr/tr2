@@ -1,0 +1,20 @@
+
+cp:
+
+2013-12-05  Edward Smith-Rowland  <3dw4rd@verizon.net>
+
+	DR1479: Literal operators and default arguments
+	* cp-tree.h (check_literal_operator_args): Add new variable.
+	* decl.c (grokfndecl): Adjust call.  Report extra error.
+	* typeck.c (check_literal_operator_args): Add and set new return
+	argument indicating defaulted operator argument.
+	of character and build parm pack with correct type and chars.
+
+
+testsuite:
+
+2013-12-05  Edward Smith-Rowland  <3dw4rd@verizon.net>
+
+	DR1479: Literal operators and default arguments
+	* testsuite/g++.dg/cpp0x/udlit-default-arg-neg.C: New.
+
