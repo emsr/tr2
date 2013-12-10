@@ -34,7 +34,7 @@ Index: cp/decl.c
  	    {
  	      error ("%qD has invalid argument list", decl);
 +	      if (default_arg_p)
-+		inform (location_of (decl), "%qD has default argument(s)", decl);
++		inform (input_location, "%qD has default argument(s)", decl);
  	      return NULL_TREE;
  	    }
  
@@ -98,11 +98,13 @@ Index: testsuite/g++.dg/cpp0x/udlit-default-arg-neg.C
 ===================================================================
 --- testsuite/g++.dg/cpp0x/udlit-default-arg-neg.C	(revision 0)
 +++ testsuite/g++.dg/cpp0x/udlit-default-arg-neg.C	(revision 0)
-@@ -0,0 +1,48 @@
+@@ -0,0 +1,22 @@
 +// { dg-options -std=c++11 }
 +
++#include <cstddef>
++
 +int
-+operator""_a(const char *, std::size_t = 0) // { dg-error "has default argument" }
++operator""_a(const char *, std::size_t = 0) // { dg-error "has invalid argument list" }
 +{
 +  return 1;
 +}
@@ -114,36 +116,8 @@ Index: testsuite/g++.dg/cpp0x/udlit-default-arg-neg.C
 +}
 +
 +int
-+operator""_fld(long double x, int m = 1) // { dg-error "has default argument" }
-+{
-+  return m * static_cast<int>(x + 1.0L);
-+}
-+
-+int
-+operator""_full(unsigned long long n, int m = 1) // { dg-error "has default argument" }
-+{
-+  return m * static_cast<int>(n + 1ULL);
-+}
-+
-+template<char..._Str>
-+  int
-+  operator""_foo(unsigned long long n = 0) // { dg-error "has default argument" }
-+  {
-+    return 0 + sizeof...(_Str);
-+  }
-+
-+int
 +main()
 +{
-+  int i = 123_a; // OK, not ambiguous.
-+  int j = operator""_a("123"); // OK, not ambiguous.
-+
-+  1.0_fld; // { dg-error "unable to find numeric literal operator" }
-+  1_full; // { dg-error "unable to find numeric literal operator" }
-+  123456789_foo; // { dg-error "unable to find numeric literal operator" }
++  int i = 123_a; // OK, raw literal, not ambiguous.
++  int j = operator""_a("123"); // OK, raw literal, not ambiguous.
 +}
-+
-+// { dg-error "has invalid argument list" "has invalid argument list" { target *-*-* } 4 }
-+// { dg-error "has invalid argument list" "has invalid argument list" { target *-*-* } 16 }
-+// { dg-error "has invalid argument list" "has invalid argument list" { target *-*-* } 22 }
-+// { dg-error "has invalid argument list" "has invalid argument list" { target *-*-* } 29 }
