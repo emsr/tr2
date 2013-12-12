@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o test_pr58781_4 test_pr58781_4.cpp
+// /home/ed/bin/bin/g++ -std=c++11 -o test_pr58781_5 test_pr58781_5.cpp
 
 #include <cstddef>
 
@@ -11,7 +11,7 @@ operator""_s(const char32_t *a, size_t b)
 int
 f()
 {
-  using b = decltype(U"\x8111"_s);
+  using a = decltype(U"\x1181");
 }
 
 int
