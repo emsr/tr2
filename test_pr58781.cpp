@@ -46,8 +46,8 @@ f()
 
   std::cout << "\ndecltype string literals\n";
   using a = decltype(U"\x1181"_s);
-  //using b = decltype(U"\x8111"_s);
-  //using c = decltype(U" \x1181"_s);
+  using b = decltype(U"\x8111"_s);
+  using c = decltype(U" \x1181"_s);
   using d = decltype(U'\x1181'_c);
   using e = decltype(U'\x8111'_c);
   using sa = decltype(U"\x1181");
