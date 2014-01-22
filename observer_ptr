@@ -1,0 +1,508 @@
+//  Ref. implementation from n3514
+
+// ======================================================================
+//
+// observer_ptr: A pointer that is nearly oblivious to its pointee
+//
+// ======================================================================
+
+#include  <cstddef>      // nullptr_t
+#include  <functional>   // less
+#include  <type_traits>  // add_pointer, enable_if, ...
+#include  <utility>      // swap
+
+// ======================================================================
+// interface:
+
+template<typename _Elem>
+  class observer_ptr;
+
+template<typename _Elem, size_t _Num>
+  class observer_ptr<_Elem[_Num]>;
+
+template<typename _Elem>
+  void
+  swap(observer_ptr<_Elem> &, observer_ptr<_Elem> &) noexcept;
+
+template<typename _Elem>
+  observer_ptr<_Elem>
+  make_observer(_Elem *) noexcept;
+
+template<typename _Elem>
+  bool
+  operator==(observer_ptr<_Elem> const &, observer_ptr<_Elem> const &);
+
+template<typename _Elem>
+  bool
+  operator!=(observer_ptr<_Elem> const &, observer_ptr<_Elem> const &);
+
+template<typename _Elem>
+  bool
+  operator==(observer_ptr<_Elem> const &, std::nullptr_t) noexcept;
+
+template<typename _Elem>
+  bool
+  operator!=(observer_ptr<_Elem> const &, std::nullptr_t) noexcept;
+
+template<typename _Elem>
+  bool
+  operator==(std::nullptr_t, observer_ptr<_Elem> const &) noexcept;
+
+template< typename _Elem>
+  bool
+  operator!=(std::nullptr_t, observer_ptr<_Elem> const &) noexcept;
+
+template<typename _Elem >
+  bool
+  operator<(observer_ptr<_Elem> const &, observer_ptr<_Elem> const &);
+
+template<typename _Elem >
+  bool
+  operator>(observer_ptr<_Elem> const &, observer_ptr<_Elem> const &);
+
+template<typename _Elem >
+  bool
+  operator<=(observer_ptr<_Elem> const &, observer_ptr<_Elem> const &);
+
+template<typename _Elem >
+  bool
+  operator>=(observer_ptr<_Elem> const &, observer_ptr<_Elem> const &);
+
+// arithmetic operators
+template<typename _Elem, size_t _Num>
+  observer_ptr<_Elem>
+  operator+(ptrdiff_t, const observer_ptr<_Elem>[_Num]&);
+
+// hash support
+template<typename _Elem>
+  struct hash<observer_ptr<_Elem>>;
+
+
+template<typename _Elem>
+  class observer_ptr
+  {
+  public:
+
+    // publish our template parameter and variations thereof:
+
+    using value_type      = _Elem;
+    using pointer         = typename std::add_pointer<_Elem>::type;
+    using const_pointer   = add_pointer_t<const _Elem>;
+    using reference       = typename std::add_lvalue_reference<_Elem>::type;
+    using const_reference = add_lvalue_reference_t<const _Elem>;
+
+  private:
+
+    template<typename _Ptr>
+      constexpr bool
+      is_compat()
+      {
+	using __ptrtype = typename std::add_pointer<_Ptr>::type;
+        return std::is_convertible<__ptrtype, pointer>::value;
+      }
+
+  public:
+
+    // default constructor:
+
+    constexpr
+    observer_ptr() noexcept
+    : _M_ptr{nullptr}
+    { }
+
+    // pointer-accepting constructors:
+
+    constexpr
+    observer_ptr(std::nullptr_t) noexcept
+    : observer_ptr{}
+    { }
+
+    explicit
+    observer_ptr(pointer __other) noexcept
+    : _M_ptr{__other}
+    { }
+
+    template<typename _Elem2,
+	     typename = typename std::enable_if<is_compat<_Elem2>()>::type>
+      explicit
+      observer_ptr(_Elem2 * __other) noexcept
+      : _M_ptr{__other}
+      { }
+
+    // copying constructors (in addition to compiler-generated copy constructor):
+
+    template<typename _Elem2,
+	     typename = typename std::enable_if<is_compat<_Elem2>()>::type>
+      observer_ptr(observer_ptr<_Elem2> const & __other) noexcept
+      : _M_ptr{__other.get()}
+      { }
+
+    // pointer-accepting assignments:
+
+    observer_ptr &
+    operator=(std::nullptr_t) noexcept
+    {
+      this->reset(nullptr);
+      return *this;
+    }
+
+    template<typename _Elem2>
+      typename std::enable_if<is_compat<_Elem2>(), observer_ptr &>::type
+      operator=(_Elem2 * __other) noexcept
+      {
+        this->reset(__other);
+        return *this;
+      }
+
+    // copying assignments (in addition to compiler-generated copy assignment):
+
+    template<typename _Elem2>
+      typename std::enable_if< is_compat<_Elem2>(), observer_ptr &>::type
+      operator=(observer_ptr<_Elem2> const & __other) noexcept
+      {
+        this->reset(__other.get());
+        return *this;
+      }
+
+    // observers:
+
+    pointer
+    get() const noexcept
+    { return this->_M_ptr; }
+
+    reference
+    operator*() const noexcept
+    { return *this->get(); }
+
+    pointer
+    operator->() const noexcept
+    { return this->get(); }
+
+    explicit
+    operator bool() const noexcept
+    { return this->get(); }
+
+    // conversions:
+
+    operator pointer() noexcept
+    { return this->get(); }
+
+    operator const_pointer() const noexcept
+    { return this->get(); }
+
+    // modifiers:
+
+    pointer
+    release() noexcept
+    {
+      pointer __old = this->get();
+      this->reset();
+      return __old;
+    }
+
+    void
+    reset(pointer __ptr = nullptr) noexcept
+    { this->_M_ptr = __ptr; }
+
+    void
+    swap(observer_ptr & __other) noexcept
+    { std::swap(this->_M_ptr, __other._M_ptr); }
+
+    // arithmetic:
+
+    observer_ptr &
+    operator++()
+    {
+      ++_M_ptr;
+      return *this;
+    }
+
+    observer_ptr &
+    operator--()
+    {
+      --_M_ptr;
+      return *this;
+    }
+
+    observer_ptr
+    operator++(int)
+    {
+      pointer __tmp = _M_ptr;
+      ++_M_ptr;
+      return observer_ptr{__tmp};
+    }
+
+    observer_ptr
+    operator--(int)
+    {
+      pointer __tmp = _M_ptr;
+      --_M_ptr;
+      return observer_ptr{__tmp};
+    }
+
+    observer_ptr
+    operator+() const
+    { return *this; }
+
+    observer_ptr
+    operator+(ptrdiff_t __d) const
+    { return observer_ptr{_M_ptr + __d}; }
+
+    observer_ptr
+    operator-(ptrdiff_t __d) const
+    { return observer_ptr{_M_ptr - __d}; }
+
+    value_type &
+    operator[](ptrdiff_t __k)
+    { return _M_ptr[__k]; }
+
+    value_type const &
+    operator[](ptrdiff_t __k) const
+    { return _M_ptr[__k]; }
+
+  private:
+
+    pointer _M_ptr;
+
+  };
+
+template<typename _Elem, size_t _Num>
+  class observer_ptr<_Elem[_Num]>
+  {
+  public:
+
+    // publish our template parameter and variations thereof
+
+    using value_type      = _Elem;
+    using pointer         = add_pointer_t<_Elem>;
+    using const_pointer   = add_pointer_t<const _Elem>;
+    using reference       = add_lvalue_reference_t<_Elem>;
+    using const_reference = add_lvalue_reference_t<const _Elem>;
+
+    // enable use as a pointer-like iterator
+
+
+    using difference_type   = ptrdiff_t;
+    using iterator_category = random_access_iterator_tag;
+
+    // default constructor
+    constexpr observer_ptr() noexcept;
+
+    // pointer-accepting constructors
+
+    constexpr observer_ptr(nullptr_t) noexcept;
+
+    explicit observer_ptr(pointer) noexcept;
+
+    template<typename _Elem2>
+      explicit observer_ptr(_Elem2*) noexcept;
+
+    // copying constructors (in addition to compiler-generated copy constructor)
+
+    template<typename _Elem2>
+      observer_ptr(const observer_ptr<_Elem2>&) noexcept;
+
+    // pointer-accepting assignments
+
+    observer_ptr&
+    operator=(nullptr_t) noexcept;
+
+    template<typename _Elem2>
+      observer_ptr&
+      operator=(_Elem2* other) noexcept;
+
+    // copying assignments (in addition to compiler-generated copy assignment)
+
+    template<typename _Elem2>
+      observer_ptr&
+      operator=(const observer_ptr<_Elem2>&) noexcept;
+
+    // observers
+
+    pointer
+    get() const noexcept
+    { return this->_M_ptr; }
+
+    reference
+    operator*() const noexcept
+    { return *this->get(); }
+
+    pointer
+    operator->() const noexcept
+    { return this->get(); }
+
+    explicit
+    operator bool() const noexcept
+    { return this->get(); }
+
+    // conversions
+
+    explicit
+    operator pointer() noexcept
+    { return this->get(); }
+
+    explicit
+    operator const_pointer() const noexcept
+    { return this->get(); }
+
+    explicit
+    operator observer_ptr() noexcept;
+
+    explicit
+    operator const observer_ptr() const noexcept
+    { return this->get(); }
+
+    // modifiers
+
+    pointer
+    release() noexcept
+    {
+      pointer __old = this->get();
+      this->reset();
+      return __old;
+    }
+
+    void
+    reset(pointer t = nullptr) noexcept
+    { this->_M_ptr = __ptr; }
+
+    void
+    swap(observer_ptr& __other) noexcept
+    { std::swap(this->_M_ptr, __other._M_ptr); }
+
+    // arithmetic
+
+    observer_ptr&
+    operator++()
+    {
+      ++_M_ptr;
+      return *this; }
+
+    observer_ptr&
+    operator--()
+    {
+      --_M_ptr;
+      return *this; }
+
+    observer_ptr
+    operator++(int)
+    {
+      pointer __tmp = _M_ptr;
+      ++_M_ptr;
+      return observer_ptr{__tmp};
+    }
+
+    observer_ptr
+    operator--(int)
+    {
+      pointer __tmp = _M_ptr;
+      --_M_ptr;
+      return observer_ptr{__tmp};
+    }
+
+    observer_ptr
+    operator+() const
+    { return *this; }
+
+    observer_ptr
+    operator+(ptrdiff_t __d) const
+    { return observer_ptr{_M_ptr + __d}; }
+
+    observer_ptr
+    operator-(ptrdiff_t __d) const
+    { return observer_ptr{_M_ptr - __d}; }
+
+    ptrdiff_t
+    operator-(const observer_ptr&)
+    { return observer_ptr{_M_ptr - __d}; }
+
+    value_type&
+    operator[](ptrdiff_t __k)
+    { return _M_ptr[__k]; }
+
+    const value_type&
+    operator[](ptrdiff_t __k) const
+    { return _M_ptr[__k]; }
+
+  private:
+
+    pointer _M_ptr;
+
+  };
+
+
+  // -----------------------------------------------
+  // non-member swap:
+
+  template<typename _Elem>
+    inline void
+    swap(observer_ptr<_Elem> & __x, observer_ptr<_Elem> & __y) noexcept
+    { __x.swap(__y); }
+
+  // -----------------------------------------------
+  // non-member make_observer:
+
+  template<typename _Elem>
+    observer_ptr<_Elem>
+    make_observer(_Elem * __ptr) noexcept
+    { return observer_ptr<_Elem>{__ptr}; }
+
+  // -----------------------------------------------
+  // non-member (in)equality comparison:
+
+  template<typename _Elem>
+    bool
+    operator==(observer_ptr<_Elem> const & x, observer_ptr<_Elem> const & __y)
+    { return __x.get() == __y.get(); }
+
+  template<typename _Elem>
+    bool
+    operator!=(observer_ptr<_Elem> const & __x, observer_ptr<_Elem> const & __y)
+    { return ! operator==(__x, __y); }
+
+  template<typename _Elem>
+    bool
+    operator==(observer_ptr<_Elem> const & __x, std::nullptr_t __y) noexcept
+    { return __x.get() == __y; }
+
+  template<typename _Elem>
+    bool
+    operator!=(observer_ptr<_Elem> const & __x, std::nullptr_t __y) noexcept
+    { return ! operator==(__x, __y); }
+
+  template<typename _Elem>
+    bool
+    operator==(std::nullptr_t __x, observer_ptr<_Elem> const & __y) noexcept
+    { return __x == __y.get(); }
+
+  template<typename _Elem>
+    bool
+    operator!=(std::nullptr_t __x, observer_ptr<_Elem> const & __y) noexcept
+    { return ! operator==(__x, __y); }
+
+  // -----------------------------------------------
+  // non-member ordering:
+
+  template<typename _Elem>
+    bool
+    operator<(observer_ptr<_Elem> const & __x, observer_ptr<_Elem> const & __y)
+    {
+      using __ptr = typename observer_ptr<_Elem>::pointer;
+      return std::less<__ptr>()(__x.get(), __y.get());
+    }
+
+  template<typename _Elem>
+    bool
+    operator>(observer_ptr<_Elem> const & __x, observer_ptr<_Elem> const & __y)
+    { return __y < __x; }
+
+  template<typename _Elem>
+    bool
+    operator<=(observer_ptr<_Elem> const & __x, observer_ptr<_Elem> const & __y)
+    { return ! (__y < __x); }
+
+  template< typename _Elem >
+    bool
+    operator>=(observer_ptr<_Elem> const & __x, observer_ptr<_Elem> const & __y)
+    { return ! (__x < __y); }
+
