@@ -44,13 +44,13 @@ namespace experimental {
   };
 
   // factory functions
-  template<class Source>
+  template<typename Source>
     uri make_uri(const Source& source, std::error_code& e) noexcept;
-  template<class InputIterator>
+  template<typename InputIterator>
     uri make_uri(InputIterator first, InputIterator last, std::error_code& e) noexcept;
-  template<class Source, class Alloc>
+  template<typename Source, typename Alloc>
     uri make_uri(const Source& source, const Alloc& alloc, std::error_code& e) noexcept;
-  template<class InputIterator, class Alloc>
+  template<typename InputIterator, typename Alloc>
     uri make_uri(InputIterator first, InputIterator last, const Alloc& alloc,
                  std::error_code& e) noexcept;
 
@@ -63,10 +63,10 @@ namespace experimental {
   bool operator>=(const uri& lhs, const uri& rhs) noexcept;
 
   // stream operators
-  template<typename CharT, class CharTraits = std::char_traits<CharT>>
+  template<typename CharT, typename CharTraits = std::char_traits<CharT>>
     std::basic_ostream<CharT, CharTraits>&
     operator<< (std::basic_ostream<CharT, CharTraits>& os, const uri& u);
-  template<typename CharT, class CharTraits = std::char_traits<CharT>>
+  template<typename CharT, typename CharTraits = std::char_traits<CharT>>
     std::basic_istream<CharT, CharTraits>&
     operator>> (std::basic_istream<CharT, CharTraits>& is, uri& u);
 
@@ -156,10 +156,10 @@ namespace experimental {
 
     // transformers
     uri make_relative(const uri& base) const;
-    template<class Alloc>
+    template<typename Alloc>
       uri make_relative(const uri& base, const Alloc& alloc) const;
     uri make_relative(const uri& base, std::error_code& ec) const noexcept;
-    template<class Alloc>
+    template<typename Alloc>
       uri make_relative(const uri& base, const Alloc& alloc, std::error_code& ec) const noexcept;
 
     uri resolve(const uri& other) const;
@@ -240,7 +240,7 @@ namespace experimental {
       uri_builder& authority(const Source& authority);
     template<typename InputIterator>
       uri_builder& authority(InputIterator begin, InputIterator end);
-    template<typename UserInfoSource, class HostSource, PortSource>
+    template<typename UserInfoSource, typename HostSource, PortSource>
       uri_builder& authority(const UserInfoSource& user_info,
                              const HostSource& host, const PortSource& port);
     template<typename Source>
@@ -255,7 +255,7 @@ namespace experimental {
       uri_builder& query(const Source& query);
     template<typename InputIterator>
       uri_builder& query(InputIterator begin, InputIterator end);
-    template<typename Key, class Param>
+    template<typename Key, typename Param>
       uri_builder& append_query(const Key& key, const Param& param);
     template<typename Source>
       uri_builder& fragment(const Source& fragment);
