@@ -60,6 +60,7 @@
 // Additions to <random>:
 
 // Could the function static variables be thread_local?  Is there an advantage?
+// Yes! Good call! These are in a later version.
 
   inline auto&
   global_urng()
