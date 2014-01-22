@@ -1,6 +1,8 @@
 
 any/test_any
 
+apply
+
 binary_io/binary_literal
 binary_io/bintest
 
