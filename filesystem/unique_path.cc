@@ -43,7 +43,7 @@ unique_path(const path& model)
 }
 
 path
-unique_path(const path& model, std::error_code& ec)
+unique_path(const path& model, std::error_code& ec) noexcept
 {
   std::mt19937_64 re;
   std::random_device rd;
