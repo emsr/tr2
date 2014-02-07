@@ -633,7 +633,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     int compare(const path& __pth) const noexcept;
 
     int
-    compare(const std::string& __str) const
+    compare(const string_type& __str) const
     { return compare(path{__str}); }
 
     int
@@ -960,67 +960,70 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   // Operational functions
 
   path current_path();
-  path current_path(std::error_code& ec);
+  path current_path(std::error_code& ec) noexcept;
   void current_path(const path& pth);
-  void current_path(const path& pth, std::error_code& ec);
+  void current_path(const path& pth, std::error_code& ec) noexcept;
 
   path absolute(const path& pth, const path& base = current_path());
 
   path canonical(const path& pth, const path& base = current_path());
-  path canonical(const path& pth, std::error_code& ec);
-  path canonical(const path& pth, const path& base, std::error_code& ec);
+  path canonical(const path& pth, std::error_code& ec) noexcept;
+  path canonical(const path& pth, const path& base,
+		 std::error_code& ec) noexcept;
 
   void copy(const path& from, const path& to, copy_options options);
   void copy(const path& from, const path& to, copy_options options,
-	    std::error_code& ec);
+	    std::error_code& ec) noexcept;
 
   inline void
   copy(const path& __from, const path& __to)
   { copy(__from, __to, copy_options::none); }
 
   inline void
-  copy(const path& __from, const path& __to, std::error_code& __ec)
+  copy(const path& __from, const path& __to, std::error_code& __ec) noexcept
   { copy(__from, __to, copy_options::none, __ec); }
 
   void copy_directory(const path& from, const path& to);
-  void copy_directory(const path& from, const path& to, std::error_code& ec);
+  void copy_directory(const path& from, const path& to,
+		      std::error_code& ec) noexcept;
 
   void copy_file(const path& from, const path& to, copy_options options);
   void copy_file(const path& from, const path& to, copy_options options,
-		 std::error_code& ec);
+		 std::error_code& ec) noexcept;
 
   inline void
   copy_file(const path& __from, const path& __to)
   { copy_file(__from, __to, copy_options::none); }
 
   inline void
-  copy_file(const path& __from, const path& __to, std::error_code& __ec)
+  copy_file(const path& __from, const path& __to,
+	    std::error_code& __ec) noexcept
   { copy_file(__from, __to, copy_options::none, __ec); }
 
   void copy_symlink(const path& existing_symlink, const path& new_symlink);
   void copy_symlink(const path& existing_symlink, const path& new_symlink,
-		    std::error_code& ec);
+		    std::error_code& ec) noexcept;
 
   bool create_directories(const path& pth);
-  bool create_directories(const path& pth, std::error_code& ec);
+  bool create_directories(const path& pth, std::error_code& ec) noexcept;
 
   bool create_directory(const path& pth);
-  bool create_directory(const path& pth, std::error_code& ec);
+  bool create_directory(const path& pth, std::error_code& ec) noexcept;
 
   void create_directory_symlink(const path& to, const path& new_symlink);
   void create_directory_symlink(const path& to, const path& new_symlink,
-				std::error_code& ec);
+				std::error_code& ec) noexcept;
 
   bool create_file(const path& pth);
-  bool create_file(const path& pth, std::error_code& ec);
+  bool create_file(const path& pth, std::error_code& ec) noexcept;
 
   void create_hard_link(const path& to, const path& new_hard_link);
   void create_hard_link(const path& to, const path& new_hard_link,
-			std::error_code& ec);
+			std::error_code& ec) noexcept;
 
   void create_symlink(const path& to, const path& new_symlink);
   void create_symlink(const path& to, const path& new_symlink,
-		      std::error_code& ec);
+		      std::error_code& ec) noexcept;
 
   file_status status(const path& pth);
   file_status status(const path& pth, std::error_code& ec) noexcept;
@@ -1045,16 +1048,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   bool exists(const path& __pth, std::error_code& __ec) noexcept;
 
   bool equivalent(const path& pth1, const path& pth2);
-  bool equivalent(const path& pth1, const path& pth2, std::error_code& ec);
+  bool equivalent(const path& pth1, const path& pth2,
+		  std::error_code& ec) noexcept;
 
   uintmax_t file_size(const path& pth);
-  uintmax_t file_size(const path& pth, std::error_code& ec);
+  uintmax_t file_size(const path& pth, std::error_code& ec) noexcept;
 
   uintmax_t hard_link_count(const path& pth);
-  uintmax_t hard_link_count(const path& pth, std::error_code& ec);
+  uintmax_t hard_link_count(const path& pth, std::error_code& ec) noexcept;
 
   const path& initial_path();
-  const path& initial_path(std::error_code& ec);
+  const path& initial_path(std::error_code& ec) noexcept;
 
   inline bool
   is_directory(file_status __fs) noexcept
@@ -1069,7 +1073,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return is_directory(status(__pth, __ec)); }
 
   bool is_empty(const path& pth);
-  bool is_empty(const path& pth, std::error_code& ec);
+  bool is_empty(const path& pth, std::error_code& ec) noexcept;
 
   inline bool
   is_regular_file(file_status __fs) noexcept
@@ -1111,45 +1115,47 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return is_other(status(__pth, __ec)); }
 
   file_time_type last_write_time(const path& pth);
-  file_time_type last_write_time(const path& pth, std::error_code& ec);
+  file_time_type last_write_time(const path& pth,
+				 std::error_code& ec) noexcept;
   void last_write_time(const path& pth,
 		       const file_time_type new_time);
   void last_write_time(const path& pth,
 		       const file_time_type new_time,
-		       std::error_code& ec);
+		       std::error_code& ec) noexcept;
 
   void permissions(const path& pth, perms prms);
-  void permissions(const path& pth, perms prms, std::error_code& ec);
+  void permissions(const path& pth, perms prms, std::error_code& ec) noexcept;
 
   path read_symlink(const path& pth);
-  path read_symlink(const path& pth, std::error_code& ec);
+  path read_symlink(const path& pth, std::error_code& ec) noexcept;
 
   bool remove(const path& pth);
-  bool remove(const path& pth, std::error_code& ec);
+  bool remove(const path& pth, std::error_code& ec) noexcept;
 
   uintmax_t remove_all(const path& pth);
-  uintmax_t remove_all(const path& pth, std::error_code& ec);
+  uintmax_t remove_all(const path& pth, std::error_code& ec) noexcept;
 
   void rename(const path& from, const path& to);
-  void rename(const path& from, const path& to, std::error_code& ec);
+  void rename(const path& from, const path& to, std::error_code& ec) noexcept;
 
   void resize_file(const path& pth, uintmax_t size);
-  void resize_file(const path& pth, uintmax_t size, std::error_code& ec);
+  void resize_file(const path& pth, uintmax_t size,
+		   std::error_code& ec) noexcept;
 
   space_info space(const path& pth);
-  space_info space(const path& pth, std::error_code& ec);
+  space_info space(const path& pth, std::error_code& ec) noexcept;
 
   file_status symlink_status(const path& pth);
   file_status symlink_status(const path& pth, std::error_code& ec) noexcept;
 
   path system_complete(const path& pth);
-  path system_complete(const path& pth, std::error_code& ec);
+  path system_complete(const path& pth, std::error_code& ec) noexcept;
 
   path temp_directory_path();
-  path temp_directory_path(std::error_code& ec);
+  path temp_directory_path(std::error_code& ec) noexcept;
 
   path unique_path(const path& model = "%%%%-%%%%-%%%%-%%%%");
-  path unique_path(const path& model, std::error_code& ec);
+  path unique_path(const path& model, std::error_code& ec) noexcept;
 
 
   /**
@@ -1159,18 +1165,18 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   {
   public:
 
-    filesystem_error(const std::string& __what, std::error_code __ec)
+    filesystem_error(const std::string& __what, std::error_code __ec) noexcept
     : std::system_error{__ec, __what}
     { }
 
     filesystem_error(const std::string& __what, const path& __pth,
-		     std::error_code __ec)
+		     std::error_code __ec) noexcept
     : std::system_error{__ec, __what}, _M_path1{__pth}, _M_path2{}
     { }
 
     filesystem_error(const std::string& __what,
 		     const path& __pth1, const path& __pth2,
-		     std::error_code __ec)
+		     std::error_code __ec) noexcept
     : std::system_error{__ec, __what}, _M_path1{__pth1}, _M_path2{__pth2}
     { }
 
@@ -1290,7 +1296,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     }
 
     file_status
-    symlink_status(std::error_code& __ec) const
+    symlink_status(std::error_code& __ec) const noexcept
     {
       if (!status_known(this->_M_symlink_status))
 	this->_M_symlink_status
@@ -1368,15 +1374,15 @@ namespace _Path_traits
     directory_iterator();
     directory_iterator(const directory_iterator& diter) = delete;
     directory_iterator(directory_iterator&& diter);
-    explicit directory_iterator(const path& p);
-    directory_iterator(const path& p, std::error_code& ec);
+    explicit directory_iterator(const path& pth);
+    directory_iterator(const path& pth, std::error_code& ec) noexcept;
     ~directory_iterator();
 
     directory_iterator& operator=(const directory_iterator& di) = delete;
     directory_iterator& operator=(directory_iterator&& di);
 
     directory_iterator& operator++();
-    directory_iterator& increment(std::error_code& ec);
+    directory_iterator& increment(std::error_code& ec) noexcept;
 
     bool operator==(const directory_iterator& di) const;
     bool operator!=(const directory_iterator& di) const;
@@ -1414,8 +1420,8 @@ namespace _Path_traits
     recursive_directory_iterator(const path& pth,
 				 symlink_option opt = symlink_option::none);
     recursive_directory_iterator(const path& pth, symlink_option opt,
-				 std::error_code& ec);
-    recursive_directory_iterator(const path& pth, std::error_code& ec);
+				 std::error_code& ec) noexcept;
+    recursive_directory_iterator(const path& pth, std::error_code& ec) noexcept;
     ~recursive_directory_iterator();
 
     // observers
