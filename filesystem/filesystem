@@ -971,6 +971,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   path canonical(const path& pth, const path& base,
 		 std::error_code& ec) noexcept;
 
+  path relative(const path& pth, const path& to = current_path());
+  path relative(const path& pth, std::error_code& ec) noexcept;
+  path relative(const path& pth, const path& to, std::error_code& ec) noexcept;
+
   void copy(const path& from, const path& to, copy_options options);
   void copy(const path& from, const path& to, copy_options options,
 	    std::error_code& ec) noexcept;
@@ -1437,7 +1441,7 @@ namespace _Path_traits
 
     void pop();
     // NOTE: I added an error code version of pop.
-    void pop(std::error_code& ec);
+    void pop(std::error_code& ec) noexcept;
     void pending_push(bool value = false);
 
     bool operator==(const recursive_directory_iterator& rdi) const;
