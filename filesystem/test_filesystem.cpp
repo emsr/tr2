@@ -179,6 +179,13 @@ main()
 
   std::cout << "current_path: " << std::experimental::filesystem::current_path() << '\n';
 
+  std::experimental::filesystem::path this_test{__FILE__};
+  std::cout << "this_test: " << this_test << '\n';
+  std::cout << "canonical(this_test): " << std::experimental::filesystem::canonical(this_test) << '\n';
+  std::cout << "absolute(this_test): " << std::experimental::filesystem::absolute(this_test) << '\n';
+  std::cout << "relative(\"/usr/local\", this_test): "
+            << std::experimental::filesystem::relative("/usr/local", this_test) << '\n';
+
   std::cout << "unique_path: " << std::experimental::filesystem::unique_path() << '\n';
 
   std::cout << "temp_directory_path: " << std::experimental::filesystem::temp_directory_path() << '\n';

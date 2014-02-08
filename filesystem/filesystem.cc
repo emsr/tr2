@@ -821,6 +821,51 @@ canonical(const path& pth, const path& base, std::error_code& ec) noexcept
   return canonical(abspath, ec);
 }
 
+path
+relative(const path& pth, const path& to = current_path())
+{
+  std::error_code ec;
+  path rel = relative(pth, to, ec);
+  if (ec)
+    throw filesystem_error{"relative", pth, to, ec};
+}
+
+path
+relative(const path& pth, std::error_code& ec) noexcept
+{
+  path to = current_path(ec);
+  if (ec)
+    return path();
+  else
+    return relative(pth, to, ec);
+}
+
+path
+relative(const path& pth, const path& to, std::error_code& ec) noexcept
+{
+  path rel;
+  path abspth = absolute(pth, ec);
+  if (ec)
+    return rel;
+  path absto = absolute(to, ec);
+  if (ec)
+    return rel;
+  /// Find common base.
+  auto bpth = std::begin(abspth);
+  auto bto = std::begin(absto);
+  // Find 
+  for (auto epth = std::end(abspth), eto = std::end(absto);
+       bpth != epth && bto != eto && *bpth == *bto; ++bpth, ++bto)
+    ;
+  for (auto epth = std::end(pth); bpth != epth; ++bpth)
+    if (*bpth != ".")
+      rel /= "..";
+
+  rel.append(bto, std::end(to), ec);
+
+  return rel;
+}
+
 void
 copy(const path& from, const path& to, copy_options options)
 {
