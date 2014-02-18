@@ -3,6 +3,7 @@
 // Additions to <algorithm>
 
 // Code from paper.  These are from SGI code and we might have them in ext.
+// Check this: gcc/libstdc++-v3/include/ext/algorithm
 
    template<typename _PopIter, typename _SampleIter, typename _Size,
 	    typename _URNG = decltype(global_urng())>
@@ -15,14 +16,15 @@
 		       std::forward<_URNG>(__g));
      }
 
+    //  Reservoir sampling.
     template<class _PopIter, class _SampleIter, class _Size, class _URNG>
       SampleIter
       __sample(_PopIter __first, _PopIter __last, std::input_iterator_tag,
 	       _SampleIter __out, std::random_access_iterator_tag,
 	       _Size __n, _URNG&& __g)
       {
-	using __dist_t = std::uniform_int_distribution<Size>;
-	__dist_t _d{};
+	using __dist_t = std::uniform_int_distribution<_Size>;
+	__dist_t __dist{};
 	_Size __sample_sz{};
 	while (__first != __last && __sample_sz != __n)
 	  __out[__sample_sz++] = *__first++;
@@ -30,13 +32,14 @@
 	  {
 	    using __param_t = typename __dist_t::param_type;
 	    __param_t const __p{0, __pop_sz};
-	    Size __k{__d(__g, __p)};
+	    Size __k{__dist(__g, __p)};
 	    if (__k < __n)
 	      __out[__k] = *__first;
 	  }
         return __out + __sample_sz;
       }
 
+    //  Selection sampling.
     template<class _PopIter, class _SampleIter, class _Size, class _URNG>
       SampleIter
       __sample(_PopIter __first, _PopIter __last, std::forward_iterator_tag,
@@ -44,14 +47,17 @@
 	       _Size __n, _URNG&& __g)
       {
 	using __dist_t = std::uniform_int_distribution<_Size>;
-	__dist_t __d{};
+	__dist_t __dist{};
 	_Size __unsampled_sz = std::distance(__first, __last);
 	for (__n = std::min(__n, __unsampled_sz); __n != 0; ++__first)
 	  {
 	    using __param_t = typename __dist_t::param_type;
-	    __param_t const __p{0, --__unsampled_sz};
-	    if (__d(__g, __p) < __n )
-	      *__out++ = *__first, --__n;
+	    const __param_t __p{0, --__unsampled_sz};
+	    if (__dist(__g, __p) < __n )
+	      {
+		*__out++ = *__first;
+		--__n;
+	      }
 	  }
 	return __out;
       }
@@ -65,7 +71,7 @@
   inline auto&
   global_urng()
   {
-    static std::default_random_engine __urng{};
+    static thread_local std::default_random_engine __urng{};
 
     return __urng;
   }
