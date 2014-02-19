@@ -13,15 +13,14 @@ http://www.boost.org/LICENSE_1_0.txt
 #include <unordered_map>
 #include <cassert>
 #include <type_traits>
+#include <climits> // CHAR_BIT
 
 namespace tba
 {
   template<typename Iterator, typename Searcher>
     Iterator
     search(Iterator first, Iterator last, const Searcher &searcher)
-    {
-      return searcher{first, last};
-    }
+    { return searcher(first, last); }
 
   template<typename Iterator,
            typename BinaryPredicate = typename std::equal_to<typename std::iterator_traits<Iterator>::value_type>>
