@@ -1,0 +1,71 @@
+#include <complex>
+#include <iostream>
+#include <tuple> // For ignore and get and tuple_size.
+#include <functional> // For ref.
+
+// ./bin/bin/g++ -std=c++0x -o complex_tie complex_tie.cpp
+
+namespace std
+{
+  // A class (and instance) which can be used in 'tie' when an element
+  // of a tuple is not required
+  //struct _Swallow_assign
+  //{
+  //  template<class _Tp>
+  //    _Sw    {
+allow_assign&
+  //    operator=(const _Tp&)
+  //    { return *this; }
+  //};
+
+  // TODO: Put this in some kind of shared file.
+  //namespace
+  //{
+  //  _Swallow_assign ignore;
+  //}; // anonymous namespace
+
+  template<typename _Tp>
+    constexpr complex<typename __decay_and_strip<_Tp>::__type>
+    make_complex(_Tp&& __re, _Tp&& __im)
+    {
+      typedef complex<typename __decay_and_strip<_Tp>::__type> __result_type;
+      return __result_type(std::forward<_Tp>(__re), std::forward<_Tp>(__im));
+    }
+
+  template<typename _Tp>
+    inline complex<_Tp&>
+    complex_tie(_Tp& __re, _Tp& __im) noexcept
+    { return make_complex<_Tp&>(std::ref(__re), std::ref(__im)); }
+    //{ return make_complex<_Tp&>(__re, __im); }
+}
+
+int
+main()
+{
+  std::complex<double> z(1.0, -1.0);
+  double re = 0.0, im = 0.0;
+  std::complex_tie(re, im) = z;
+  std::cout << "z = " << z << std::endl;
+  std::cout << "re = " << re << std::endl;
+  std::cout << "im = " << im << std::endl;
+  re = 5.0; // Not working - 'z.real()' stays the same!!!  Actually, re is just a double.
+  std::cout << "z = " << z << std::endl;
+  z.real(5.0);
+  z.imag(3.0); // Not working - 'im' stays the same!!!
+  std::cout << "z = " << z << std::endl;
+  std::cout << "re = " << re << std::endl;
+  std::cout << "im = " << im << std::endl;
+
+  //std::size_t n = std::tuple_size<std::complex<double>>::value;
+  //std::cout << "n = " << n << std::endl;
+  //std::cout << "v[0] = " << std::get<0>(z) << std::endl;
+  //std::cout << "v[1] = " << std::get<1>(z) << std::endl;
+
+  //double re2;
+  //std::complex_tie(re2, std::ignore) = z;
+  //std::cout << "re2 = " << re2 << std::endl;
+
+  //double im2;
+  //std::complex_tie(std::ignore, im2) = z;
+  //std::cout << "im2 = " << im2 << std::endl;
+}
