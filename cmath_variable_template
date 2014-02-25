@@ -1,0 +1,109 @@
+  /// Constant @f$ \pi @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    pi              = 3.1415'92653'58979'32384'62643'38327'95029L; // M_PIl
+
+  /// Constant @f$ \pi / 2 @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    pi_half         = 1.5707'96326'79489'66192'31321'69163'97514L; // M_PI_2l
+
+  /// Constant @f$ \pi / 3 @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    pi_third        = 1.0471'97551'19659'77461'54214'46109'31676L;
+
+  /// Constant @f$ \pi / 4 @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    pi_quarter      = 0.7853'98163'39744'83096'15660'84581'98757L; // M_PI_4l
+
+  /// Constant @f$ \sqrt(\pi / 2) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    root_pi_div_2   = 1.2533'14137'31550'02512'07882'64240'55226L;
+
+  /// Constant @f$ 1 / \pi @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    one_div_pi      = 0.3183'09886'18379'06715'37767'52674'50287L; // M_1_PIl
+
+  /// Constant @f$ 2 / \pi @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    two_div_pi      = 0.6366'19772'36758'13430'75535'05349'00574L; // M_2_PIl
+
+  /// Constant @f$ 2 / \sqrt(\pi) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    two_div_root_pi = 1.1283'79167'09551'25738'96158'90312'15452L; // M_2_SQRTPIl
+
+  /// Constant Euler's number @f$ e @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    e               = 2.7182'81828'45904'52353'60287'47135'26625L; // M_El
+
+  /// Constant @f$ 1 / e @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    one_div_e       = 0.3678'79441'17144'23215'95523'77016'14608'7L;
+
+  /// Constant @f$ \log_2(e) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    log2_e          = 1.4426'95040'88896'34073'59924'68100'18921L; // M_LOG2El
+
+  /// Constant @f$ \log_10(e) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    log10_e         = 0.4342'94481'90325'18276'51128'91891'66051L; // M_LOG10El
+
+  /// Constant @f$ \ln(2) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    ln_2            = 0.6931'47180'55994'53094'17232'12145'81766L; // M_LN2l
+
+  /// Constant @f$ \ln(3) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    ln_3            = 1.0986'12288'66810'96913'95245'23692'25257L;
+
+  /// Constant @f$ \ln(10) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    ln_10           = 2.3025'85092'99404'56840'17991'45468'43642L; // M_LN10l
+
+  /// Constant Euler-Mascheroni @f$ \gamma_E @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    gamma_e         = 0.5772'15664'90153'28606'06512'09008'24024L;
+
+  /// Constant Golden Ratio @f$ \phi @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    phi             = 1.6180'33988'74989'48482'04586'83436'56381L;
+
+  /// Constant @f$ \sqrt(2) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    root_2          = 1.4142'13562'37309'50488'01688'72420'96981L; // M_SQRT2l
+
+  /// Constant @f$ \sqrt(3) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    root_3          = 1.7320'50807'56887'72935'27446'34150'58724L;
+
+  /// Constant @f$ \sqrt(5) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    root_5          = 2.2360'67977'49978'96964'09173'66873'12762L;
+
+  /// Constant @f$ \sqrt(7) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    root_7          = 2.6457'51311'06459'05905'01615'75363'92604L;
+
+  /// Constant @f$ 1 / \sqrt(2) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    one_div_root_2  = 0.7071'06781'18654'75244'00844'36210'48490L; // M_SQRT1_2l
