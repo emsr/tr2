@@ -1,4 +1,9 @@
 
+#include <limits>
+
+namespace std
+{
+
   /**
    *  @brief Part of std::numeric_limits.
    */
@@ -40,7 +45,7 @@
 
   template<typename _Tp>
     constexpr bool
-    is_signed(_Tp) noexcept
+    xxx_is_signed(_Tp) noexcept
     { return numeric_limits<_Tp>::is_signed; }
 
   template<typename _Tp>
@@ -162,3 +167,5 @@
     constexpr float_round_style
     round_style(_Tp) noexcept
     { return numeric_limits<_Tp>::round_style; }
+
+}
