@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o test_pr58781 test_pr58781.cpp
+// /home/ed/bin/bin/g++ -std=c++11 -o test_pr58781 test_pr58781.cpp > test_pr58781.out 2>&1
 
 #include <cmath>
 #include <cstddef>
