@@ -1086,6 +1086,37 @@ create_directory(const path& pth, std::error_code& ec) noexcept
   return result == 0;
 }
 
+bool
+create_directory(const path& pth, const path& attributes)
+{
+  std::error_code ec;
+  bool ok = create_directory(pth, attributes, ec);
+  if (ec)
+    throw filesystem_error{"create_directory", pth, ec};
+  return ok;
+}
+
+bool
+create_directory(const path& pth, const path& attributes,
+		 std::error_code& ec) noexcept
+{
+  errno = 0;
+  struct stat buf;
+  int result = ::stat(existing_p.c_str(), &buf);
+  if (result == -1)
+    {
+      ec = std::make_error_code(static_cast<std::errc>(errno));
+      return false;
+    }
+  else
+    {
+      result = ::mkdir(p.c_str(), buf.st_mode)
+      if (result == -1)
+	ec = std::make_error_code(static_cast<std::errc>(errno));
+      return result == 0;
+    }
+}
+
 void
 create_directory_symlink(const path& to, const path& new_symlink)
 {
@@ -1295,29 +1326,6 @@ hard_link_count(const path& pth, std::error_code& ec) noexcept
     }
   else
     return buf.st_nlink;
-}
-
-const path&
-initial_path()
-{
-  std::error_code ec;
-  const path& init_path = initial_path(ec);
-  if (ec)
-    throw filesystem_error{"initial_path", ec};
-  return init_path;
-}
-
-const path&
-initial_path(std::error_code& ec) noexcept
-{
-  static bool called = false; // This is not thread safe - see n3365.html#initial_path
-  static path init_path;
-  if (!called)
-    {
-      called = true;
-      init_path = current_path(ec);
-    }
-  return init_path;
 }
 
 bool

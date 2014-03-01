@@ -765,7 +765,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   };
 
   inline void
-  swap(path& __lhs, path& __rhs)
+  swap(path& __lhs, path& __rhs) noexcept
   { __lhs.swap(__rhs); }
 
   bool
@@ -773,127 +773,127 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			  path::iterator first2, path::iterator last2);
 
   inline std::size_t
-  hash_value(const path& __pth)
+  hash_value(const path& __pth) noexcept
   { return std::hash<path::string_type>()(__pth.native()); }
 
   inline bool
-  operator==(const path& __lhs, const path& __rhs)
+  operator==(const path& __lhs, const path& __rhs) noexcept
   { return __lhs.compare(__rhs) == 0; }
 
   inline bool
-  operator==(const path& __lhs, const path::string_type& __rhs)
+  operator==(const path& __lhs, const path::string_type& __rhs) noexcept
   { return __lhs.compare(__rhs) == 0; }
 
   inline bool
-  operator==(const path::string_type& __lhs, const path& __rhs)
+  operator==(const path::string_type& __lhs, const path& __rhs) noexcept
   { return __rhs.compare(__lhs) == 0; }
 
   inline bool
-  operator==(const path& __lhs, const path::value_type* __rhs)
+  operator==(const path& __lhs, const path::value_type* __rhs) noexcept
   { return __lhs.compare(__rhs) == 0; }
 
   inline bool
-  operator==(const path::value_type* __lhs, const path& __rhs)
+  operator==(const path::value_type* __lhs, const path& __rhs) noexcept
   { return __rhs.compare(__lhs) == 0; }
 
   inline bool
-  operator!=(const path& __lhs, const path& __rhs)
+  operator!=(const path& __lhs, const path& __rhs) noexcept
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path& __lhs, const path::string_type& __rhs)
+  operator!=(const path& __lhs, const path::string_type& __rhs) noexcept
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path::string_type& __lhs, const path& __rhs)
+  operator!=(const path::string_type& __lhs, const path& __rhs) noexcept
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path& __lhs, const path::value_type* __rhs)
+  operator!=(const path& __lhs, const path::value_type* __rhs) noexcept
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path::value_type* __lhs, const path& __rhs)
+  operator!=(const path::value_type* __lhs, const path& __rhs) noexcept
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator<(const path& __lhs, const path& __rhs)
+  operator<(const path& __lhs, const path& __rhs) noexcept
   { return __lhs.compare(__rhs) < 0; }
 
   inline bool
-  operator<(const path& __lhs, const path::string_type& __rhs)
+  operator<(const path& __lhs, const path::string_type& __rhs) noexcept
   { return __lhs < path{__rhs}; }
 
   inline bool
-  operator<(const path::string_type& __lhs, const path& __rhs)
+  operator<(const path::string_type& __lhs, const path& __rhs) noexcept
   { return path{__lhs} < __rhs; }
 
   inline bool
-  operator<(const path& __lhs, const path::value_type* __rhs)
+  operator<(const path& __lhs, const path::value_type* __rhs) noexcept
   { return __lhs < path{__rhs}; }
 
   inline bool
-  operator<(const path::value_type* __lhs, const path& __rhs)
+  operator<(const path::value_type* __lhs, const path& __rhs) noexcept
   { return path{__lhs} < __rhs; }
 
   inline bool
-  operator<=(const path& __lhs, const path& __rhs)
+  operator<=(const path& __lhs, const path& __rhs) noexcept
   { return !(__rhs < __lhs); }
 
   inline bool
-  operator<=(const path& __lhs, const path::string_type& __rhs)
+  operator<=(const path& __lhs, const path::string_type& __rhs) noexcept
   { return __lhs <= path{__rhs}; }
 
   inline bool
-  operator<=(const path::string_type& __lhs, const path& __rhs)
+  operator<=(const path::string_type& __lhs, const path& __rhs) noexcept
   { return path{__lhs} <= __rhs; }
 
   inline bool
-  operator<=(const path& __lhs, const path::value_type* __rhs)
+  operator<=(const path& __lhs, const path::value_type* __rhs) noexcept
   { return __lhs <= path{__rhs}; }
 
   inline bool
-  operator<=(const path::value_type* __lhs, const path& __rhs)
+  operator<=(const path::value_type* __lhs, const path& __rhs) noexcept
   { return path{__lhs} <= __rhs; }
 
   inline bool
-  operator>(const path& __lhs, const path& __rhs)
+  operator>(const path& __lhs, const path& __rhs) noexcept
   { return __rhs < __lhs; }
 
   inline bool
-  operator>(const path& __lhs, const path::string_type& __rhs)
+  operator>(const path& __lhs, const path::string_type& __rhs) noexcept
   { return __lhs > path{__rhs}; }
 
   inline bool
-  operator>(const path::string_type& __lhs, const path& __rhs)
+  operator>(const path::string_type& __lhs, const path& __rhs) noexcept
   { return path{__lhs} > __rhs; }
 
   inline bool
-  operator>(const path& __lhs, const path::value_type* __rhs)
+  operator>(const path& __lhs, const path::value_type* __rhs) noexcept
   { return __lhs > path{__rhs}; }
 
   inline bool
-  operator>(const path::value_type* __lhs, const path& __rhs)
+  operator>(const path::value_type* __lhs, const path& __rhs) noexcept
   { return path{__lhs} > __rhs; }
 
   inline bool
-  operator>=(const path& __lhs, const path& __rhs)
+  operator>=(const path& __lhs, const path& __rhs) noexcept
   { return !(__lhs < __rhs); }
 
   inline bool
-  operator>=(const path& __lhs, const path::string_type& __rhs)
+  operator>=(const path& __lhs, const path::string_type& __rhs) noexcept
   { return __lhs >= path{__rhs}; }
 
   inline bool
-  operator>=(const path::string_type& __lhs, const path& __rhs)
+  operator>=(const path::string_type& __lhs, const path& __rhs) noexcept
   { return path{__lhs} >= __rhs; }
 
   inline bool
-  operator>=(const path& __lhs, const path::value_type* __rhs)
+  operator>=(const path& __lhs, const path::value_type* __rhs) noexcept
   { return __lhs >= path{__rhs}; }
 
   inline bool
-  operator>=(const path::value_type* __lhs, const path& __rhs)
+  operator>=(const path::value_type* __lhs, const path& __rhs) noexcept
   { return path{__lhs} >= __rhs; }
 
   inline path
@@ -917,23 +917,23 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return path{__lhs} / __rhs; }
 
   inline path
-  operator+(const path& __lhs, const path& __rhs)
+  operator+(const path& __lhs, const path& __rhs) noexcept
   { return path{__lhs} += __rhs; }
 
   inline path
-  operator+(const path& __lhs, const path::string_type& __rhs)
+  operator+(const path& __lhs, const path::string_type& __rhs) noexcept
   { return __lhs + path{__rhs}; }
 
   inline path
-  operator+(const path::string_type& __lhs, const path& __rhs)
+  operator+(const path::string_type& __lhs, const path& __rhs) noexcept
   { return path{__lhs} + __rhs; }
 
   inline path
-  operator+(const path& __lhs, const path::value_type* __rhs)
+  operator+(const path& __lhs, const path::value_type* __rhs) noexcept
   { return __lhs + path{__rhs}; }
 
   inline path
-  operator+(const path::value_type* __lhs, const path& __rhs)
+  operator+(const path::value_type* __lhs, const path& __rhs) noexcept
   { return path{__lhs} + __rhs; }
 
   std::ostream& operator<<( std::ostream& os, const path& pth );
@@ -1013,6 +1013,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   bool create_directory(const path& pth);
   bool create_directory(const path& pth, std::error_code& ec) noexcept;
+  bool create_directory(const path& pth, const path& attributes);
+  bool create_directory(const path& pth, const path& attributes,
+			std::error_code& ec) noexcept;
 
   void create_directory_symlink(const path& to, const path& new_symlink);
   void create_directory_symlink(const path& to, const path& new_symlink,
@@ -1061,8 +1064,29 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   uintmax_t hard_link_count(const path& pth);
   uintmax_t hard_link_count(const path& pth, std::error_code& ec) noexcept;
 
-  const path& initial_path();
-  const path& initial_path(std::error_code& ec) noexcept;
+  bool
+  is_block_file(file_status __fs) noexcept
+  { return __fs.type() == file_type::block; }
+
+  bool
+  is_block_file(const path& __pth)
+  { return is_block_file(status(__pth)); }
+
+  bool
+  is_block_file(const path& __pth, error_code& __ec) noexcept
+  { return is_block_file(status(__pth, __ec)); }
+
+  bool
+  is_character_file(file_status __fs) noexcept
+  { return __fs.type() == file_type::character; }
+
+  bool
+  is_character_file(const path& __pth)
+  { return is_character_file(status(__pth)); }
+
+  bool
+  is_character_file(const path& __pth, error_code& __ec) noexcept
+  { return is_character_file(status(__pth, __ec)); }
 
   inline bool
   is_directory(file_status __fs) noexcept
@@ -1078,6 +1102,18 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   bool is_empty(const path& pth);
   bool is_empty(const path& pth, std::error_code& ec) noexcept;
+
+  bool
+  is_fifo(file_status __fs) noexcept
+  { return __fs.type() == file_type::fifo; }
+
+  bool
+  is_fifo(const path& __pth)
+  { return is_fifo(status(__pth)); }
+
+  bool
+  is_fifo(const path& __pth, error_code& __ec) noexcept
+  { return is_fifo(status(__pth, __ec)); }
 
   inline bool
   is_regular_file(file_status __fs) noexcept
@@ -1400,6 +1436,15 @@ namespace _Path_traits
     std::unique_ptr<_Impl> _M_impl;
   };
 
+    // enable directory_iterator range-based for statements
+  directory_iterator
+  begin(directory_iterator __iter) noexcept
+  { ; }
+
+  directory_iterator
+  end(const directory_iterator&) noexcept
+  { ; }
+
 
   /**
    *
@@ -1455,6 +1500,16 @@ namespace _Path_traits
     class _Impl;
     std::unique_ptr<_Impl> _M_impl;
   };
+
+  // enable recursive_directory_iterator range-based for statements
+  recursive_directory_iterator
+  begin(recursive_directory_iterator __iter) noexcept
+  { ; }
+
+  recursive_directory_iterator
+  end(const recursive_directory_iterator&) noexcept
+  { ; }
+
 
   //  Hacked from boost but templatized because
   //  we have a 4x4 matrix of char types.
