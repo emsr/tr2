@@ -129,6 +129,16 @@
 #  error "complex.h"
 #endif
 
+//  Quoted complex.h should find at least the bracket version.
+#if !__has_include("complex.h")
+#  error "complex.h"
+#endif
+
+//  Quoted complex.h should find at least the bracket version.
+#if ! __has_include__ "complex.h"
+#  error "complex.h"
+#endif
+
 //  Try known local quote header.
 #if __has_include("complex_literals.h")
 #else
@@ -153,6 +163,20 @@
 #else
 #  error "phoobhar.h"
 #endif
+
+//  Try a macro.
+#define COMPLEX_INC "complex.h"
+#if __has_include(COMPLEX_INC)
+#else
+#  error COMPLEX_INC
+#endif
+
+//  Try a macro.
+//#define INC_DIR "/usr/include/"
+//#if __has_include(INC_DIR ## "complex.h")
+//#else
+//#  error INC_DIR ## "complex.h"
+//#endif
 
 //  Realistic use of __has_include.
 #if __has_include(<array>)
