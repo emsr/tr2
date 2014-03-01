@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o bintest_orig bintest_orig.cpp 
+// /home/ed/bin/bin/g++ -std=c++1y -o bintest_orig bintest_orig.cpp
 
 // LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./bintest_orig
 
