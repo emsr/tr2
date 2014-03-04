@@ -1,0 +1,28 @@
+
+#include <type_traits>
+
+// N3913 Greatest common divisor and least common multiple.
+
+  //  A constexpr version of abs - this should become normative someday.
+  template<typename _Tp>
+    constexpr auto
+    __abs(_Tp __i)
+    -> std::enable_if_t<std::is_integral<_Tp>{}(), _Tp>
+    { return __i <_Tp(0) ? -__i : __i; }
+
+  template<typename _Mp, typename _Np = _Mp>
+    using __common_int_t = std::enable_if_t<std::is_integral<_Mp>{}()
+					 && std::is_integral<_Np>{}(),
+					    std::common_type_t<_Mp, _Np>>;
+
+  //  Greatest common divisor.
+  template<typename _Mp, typename _Np >
+    constexpr __common_int_t<_Mp, _Np>
+    gcd(_Mp __m, _Np __n)
+    { return __n == 0 ? __abs(__m) : gcd(__n, __abs(__m) % __abs(__n)); }
+
+  //  Least common multiple.
+  template< class _Mp, class _Np >
+    constexpr __common_int_t<_Mp, _Np>
+    lcm(_Mp __m, _Np __n)
+    { return __m * __n == 0 ? 0 : (__abs(__m) / gcd(__m, __n)) * abs(__n); }
