@@ -1,6 +1,6 @@
 // C++ experimantal <filesystem> -*- C++ -*-
 
-// Copyright (C) 2011, 2012, 2013 Free Software Foundation, Inc.
+// Copyright (C) 2011-2014 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -50,6 +50,8 @@ namespace experimental
 {
 namespace filesystem
 {
+inline namespace v1
+{
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   /**
@@ -57,16 +59,16 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   enum class file_type
   {
-    status_error,
-    file_not_found,
-    regular_file,
-    directory_file,
-    symlink_file,
-    block_file,
-    character_file,
-    fifo_file,
-    socket_file,
-    type_unknown
+    none	= 0,
+    not_found	= -1,
+    regular	= 1,
+    directory	= 2,
+    symlink	= 3,
+    block	= 4,
+    character	= 5,
+    fifo	= 6,
+    socket	= 7,
+    unknown	= 8
   };
 
   /**
@@ -74,7 +76,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   enum class copy_options
   {
-    none  	=   0,
+    none		=   0,
     skip_existing	=   1,
     overwrite_existing	=   2,
     update_existing	=   4,
@@ -84,6 +86,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     directories_only	=  64,
     create_symlinks	= 128,
     create_hard_links	= 256
+  };
+
+  enum class directory_options
+  {
+    none,
+    follow_directory_symlink,
+    skip_permission_denied
   };
 
   inline constexpr copy_options
@@ -139,7 +148,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   enum class perms : int
   {
-    no_perms		= 0,
+    none		= 0,
 
     owner_read		=  0400,
     owner_write		=  0200,
@@ -156,20 +165,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     others_exe		=    01,
     others_all		=    07,
 
-    all_all		= owner_all | group_all | others_all, // 0777
+    all			= owner_all | group_all | others_all, // 0777
 
-    set_uid_on_exe	= 04000,
-    set_gid_on_exe	= 02000,
+    set_uid		= 04000,
+    set_gid		= 02000,
     sticky_bit		= 01000,
 
-    perms_mask		= all_all | set_uid_on_exe
-			| set_gid_on_exe | sticky_bit, // 07777
+    mask		= all | set_uid | set_gid | sticky_bit, // 07777
 
-    perms_not_known	= 0xffff,
+    unknown		= 0xffff,
 
     add_perms		= 0x1000,
     remove_perms	= 0x2000,
-    symlink_perms	= 0x4000
+    resolve_symlinks	= 0x4000
   };
 
   inline constexpr perms
@@ -259,38 +267,40 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   public:
 
     explicit
-    file_status(file_type __ft = file_type::status_error,
-		perms __perms = perms::perms_not_known)
+    file_status(file_type __ft = file_type::none,
+		perms __perms = perms::unknown) noexcept
     : _M_file_type{__ft}, _M_perms{__perms}
     { }
 
-    file_status(const file_status& fs) = default;
+    file_status(const file_status&) noexcept = default;
 
     ~file_status() = default;
 
+    file_status&
+    operator=(const file_status&) noexcept = default;
+
+    file_status&
+    operator=(file_status&&) noexcept = default;
+
+    //  Observers.
+
     file_type
-    type() const
+    type() const noexcept
     { return this->_M_file_type; }
 
     perms
-    permissions() const
+    permissions() const noexcept
     { return this->_M_perms; }
 
+    //  Modifiers.
+
     void
-    type(file_type __tp)
+    type(file_type __tp) noexcept
     { this->_M_file_type = __tp; }
 
     void
-    permissions(perms __prms)
+    permissions(perms __prms) noexcept
     { this->_M_perms = __prms; }
-
-    bool
-    operator==(const file_status& __rhs) const
-    { return type() == __rhs.type() && permissions() == __rhs.permissions(); }
-
-    bool
-    operator!=(const file_status& __rhs) const
-    { return !(*this == __rhs); }
 
   private:
 
@@ -331,7 +341,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	if (__begin != __end)
 	  {
 	    for (; __begin != __end; ++__begin)
-	      this->_M_pathname << *__begin;
+	      this->_M_pathname += *__begin;
 	  }
       }
 
@@ -346,7 +356,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	if (__begin != __end)
 	  {
 	    for (; __begin != __end; ++__begin)
-	      this->_M_pathname << *__begin;
+	      this->_M_pathname += *__begin;
 	  }
       }
 
@@ -359,14 +369,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     path& operator=(path&& pth) /*noexcept*/ = default;
 
     template<typename _Source>
-      path& operator=(const _Source& __source)
+      std::enable_if_t<__detail::_Path_traits::
+	is_pathable<std::decay_t<_Source>>::value, path&>
+      operator=(const _Source& __source)
       {
 	this->operator=(path{__source});
 	return *this;
       }
 
     template<typename _Source>
-      path&
+      std::enable_if_t<__detail::_Path_traits::
+	is_pathable<std::decay_t<_Source>>::value, path&>
       assign(const _Source& __source)
       {
 	this->_M_pathname.clear();
@@ -399,7 +412,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       if (!(this->empty()
 	    || this->_M_pathname[this->_M_pathname.length() - 1]
 		 == preferred_separator
-	////    || this->root_directory().empty()
 	    || __pth.empty()
 	    || *__pth.native().cbegin() == preferred_separator))
 	this->_M_pathname += preferred_separator;
@@ -410,13 +422,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     path&
     operator/=(const value_type* __str)
     {
-      this->operator/=(string_type{__str});
+      this->operator/=(path{__str});
       return *this;
     }
 
     template<typename _Source>
-      path& operator/=(const _Source& __source)
-      { return this->append(path{__source}); }
+      std::enable_if_t<__detail::_Path_traits::
+	is_pathable<std::decay_t<_Source>>::value, path&>
+      operator/=(const _Source& __source)
+      { return this->operator/=(path{__source}); }
 
     path&
     append(const value_type* __str)
@@ -426,13 +440,18 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     }
 
     template<typename _Source>
-      path&
+      std::enable_if_t<__detail::_Path_traits::
+	is_pathable<std::decay_t<_Source>>::value, path&>
       append(const _Source& __source)
       { return this->append(std::begin(__source), std::end(__source)); }
 
     template<typename _InIter>
       path&
-      append(_InIter __begin, _InIter __end);
+      append(_InIter __begin, _InIter __end)
+      {
+	this->operator/=(path{__begin, __end});
+	return *this;
+      }
 
     //  Concatenation.
 
@@ -479,7 +498,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       }
 
     template<typename _Source>
-      path&
+      std::enable_if_t<__detail::_Path_traits::
+	is_pathable<std::decay_t<_Source>>::value, path&>
       concat(const _Source& __source)
       {
 	__detail::_Path_traits::dispatch(__source, this->_M_pathname,
@@ -781,19 +801,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return __lhs.compare(__rhs) == 0; }
 
   inline bool
-  operator==(const path& __lhs, const path::string_type& __rhs) noexcept
+  operator==(const path& __lhs, const path::string_type& __rhs)
   { return __lhs.compare(__rhs) == 0; }
 
   inline bool
-  operator==(const path::string_type& __lhs, const path& __rhs) noexcept
+  operator==(const path::string_type& __lhs, const path& __rhs)
   { return __rhs.compare(__lhs) == 0; }
 
   inline bool
-  operator==(const path& __lhs, const path::value_type* __rhs) noexcept
+  operator==(const path& __lhs, const path::value_type* __rhs)
   { return __lhs.compare(__rhs) == 0; }
 
   inline bool
-  operator==(const path::value_type* __lhs, const path& __rhs) noexcept
+  operator==(const path::value_type* __lhs, const path& __rhs)
   { return __rhs.compare(__lhs) == 0; }
 
   inline bool
@@ -801,19 +821,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path& __lhs, const path::string_type& __rhs) noexcept
+  operator!=(const path& __lhs, const path::string_type& __rhs)
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path::string_type& __lhs, const path& __rhs) noexcept
+  operator!=(const path::string_type& __lhs, const path& __rhs)
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path& __lhs, const path::value_type* __rhs) noexcept
+  operator!=(const path& __lhs, const path::value_type* __rhs)
   { return !(__lhs == __rhs); }
 
   inline bool
-  operator!=(const path::value_type* __lhs, const path& __rhs) noexcept
+  operator!=(const path::value_type* __lhs, const path& __rhs)
   { return !(__lhs == __rhs); }
 
   inline bool
@@ -821,19 +841,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return __lhs.compare(__rhs) < 0; }
 
   inline bool
-  operator<(const path& __lhs, const path::string_type& __rhs) noexcept
+  operator<(const path& __lhs, const path::string_type& __rhs)
   { return __lhs < path{__rhs}; }
 
   inline bool
-  operator<(const path::string_type& __lhs, const path& __rhs) noexcept
+  operator<(const path::string_type& __lhs, const path& __rhs)
   { return path{__lhs} < __rhs; }
 
   inline bool
-  operator<(const path& __lhs, const path::value_type* __rhs) noexcept
+  operator<(const path& __lhs, const path::value_type* __rhs)
   { return __lhs < path{__rhs}; }
 
   inline bool
-  operator<(const path::value_type* __lhs, const path& __rhs) noexcept
+  operator<(const path::value_type* __lhs, const path& __rhs)
   { return path{__lhs} < __rhs; }
 
   inline bool
@@ -841,19 +861,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return !(__rhs < __lhs); }
 
   inline bool
-  operator<=(const path& __lhs, const path::string_type& __rhs) noexcept
+  operator<=(const path& __lhs, const path::string_type& __rhs)
   { return __lhs <= path{__rhs}; }
 
   inline bool
-  operator<=(const path::string_type& __lhs, const path& __rhs) noexcept
+  operator<=(const path::string_type& __lhs, const path& __rhs)
   { return path{__lhs} <= __rhs; }
 
   inline bool
-  operator<=(const path& __lhs, const path::value_type* __rhs) noexcept
+  operator<=(const path& __lhs, const path::value_type* __rhs)
   { return __lhs <= path{__rhs}; }
 
   inline bool
-  operator<=(const path::value_type* __lhs, const path& __rhs) noexcept
+  operator<=(const path::value_type* __lhs, const path& __rhs)
   { return path{__lhs} <= __rhs; }
 
   inline bool
@@ -861,19 +881,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return __rhs < __lhs; }
 
   inline bool
-  operator>(const path& __lhs, const path::string_type& __rhs) noexcept
+  operator>(const path& __lhs, const path::string_type& __rhs)
   { return __lhs > path{__rhs}; }
 
   inline bool
-  operator>(const path::string_type& __lhs, const path& __rhs) noexcept
+  operator>(const path::string_type& __lhs, const path& __rhs)
   { return path{__lhs} > __rhs; }
 
   inline bool
-  operator>(const path& __lhs, const path::value_type* __rhs) noexcept
+  operator>(const path& __lhs, const path::value_type* __rhs)
   { return __lhs > path{__rhs}; }
 
   inline bool
-  operator>(const path::value_type* __lhs, const path& __rhs) noexcept
+  operator>(const path::value_type* __lhs, const path& __rhs)
   { return path{__lhs} > __rhs; }
 
   inline bool
@@ -881,19 +901,19 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return !(__lhs < __rhs); }
 
   inline bool
-  operator>=(const path& __lhs, const path::string_type& __rhs) noexcept
+  operator>=(const path& __lhs, const path::string_type& __rhs)
   { return __lhs >= path{__rhs}; }
 
   inline bool
-  operator>=(const path::string_type& __lhs, const path& __rhs) noexcept
+  operator>=(const path::string_type& __lhs, const path& __rhs)
   { return path{__lhs} >= __rhs; }
 
   inline bool
-  operator>=(const path& __lhs, const path::value_type* __rhs) noexcept
+  operator>=(const path& __lhs, const path::value_type* __rhs)
   { return __lhs >= path{__rhs}; }
 
   inline bool
-  operator>=(const path::value_type* __lhs, const path& __rhs) noexcept
+  operator>=(const path::value_type* __lhs, const path& __rhs)
   { return path{__lhs} >= __rhs; }
 
   inline path
@@ -917,23 +937,23 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return path{__lhs} / __rhs; }
 
   inline path
-  operator+(const path& __lhs, const path& __rhs) noexcept
+  operator+(const path& __lhs, const path& __rhs)
   { return path{__lhs} += __rhs; }
 
   inline path
-  operator+(const path& __lhs, const path::string_type& __rhs) noexcept
+  operator+(const path& __lhs, const path::string_type& __rhs)
   { return __lhs + path{__rhs}; }
 
   inline path
-  operator+(const path::string_type& __lhs, const path& __rhs) noexcept
+  operator+(const path::string_type& __lhs, const path& __rhs)
   { return path{__lhs} + __rhs; }
 
   inline path
-  operator+(const path& __lhs, const path::value_type* __rhs) noexcept
+  operator+(const path& __lhs, const path::value_type* __rhs)
   { return __lhs + path{__rhs}; }
 
   inline path
-  operator+(const path::value_type* __lhs, const path& __rhs) noexcept
+  operator+(const path::value_type* __lhs, const path& __rhs)
   { return path{__lhs} + __rhs; }
 
   std::ostream& operator<<( std::ostream& os, const path& pth );
@@ -955,7 +975,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     u8path(InputIterator __begin, InputIterator __end)
     { return path{__begin, __end}; }
 
-  using file_time_type = std::chrono::time_point<std::chrono::system_clock>;
+  namespace __detail
+  {
+    using file_clock_type = std::chrono::system_clock;
+  }
+  using file_time_type = std::chrono::time_point<__detail::file_clock_type>;
 
   // Operational functions
 
@@ -1036,20 +1060,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   file_status status(const path& pth, std::error_code& ec) noexcept;
 
   inline bool
-  type_present(file_status __fs)
-  { return __fs.type() != file_type::status_error; }
-
-  inline bool
-  permissions_present(file_status __fs)
-  { return __fs.permissions() != perms::perms_not_known; }
-
-  inline bool
-  status_known(file_status __fs)
-  { return type_present(__fs) && permissions_present(__fs); }
+  status_known(file_status __fs) noexcept
+  { __fs.type() != file_type::none; }
 
   inline bool
   exists(file_status __fs) noexcept
-  { return status_known(__fs) && __fs.type() != file_type::file_not_found; }
+  { return status_known(__fs) && __fs.type() != file_type::not_found; }
 
   bool exists(const path& __pth);
   bool exists(const path& __pth, std::error_code& __ec) noexcept;
@@ -1064,33 +1080,33 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   uintmax_t hard_link_count(const path& pth);
   uintmax_t hard_link_count(const path& pth, std::error_code& ec) noexcept;
 
-  bool
+  inline bool
   is_block_file(file_status __fs) noexcept
   { return __fs.type() == file_type::block; }
 
-  bool
+  inline bool
   is_block_file(const path& __pth)
   { return is_block_file(status(__pth)); }
 
-  bool
+  inline bool
   is_block_file(const path& __pth, error_code& __ec) noexcept
   { return is_block_file(status(__pth, __ec)); }
 
-  bool
+  inline bool
   is_character_file(file_status __fs) noexcept
   { return __fs.type() == file_type::character; }
 
-  bool
+  inline bool
   is_character_file(const path& __pth)
   { return is_character_file(status(__pth)); }
 
-  bool
+  inline bool
   is_character_file(const path& __pth, error_code& __ec) noexcept
   { return is_character_file(status(__pth, __ec)); }
 
   inline bool
   is_directory(file_status __fs) noexcept
-  { return __fs.type() == file_type::directory_file; }
+  { return __fs.type() == file_type::directory; }
 
   inline bool
   is_directory(const path& __pth)
@@ -1103,21 +1119,21 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   bool is_empty(const path& pth);
   bool is_empty(const path& pth, std::error_code& ec) noexcept;
 
-  bool
+  inline bool
   is_fifo(file_status __fs) noexcept
   { return __fs.type() == file_type::fifo; }
 
-  bool
+  inline bool
   is_fifo(const path& __pth)
   { return is_fifo(status(__pth)); }
 
-  bool
-  is_fifo(const path& __pth, error_code& __ec) noexcept
+  inline bool
+  is_fifo(const path& __pth, std::error_code& __ec) noexcept
   { return is_fifo(status(__pth, __ec)); }
 
   inline bool
   is_regular_file(file_status __fs) noexcept
-  { return __fs.type() == file_type::regular_file; }
+  { return __fs.type() == file_type::regular; }
 
   inline bool
   is_regular_file(const path& __pth)
@@ -1128,8 +1144,21 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return is_regular_file(status(__pth, __ec)); }
 
   inline bool
+  is_socket(file_status __fs) noexcept
+  { return __fs.type() == file_type::socket; }
+
+  inline bool
+  is_socket(const path& __pth)
+  { return is_socket(status(__pth)); }
+
+  inline bool
+  is_socket(const path& __pth, std::error_code& __ec) noexcept
+  { return is_socket(status(__pth, __ec)); }
+
+
+  inline bool
   is_symlink(file_status __fs) noexcept
-  { return __fs.type() == file_type::symlink_file; }
+  { return __fs.type() == file_type::symlink; }
 
   inline bool
   is_symlink(const path& __pth)
@@ -1158,9 +1187,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   file_time_type last_write_time(const path& pth,
 				 std::error_code& ec) noexcept;
   void last_write_time(const path& pth,
-		       const file_time_type new_time);
+		       file_time_type new_time);
   void last_write_time(const path& pth,
-		       const file_time_type new_time,
+		       file_time_type new_time,
 		       std::error_code& ec) noexcept;
 
   void permissions(const path& pth, perms prms);
@@ -1193,9 +1222,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   path temp_directory_path();
   path temp_directory_path(std::error_code& ec) noexcept;
-
-  path unique_path(const path& model = "%%%%-%%%%-%%%%-%%%%");
-  path unique_path(const path& model, std::error_code& ec) noexcept;
 
 
   /**
@@ -1252,8 +1278,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     // constructors and destructor
     directory_entry()
     : _M_path{},
-      _M_status{file_type::type_unknown},
-      _M_symlink_status{file_type::type_unknown}
+      _M_status{file_type::unknown},
+      _M_symlink_status{file_type::unknown}
     { }
 
     directory_entry(const directory_entry&) = default;
@@ -1412,7 +1438,7 @@ namespace _Path_traits
 
     // constructors and destructor
     directory_iterator();
-    directory_iterator(const directory_iterator& diter) = delete;
+    directory_iterator(const directory_iterator& diter) = default;//delete
     directory_iterator(directory_iterator&& diter);
     explicit directory_iterator(const path& pth);
     directory_iterator(const path& pth, std::error_code& ec) noexcept;
@@ -1437,13 +1463,13 @@ namespace _Path_traits
   };
 
     // enable directory_iterator range-based for statements
-  directory_iterator
+  inline directory_iterator
   begin(directory_iterator __iter) noexcept
-  { ; }
+  { return __iter; }
 
-  directory_iterator
+  inline directory_iterator
   end(const directory_iterator&) noexcept
-  { ; }
+  { directory_iterator{}; }
 
 
   /**
@@ -1461,21 +1487,22 @@ namespace _Path_traits
     using iterator_category = std::input_iterator_tag;
 
     // constructors and destructor
-    recursive_directory_iterator();
+    recursive_directory_iterator() noexcept;
     recursive_directory_iterator(const recursive_directory_iterator& rdi)
-			 = delete;
+			 = default;//delete
     recursive_directory_iterator(recursive_directory_iterator&& rdi);
     explicit
     recursive_directory_iterator(const path& pth,
-				 symlink_option opt = symlink_option::none);
-    recursive_directory_iterator(const path& pth, symlink_option opt,
+			directory_options opts = directory_options::none);
+    recursive_directory_iterator(const path& pth, directory_options opts,
 				 std::error_code& ec) noexcept;
     recursive_directory_iterator(const path& pth, std::error_code& ec) noexcept;
     ~recursive_directory_iterator();
 
     // observers
-    int level() const;
-    bool is_push_pending() const;
+    directory_options options() const;
+    int depth() const;
+    bool recursion_pending() const;
 
     // modifiers
     recursive_directory_iterator&
@@ -1487,7 +1514,7 @@ namespace _Path_traits
     void pop();
     // NOTE: I added an error code version of pop.
     void pop(std::error_code& ec) noexcept;
-    void pending_push(bool value = false);
+    void disable_recursion_pending();
 
     bool operator==(const recursive_directory_iterator& rdi) const;
     bool operator!=(const recursive_directory_iterator& rdi) const;
@@ -1502,13 +1529,13 @@ namespace _Path_traits
   };
 
   // enable recursive_directory_iterator range-based for statements
-  recursive_directory_iterator
+  inline recursive_directory_iterator
   begin(recursive_directory_iterator __iter) noexcept
-  { ; }
+  { return __iter; }
 
-  recursive_directory_iterator
+  inline recursive_directory_iterator
   end(const recursive_directory_iterator&) noexcept
-  { ; }
+  { return recursive_directory_iterator{}; }
 
 
   //  Hacked from boost but templatized because
@@ -1567,6 +1594,7 @@ namespace _Path_traits
 
 
 _GLIBCXX_END_NAMESPACE_VERSION
+} // inline namespace v1
 } // namespace filesystem
 } // namespace experimental
 } // namespace std

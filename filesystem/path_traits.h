@@ -45,6 +45,8 @@ namespace experimental
 {
 namespace filesystem
 {
+inline namespace v1
+{
 namespace __detail
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
@@ -303,6 +305,7 @@ namespace _Path_traits
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace __detail
+} // inline namespace v1
 } // namespace filesystem
 } // namespace experimental
 } // namespace std

@@ -38,9 +38,14 @@
 #include <iomanip> // for quoted
 #include <experimental/string_view>
 
-namespace std {
-namespace experimental {
-namespace filesystem {
+namespace std
+{
+namespace experimental
+{
+namespace filesystem
+{
+inline namespace v1
+{
 
 // Path implementation.
 
@@ -86,12 +91,6 @@ path::compare(const path& pth) const noexcept
   return __detail::lex_compare(this->begin(), this->end(),
 			       pth.begin(), pth.end());
 }
-
-//path&
-//path::make_absolute(const path& base)
-//{
-//  ;
-//}
 
 path
 path::root_name() const
@@ -476,15 +475,15 @@ directory_iterator::operator->()
 struct recursive_directory_iterator::_Impl
 {
   _Impl()
-  : _M_pending_push{false}, _M_options{symlink_option::none},
+  : _M_pending_push{false}, _M_options{directory_options::none},
     _M_path{}, _M_dir{}, _M_dirent{}
   { }
 
   _Impl(_Impl&&) noexcept = default;
 
-  _Impl(const path& pth, symlink_option opt)
+  _Impl(const path& pth, directory_options opts)
   : _M_pending_push{false},
-    _M_options{opt},
+    _M_options{opts},
     _M_path{pth},
     _M_dir{}, _M_dirent{}
   {
@@ -500,9 +499,9 @@ struct recursive_directory_iterator::_Impl
       throw filesystem_error{"recursive_directory_iterator", this->_M_path, ec};
   }
 
-  _Impl(const path& pth, symlink_option opt, std::error_code& ec) noexcept
+  _Impl(const path& pth, directory_options opts, std::error_code& ec) noexcept
   : _M_pending_push{false},
-    _M_options{opt},
+    _M_options{opts},
     _M_path{pth},
     _M_dir{}, _M_dirent{}
   {
@@ -517,7 +516,7 @@ struct recursive_directory_iterator::_Impl
 
   _Impl(const path& pth, std::error_code& ec) noexcept
   : _M_pending_push{false},
-    _M_options{symlink_option::none},
+    _M_options{directory_options::none},
     _M_path{pth},
     _M_dir{}, _M_dirent{}
   {
@@ -534,11 +533,11 @@ struct recursive_directory_iterator::_Impl
 
   // observers
   int
-  _M_level() const
+  _M_depth() const
   { return this->_M_dir.size() - 1; }
 
   bool
-  _M_is_push_pending() const
+  _M_recursion_pending() const
   { return this->_M_pending_push; }
 
   // modifiers
@@ -549,10 +548,10 @@ struct recursive_directory_iterator::_Impl
   _M_incr(std::error_code& ec) noexcept
   {
     static const directory_iterator end{};
-    if (this->_M_is_push_pending()
+    if (this->_M_recursion_pending()
 	&& is_directory(status(this->_M_dirent.path(), ec))
 	&& (!is_symlink(symlink_status(this->_M_dirent.path(), ec))
-	    || this->_M_options == symlink_option::recurse))
+	    || this->_M_options == directory_options::follow_directory_symlink))
       {
 	this->_M_path = this->_M_dirent.path();
 	this->_M_dir.push(directory_iterator{this->_M_path});
@@ -571,7 +570,7 @@ struct recursive_directory_iterator::_Impl
 			  / this->_M_dir.top()->path().filename()};
 	if (is_directory(status(this->_M_dirent.path(), ec))
 	    && (!is_symlink(symlink_status(this->_M_dirent.path(), ec))
-		|| this->_M_options == symlink_option::recurse))
+	    || this->_M_options == directory_options::follow_directory_symlink))
 	  this->pending_push(true);
       }
     else
@@ -610,7 +609,7 @@ struct recursive_directory_iterator::_Impl
   { this->_M_pending_push = value; }
 
   bool _M_pending_push;
-  symlink_option _M_options;
+  directory_options _M_options;
 
   path _M_path;
   std::stack<directory_iterator, std::vector<directory_iterator>> _M_dir;
@@ -626,14 +625,14 @@ recursive_directory_iterator::
 recursive_directory_iterator(recursive_directory_iterator&&) = default;
 
 recursive_directory_iterator::
-recursive_directory_iterator(const path& pth, symlink_option opt)
-: _M_impl{std::make_unique<_Impl>(pth, opt)}
+recursive_directory_iterator(const path& pth, directory_options opts)
+: _M_impl{std::make_unique<_Impl>(pth, opts)}
 { }
 
 recursive_directory_iterator::
-recursive_directory_iterator(const path& pth, symlink_option opt,
+recursive_directory_iterator(const path& pth, directory_options opts,
 			     std::error_code& ec) noexcept
-: _M_impl{std::make_unique<_Impl>(pth, opt, ec)}
+: _M_impl{std::make_unique<_Impl>(pth, opts, ec)}
 { }
 
 recursive_directory_iterator::
@@ -646,12 +645,12 @@ recursive_directory_iterator::
 
 // observers
 int
-recursive_directory_iterator::level() const
-{ return this->_M_impl.get()->_M_level(); }
+recursive_directory_iterator::depth() const
+{ return this->_M_impl.get()->_M_depth(); }
 
 bool
-recursive_directory_iterator::is_push_pending() const
-{ return this->_M_impl.get()->_M_is_push_pending(); }
+recursive_directory_iterator::recursion_pending() const
+{ return this->_M_impl.get()->_M_recursion_pending(); }
 
 // modifiers
 recursive_directory_iterator&
@@ -686,8 +685,8 @@ recursive_directory_iterator::pop(std::error_code& ec) noexcept
 { this->_M_impl.get()->_M_pop(ec); }
 
 void
-recursive_directory_iterator::pending_push(bool value)
-{ this->_M_impl.get()->pending_push(value); }
+recursive_directory_iterator::disable_recursion_pending()
+{ this->_M_impl.get()->pending_push(false); }
 
 bool
 recursive_directory_iterator::
@@ -822,7 +821,29 @@ canonical(const path& pth, const path& base, std::error_code& ec) noexcept
 }
 
 path
-relative(const path& pth, const path& to = current_path())
+relative(const path& pth, const path& to, std::error_code& ec) noexcept
+{
+  path rel;
+  path abspth = absolute(pth);
+  path absto = absolute(to);
+  /// Find common base.
+  auto bpth = std::begin(abspth);
+  auto bto = std::begin(absto);
+  // Find 
+  for (auto epth = std::end(abspth), eto = std::end(absto);
+       bpth != epth && bto != eto && *bpth == *bto; ++bpth, ++bto)
+    ;
+  for (auto epth = std::end(pth); bpth != epth; ++bpth)
+    if (*bpth != ".")
+      rel /= "..";
+
+  rel.append(bto, std::end(to));
+
+  return rel;
+}
+
+path
+relative(const path& pth, const path& to)
 {
   std::error_code ec;
   path rel = relative(pth, to, ec);
@@ -838,32 +859,6 @@ relative(const path& pth, std::error_code& ec) noexcept
     return path();
   else
     return relative(pth, to, ec);
-}
-
-path
-relative(const path& pth, const path& to, std::error_code& ec) noexcept
-{
-  path rel;
-  path abspth = absolute(pth, ec);
-  if (ec)
-    return rel;
-  path absto = absolute(to, ec);
-  if (ec)
-    return rel;
-  /// Find common base.
-  auto bpth = std::begin(abspth);
-  auto bto = std::begin(absto);
-  // Find 
-  for (auto epth = std::end(abspth), eto = std::end(absto);
-       bpth != epth && bto != eto && *bpth == *bto; ++bpth, ++bto)
-    ;
-  for (auto epth = std::end(pth); bpth != epth; ++bpth)
-    if (*bpth != ".")
-      rel /= "..";
-
-  rel.append(bto, std::end(to), ec);
-
-  return rel;
 }
 
 void
@@ -1102,7 +1097,7 @@ create_directory(const path& pth, const path& attributes,
 {
   errno = 0;
   struct stat buf;
-  int result = ::stat(existing_p.c_str(), &buf);
+  int result = ::stat(attributes.c_str(), &buf);
   if (result == -1)
     {
       ec = std::make_error_code(static_cast<std::errc>(errno));
@@ -1110,7 +1105,7 @@ create_directory(const path& pth, const path& attributes,
     }
   else
     {
-      result = ::mkdir(p.c_str(), buf.st_mode)
+      result = ::mkdir(pth.c_str(), buf.st_mode);
       if (result == -1)
 	ec = std::make_error_code(static_cast<std::errc>(errno));
       return result == 0;
@@ -1171,7 +1166,7 @@ bool
 create_file(const path& pth, std::error_code& ec) noexcept
 {
   errno = 0;
-  mode_t mode = static_cast<mode_t>(perms::all_all);
+  mode_t mode = static_cast<mode_t>(perms::all);
   int result = ::creat(pth.c_str(), mode);
   if (result == -1)
     ec = std::make_error_code(static_cast<std::errc>(errno));
@@ -1369,15 +1364,15 @@ last_write_time(const path& pth, std::error_code& ec) noexcept
   if (result == -1)
     {
       ec = std::make_error_code(static_cast<std::errc>(errno));
-      return std::chrono::system_clock::from_time_t(-1);//static_cast<file_time_type>(-1);
+      return file_time_type::min();
     }
   else
-    return std::chrono::system_clock::from_time_t(buf.st_mode);
+    return __detail::file_clock_type::from_time_t(buf.st_mode);
 }
 
 void
 last_write_time(const path& pth,
-		const file_time_type new_time)
+		file_time_type new_time)
 {
   std::error_code ec;
   last_write_time(pth, new_time, ec);
@@ -1387,13 +1382,13 @@ last_write_time(const path& pth,
 
 void
 last_write_time(const path& pth,
-		const file_time_type new_time,
+		file_time_type new_time,
 		std::error_code& ec) noexcept
 {
   errno = 0;
   struct utimbuf times;
-  times.actime = std::chrono::system_clock::to_time_t(new_time);
-  times.modtime = std::chrono::system_clock::to_time_t(new_time);
+  times.actime = __detail::file_clock_type::to_time_t(new_time);
+  times.modtime = __detail::file_clock_type::to_time_t(new_time);
   int result = ::utime(pth.c_str(), &times);
   if (result == -1)
     ec = std::make_error_code(static_cast<std::errc>(errno));
@@ -1411,20 +1406,23 @@ permissions(const path& pth, perms prms)
 void
 permissions(const path& pth, perms prms, std::error_code& ec) noexcept
 {
-  file_status current_status(((prms & perms::symlink_perms) != perms::no_perms)
-			     ? symlink_status(pth, ec)
-			     : status(pth, ec));
+  file_status current_status{status(pth, ec)};
   if (ec)
     return;
 
-  if ((prms & perms::add_perms) != perms::no_perms)
-    prms |= current_status.permissions();
-  else if ((prms & perms::remove_perms) != perms::no_perms)
-    prms = current_status.permissions() & ~prms;
+  bool add = (prms & perms::add_perms) != perms::none;
+  bool remove = (prms & perms::remove_perms) != perms::none;
+  if (add)
+    prms = current_status.permissions() | (prms & perms::mask);
+  if (remove)
+    prms = current_status.permissions() & ~(prms & perms::mask);
+  if (!(add || remove))
+    prms = prms & perms::mask;
+  // if (add && remove) noop
 
   errno = 0;
-  ////int result = ::fchmodat(, pth.c_str(), static_cast<mode_t>(prms), 0);
-  int result = ::chmod(pth.c_str(), static_cast<mode_t>(prms));
+  path apath = absolute(pth);
+  int result = ::fchmodat(0, apath.c_str(), static_cast<mode_t>(prms), 0);
   if (result == -1)
     ec = std::make_error_code(static_cast<std::errc>(errno));
 }
@@ -1594,7 +1592,7 @@ status(const path& pth)
 {
   std::error_code ec;
   file_status fs = status(pth, ec);
-  if (fs.type() == file_type::status_error)
+  if (fs.type() == file_type::none)
     throw filesystem_error{"status", pth, ec};
   return fs;
 }
@@ -1610,34 +1608,34 @@ status(const path& pth, std::error_code& ec) noexcept
     {
       if (errno == ENOENT || errno == ENOTDIR)
 	{
-	  fs.type(file_type::file_not_found);
-	  fs.permissions(perms::perms_not_known);
+	  fs.type(file_type::not_found);
+	  fs.permissions(perms::unknown);
 	}
       else
 	{
-	  fs.type(file_type::status_error);
-	  fs.permissions(perms::perms_not_known);
+	  fs.type(file_type::none);
+	  fs.permissions(perms::unknown);
 	  ec = std::make_error_code(static_cast<std::errc>(errno));
 	}
     }
   else
     {
       if (S_ISREG(buf.st_mode))
-	fs.type(file_type::regular_file);
+	fs.type(file_type::regular);
       else if (S_ISDIR(buf.st_mode))
-	fs.type(file_type::directory_file);
+	fs.type(file_type::directory);
       else if (S_ISLNK(buf.st_mode))
-	fs.type(file_type::symlink_file);
+	fs.type(file_type::symlink);
       else if (S_ISBLK(buf.st_mode))
-	fs.type(file_type::block_file);
+	fs.type(file_type::block);
       else if (S_ISCHR(buf.st_mode))
-	fs.type(file_type::character_file);
+	fs.type(file_type::character);
       else if (S_ISFIFO(buf.st_mode))
-	fs.type(file_type::fifo_file);
+	fs.type(file_type::fifo);
       else if (S_ISSOCK(buf.st_mode))
-	fs.type(file_type::socket_file);
+	fs.type(file_type::socket);
       else
-	fs.type(file_type::type_unknown);
+	fs.type(file_type::unknown);
 
       fs.permissions(static_cast<perms>(buf.st_mode | 0777));
     }
@@ -1650,7 +1648,7 @@ symlink_status(const path& pth)
 {
   std::error_code ec;
   file_status fs = symlink_status(pth, ec);
-  if (fs.type() == file_type::status_error)
+  if (fs.type() == file_type::none)
     throw filesystem_error{"symlink_status", pth, ec};
   return fs;
 }
@@ -1666,34 +1664,34 @@ symlink_status(const path& pth, std::error_code& ec) noexcept
     {
       if (errno == ENOENT || errno == ENOTDIR)
 	{
-	  fs.type(file_type::file_not_found);
-	  fs.permissions(perms::perms_not_known);
+	  fs.type(file_type::not_found);
+	  fs.permissions(perms::unknown);
 	}
       else
 	{
-	  fs.type(file_type::status_error);
-	  fs.permissions(perms::perms_not_known);
+	  fs.type(file_type::none);
+	  fs.permissions(perms::unknown);
 	  ec = std::make_error_code(static_cast<std::errc>(errno));
 	}
     }
   else
     {
       if (S_ISREG(buf.st_mode))
-	fs.type(file_type::regular_file);
+	fs.type(file_type::regular);
       else if (S_ISDIR(buf.st_mode))
-	fs.type(file_type::directory_file);
+	fs.type(file_type::directory);
       else if (S_ISLNK(buf.st_mode))
-	fs.type(file_type::symlink_file);
+	fs.type(file_type::symlink);
       else if (S_ISBLK(buf.st_mode))
-	fs.type(file_type::block_file);
+	fs.type(file_type::block);
       else if (S_ISCHR(buf.st_mode))
-	fs.type(file_type::character_file);
+	fs.type(file_type::character);
       else if (S_ISFIFO(buf.st_mode))
-	fs.type(file_type::fifo_file);
+	fs.type(file_type::fifo);
       else if (S_ISSOCK(buf.st_mode))
-	fs.type(file_type::socket_file);
+	fs.type(file_type::socket);
       else
-	fs.type(file_type::type_unknown);
+	fs.type(file_type::unknown);
 
       fs.permissions(static_cast<perms>(buf.st_mode | 0777));
     }
@@ -1774,6 +1772,7 @@ namespace _Path_traits
 } // _Path_traits
 } // __detail
 
-} // filesystem
-} // experimental
-} // std
+} // inline namespace v1
+} // namespace filesystem
+} // namespace experimental
+} // namespace std

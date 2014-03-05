@@ -1,11 +1,13 @@
 
-// /home/ed/bin/bin/g++ -g -std=c++1y -o test_filesystem test_filesystem.cpp filesystem.cc unique_path.cc
+// /home/ed/bin/bin/g++ -g -std=c++1y -fdiagnostics-color=always -o test_filesystem test_filesystem.cpp filesystem.cc
 
 // LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem
 
 // LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.txt 2> test.err
 
 // LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.new.txt 2> test.new.err
+
+// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.new2.txt 2> test.new2.err
 
 
 #include <iostream>
@@ -97,11 +99,11 @@ main()
 
   std::string latin1_string = "Résumé";
   using cvt_t = std::codecvt_byname<wchar_t, char, std::mbstate_t>;
-  std::locale latin1_locale{std::locale(),
-                            new cvt_t{"fr_FR.ISO-8859-1"}}; // "fr_FR.UTF-8"
-  std::experimental::filesystem::path latin1_path{latin1_string, latin1_locale};
   try
   {
+    std::locale latin1_locale{std::locale(),
+                              new cvt_t{"fr_FR.ISO-8859-1"}}; // "fr_FR.UTF-8"
+    std::experimental::filesystem::path latin1_path{latin1_string, latin1_locale};
     std::cout << "latin1_path.empty() = " << latin1_path.empty() << std::endl;
     std::cout << "latin1_path.string().length() = " << latin1_path.string().length() << std::endl;
     std::cout << "latin1_path.string() = " << latin1_path.string() << std::endl;
@@ -181,12 +183,49 @@ main()
 
   std::experimental::filesystem::path this_test{__FILE__};
   std::cout << "this_test: " << this_test << '\n';
+  std::cout << "this_test.has_root_name(): " << this_test.has_root_name() << '\n';
+  std::cout << "this_test.has_root_directory(): " << this_test.has_root_directory() << '\n';
   std::cout << "canonical(this_test): " << std::experimental::filesystem::canonical(this_test) << '\n';
   std::cout << "absolute(this_test): " << std::experimental::filesystem::absolute(this_test) << '\n';
   std::cout << "relative(\"/usr/local\", this_test): "
             << std::experimental::filesystem::relative("/usr/local", this_test) << '\n';
 
-  std::cout << "unique_path: " << std::experimental::filesystem::unique_path() << '\n';
+  std::experimental::filesystem::file_status this_status = std::experimental::filesystem::status(this_test);
+  std::error_code this_error;
+  std::cout << "is_block_file: " << std::experimental::filesystem::is_block_file(this_status) << '\n';
+  std::cout << "is_block_file: " << std::experimental::filesystem::is_block_file(this_test);
+  std::cout << "is_block_file: " << std::experimental::filesystem::is_block_file(this_test, this_error) << '\n';
+
+  std::cout << "is_character_file: " << std::experimental::filesystem::is_character_file(this_status) << '\n';
+  std::cout << "is_character_file: " << std::experimental::filesystem::is_character_file(this_test);
+  std::cout << "is_character_file: " << std::experimental::filesystem::is_character_file(this_test, this_error) << '\n';
+
+  std::cout << "is_directory: " << std::experimental::filesystem::is_directory(this_status) << '\n';
+  std::cout << "is_directory: " << std::experimental::filesystem::is_directory(this_test);
+  std::cout << "is_directory: " << std::experimental::filesystem::is_directory(this_test, this_error) << '\n';
+
+  std::cout << "is_empty: " << std::experimental::filesystem::is_empty(this_test);
+  std::cout << "is_empty: " << std::experimental::filesystem::is_empty(this_test, this_error) << '\n';
+
+  std::cout << "is_fifo: " << std::experimental::filesystem::is_fifo(this_status) << '\n';
+  std::cout << "is_fifo: " << std::experimental::filesystem::is_fifo(this_test);
+  std::cout << "is_fifo: " << std::experimental::filesystem::is_fifo(this_test, this_error) << '\n';
+
+  std::cout << "is_other: " << std::experimental::filesystem::is_other(this_status) << '\n';
+  std::cout << "is_other: " << std::experimental::filesystem::is_other(this_test);
+  std::cout << "is_other: " << std::experimental::filesystem::is_other(this_test, this_error) << '\n';
+
+  std::cout << "is_regular_file: " << std::experimental::filesystem::is_regular_file(this_status) << '\n'; 
+  std::cout << "is_regular_file: " << std::experimental::filesystem::is_regular_file(this_test);
+  std::cout << "is_regular_file: " << std::experimental::filesystem::is_regular_file(this_test, this_error) << '\n';
+
+  std::cout << "is_socket: " << std::experimental::filesystem::is_socket(this_status) << '\n';
+  std::cout << "is_socket: " << std::experimental::filesystem::is_socket(this_test);
+  std::cout << "is_socket: " << std::experimental::filesystem::is_socket(this_test, this_error) << '\n';
+
+  std::cout << "is_symlink: " << std::experimental::filesystem::is_symlink(this_status) << '\n';
+  std::cout << "is_symlink: " << std::experimental::filesystem::is_symlink(this_test);
+  std::cout << "is_symlink: " << std::experimental::filesystem::is_symlink(this_test, this_error) << '\n';
 
   std::cout << "temp_directory_path: " << std::experimental::filesystem::temp_directory_path() << '\n';
 
@@ -306,7 +345,7 @@ main()
     std::cout << '\n' << "Recurse into \"/usr/local/bin/db2ls\"" << '\n';
     std::experimental::filesystem::recursive_directory_iterator db2ls("/usr/local/bin/db2ls");
     for(; db2ls != std::experimental::filesystem::recursive_directory_iterator(); ++db2ls)
-      std::cout << tab(db2ls.level()) << db2ls->path().filename() << '\n';
+      std::cout << tab(db2ls.depth()) << db2ls->path().filename() << '\n';
   }
   catch (std::experimental::filesystem::filesystem_error & fe)
   {
@@ -322,7 +361,7 @@ main()
   std::cout << '\n' << "Recurse into \".\"" << '\n';
   std::experimental::filesystem::recursive_directory_iterator rdi(".");
   for(; rdi != std::experimental::filesystem::recursive_directory_iterator(); ++rdi)
-    std::cout << tab(rdi.level()) << rdi->path().filename() << '\n';
+    std::cout << tab(rdi.depth()) << rdi->path().filename() << '\n';
 
   std::cout << '\n' << "Iterate over \"/usr/local\"" << '\n';
   std::experimental::filesystem::directory_iterator diul("/usr/local");
@@ -334,7 +373,7 @@ main()
     std::cout << '\n' << "Recurse into \"/usr/local\"" << '\n';
     std::experimental::filesystem::recursive_directory_iterator rdiul("/usr/local");
     for(; rdiul != std::experimental::filesystem::recursive_directory_iterator(); ++rdiul)
-      std::cout << tab(rdiul.level()) << rdiul->path().filename() << '\n';
+      std::cout << tab(rdiul.depth()) << rdiul->path().filename() << '\n';
   }
   catch (std::experimental::filesystem::filesystem_error & fe)
   {
