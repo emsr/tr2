@@ -5,22 +5,15 @@
 #include <vector>
 #include <deque>
 #include <cassert>
-/*
-template<template<_Tp> typename _Cont<_Tp>>
+
+template<typename _Tp, template<typename, typename> class _Cont>
   void
-  test(_Cont<_Tp>)
+  test(_Cont<_Tp, std::allocator<_Tp>>)
   {
-    _Cont<int>::iterator vi1{};
-    _Cont<int>::iterator vi2{};
+    typename _Cont<_Tp, std::allocator<_Tp>>::iterator vi1{};
+    typename _Cont<_Tp, std::allocator<_Tp>>::iterator vi2{};
     assert(vi1 == vi2);
-
-    _Cont<double>::iterator vd1{};
-    _Cont<double>::iterator vd2{};
-    assert(vd1 == vd2);
-
-    assert(vi1 != vd1);
   }
-*/
 
 struct A
 {
@@ -89,6 +82,8 @@ main()
   std::deque<double>::iterator dd1{};
   std::deque<double>::iterator dd2{};
   assert(dd1 == dd2);
+
+  test(std::vector<long>{});
 
   //assert(vi1 != vd1); // Won't compile.
 
