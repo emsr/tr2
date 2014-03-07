@@ -4,15 +4,27 @@
 
 #include <vector>
 #include <deque>
+#include <list>
+#include <forward_list>
 #include <cassert>
+#include <set>
 
 template<typename _Tp, template<typename, typename> class _Cont>
   void
-  test(_Cont<_Tp, std::allocator<_Tp>>)
+  test2(_Cont<_Tp, std::allocator<_Tp>>)
   {
-    typename _Cont<_Tp, std::allocator<_Tp>>::iterator vi1{};
-    typename _Cont<_Tp, std::allocator<_Tp>>::iterator vi2{};
-    assert(vi1 == vi2);
+    typename _Cont<_Tp, std::allocator<_Tp>>::iterator ci1{};
+    typename _Cont<_Tp, std::allocator<_Tp>>::iterator ci2{};
+    assert(ci1 == ci2);
+  }
+
+template<typename _Tp, template<typename, typename, typename> class _Cont>
+  void
+  test3(_Cont<_Tp, std::less<_Tp>, std::allocator<_Tp>>)
+  {
+    typename _Cont<_Tp, std::less<_Tp>, std::allocator<_Tp>>::iterator ci1{};
+    typename _Cont<_Tp, std::less<_Tp>, std::allocator<_Tp>>::iterator ci2{};
+    assert(ci1 == ci2);
   }
 
 struct A
@@ -83,9 +95,12 @@ main()
   std::deque<double>::iterator dd2{};
   assert(dd1 == dd2);
 
-  test(std::vector<long>{});
-
-  //assert(vi1 != vd1); // Won't compile.
+  test2(std::vector<long>{});
+  test2(std::deque<long>{});
+  test2(std::deque<long>{});
+  test2(std::list<long>{});
+  test2(std::forward_list<long>{});
+  test3(std::set<long>{});
 
   //vi1 == vd1; // Won't compile.
 }
