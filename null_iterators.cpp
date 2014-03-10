@@ -1,4 +1,5 @@
 // N3644 Null Forward Iterators
+// Discussion: gcc.gnu.org/ml/libstdc++/2013-11/msg00076.html
 
 // /home/ed/bin/bin/g++ -std=c++1y -o null_iterators null_iterators.cpp
 
