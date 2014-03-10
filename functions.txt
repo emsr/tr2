@@ -1,0 +1,21 @@
+System functions used in filesystem
+
+closedir
+realpath
+readdir_r
+mkdir
+symlink
+link
+creat
+pathconf
+getcwd
+chdir
+stat
+utime
+chmod
+fchmodat
+readlink
+remove
+truncate
+statvfs
+lstat
