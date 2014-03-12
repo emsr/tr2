@@ -61,5 +61,9 @@ main()
   ss >> std::quoted(test);
   assert(test == "Alpha");
 
+  std::cout << "[" << std::left << std::setfill('x') << std::setw(20) << R"("AB \"CD\" EF")" << "]" << std::endl;
+  std::cout << "[" << std::left << std::setfill('y') << std::setw(20) << std::quoted(R"(GH "IJ" KL)") << "]" << std::endl;
+  std::cout << "[" << std::right << std::setfill('z') << std::setw(20) << std::quoted(R"(PQ "RS" TU)") << "]" << std::endl;
+
   //  Test delimited string extension.
 }

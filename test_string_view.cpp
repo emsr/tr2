@@ -375,4 +375,8 @@ main()
   std::cout << "haystring.rfind(\"m\",2)    = " << haystring.rfind("m",2) << std::endl;
   std::cout << "haystring.rfind('m',12)    = " << haystring.rfind('m',12) << std::endl;
   std::cout << "haystring.rfind(\"m\",12)    = " << haystring.rfind("m",12) << std::endl;
+
+  std::cout << std::endl;
+  std::cout << "Literally!"sv << std::endl;
+  std::wcout << L"Literally!"sv << std::endl;
 }

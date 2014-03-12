@@ -1,6 +1,6 @@
 // Components for manipulating non-owning sequences of characters -*- C++ -*-
 
-// Copyright (C) 2013 Free Software Foundation, Inc.
+// Copyright (C) 2013-2014 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -117,7 +117,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       constexpr basic_string_view(const _CharT* __str, size_type __len)
       : _M_len{__str == nullptr ? 0 :__len},
-	_M_str{__str == nullptr || __len == 0 ? _S_empty_str : __str}
+	_M_str{__str == nullptr ? _S_empty_str : __str}
       { }
 
       basic_string_view&
@@ -256,14 +256,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       copy(_CharT* __str, size_type __n, size_type __pos = 0) const
       {
 	__glibcxx_requires_string_len(__str, __n);
-	if (__pos >= this->_M_len)
-	  __throw_out_of_range_fmt(__N("basic_string_view::at: __pos "
-				       "(which is %zu) >= this->size() "
+	if (__pos > this->_M_len)
+	  __throw_out_of_range_fmt(__N("basic_string_view::copy: __pos "
+				       "(which is %zu) > this->size() "
 				       "(which is %zu)"),
 				   __pos, this->size());
 	size_type __rlen{std::min(__n, size_type{this->_M_len  - __pos})};
 	for (auto __begin = this->_M_str + __pos,
-	     __end = this->_M_str + __rlen; __begin != __end;)
+	     __end = __begin + __rlen; __begin != __end;)
 	  *__str++ = *__begin++;
 	return __rlen;
       }
@@ -274,11 +274,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       constexpr basic_string_view
       substr(size_type __pos, size_type __n=npos) const
       {
-	return __pos < this->_M_len
+	return __pos <= this->_M_len
 	     ? basic_string_view{this->_M_str + __pos,
 				std::min(__n, size_type{this->_M_len  - __pos})}
-	     : (__throw_out_of_range_fmt(__N("basic_string_view::at: __pos "
-					     "(which is %zu) >= this->size() "
+	     : (__throw_out_of_range_fmt(__N("basic_string_view::substr: __pos "
+					     "(which is %zu) > this->size() "
 					     "(which is %zu)"),
 				     __pos, this->size()), basic_string_view{});
       }
@@ -671,22 +671,22 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   inline namespace string_view_literals
   {
 
-    inline basic_string_view<char>
+    inline constexpr basic_string_view<char>
     operator""sv(const char* __str, size_t __len)
     { return basic_string_view<char>{__str, __len}; }
 
 #ifdef _GLIBCXX_USE_WCHAR_T
-    inline basic_string_view<wchar_t>
+    inline constexpr basic_string_view<wchar_t>
     operator""sv(const wchar_t* __str, size_t __len)
     { return basic_string_view<wchar_t>{__str, __len}; }
 #endif
 
 #ifdef _GLIBCXX_USE_C99_STDINT_TR1
-    inline basic_string_view<char16_t>
+    inline constexpr basic_string_view<char16_t>
     operator""sv(const char16_t* __str, size_t __len)
     { return basic_string_view<char16_t>{__str, __len}; }
 
-    inline basic_string_view<char32_t>
+    inline constexpr basic_string_view<char32_t>
     operator""sv(const char32_t* __str, size_t __len)
     { return basic_string_view<char32_t>{__str, __len}; }
 #endif
