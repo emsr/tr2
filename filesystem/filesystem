@@ -1426,7 +1426,6 @@ namespace _Path_traits
    *
    */
   class directory_iterator
-  : public iterator<std::input_iterator_tag, directory_entry>
   {
   public:
 
@@ -1476,7 +1475,6 @@ namespace _Path_traits
    *
    */
   class recursive_directory_iterator
-  : public iterator<std::input_iterator_tag, directory_entry>
   {
   public:
 
