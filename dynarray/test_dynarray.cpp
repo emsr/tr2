@@ -6,50 +6,59 @@
 #include <iostream>
 #include <algorithm>
 
-void
-dump(const std::dynarray< int > & source)
-{
-  for (auto src = source.begin(); src != source.end(); ++src)
-    std::cout << " " << *src;
-  std::cout << std::endl;
-}
-
-void
-lowrap(std::dynarray<int>& target,
-       const std::dynarray<int>& source)
-{
-  dump(source);
-
-  std::dynarray<int> sorted(source);
-  dump(sorted);
-
-  std::sort(sorted.begin(), sorted.end());
-  dump(sorted);
-
-  const int* srt = &sorted.front();
-  std::dynarray< int >::iterator tgt(target.begin());
-  for (; tgt != target.end(); ++tgt)
+template<typename Tp>
+  void
+  dump(const std::dynarray<Tp> & source)
   {
-    *tgt = *srt;
-    if (srt == &sorted.back())
-      srt = &sorted.front();
-    else
-      ++srt;
+    for (auto src = source.begin(); src != source.end(); ++src)
+      std::cout << " " << *src;
+    std::cout << std::endl;
   }
 
-  dump(target);
-}
+template<typename Tp>
+  void
+  lowrap(std::dynarray<Tp>& target,
+         const std::dynarray<Tp>& source)
+  {
+    dump(source);
+
+    std::dynarray<Tp> sorted(source);
+    dump(sorted);
+
+    std::sort(sorted.begin(), sorted.end());
+    dump(sorted);
+
+    const Tp* srt = &sorted.front();
+    std::dynarray<Tp>::iterator tgt(target.begin());
+    for (; tgt != target.end(); ++tgt)
+    {
+      *tgt = *srt;
+      if (srt == &sorted.back())
+        srt = &sorted.front();
+      else
+        ++srt;
+    }
+
+    dump(target);
+  }
 
 int
 main()
 {
   std::dynarray<int> alpha(8);
   std::dynarray<int> gamma(3);
+
   for (std::dynarray<int>::size_type i = 0; i < gamma.size(); ++i)
     gamma[i] = 4 - i;
-  lowrap( alpha, gamma );
+
+  lowrap(alpha, gamma);
+
   int sum = 0;
   for (std::dynarray<int>::size_type i = 0; i < alpha.size(); ++i)
     sum += alpha.at(i);
+
+  std::dynarray<float> fda{0.0F, 1.1F, 2.2F, 3.3F, 4.4F, 5.5F};
+  dump(fda);
+
   return sum;
 }

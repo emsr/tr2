@@ -38,6 +38,13 @@ namespace std {
 	return reinterpret_cast<value_type*>(alloca(__n * sizeof(value_type)));
       }
 
+      [[gnu::always_inline]]
+      void
+      _M_dealloc()
+      {
+        //delete[] this->_M_store;
+      }
+
     public:
 
       // construct and destruct:
@@ -54,7 +61,7 @@ namespace std {
         try
         {
           for (__i = 0; __i < _M_count; ++__i)
-            new (this->_M_store + __i) value_type;
+            ::new(this->_M_store + __i) value_type;
         }
         catch ( ... )
         {
@@ -71,20 +78,31 @@ namespace std {
       {
         try
         {
-          uninitialized_copy(__dyna.begin(), __dyna.end(), this->begin());
+          std::uninitialized_copy(__dyna.begin(), __dyna.end(), this->begin());
         }
         catch (...)
         {
-          delete[] this->_M_store;
+          _M_dealloc();
           throw;
         }
       }
+
+      [[gnu::always_inline]]
+      dynarray(initializer_list<value_type> __il)
+      : _M_count{__il.size()},
+	_M_store{_M_alloc(__il.size())}
+      {
+        value_type* __data = data();
+        auto __src = __il.begin();
+        for (size_type __i = 0; __i < this->_M_count; ++__i, ++__data, ++__src )
+          ::new(__data) value_type(*__src);
+     }
 
       ~dynarray()
       {
         for (size_type __i = 0; __i < this->_M_count; ++__i)
           (this->_M_store + __i)->~value_type();
-        //delete[] this->_M_store;
+        _M_dealloc();
       }
 
       // iterators:
