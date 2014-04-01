@@ -20,8 +20,8 @@ namespace std {
     private:
 
       // fields:
-      size_type _M_count;
-      _Tp*      _M_store;
+      size_type   _M_count;
+      value_type* _M_store;
 
       // helper functions:
       void
@@ -31,11 +31,12 @@ namespace std {
 	  throw std::out_of_range("dynarray");
       }
 
-      _Tp*
+      [[gnu::always_inline]]
+      value_type*
       _M_alloc(size_type __n)
-      //{ return reinterpret_cast<_Tp*>(alloca(__n * sizeof(_Tp))); }
-      // Remember you can't delete pointer returned by alloca.
-      { return reinterpret_cast<_Tp*>(new char[__n * sizeof(_Tp)]); }
+      {
+	return reinterpret_cast<value_type*>(alloca(__n * sizeof(value_type)));
+      }
 
     public:
 
@@ -44,6 +45,7 @@ namespace std {
 
       const dynarray operator=(const dynarray&) = delete;
 
+      [[gnu::always_inline]]
       explicit dynarray(size_type __n)
       : _M_count{__n},
 	_M_store{this->_M_alloc(__n)}
@@ -52,16 +54,17 @@ namespace std {
         try
         {
           for (__i = 0; __i < _M_count; ++__i)
-            new (this->_M_store + __i) _Tp;
+            new (this->_M_store + __i) value_type;
         }
         catch ( ... )
         {
           for (; __i > 0; --__i)
-            (this->_M_store + (__i - 1))->~_Tp();
+            (this->_M_store + (__i - 1))->~value_type();
           throw;
         }
       }
 
+      [[gnu::always_inline]]
       dynarray(const dynarray& __dyna)
       : _M_count{__dyna._M_count},
 	_M_store{_M_alloc(__dyna._M_count)}
@@ -80,8 +83,8 @@ namespace std {
       ~dynarray()
       {
         for (size_type __i = 0; __i < this->_M_count; ++__i)
-          (this->_M_store + __i)->~_Tp();
-        delete[] this->_M_store;
+          (this->_M_store + __i)->~value_type();
+        //delete[] this->_M_store;
       }
 
       // iterators:
@@ -178,11 +181,11 @@ namespace std {
       }
 
       // data access:
-      _Tp*
+      value_type*
       data()
       { return this->_M_store; }
 
-      const _Tp*
+      const value_type*
       data() const
       { return this->_M_store; }
     };
