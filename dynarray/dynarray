@@ -7,55 +7,56 @@ namespace std {
     struct dynarray
     {
       // types:
-      typedef       _Tp                             value_type;
-      typedef       _Tp&                            reference;
-      typedef const _Tp&                            const_reference;
-      typedef       _Tp*                            iterator;
-      typedef const _Tp*                            const_iterator;
-      typedef std::reverse_iterator<iterator>       reverse_iterator;
-      typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
-      typedef size_t                                size_type;
-      typedef ptrdiff_t                             difference_type;
+      using value_type             = _Tp;
+      using reference              = _Tp&;
+      using const_reference        = const _Tp&;
+      using pointer                = _Tp*;
+      using const_pointer          = const _Tp*;
+      using iterator               = _Tp*;
+      using const_iterator         = const _Tp*;
+      using reverse_iterator       = std::reverse_iterator<iterator>;
+      using const_reverse_iterator = std::reverse_iterator<const_iterator>;
+      using size_type              = size_t;
+      using difference_type        = ptrdiff_t;
 
     private:
 
       // fields:
-      size_type   _M_count;
-      value_type* _M_store;
+      size_type _M_count;
+      pointer   _M_store;
 
       // helper functions:
       void
-      _M_check(size_type __n)
+      _M_check(size_type __num)
       {
-	if (__n >= this->_M_count)
+	if (__num >= this->_M_count)
 	  throw std::out_of_range("dynarray");
       }
 
       [[gnu::always_inline]]
-      value_type*
-      _M_alloc(size_type __n)
+      pointer
+      _M_allocate(size_type __num)
       {
-	return reinterpret_cast<value_type*>(alloca(__n * sizeof(value_type)));
+	return
+	  reinterpret_cast<pointer>(alloca(__num * sizeof(value_type)));
       }
 
       [[gnu::always_inline]]
       void
-      _M_dealloc()
+      _M_deallocate()
       {
         //delete[] this->_M_store;
       }
 
+      dynarray() = delete;
+
     public:
 
       // construct and destruct:
-      dynarray() = delete;
-
-      const dynarray operator=(const dynarray&) = delete;
-
       [[gnu::always_inline]]
-      explicit dynarray(size_type __n)
-      : _M_count{__n},
-	_M_store{this->_M_alloc(__n)}
+      explicit dynarray(size_type __num)
+      : _M_count{__num},
+	_M_store{this->_M_allocate(__num)}
       {
         size_type __i;
         try
@@ -71,10 +72,35 @@ namespace std {
         }
       }
 
+//      template<typename _Alloc>
+//	dynarray(size_type __num, const _Alloc& __alloc);
+
+      [[gnu::always_inline]]
+      dynarray(size_type __num, const value_type& __val)
+      : _M_count{__num},
+	_M_store{this->_M_allocate(__num)}
+      {
+        size_type __i;
+        try
+        {
+          for (__i = 0; __i < _M_count; ++__i)
+            ::new(this->_M_store + __i) value_type{__val};
+        }
+        catch ( ... )
+        {
+          for (; __i > 0; --__i)
+            (this->_M_store + (__i - 1))->~value_type();
+          throw;
+        }
+      }
+
+//      template<typename _Alloc>
+//	dynarray(size_type __num, const T& __val, const _Alloc& __alloc);
+
       [[gnu::always_inline]]
       dynarray(const dynarray& __dyna)
       : _M_count{__dyna._M_count},
-	_M_store{_M_alloc(__dyna._M_count)}
+	_M_store{_M_allocate(__dyna._M_count)}
       {
         try
         {
@@ -82,81 +108,97 @@ namespace std {
         }
         catch (...)
         {
-          _M_dealloc();
+          _M_deallocate();
           throw;
         }
       }
 
+//      template<typename _Alloc>
+//	dynarray(const dynarray& __dyna, const _Alloc& __alloc);
+
       [[gnu::always_inline]]
       dynarray(initializer_list<value_type> __il)
       : _M_count{__il.size()},
-	_M_store{_M_alloc(__il.size())}
+	_M_store{_M_allocate(__il.size())}
       {
-        value_type* __data = data();
+        value_type* __data = this->data();
         auto __src = __il.begin();
         for (size_type __i = 0; __i < this->_M_count; ++__i, ++__data, ++__src )
           ::new(__data) value_type(*__src);
-     }
+      }
+
+//      template<typename _Alloc>
+//	dynarray(std::initializer_list<value_type>, const _Alloc& __alloc);
 
       ~dynarray()
       {
         for (size_type __i = 0; __i < this->_M_count; ++__i)
           (this->_M_store + __i)->~value_type();
-        _M_dealloc();
+        _M_deallocate();
       }
+
+      const dynarray operator=(const dynarray&) = delete;
 
       // iterators:
       iterator
-      begin()
+      begin() noexcept
       { return this->_M_store; }
 
       const_iterator
-      begin()  const
+      begin() const noexcept
       { return this->_M_store; }
 
       const_iterator
-      cbegin() const
+      cbegin() const noexcept
       { return this->_M_store; }
 
       iterator
-      end()
+      end() noexcept
       { return this->_M_store + this->_M_count; }
 
       const_iterator
-      end() const
+      end() const noexcept
       { return this->_M_store + this->_M_count; }
 
       const_iterator
-      cend() const
+      cend() const noexcept
       { return this->_M_store + this->_M_count; }
 
       reverse_iterator
-      rbegin()       
+      rbegin() noexcept  
       { return reverse_iterator(this->end()); }
 
       const_reverse_iterator
-      rbegin()  const
+      rbegin() const noexcept
+      { return reverse_iterator(this->end()); }
+
+      const_reverse_iterator
+      crbegin() const noexcept
       { return reverse_iterator(this->end()); }
 
       reverse_iterator
-      rend()         
+      rend()  noexcept
       { return reverse_iterator(this->begin()); }
 
       const_reverse_iterator
-      rend() const
+      rend() const noexcept
+      { return reverse_iterator(this->begin()); }
+
+      const_reverse_iterator
+      crend() const noexcept
       { return reverse_iterator(this->begin()); }
 
       // capacity:
       size_type
-      size() const
+      size() const noexcept
       { return this->_M_count; }
 
       size_type
-      max_size() const
+      max_size() const noexcept
       { return this->_M_count; }
 
       bool
-      empty() const
+      empty() const noexcept
       { return this->_M_count == 0; }
 
       // element access:
@@ -199,13 +241,21 @@ namespace std {
       }
 
       // data access:
-      value_type*
-      data()
+      pointer
+      data() noexcept
       { return this->_M_store; }
 
-      const value_type*
-      data() const
+      const_pointer
+      data() const noexcept
       { return this->_M_store; }
+
+      // mutating member functions:
+      void
+      fill(const value_type& __val)
+      {
+	for (size_type __i = 0; __i < this->_M_count; ++__i)
+	  this->_M_store[__i] = __val;
+      }
     };
 
 } // namespace std

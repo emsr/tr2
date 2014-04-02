@@ -5,6 +5,7 @@
 #include "dynarray"
 #include <iostream>
 #include <algorithm>
+#include <complex>
 
 template<typename Tp>
   void
@@ -22,14 +23,14 @@ template<typename Tp>
   {
     dump(source);
 
-    std::dynarray<Tp> sorted(source);
+    std::dynarray<Tp> sorted{source};
     dump(sorted);
 
     std::sort(sorted.begin(), sorted.end());
     dump(sorted);
 
     const Tp* srt = &sorted.front();
-    typename std::dynarray<Tp>::iterator tgt(target.begin());
+    typename std::dynarray<Tp>::iterator tgt{target.begin()};
     for (; tgt != target.end(); ++tgt)
     {
       *tgt = *srt;
@@ -45,6 +46,8 @@ template<typename Tp>
 int
 main()
 {
+  using namespace std::literals::complex_literals;
+
   std::dynarray<int> alpha(8);
   std::dynarray<int> gamma(3);
 
@@ -59,6 +62,16 @@ main()
 
   std::dynarray<float> fda{0.0F, 1.1F, 2.2F, 3.3F, 4.4F, 5.5F};
   dump(fda);
+
+  std::dynarray<std::complex<double>> beta(1000, 1.0i);
+  for (std::dynarray<std::complex<double>>::size_type i = 0; i < beta.size(); i += 100)
+    std::cout << ' ' << beta[i];
+  std::cout << std::endl;
+
+  std::dynarray<int> alpha2{alpha};
+  dump(alpha2);
+  alpha2.fill(6);
+  dump(alpha2);
 
   return sum;
 }
