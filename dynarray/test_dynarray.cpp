@@ -29,7 +29,7 @@ template<typename Tp>
     dump(sorted);
 
     const Tp* srt = &sorted.front();
-    std::dynarray<Tp>::iterator tgt(target.begin());
+    typename std::dynarray<Tp>::iterator tgt(target.begin());
     for (; tgt != target.end(); ++tgt)
     {
       *tgt = *srt;
