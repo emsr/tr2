@@ -81,8 +81,8 @@
 
 #ifndef  __cpp_lib_generic_associative_lookup
 #  error "__cpp_lib_generic_associative_lookup"
-#elif   != 201304
-#  error " != 201304"
+#elif  __cpp_lib_generic_associative_lookup != 201304
+#  error "__cpp_lib_generic_associative_lookup != 201304"
 #endif
 
 //#ifndef  __cpp_lib_null_iterators
