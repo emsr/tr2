@@ -1,5 +1,49 @@
+// Components for manipulating sequences of objects where the size is fixed
+// at construction. -*- C++ -*-
+
+// Copyright (C) 2014 Free Software Foundation, Inc.
+//
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or (at your option)
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+/** @file experimental/dynarray
+ *  This is a Standard C++ Library header.
+ */
+
+//
+// N3820 dynarray library
+//
+
+#ifndef _GLIBCXX_EXPERIMENTAL_DYNARRAY
+#define _GLIBCXX_EXPERIMENTAL_DYNARRAY 1
+
+#pragma GCC system_header
+
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
+
 #include <stdexcept>
 #include <memory>
+//#include <new> // For bad_array_length
+#include <limits> // For numeric_limits
 
 namespace std {
 
@@ -22,30 +66,35 @@ namespace std {
     private:
 
       // fields:
-      size_type _M_count;
-      pointer   _M_store;
+      size_type _M_size;
+      pointer   _M_data;
 
       // helper functions:
       void
       _M_check(size_type __num)
       {
-	if (__num >= this->_M_count)
-	  throw std::out_of_range("dynarray");
+	if (__num >= this->_M_size)
+	  //throw std::out_of_range("dynarray");
+          std::__throw_out_of_range_fmt(__N("dynarray::at: num (which is %zu) "
+					    ">= size() (which is %zu)"),
+					    __num, this->_M_size);
       }
 
       [[gnu::always_inline]]
       pointer
       _M_allocate(size_type __num)
       {
-	return
-	  reinterpret_cast<pointer>(alloca(__num * sizeof(value_type)));
+        if (__num >= std::numeric_limits<size_type>::max() / sizeof(value_type))
+	  throw std::bad_array_length();
+	size_type __size = __num * sizeof(value_type);
+	return static_cast<pointer>(alloca(__size));
       }
 
       [[gnu::always_inline]]
       void
       _M_deallocate()
       {
-        //delete[] this->_M_store;
+	//delete[] this->_M_data;
       }
 
       dynarray() = delete;
@@ -55,86 +104,148 @@ namespace std {
       // construct and destruct:
       [[gnu::always_inline]]
       explicit dynarray(size_type __num)
-      : _M_count{__num},
-	_M_store{this->_M_allocate(__num)}
+      : _M_size{__num},
+	_M_data{this->_M_allocate(__num)}
       {
-        size_type __i;
-        try
-        {
-          for (__i = 0; __i < _M_count; ++__i)
-            ::new(this->_M_store + __i) value_type;
-        }
-        catch ( ... )
-        {
-          for (; __i > 0; --__i)
-            (this->_M_store + (__i - 1))->~value_type();
-          throw;
-        }
+	size_type __i;
+	try
+	{
+	  for (__i = 0; __i < this->_M_size; ++__i)
+	    ::new(this->_M_data + __i) value_type;
+	}
+	catch (...)
+	{
+	  for (; __i > 0; --__i)
+	    (this->_M_data + __i - 1)->~value_type();
+	  throw;
+	}
       }
 
-//      template<typename _Alloc>
-//	dynarray(size_type __num, const _Alloc& __alloc);
+      template<typename _Alloc>
+	[[gnu::always_inline]]
+	dynarray(size_type __num, const _Alloc& __alloc)
+	: _M_size{__num},
+	  _M_data{this->_M_allocate(__num)}
+	{
+	  size_type __i;
+	  try
+	  {
+	    for (__i = 0; __i < this->_M_size; ++__i)
+	      __alloc.construct(this->_M_data + __i, value_type());
+	  }
+	  catch (...)
+	  {
+	    for (; __i > 0; --__i)
+	      (this->_M_data + __i - 1)->~value_type();
+	    throw;
+	  }
+	}
 
       [[gnu::always_inline]]
       dynarray(size_type __num, const value_type& __val)
-      : _M_count{__num},
-	_M_store{this->_M_allocate(__num)}
+      : _M_size{__num},
+	_M_data{this->_M_allocate(__num)}
       {
-        size_type __i;
-        try
-        {
-          for (__i = 0; __i < _M_count; ++__i)
-            ::new(this->_M_store + __i) value_type{__val};
-        }
-        catch ( ... )
-        {
-          for (; __i > 0; --__i)
-            (this->_M_store + (__i - 1))->~value_type();
-          throw;
-        }
+	size_type __i;
+	try
+	{
+	  for (__i = 0; __i < this->_M_size; ++__i)
+	    ::new(this->_M_data + __i) value_type{__val};
+	}
+	catch (...)
+	{
+	  for (; __i > 0; --__i)
+	    (this->_M_data + __i - 1)->~value_type();
+	  throw;
+	}
       }
 
-//      template<typename _Alloc>
-//	dynarray(size_type __num, const T& __val, const _Alloc& __alloc);
+      template<typename _Alloc>
+	[[gnu::always_inline]]
+	dynarray(size_type __num, const _Tp& __val, const _Alloc& __alloc)
+	: _M_size{__num},
+	  _M_data{this->_M_allocate(__num)}
+	{
+	  size_type __i;
+	  try
+	  {
+	    for (__i = 0; __i < this->_M_size; ++__i)
+	      __alloc.construct(this->_M_data + __i, __val);
+	  }
+	  catch (...)
+	  {
+	    for (; __i > 0; --__i)
+	      (this->_M_data + __i - 1)->~value_type();
+	    throw;
+	  }
+	}
 
       [[gnu::always_inline]]
       dynarray(const dynarray& __dyna)
-      : _M_count{__dyna._M_count},
-	_M_store{_M_allocate(__dyna._M_count)}
+      : _M_size{__dyna._M_size},
+	_M_data{_M_allocate(__dyna._M_size)}
       {
-        try
-        {
-          std::uninitialized_copy(__dyna.begin(), __dyna.end(), this->begin());
-        }
-        catch (...)
-        {
-          _M_deallocate();
-          throw;
-        }
+	size_type __i;
+	try
+	{
+	  //std::uninitialized_copy(__dyna.begin(), __dyna.end(), this->begin());
+	  for (__i = 0; __i < this->_M_size; ++__i)
+            ::new(this->_M_data + __i) value_type{__dyna[__i]};
+	}
+	catch (...)
+	{
+	  for (; __i > 0; --__i)
+	    (this->_M_data + __i - 1)->~value_type();
+	  throw;
+	}
       }
 
-//      template<typename _Alloc>
-//	dynarray(const dynarray& __dyna, const _Alloc& __alloc);
+      template<typename _Alloc>
+	[[gnu::always_inline]]
+	dynarray(const dynarray& __dyna, const _Alloc& __alloc)
+	: _M_size{__dyna._M_size},
+	  _M_data{_M_allocate(__dyna._M_size)}
+        {
+	  size_type __i;
+	  try
+	  {
+	    for (__i = 0; __i < this->_M_size; ++__i)
+              __alloc.construct(this->_M_data + __i, __dyna[__i]);
+	  }
+	  catch (...)
+	  {
+	    for (; __i > 0; --__i)
+	      (this->_M_data + __i - 1)->~value_type();
+	    throw;
+	  }
+        }
 
       [[gnu::always_inline]]
       dynarray(initializer_list<value_type> __il)
-      : _M_count{__il.size()},
-	_M_store{_M_allocate(__il.size())}
+      : _M_size{__il.size()},
+	_M_data{_M_allocate(__il.size())}
       {
-        value_type* __data = this->data();
-        auto __src = __il.begin();
-        for (size_type __i = 0; __i < this->_M_count; ++__i, ++__data, ++__src )
-          ::new(__data) value_type(*__src);
+	auto __src = __il.begin();
+	for (size_type __i = 0; __i < this->_M_size; ++__i, ++__src)
+	  ::new(this->_M_data + __i) value_type(*__src);
       }
 
-//      template<typename _Alloc>
-//	dynarray(std::initializer_list<value_type>, const _Alloc& __alloc);
+      template<typename _Alloc>
+	[[gnu::always_inline]]
+	dynarray(std::initializer_list<value_type> __il, const _Alloc& __alloc)
+	: _M_size{__il.size()},
+	  _M_data{_M_allocate(__il.size())}
+	{
+	  auto __src = __il.begin();
+	  for (size_type __i = 0; __i < this->_M_size; ++__i, ++__src)
+	    __alloc.construct(this->_M_data + __i, *__src);
+	}
 
       ~dynarray()
       {
-        for (size_type __i = 0; __i < this->_M_count; ++__i)
-          (this->_M_store + __i)->~value_type();
-        _M_deallocate();
+	for (size_type __i = this->_M_size; __i > 0; --__i)
+	  (this->_M_data + __i - 1)->~value_type();
+	_M_deallocate();
       }
 
       const dynarray operator=(const dynarray&) = delete;
@@ -142,27 +253,27 @@ namespace std {
       // iterators:
       iterator
       begin() noexcept
-      { return this->_M_store; }
+      { return this->_M_data; }
 
       const_iterator
       begin() const noexcept
-      { return this->_M_store; }
+      { return this->_M_data; }
 
       const_iterator
       cbegin() const noexcept
-      { return this->_M_store; }
+      { return this->_M_data; }
 
       iterator
       end() noexcept
-      { return this->_M_store + this->_M_count; }
+      { return this->_M_data + this->_M_size; }
 
       const_iterator
       end() const noexcept
-      { return this->_M_store + this->_M_count; }
+      { return this->_M_data + this->_M_size; }
 
       const_iterator
       cend() const noexcept
-      { return this->_M_store + this->_M_count; }
+      { return this->_M_data + this->_M_size; }
 
       reverse_iterator
       rbegin() noexcept  
@@ -191,70 +302,70 @@ namespace std {
       // capacity:
       size_type
       size() const noexcept
-      { return this->_M_count; }
+      { return this->_M_size; }
 
       size_type
       max_size() const noexcept
-      { return this->_M_count; }
+      { return this->_M_size; }
 
       bool
       empty() const noexcept
-      { return this->_M_count == 0; }
+      { return this->_M_size == 0; }
 
       // element access:
       reference
       operator[](size_type __n)
-      { return this->_M_store[__n]; }
+      { return this->_M_data[__n]; }
 
       const_reference
       operator[](size_type __n) const
-      { return this->_M_store[__n]; }
+      { return this->_M_data[__n]; }
 
       reference
       front()
-      { return this->_M_store[0]; }
+      { return this->_M_data[0]; }
 
       const_reference
       front() const
-      { return this->_M_store[0]; }
+      { return this->_M_data[0]; }
 
       reference
       back()
-      { return this->_M_store[this->_M_count - 1]; }
+      { return this->_M_data[this->_M_size - 1]; }
 
       const_reference
       back() const
-      { return this->_M_store[this->_M_count - 1]; }
+      { return this->_M_data[this->_M_size - 1]; }
 
       const_reference
       at(size_type __n) const
       {
-        this->_M_check(__n);
-        return this->_M_store[__n];
+	this->_M_check(__n);
+	return this->_M_data[__n];
       }
 
       reference
       at(size_type __n)
       {
-        this->_M_check(__n);
-        return this->_M_store[__n];
+	this->_M_check(__n);
+	return this->_M_data[__n];
       }
 
       // data access:
       pointer
       data() noexcept
-      { return this->_M_store; }
+      { return this->_M_data; }
 
       const_pointer
       data() const noexcept
-      { return this->_M_store; }
+      { return this->_M_data; }
 
       // mutating member functions:
       void
       fill(const value_type& __val)
       {
-	for (size_type __i = 0; __i < this->_M_count; ++__i)
-	  this->_M_store[__i] = __val;
+	for (size_type __i = 0; __i < this->_M_size; ++__i)
+	  this->_M_data[__i] = __val;
       }
     };
 
@@ -304,4 +415,8 @@ namespace std {
     { return !(__lhs < __rhs); }
 
 } // namespace std
+
+#endif // __cplusplus <= 201103L
+
+#endif // _GLIBCXX_EXPERIMENTAL_DYNARRAY
 
