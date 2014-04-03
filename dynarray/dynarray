@@ -258,5 +258,50 @@ namespace std {
       }
     };
 
+  template<typename _Tp, typename _Alloc>
+    struct uses_allocator<dynarray<_Tp>, _Alloc> : true_type { };
+
+  template<typename _Tp>
+    bool
+    operator==(const dynarray<_Tp>& __lhs,
+	       const dynarray<_Tp>& __rhs)
+    {
+      return __lhs.size() == __rhs.size() ?
+	     std::equal(__lhs.begin(), __lhs.end(), __rhs.begin()) : false;
+    }
+
+  template<typename _Tp>
+    bool
+    operator!=(const dynarray<_Tp>& __lhs,
+	       const dynarray<_Tp>& __rhs)
+    { return !(__lhs == __rhs); }
+
+  template<typename _Tp>
+    bool
+    operator<(const dynarray<_Tp>& __lhs,
+	      const dynarray<_Tp>& __rhs)
+    {
+      return std::lexicographical_compare(__lhs.begin(), __lhs.end(),
+					  __rhs.begin(), __rhs.end());
+    }
+
+  template<typename _Tp>
+    bool
+    operator<=(const dynarray<_Tp>& __lhs,
+	       const dynarray<_Tp>& __rhs)
+    { return !(__rhs < __lhs); }
+
+  template<typename _Tp>
+    bool
+    operator>(const dynarray<_Tp>& __lhs,
+	      const dynarray<_Tp>& __rhs)
+    { return __rhs < __lhs; }
+
+  template<typename _Tp>
+    bool
+    operator>=(const dynarray<_Tp>& __lhs,
+	       const dynarray<_Tp>& __rhs)
+    { return !(__lhs < __rhs); }
+
 } // namespace std
 
