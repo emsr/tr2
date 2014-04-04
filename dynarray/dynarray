@@ -90,7 +90,6 @@ namespace std {
 	return static_cast<pointer>(alloca(__size));
       }
 
-      [[gnu::always_inline]]
       void
       _M_deallocate()
       {
@@ -106,20 +105,7 @@ namespace std {
       explicit dynarray(size_type __num)
       : _M_size{__num},
 	_M_data{this->_M_allocate(__num)}
-      {
-	size_type __i;
-	try
-	{
-	  for (__i = 0; __i < this->_M_size; ++__i)
-	    ::new(this->_M_data + __i) value_type;
-	}
-	catch (...)
-	{
-	  for (; __i > 0; --__i)
-	    (this->_M_data + __i - 1)->~value_type();
-	  throw;
-	}
-      }
+      { std::__uninitialized_default_n(this->_M_data, this->_M_size); }
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
@@ -135,9 +121,8 @@ namespace std {
 	  }
 	  catch (...)
 	  {
-	    for (; __i > 0; --__i)
-	      (this->_M_data + __i - 1)->~value_type();
-	    throw;
+	    std::_Destroy(this->begin(), this->begin() + __i);
+	    __throw_exception_again;
 	  }
 	}
 
@@ -145,20 +130,7 @@ namespace std {
       dynarray(size_type __num, const value_type& __val)
       : _M_size{__num},
 	_M_data{this->_M_allocate(__num)}
-      {
-	size_type __i;
-	try
-	{
-	  for (__i = 0; __i < this->_M_size; ++__i)
-	    ::new(this->_M_data + __i) value_type{__val};
-	}
-	catch (...)
-	{
-	  for (; __i > 0; --__i)
-	    (this->_M_data + __i - 1)->~value_type();
-	  throw;
-	}
-      }
+      { std::uninitialized_fill_n(this->_M_data, this->_M_size, __val); }
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
@@ -174,9 +146,8 @@ namespace std {
 	  }
 	  catch (...)
 	  {
-	    for (; __i > 0; --__i)
-	      (this->_M_data + __i - 1)->~value_type();
-	    throw;
+	    std::_Destroy(this->begin(), this->begin() + __i);
+	    __throw_exception_again;
 	  }
 	}
 
@@ -184,21 +155,7 @@ namespace std {
       dynarray(const dynarray& __dyna)
       : _M_size{__dyna._M_size},
 	_M_data{_M_allocate(__dyna._M_size)}
-      {
-	size_type __i;
-	try
-	{
-	  //std::uninitialized_copy(__dyna.begin(), __dyna.end(), this->begin());
-	  for (__i = 0; __i < this->_M_size; ++__i)
-            ::new(this->_M_data + __i) value_type{__dyna[__i]};
-	}
-	catch (...)
-	{
-	  for (; __i > 0; --__i)
-	    (this->_M_data + __i - 1)->~value_type();
-	  throw;
-	}
-      }
+      { std::uninitialized_copy(__dyna.begin(), __dyna.end(), this->begin()); }
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
@@ -214,9 +171,8 @@ namespace std {
 	  }
 	  catch (...)
 	  {
-	    for (; __i > 0; --__i)
-	      (this->_M_data + __i - 1)->~value_type();
-	    throw;
+	    std::_Destroy(this->begin(), this->begin() + __i);
+	    __throw_exception_again;
 	  }
         }
 
@@ -224,11 +180,7 @@ namespace std {
       dynarray(initializer_list<value_type> __il)
       : _M_size{__il.size()},
 	_M_data{_M_allocate(__il.size())}
-      {
-	auto __src = __il.begin();
-	for (size_type __i = 0; __i < this->_M_size; ++__i, ++__src)
-	  ::new(this->_M_data + __i) value_type(*__src);
-      }
+      { std::uninitialized_copy(__il.begin(), __il.end(), this->begin()); }
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
@@ -236,15 +188,23 @@ namespace std {
 	: _M_size{__il.size()},
 	  _M_data{_M_allocate(__il.size())}
 	{
-	  auto __src = __il.begin();
-	  for (size_type __i = 0; __i < this->_M_size; ++__i, ++__src)
-	    __alloc.construct(this->_M_data + __i, *__src);
+	  size_type __i;
+	  try
+	  {
+	    auto __src = __il.begin();
+	    for (size_type __i = 0; __i < this->_M_size; ++__i, ++__src)
+	      __alloc.construct(this->_M_data + __i, *__src);
+	  }
+	  catch (...)
+	  {
+	    std::_Destroy(this->begin(), this->begin() + __i);
+	    __throw_exception_again;
+	  }
 	}
 
       ~dynarray()
       {
-	for (size_type __i = this->_M_size; __i > 0; --__i)
-	  (this->_M_data + __i - 1)->~value_type();
+	std::_Destroy(this->begin(), this->end());
 	_M_deallocate();
       }
 
