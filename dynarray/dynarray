@@ -276,16 +276,16 @@ namespace std {
       { return this->_M_data + this->_M_size; }
 
       reverse_iterator
-      rbegin() noexcept  
+      rbegin() noexcept
       { return reverse_iterator(this->end()); }
 
       const_reverse_iterator
       rbegin() const noexcept
-      { return reverse_iterator(this->end()); }
+      { return const_reverse_iterator(this->end()); }
 
       const_reverse_iterator
       crbegin() const noexcept
-      { return reverse_iterator(this->end()); }
+      { return const_reverse_iterator(this->end()); }
 
       reverse_iterator
       rend()  noexcept
@@ -293,11 +293,11 @@ namespace std {
 
       const_reverse_iterator
       rend() const noexcept
-      { return reverse_iterator(this->begin()); }
+      { return const_reverse_iterator(this->begin()); }
 
       const_reverse_iterator
       crend() const noexcept
-      { return reverse_iterator(this->begin()); }
+      { return const_reverse_iterator(this->begin()); }
 
       // capacity:
       size_type
@@ -363,10 +363,7 @@ namespace std {
       // mutating member functions:
       void
       fill(const value_type& __val)
-      {
-	for (size_type __i = 0; __i < this->_M_size; ++__i)
-	  this->_M_data[__i] = __val;
-      }
+      { std::fill_n(this->begin(), this->end(), __val); }
     };
 
   template<typename _Tp, typename _Alloc>
