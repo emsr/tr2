@@ -31,7 +31,7 @@ bool
 test01()
 {
   bool test [[gnu::unused]] = true;
-  std::experimental::dynarray<A<B>> da01;
+  std::experimental::dynarray<A<B>> da01(1);
   std::experimental::dynarray<A<B>> da02(5);
   using size_type = std::experimental::dynarray<A<B>>::size_type;
   using reference = std::experimental::dynarray<A<B>>::reference;

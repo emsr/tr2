@@ -18,7 +18,7 @@
 // with this library; see the file COPYING3.  If not see
 // <http://www.gnu.org/licenses/>.
 
-#include <experimental/dynarra>
+#include <experimental/dynarray>
 #include <testsuite_allocator.h>
 
 using namespace __gnu_test;
@@ -27,21 +27,11 @@ int
 main()
 {
   using Container = std::experimental::dynarray<int>;
-  const int arr10[10]{ 2, 4, 1, 7, 3, 8, 10, 5, 9, 6 };
   bool ok = true;
 
   tracker_allocator_counter::reset();
   {
-    Container c{std::allocator_arg_t, tracker_allocator<int>,
-		arr10, arr10 + 10};
-    ok = check_construct_destroy("Construct from range", 10, 0) && ok;
-  }
-  ok = check_construct_destroy("Construct from range", 10, 10) && ok;
-
-  tracker_allocator_counter::reset();
-  {
-    Container c{std::allocator_arg_t, tracker_allocator<int>,
-		{2, 4, 1}};
+    Container c(std::allocator_arg_t(), tracker_allocator<int>(), {2, 4, 1});
     ok = check_construct_destroy("Construct from init-list", 3, 0) && ok;
     ok &= (c[0] == 2);
     ok &= (c[1] == 4);

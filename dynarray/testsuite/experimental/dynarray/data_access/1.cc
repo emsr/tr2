@@ -29,7 +29,7 @@ test01()
 
   {
     const int A[]{0, 1, 2, 3, 4};    
-    dynarray_type da{A, A + 5};
+    dynarray_type da{0, 1, 2, 3, 4};
     VERIFY(da.data() == &da.front());
     int* pi = da.data();
     VERIFY(*pi == 0);
@@ -37,7 +37,7 @@ test01()
 
   {
     const int A[]{4, 3, 2, 1, 0};    
-    const dynarray_type cda{A, A + 5};
+    const dynarray_type cda{4, 3, 2, 1, 0};
     VERIFY(cda.data() == &cda.front());
     const int* pci = cda.data();
     VERIFY(*pci == 4);

@@ -29,7 +29,6 @@ int main()
   v[0];
   w[0];
   v.size();
-  v.capacity();
   v.fill(greedy_ops::X());
 
   return 0;

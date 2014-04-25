@@ -25,16 +25,17 @@
 void
 test03()
 {
-  bool test [[std::unused]] = true;
+  bool test [[gnu::unused]] = true;
   const int A[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17};
   const int B[]{7, 7, 7, 7, 7};
   const int N = sizeof(A) / sizeof(int);
   const int M = sizeof(B) / sizeof(int);
 
-  std::experimental::dynarray<int> da3(A, A + N);
+  std::experimental::dynarray<int> da3(N);
+  std::copy(A, A + N, da3.begin());
   VERIFY(std::equal(da3.begin(), da3.end(), A));
 
-  std::experimental::dynarray<int> da4(da3.begin(), da3.end());
+  std::experimental::dynarray<int> da4(da3);
   VERIFY(std::equal(da4.begin(), da4.end(), A));
 
   std::experimental::dynarray<int> da5(M, 7);

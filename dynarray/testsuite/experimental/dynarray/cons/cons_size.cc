@@ -28,8 +28,8 @@ test01()
 
   std::experimental::dynarray<__gnu_test::NonCopyConstructible> da(1000);
   VERIFY( std::distance(da.begin(), da.end()) == 1000 );
-  for (auto it : da)
-    VERIFY( *it == -1 );
+  for (auto& it : da)
+    VERIFY( it == -1 );
 }
 
 int
