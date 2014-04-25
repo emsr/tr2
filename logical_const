@@ -1,0 +1,111 @@
+// https://googledrive.com/host/0B5BUDfRWFDPvNGNsWmRJZFp1YU0/logical_const.html
+
+// A Proposal to Add a Logical Const Wrapper to the Standard Library Technical Report
+
+// https://groups.google.com/a/isocpp.org/forum/?fromgroups#!topic/std-proposals/NwLIq4d2-oI
+
+  template<typename _Tp>
+    class logical_const
+    {
+    public:
+
+      using value_type = std::remove_reference_t<decltype(*std::declval<_Tp>())>;
+
+      ~logical_const()
+      {}
+
+      logical_const()
+      {}
+
+      logical_const(const _Tp& __t)
+      : _M_t{__t}
+      {}
+
+      logical_const(_Tp&& __t)
+      : _M_t{std::move(__t)}
+      {}
+
+      logical_const(const logical_const<_Tp>& __pt)
+      : _M_t{__pt._M_t}
+      {}
+
+      logical_const(logical_const<_Tp>&& __pt)
+      : _M_t{std::move(__pt.t)}
+      {}
+
+      logical_const<_Tp>&
+      operator=(const _Tp& __t) 
+      { 
+        _M_t = __t; 
+        return *this; 
+      }
+
+      logical_const<_Tp>&
+      operator=(_Tp&& __t) 
+      { 
+        _M_t = std::move(__t); 
+        return *this; 
+      }
+
+      logical_const<_Tp>&
+      operator=(const logical_const<_Tp>& __pt) 
+      { 
+        _M_t = __pt._M_t; 
+        return *this; 
+      }
+
+      logical_const<_Tp>&
+      operator=(logical_const<_Tp>&& __pt) 
+      { 
+        _M_t = std::move(__pt._M_t); 
+        return *this; 
+      }
+
+      value_type*
+      operator->()
+      { return &*_M_t; }
+
+      const value_type*
+      operator->() const
+      { return &*_M_t; }
+
+      value_type&
+      operator*()
+      { return *_M_t; }
+
+      const value_type&
+      operator*() const
+      { return *_M_t; }
+
+      value_type*
+      get()
+      { return _M_t.get(); }
+
+      const value_type*
+      get() const
+      { return _M_t.get(); }
+
+      operator const _Tp&() const
+      { return _M_t; }
+
+      operator _Tp&()
+      { return _M_t; }
+
+    private:
+      _Tp _M_t;
+    };
+
+  template<typename _Tp, typename _Up>
+    bool
+    operator==(const logical_const<_Tp>& __pt1, const logical_const<_Up>& __pt2)
+    { return __pt1._M_t == __pt2._M_t; }
+
+  template<typename _Tp, typename _Up>
+    bool
+    operator!=(const logical_const<_Tp>& __pt1, const logical_const<_Up>& __pt2)
+    { return __pt1._M_t != __pt2._M_t; }
+
+  template<typename _Tp, typename _Up>
+    void
+    swap(logical_const<_Tp>& __pt1, logical_const<_Up>& __pt2)
+    { swap(__pt1._M_t, __pt2._M_t); }
