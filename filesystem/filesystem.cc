@@ -893,11 +893,11 @@ copy(const path& from, const path& to,
     return;
 
   if (equivalent(from, to))
-    ec = std::make_error_code(static_cast<std::errc>(111));
-  else if (is_other(from) || is_other(to))
-    ec = std::make_error_code(static_cast<std::errc>(666));
-  else if (is_directory(from) && is_regular_file(to))
-    ec = std::make_error_code(static_cast<std::errc>(ENOTDIR));
+    ec = std::make_error_code(static_cast<std::errc>(111)); // ???
+  else if (is_other(from_stat) || is_other(to_stat))
+    ec = std::make_error_code(std::errc::not_supported);
+  else if (is_directory(from_stat) && is_regular_file(to_stat))
+    ec = std::make_error_code(std::errc::not_a_directory); // is_a_directory?
   if (ec)
     return;
 
@@ -976,7 +976,7 @@ copy_file(const path& from, const path& to, copy_options options,
     {
       if ((options & copy_options::none) == copy_options::none)
 	{
-	  ec = std::make_error_code(static_cast<std::errc>(EEXIST));
+	  ec = std::make_error_code(std::errc::file_exists);
 	  return;
 	}
       else if ((options & copy_options::skip_existing)
@@ -999,13 +999,13 @@ copy_file(const path& from, const path& to, copy_options options,
   std::ifstream fromf(from.string(), std::ios::binary);
   if (fromf.fail())
     {
-      ; // Error...
+      ec = std::make_error_code(std::errc::io_error); // ???
       return;
     }
   std::ofstream tof(to.string(), std::ios::binary);
   if (tof.fail())
     {
-      ; // Error...
+      ec = std::make_error_code(std::errc::io_error); // ???
       return;
     }
   tof << fromf.rdbuf();
@@ -1045,9 +1045,10 @@ create_directories(const path& pth, std::error_code& ec) noexcept
     return false;
   if (pth.empty() || exists(fs))
     {
-      if (!pth.empty() && !is_directory(fs))
-        // ENOTEMPTY or ENOTDIR
-	ec = std::make_error_code(static_cast<std::errc>(ENOTEMPTY));
+      if (!is_directory(fs))
+	ec = std::make_error_code(std::errc::not_a_directory);
+      else if (!pth.empty())
+	ec = std::make_error_code(std::errc::directory_not_empty);
       return false;
     }
 
@@ -1152,18 +1153,20 @@ create_hard_link(const path& to, const path& new_hard_link,
 
 // NOTE: I'm adding functions to create files.
 // POSIC creat; Windows: CreateFile.
+// 23. [PDTS] Request for create_regular_file() and/or touch()
+// - Not at this time...
 bool
-create_file(const path& pth)
+create_regular_file(const path& pth)
 {
   std::error_code ec;
-  create_file(pth, ec);
+  create_regular_file(pth, ec);
   if (ec)
     throw filesystem_error{"create_file", pth, ec};
   return true;
 }
 
 bool
-create_file(const path& pth, std::error_code& ec) noexcept
+create_regular_file(const path& pth, std::error_code& ec) noexcept
 {
   errno = 0;
   mode_t mode = static_cast<mode_t>(perms::all);
@@ -1447,7 +1450,7 @@ read_symlink(const path& pth, std::error_code& ec) noexcept
       std::size_t size = 128;
       while (true)
 	{
-	  std::unique_ptr<char> buffer{std::make_unique<char>(size)};
+	  auto buffer = std::make_unique<char>(size);
 	  int nchars = ::readlink(pth.c_str(), buffer.get(), size);
 	  if (nchars == -1)
 	    {
@@ -1606,7 +1609,9 @@ status(const path& pth, std::error_code& ec) noexcept
   int result = ::stat(pth.c_str(), &buf);
   if (result == -1)
     {
-      if (errno == ENOENT || errno == ENOTDIR)
+      std::errc err = static_cast<std::errc>(err);
+      if (err == std::errc::no_such_file_or_directory
+       || err == std::errc::not_a_directory)
 	{
 	  fs.type(file_type::not_found);
 	  fs.permissions(perms::unknown);
@@ -1615,7 +1620,7 @@ status(const path& pth, std::error_code& ec) noexcept
 	{
 	  fs.type(file_type::none);
 	  fs.permissions(perms::unknown);
-	  ec = std::make_error_code(static_cast<std::errc>(errno));
+	  ec = std::make_error_code(err);
 	}
     }
   else
@@ -1662,7 +1667,9 @@ symlink_status(const path& pth, std::error_code& ec) noexcept
   int result = ::lstat(pth.c_str(), &buf);
   if (result == -1)
     {
-      if (errno == ENOENT || errno == ENOTDIR)
+      std::errc err = static_cast<std::errc>(err);
+      if (err == std::errc::no_such_file_or_directory
+       || err == std::errc::not_a_directory)
 	{
 	  fs.type(file_type::not_found);
 	  fs.permissions(perms::unknown);
@@ -1671,7 +1678,7 @@ symlink_status(const path& pth, std::error_code& ec) noexcept
 	{
 	  fs.type(file_type::none);
 	  fs.permissions(perms::unknown);
-	  ec = std::make_error_code(static_cast<std::errc>(errno));
+	  ec = std::make_error_code(err);
 	}
     }
   else
@@ -1709,6 +1716,9 @@ system_complete(const path& pth)
   return comp_path;
 }
 
+// 32. [PDTS] system_complete() example needs clarification
+// For POSIX based operating systems, system_complete(pth) has the same semantics
+// as absolute(pth, current_path()).
 path
 system_complete(const path& pth, std::error_code& ec) noexcept
 {
@@ -1736,19 +1746,21 @@ temp_directory_path(std::error_code& ec) noexcept
   path tmpdir;
   const char * tmp = nullptr;
   const char * env = nullptr;
-  if (env = getenv("TMPDIR"))
+  if (env = ::getenv("TMPDIR"))
     tmp = env;
-  else if (env = getenv("TMP"))
+  else if (env = ::getenv("TMP"))
     tmp = env;
-  else if (env = getenv("TEMP"))
+  else if (env = ::getenv("TEMP"))
     tmp = env;
-  else if (env = getenv("TEMPDIR"))
+  else if (env = ::getenv("TEMPDIR"))
     tmp = env;
   else
     tmp = "/tmp";
-  tmpdir = tmp; // TODO: Make this better.
-  if (!exists(tmpdir, ec) || !is_directory(tmpdir, ec))
-    ;
+  tmpdir = tmp;
+  if (!exists(tmpdir, ec))
+    ec = std::make_error_code(std::errc::no_such_file_or_directory);
+  else if (!is_directory(tmpdir, ec))
+    ec = std::make_error_code(std::errc::not_a_directory);
   return tmpdir;
 }
 

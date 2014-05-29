@@ -397,7 +397,7 @@ main()
   std::string line;
   std::getline(ifwbbb, line);
 
-  std::experimental::filesystem::create_file("new file");
+  std::experimental::filesystem::create_regular_file("new file");
 
   //auto path16 = path.string<std::u16string>();
 

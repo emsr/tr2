@@ -1045,8 +1045,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   void create_directory_symlink(const path& to, const path& new_symlink,
 				std::error_code& ec) noexcept;
 
-  bool create_file(const path& pth);
-  bool create_file(const path& pth, std::error_code& ec) noexcept;
+  bool create_regular_file(const path& pth);
+  bool create_regular_file(const path& pth, std::error_code& ec) noexcept;
 
   void create_hard_link(const path& to, const path& new_hard_link);
   void create_hard_link(const path& to, const path& new_hard_link,
