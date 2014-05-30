@@ -1,4 +1,6 @@
 
+all: $(TEST_BINS)
+
 TEST_SRCS = \
   test_arcsine_distribution.cpp \
   test_beta_distribution.cpp \
@@ -11,7 +13,8 @@ TEST_SRCS = \
   test_pareto_distribution.cpp \
   test_rice_distribution_multi.cpp \
   test_rice_distribution.cpp \
-  test_rice_fading_model.cpp
+  test_rice_fading_model.cpp \
+  test_logistic_distribution.cpp
 
 TEST_BINS = \
   test_arcsine_distribution \
@@ -25,7 +28,8 @@ TEST_BINS = \
   test_pareto_distribution \
   test_rice_distribution_multi \
   test_rice_distribution \
-  test_rice_fading_model
+  test_rice_fading_model \
+  test_logistic_distribution
 
 
 check_fading_model: check_fading_model.cpp libFadingModel.so
@@ -83,6 +87,9 @@ test_rice_distribution: test_rice_distribution.cpp
 
 test_rice_fading_model: test_rice_fading_model.cpp RiceFadingModel.cpp
 	/home/ed/bin/bin/g++ -std=c++11 -o test_rice_fading_model test_rice_fading_model.cpp RiceFadingModel.cpp
+
+test_logistic_distribution: test_logistic_distribution.cpp RiceFadingModel.cpp
+	/home/ed/bin/bin/g++ -std=c++11 -o test_logistic_distribution test_logistic_distribution.cpp
 
 
 test:
