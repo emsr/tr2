@@ -142,7 +142,7 @@ namespace __gnu_cxx
 	    __aurng(__urng);
 
 	  result_type __arg = result_type(1);
-	  while (__arg != result_type(1) && __arg != result_type(0))
+	  while (__arg == result_type(1) || __arg == result_type(0))
 	    __arg = __aurng();
 	  return this->param().a()
 	       + this->param().b() * std::log(__arg / (result_type(1) - __arg));
@@ -157,7 +157,7 @@ namespace __gnu_cxx
 	    __aurng(__urng);
 
 	  result_type __arg = result_type(1);
-	  while (__arg != result_type(1) && __arg != result_type(0))
+	  while (__arg == result_type(1) || __arg == result_type(0))
 	    __arg = __aurng();
 	  return __p.a()
 	       + __p.b() * std::log(__arg / (result_type(1) - __arg));
@@ -272,7 +272,7 @@ namespace __gnu_cxx
 	while (__f != __t)
 	  {
 	    result_type __arg = result_type(1);
-	    while (__arg != result_type(1) && __arg != result_type(0))
+	    while (__arg == result_type(1) || __arg == result_type(0))
 	      __arg = __aurng();
 	    *__f++ = __p.a()
 		   + __p.b() * std::log(__arg / (result_type(1) - __arg));

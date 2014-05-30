@@ -1,4 +1,6 @@
 
+all: $(TEST_BINS)
+
 TEST_SRCS = \
   test_arcsine_distribution.cpp \
   test_beta_distribution.cpp \

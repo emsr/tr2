@@ -52,4 +52,7 @@ main()
 
   std::cout << "logistic(2.0, 4.0)" << std::endl;
   logisticplot(2.0 /* mean */, 4.0 /* sigma */);
+
+  std::cout << "logistic(5.0, 0.2)" << std::endl;
+  logisticplot(5.0 /* mean */, 0.2 /* sigma */);
 }
