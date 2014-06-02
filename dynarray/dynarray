@@ -45,6 +45,8 @@
 //#include <new> // For bad_array_length
 #include <limits> // For numeric_limits
 
+#define USE_ALLOCA 1
+
 namespace std {
 
   template<typename _Tp> // DefaultConstructible _Tp
@@ -66,8 +68,8 @@ namespace std {
     private:
 
       // fields:
-      size_type _M_size;
-      pointer   _M_data;
+      const size_type _M_size;
+      pointer         _M_data;
 
       // helper functions:
       void
@@ -87,13 +89,19 @@ namespace std {
         if (__num >= std::numeric_limits<size_type>::max() / sizeof(value_type))
 	  throw std::bad_array_length();
 	size_type __size = __num * sizeof(value_type);
-	return static_cast<pointer>(alloca(__size));
+#ifdef USE_ALLOCA
+	return reinterpret_cast<pointer>(alloca(__size));
+#else
+	return reinterpret_cast<pointer>(new char[__size]);
+#endif
       }
 
       void
       _M_deallocate()
       {
-	//delete[] this->_M_data;
+#ifndef USE_ALLOCA
+	delete[] this->_M_data;
+#endif
       }
 
       dynarray() = delete;
@@ -323,7 +331,7 @@ namespace std {
       // mutating member functions:
       void
       fill(const value_type& __val)
-      { std::fill_n(this->begin(), this->end(), __val); }
+      { std::fill(this->begin(), this->end(), __val); }
     };
 
   template<typename _Tp, typename _Alloc>
@@ -334,8 +342,8 @@ namespace std {
     operator==(const dynarray<_Tp>& __lhs,
 	       const dynarray<_Tp>& __rhs)
     {
-      return __lhs.size() == __rhs.size() ?
-	     std::equal(__lhs.begin(), __lhs.end(), __rhs.begin()) : false;
+      return std::equal(__lhs.begin(), __lhs.end(),
+			__rhs.begin(), __rhs.end());
     }
 
   template<typename _Tp>

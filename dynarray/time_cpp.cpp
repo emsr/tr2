@@ -16,6 +16,7 @@
 #  include <vector>
 #else
 #  include "dynarray"
+#  include <array>
 #endif
 
 typedef std::chrono::duration<long, std::ratio<1, 1000>> millisecs;
@@ -36,7 +37,7 @@ typedef long long result_type;
 #ifdef VECTOR
 typedef std::vector<value_type> vector_t;
 #else
-typedef std::dynarray<value_type> vector_t;
+typedef std::array<value_type, size> vector_t;
 #endif
 typedef typename vector_t::size_type size_type;
 
@@ -56,8 +57,17 @@ main()
   auto tm_before = std::chrono::system_clock::now();
 
   // 1. allocate and fill randomly many short vectors
+#ifdef VECTOR
   std::vector<vector_t> xs(N, vector_t(size));
+#else
+  std::dynarray<vector_t> xs(N, vector_t());
+#endif
   std::cerr << "allocation: " << time_since(tm_before) << " ms" << std::endl;
+
+  std::cout << "xs[" << N / 2 << "]: ";
+  for (int j = 0; j < size; ++j)
+    std::cout << ' ' << xs[N / 2][j];
+  std::cout << '\n';
 
   std::mt19937 rnd_engine;
   std::uniform_int_distribution<value_type> runif_gen(-1000, 1000);
@@ -66,13 +76,18 @@ main()
       xs[i][j] = runif_gen(rnd_engine);
   std::cerr << "random generation: " << time_since(tm_before) << " ms" << std::endl;
 
+  std::cout << "xs[" << N / 2 << "]: ";
+  for (int j = 0; j < size; ++j)
+    std::cout << ' ' << xs[N / 2][j];
+  std::cout << '\n';
+
   // 2. compute all pairwise scalar products:
   time_since(tm_before);
   result_type avg = 0;
   for (int i = 0; i < N; ++i)
     for (int j = 0; j < N; ++j)
       avg += scalar_product(xs[i], xs[j]);
-  avg /= N*N;
+  avg /= N * N;
   auto time = time_since(tm_before);
   std::cout << "result: " << avg << std::endl;
   std::cout << "time: " << time << " ms" << std::endl;

@@ -1,5 +1,7 @@
 // http://www.open-std.org/JTC1/sc22/WG21/docs/papers/2013/n3532.html
 
+// /home/ed/bin/bin/g++ -std=c++1y -UUSE_ALLOCA -o test_dynarray test_dynarray.cpp
+
 // /home/ed/bin/bin/g++ -std=c++1y -o test_dynarray test_dynarray.cpp
 
 // LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_dynarray
@@ -8,6 +10,7 @@
 #include <iostream>
 #include <algorithm>
 #include <complex>
+#include <cassert>
 
 template<typename Tp>
   void
@@ -45,6 +48,32 @@ template<typename Tp>
 
     dump(target_name, target);
   }
+
+template<typename _Num>
+  class DynaSaur
+  {
+  public:
+
+    DynaSaur()
+    : _M_wksp(400, _Num{-1})
+    { }
+
+    _Num
+    sum() const
+    { return std::accumulate(std::begin(_M_wksp), std::end(_M_wksp), _Num{}); }
+
+    int
+    lue() const
+    { return 42; }
+
+    _Num*
+    wkdata() const
+    { return _M_wksp.data(); }
+
+  private:
+
+    std::dynarray<_Num> _M_wksp;
+  };
 
 int
 main()
@@ -99,5 +128,15 @@ main()
   dump("zero", zero);
   std::cout << "zero.begin() == zero.end(): " << (zero.begin() == zero.end()) << std::endl;
 
-  return sum;
+  DynaSaur<double> velociraptor{};
+  int lue = velociraptor.lue();
+  //std::cout << "&lue          = " << &lue << std::endl;
+  //std::cout << "&velociraptor = " << &velociraptor << std::endl;
+  double vsum = velociraptor.sum();
+  std::cout << "velociraptor.sum() == -400.0: " << (velociraptor.sum() == -400.0) << std::endl;
+
+  std::vector<std::dynarray<double>> thing(1000, std::dynarray<double>(10, 3.141592654));
+  std::cout << "thing[345][7] == 3.141592654: " << (thing[345][7] == 3.141592654) << std::endl;
+
+  return 0;
 }
