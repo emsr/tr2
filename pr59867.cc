@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y pr59876.cc
+// /home/ed/bin/bin/g++ -std=c++1y pr59867.cc
 
 #include <iostream>
 using namespace std;
