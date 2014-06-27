@@ -736,6 +736,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   private:
 
+    static constexpr value_type _S_dot = '.';
+    static constexpr value_type _S_nul = '\0';
+
     template<typename _CharFrom, typename _CharTo>
       struct _Convert;
 

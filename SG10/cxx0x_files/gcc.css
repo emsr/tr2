@@ -1,0 +1,62 @@
+/* CSS for the GCC web site.
+
+   Gerald Pfeifer <gerald@pfeifer.com>
+ */
+
+body      { background-color: white; color: black; }
+
+a:link    { color: #0066bb; text-decoration: none; }
+a:visited { color: #003399; text-decoration: none; }
+a:hover   { color: darkorange; text-decoration: none; }
+
+h1        { color: darkslategray; text-align:center; }
+h2        { color: darkslategray; }
+
+.highlight{ color: darkslategray; font-weight:bold; }
+
+dl.news      { margin-top:0; }
+dl.news dt   { color:darkslategrey; font-weight:bold; margin-top:0.3em; }
+dl.news dd   { margin-left:3ex; margin-top:0.1em; margin-bottom:0.1em; }
+dl.news .date { color:darkslategrey; font-size:90%; margin-left:0.1ex; }
+
+dl.status    { margin-top:0; }
+dl.status .version { font-weight:bold; }
+dl.status .regress { font-size: 90%; }
+dl.status dd { margin-left:3ex; }
+
+.td_title {
+  border-color: #3366cc;
+  border-style: solid;
+  border-width: thin;
+  color: #f2f2f9;
+  background-color: #0066dd;
+  font-weight: bold;
+}
+
+.td_con {
+  padding-top: 3px;
+  padding-left: 8px;
+  padding-bottom: 3px;
+  background-color: #f2f2f9;
+  font-size: smaller;
+}
+
+div.copyright {
+  font-size: smaller;
+  background: #f2f2f9;
+  border: 2px solid #3366cc;
+  border-style: solid;
+  border-width: thin;
+  padding: 4px;
+}
+                  
+/* Classpath versus libgcj merge status page. */
+
+.classpath-only         { background-color: #FFFFAA; }
+.libgcj-only            { background-color: #FFFFAA; }
+.VM-specific            { background-color: #CCCCFF; }
+.GCJ-specific           { background-color: #CCCCFF; }
+.needsmerge             { background-color: #FF9090; }
+.merged                 { background-color: #22FF22; }
+.merged-expected-diff   { background-color: #22FF22; }
+.merged-unexpected-diff { background-color: #FF4444; }

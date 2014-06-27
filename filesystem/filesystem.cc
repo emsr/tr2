@@ -162,9 +162,12 @@ path::filename() const
 path
 path::stem() const
 {
-  std::string filename = this->filename().string();
-  std::size_t pos = filename.rfind('.');
-  if (pos != string_type::npos && filename != "." && filename != "..")
+  std::experimental::string_view filename{this->filename().string()};
+  std::size_t len = filename.length();
+  std::size_t pos = filename.rfind(_S_dot);
+  if (pos != string_type::npos
+   && !(len > 0 && filename[0] == _S_dot && (filename[1] == _S_nul
+	|| (len > 1 && filename[1] == _S_dot && filename[2] == _S_nul))))
     return path{filename.substr(0, pos - 1)};
   else
     return filename;
@@ -173,9 +176,12 @@ path::stem() const
 path
 path::extension() const
 {
-  std::string filename = this->filename().string();
-  std::size_t pos = filename.rfind('.');
-  if (pos != std::string::npos && filename != "." && filename != "..")
+  std::experimental::string_view filename{this->filename().string()};
+  std::size_t len = filename.length();
+  std::size_t pos = filename.rfind(_S_dot);
+  if (pos != std::string::npos
+   && !(len > 0 && filename[0] == _S_dot && (filename[1] == _S_nul
+	|| (len > 1 && filename[1] == _S_dot && filename[2] == _S_nul))))
     return path{filename.substr(pos)};
   else
     return path{};
@@ -189,8 +195,8 @@ path::replace_extension(const path& new_extension)
 
   if (!new_extension.empty())
   {
-    if (new_extension._M_pathname[0] != '.')
-      this->_M_pathname.push_back('.');
+    if (new_extension._M_pathname[0] != _S_dot)
+      this->_M_pathname.push_back(_S_dot);
     this->_M_pathname.append(new_extension._M_pathname);
   }
 
@@ -391,12 +397,17 @@ struct directory_iterator::_Impl
     if (this->_M_dir)
       {
 	struct dirent dirent, *res;
-	int result;
+	int result, len;
 	do
-	  result = ::readdir_r(this->_M_dir, &dirent, &res);
+	  {
+	    result = ::readdir_r(this->_M_dir, &dirent, &res);
+	    len = __builtin_strlen(dirent.d_name);
+	  }
 	while (result == 0 && res != nullptr
-	       && ((dirent.d_name[0] == '.' && (dirent.d_name[1] == '\0'
-		|| (dirent.d_name[1] == '.' && dirent.d_name[2] == '\0')))));
+	       && ((len > 0 && dirent.d_name[0] == '.'
+		 && (dirent.d_name[1] == '\0'
+		   || (len > 1 && dirent.d_name[1] == '.'
+		     && dirent.d_name[2] == '\0')))));
 	if (result != 0)
 	  ec = std::make_error_code(static_cast<std::errc>(result));
 	if (res != nullptr)
@@ -1744,8 +1755,8 @@ path
 temp_directory_path(std::error_code& ec) noexcept
 {
   path tmpdir;
-  const char * tmp = nullptr;
-  const char * env = nullptr;
+  const char* tmp = nullptr;
+  const char* env = nullptr;
   if (env = ::getenv("TMPDIR"))
     tmp = env;
   else if (env = ::getenv("TMP"))

@@ -1,0 +1,9 @@
+C++11
+-----
+N2439	__cpp_reference_qualifiers	200710	This has library usage
+N2756	__cpp_nsdmi	200809	Hate to spell this out :-(
+	__cpp_aggregate_default_initializers		Or this, borrowed from CMake?
+N1986	__cpp_delegating_constructors	200604	Users can migrate from initializer functions
+N2540	__cpp_inheriting_constructors	200802	Ditto
+N2930	__cpp_range_based_for_loops	200907	
+N2672	__cpp_initializer_lists	200806	
