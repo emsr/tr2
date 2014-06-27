@@ -1,4 +1,4 @@
-// ./bin/bin/g++ -std=c++1y pr59876_2.cc
+// /home/ed/bin/bin/g++ -std=c++1y pr59876_2.cc
 
 #include <iostream>
 using namespace std;
@@ -24,11 +24,11 @@ struct array_gen;
 
 template <class T, T... xs>
 struct array_gen<meta_array<T, xs...>> {
-	static const T value[sizeof...(xs) + 1];
+	static const T value[sizeof...(xs)];
 };
 
 template <class T, T... xs>
-const T array_gen<meta_array<T, xs...>>::value[sizeof...(xs) + 1] = { xs..., 0 };
+const T array_gen<meta_array<T, xs...>>::value[sizeof...(xs)] = { xs... };
 
 // static string
 template <class T, T... xs>
