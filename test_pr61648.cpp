@@ -33,7 +33,7 @@ template<>
 template<>
   class C<float>
   {
-    template<>friend B operator"" _c<'4','2','.','0'>();
+    friend B operator"" _c<'4','2','.','0'>();
   };
 
 int main() { return 0; }
