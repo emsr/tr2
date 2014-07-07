@@ -5,8 +5,12 @@
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61389
 
 #define V(A, ...) __VA_ARGS__
-void f() {
+void
+f()
+{
  V(1);
+ V(2, );
 }
 
 #define PLUS+
+
