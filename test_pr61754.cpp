@@ -21,6 +21,3 @@ main()
 
 // /home/ed/bin/bin/g++ -std=c++14 -Wdeprecated-declarations -o test_pr61754 test_pr61754.cpp
 
-/*
-  We get nothing from Old1!?!
-*/
