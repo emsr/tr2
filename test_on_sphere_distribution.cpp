@@ -10,7 +10,7 @@ template<std::size_t Dim>
   onsphplot()
   {
     std::default_random_engine re; // the default engine
-    __gnu_cxx::uniform_on_sphere_distribution<Dim> osd();
+    __gnu_cxx::uniform_on_sphere_distribution<Dim> osd;
 
     auto gen = std::bind(osd, re);
 
