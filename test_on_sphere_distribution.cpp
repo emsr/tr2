@@ -18,7 +18,7 @@ template<std::size_t Dim>
     for (std::size_t i = 0; i < per; ++i)
     {
       auto pt = gen();
-      for (auto& coord : pt)
+      for (coord : pt)
         std::cout << ' ' << coord;
       std::cout << '\n';
     }
