@@ -47,10 +47,12 @@ struct directory_iterator::_Impl
 
   _Impl(const path& pth)
   : _M_path{pth},
-    _M_dir{::opendir(_M_path.c_str())},
+    _M_dir{nullptr},
     _M_dirent{}
   {
+    errno = 0;
     std::error_code ec;
+    _M_dir = ::opendir(_M_path.c_str());
     this->_M_incr(ec);
     if (ec)
       throw filesystem_error{"directory_iterator", this->_M_path, ec};
@@ -58,17 +60,28 @@ struct directory_iterator::_Impl
 
   _Impl(const path& pth, std::error_code& ec) noexcept
   : _M_path{pth},
-    _M_dir{::opendir(_M_path.c_str())},
+    _M_dir{nullptr},
     _M_dirent{}
-  { this->_M_incr(ec); }
+  {
+    errno = 0;
+    _M_dir = ::opendir(_M_path.c_str());
+    if (errno != 0)
+      std::make_error_code(static_cast<std::errc>(errno));
+    else
+      this->_M_incr(ec);
+  }
 
   _Impl(const path& pth, directory_options opts, std::error_code& ec) noexcept
   : _M_path{pth},
-    _M_dir{::opendir(_M_path.c_str())},
+    _M_dir{nullptr},
     _M_dirent{}
   {
-// FIXME std::errc::permission_denied
-    this->_M_incr(ec);
+    errno = 0;
+    _M_dir = ::opendir(_M_path.c_str());
+    if (errno == EACCES
+	&& (opts & directory_options::skip_permissions_denied)
+	   != directory_options::none)
+      this->_M_incr(ec);
   }
 
   ~_Impl() noexcept
@@ -130,12 +143,7 @@ directory_iterator::directory_iterator(const path& pth,
 				       directory_options opts,
 				       std::error_code& ec)
 : _M_impl{std::make_unique<_Impl>(pth, opts, ec)}
-{
-// FIXME std::errc::permission_denied
-  if ((opts & directory_options::skip_permissions_denied)
-      != directory_options::none)
-    ;
-}
+{ }
 
 directory_iterator::directory_iterator(const path& pth,
 				       std::error_code& ec) noexcept
@@ -143,6 +151,13 @@ directory_iterator::directory_iterator(const path& pth,
 { }
 
 directory_iterator::~directory_iterator() = default;
+
+directory_iterator&
+directory_iterator::operator=(const directory_iterator&)
+{
+  //FIXME!!!
+  return *this;
+}
 
 directory_iterator&
 directory_iterator::operator=(directory_iterator&&) = default;

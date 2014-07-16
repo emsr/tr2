@@ -58,7 +58,7 @@ namespace __detail
 {
   int
   lex_compare(path::iterator first1, path::iterator last1,
-        path::iterator first2, path::iterator last2)
+	      path::iterator first2, path::iterator last2)
   {
     for (; first1 != last1 && first2 != last2; ++first1, ++first2)
     {
@@ -73,7 +73,7 @@ namespace __detail
   }
 }
 
-inline int
+int
 path::compare(const path& pth) const noexcept
 {
   return __detail::lex_compare(this->begin(), this->end(),

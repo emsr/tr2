@@ -1470,7 +1470,7 @@ namespace _Path_traits
     directory_iterator(const path& pth, std::error_code& ec) noexcept;
     directory_iterator(const path& pth, directory_options opts,
 		       std::error_code& ec) noexcept;
-    directory_iterator(const directory_iterator& diter);// = default;
+    directory_iterator(const directory_iterator& diter);
     directory_iterator(directory_iterator&& diter) noexcept;
     ~directory_iterator();
 
@@ -1523,7 +1523,7 @@ namespace _Path_traits
     recursive_directory_iterator(const path& pth, directory_options opts,
 				 std::error_code& ec) noexcept;
     recursive_directory_iterator(const path& pth, std::error_code& ec) noexcept;
-    recursive_directory_iterator(const recursive_directory_iterator& rdi);// = default;
+    recursive_directory_iterator(const recursive_directory_iterator& rdi);
     recursive_directory_iterator(recursive_directory_iterator&& rdi) noexcept;
     ~recursive_directory_iterator();
 

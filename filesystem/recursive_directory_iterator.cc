@@ -48,14 +48,32 @@ struct recursive_directory_iterator::_Impl
 
   _Impl(_Impl&&) noexcept = default;
 
+  _Impl(const path& pth)
+  : _M_pending_push{false},
+    _M_options{directory_options::none},
+    _M_path{pth},
+    _M_dir{}, _M_dirent{}
+  {
+    std::error_code ec;
+    errno = 0;
+    this->_M_dir.push(directory_iterator{this->_M_path});
+    if (this->_M_dir.top() != directory_iterator{})
+      this->_M_dirent = directory_entry{this->_M_path
+				      / this->_M_dir.top()->path().filename()};
+    else
+      ec = std::make_error_code(static_cast<std::errc>(errno));
+    if (ec)
+      throw filesystem_error{"recursive_directory_iterator", this->_M_path, ec};
+  }
+
   _Impl(const path& pth, directory_options opts)
   : _M_pending_push{false},
     _M_options{opts},
     _M_path{pth},
     _M_dir{}, _M_dirent{}
   {
-    errno = 0;
     std::error_code ec;
+    errno = 0;
     this->_M_dir.push(directory_iterator{this->_M_path});
     if (this->_M_dir.top() != directory_iterator{})
       this->_M_dirent = directory_entry{this->_M_path
@@ -96,6 +114,24 @@ struct recursive_directory_iterator::_Impl
       ec = std::make_error_code(static_cast<std::errc>(errno));
   }
 
+  _Impl(const _Impl& impl)
+  : _M_pending_push{impl._M_pending_push},
+    _M_options{impl._M_options},
+    _M_path{impl._M_path},
+    _M_dir{}, _M_dirent{}
+  {
+    std::error_code ec;
+    errno = 0;
+    this->_M_dir.push(directory_iterator{this->_M_path});
+    if (this->_M_dir.top() != directory_iterator{})
+      this->_M_dirent = directory_entry{this->_M_path
+				      / this->_M_dir.top()->path().filename()};
+    else
+      ec = std::make_error_code(static_cast<std::errc>(errno));
+    if (ec)
+      throw filesystem_error{"recursive_directory_iterator", this->_M_path, ec};
+  }
+
   ~_Impl() = default;
 
   // observers
@@ -108,6 +144,12 @@ struct recursive_directory_iterator::_Impl
   { return this->_M_pending_push; }
 
   // modifiers
+  _Impl&
+  operator=(const _Impl& impl)
+  {
+    //FIXME;
+  }
+
   _Impl&
   operator=(_Impl&&) = default;
 
@@ -184,12 +226,14 @@ struct recursive_directory_iterator::_Impl
 };
 
 // constructors and destructor
-recursive_directory_iterator::recursive_directory_iterator()
+recursive_directory_iterator::recursive_directory_iterator() noexcept
 : _M_impl{std::make_unique<_Impl>()}
 { }
 
 recursive_directory_iterator::
-recursive_directory_iterator(recursive_directory_iterator&&) = default;
+recursive_directory_iterator(const path& pth)
+: _M_impl{std::make_unique<_Impl>(pth)}
+{ }
 
 recursive_directory_iterator::
 recursive_directory_iterator(const path& pth, directory_options opts)
@@ -207,6 +251,14 @@ recursive_directory_iterator(const path& pth, std::error_code& ec) noexcept
 : _M_impl{std::make_unique<_Impl>(pth, ec)}
 { }
 
+//recursive_directory_iterator::
+//recursive_directory_iterator(const recursive_directory_iterator& rdi)
+//: _M_impl{std::make_unique<_Impl>(rdi._M_impl)}
+//{ };
+
+recursive_directory_iterator::
+recursive_directory_iterator(recursive_directory_iterator&&) = default;
+
 recursive_directory_iterator::
 ~recursive_directory_iterator() = default;
 
@@ -220,6 +272,17 @@ recursive_directory_iterator::recursion_pending() const
 { return this->_M_impl.get()->_M_recursion_pending(); }
 
 // modifiers
+recursive_directory_iterator&
+recursive_directory_iterator::
+operator=(const recursive_directory_iterator& rdi)
+{
+  if (&rdi != this)
+  {
+    
+  }
+  return *this;
+}
+
 recursive_directory_iterator&
 recursive_directory_iterator::
 operator=(recursive_directory_iterator&&) = default;
