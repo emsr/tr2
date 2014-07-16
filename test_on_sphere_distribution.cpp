@@ -14,6 +14,9 @@ template<std::size_t Dim>
 
     auto gen = std::bind(osd, re);
 
+    auto precision = std::cout.precision();
+    std::cout.precision(std::numeric_limits<double>::max_digits10);
+
     const std::size_t per = 1000;
     for (std::size_t i = 0; i < per; ++i)
     {
@@ -22,13 +25,15 @@ template<std::size_t Dim>
         std::cout << ' ' << coord;
       std::cout << '\n';
     }
+
+    std::cout.precision(precision);
   }
 
 int
 main()
 {
   __gnu_cxx::uniform_on_sphere_distribution<3> onsph;
-  std::cout << "default hyper = " << onsph << '\n';
+  std::cout << "default onsph = " << onsph << '\n';
 
   onsphplot<3>();
 }
