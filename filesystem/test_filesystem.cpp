@@ -187,8 +187,6 @@ main()
   std::cout << "this_test.has_root_directory(): " << this_test.has_root_directory() << '\n';
   std::cout << "canonical(this_test): " << std::experimental::filesystem::canonical(this_test) << '\n';
   std::cout << "absolute(this_test): " << std::experimental::filesystem::absolute(this_test) << '\n';
-  std::cout << "relative(\"/usr/local\", this_test): "
-            << std::experimental::filesystem::relative("/usr/local", this_test) << '\n';
 
   std::experimental::filesystem::file_status this_status = std::experimental::filesystem::status(this_test);
   std::error_code this_error;
@@ -396,8 +394,6 @@ main()
   std::experimental::filesystem::ifstream ifwbbb(wbbb);
   std::string line;
   std::getline(ifwbbb, line);
-
-  std::experimental::filesystem::create_regular_file("new file");
 
   //auto path16 = path.string<std::u16string>();
 

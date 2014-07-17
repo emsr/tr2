@@ -22,7 +22,7 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file tr2/path_traits.h
+/** @file experimental/path_traits.h
  *  This is an experimental C++ Library header.
  */
 

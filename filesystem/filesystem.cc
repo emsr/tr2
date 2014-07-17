@@ -33,7 +33,6 @@
 #include <fcntl.h> // For creat
 #include <utime.h> // For utime.
 #include <fstream>
-#include <iomanip> // for quoted
 
 namespace std
 {
@@ -44,86 +43,32 @@ namespace filesystem
 inline namespace v1
 {
 
-// Namespace functions.
-
-bool
-lexicographical_compare(path::iterator first1, path::iterator last1,
-			path::iterator first2, path::iterator last2)
-{
-  for (; first1 != last1 && first2 != last2; ++first1, ++first2)
-    {
-      if (first1->native() < first2->native())
-	return true;
-      if (first2->native() < first1->native())
-	return false;
-    }
-  return first1 == last1 && first2 != last2;
-}
-
-std::ostream&
-operator<<(std::ostream& os, const path& pth)
-{ return os << std::quoted(pth.string(), '"', '&'); }
-
-std::wostream&
-operator<<(std::wostream& os, const path& pth)
-{ return os << std::quoted(pth.wstring(), L'"', L'&'); }
-
-std::istream&
-operator>>(std::istream& is, path& pth)
-{
-  pth.clear();
-  std::string pathname;
-
-  is >> std::quoted(pathname, '"', '&');
-
-  pth = path{pathname};
-
-  return is;
-}
-
-std::wistream&
-operator>>(std::wistream& is, path& pth)
-{
-  pth.clear();
-  std::wstring pathname;
-
-  is >> std::quoted(pathname, L'"', L'&');
-
-  pth = path{pathname};
-
-  return is;
-}
-
-void
-copy_directory(const path& from, const path& to)
-{
-  std::error_code ec;
-  copy_directory(from, to, ec);
-  if (ec)
-    throw filesystem_error{"copy_directory", from, to, ec};
-}
-
 // Operational functions
 
 path
 absolute(const path& pth, const path& base)
 {
+  path abase = base;
+  if (!abase.is_absolute())
+    abase = absolute(abase);
   if (pth.has_root_name())
     {
       if (pth.has_root_directory())
 	return pth;
       else
-	absolute(base).root_name() / pth;
+	{
+	  return pth.root_name()
+	       / abase.root_directory()
+	       / abase.relative_path()
+	       / pth.relative_path();
+	}
     }
   else
     {
       if (pth.has_root_directory())
-	return pth.root_name()
-	     / absolute(base).root_directory()
-	     / absolute(base).relative_path()
-	     / pth.relative_path();
+	abase.root_name() / pth;
       else
-	absolute(base) / pth;
+	abase / pth;
     }
 }
 
@@ -155,47 +100,6 @@ canonical(const path& pth, const path& base, std::error_code& ec) noexcept
   return canonical(abspath, ec);
 }
 
-path
-relative(const path& pth, const path& to, std::error_code& ec) noexcept
-{
-  path rel;
-  path abspth = absolute(pth);
-  path absto = absolute(to);
-  /// Find common base.
-  auto bpth = std::begin(abspth);
-  auto bto = std::begin(absto);
-  // Find 
-  for (auto epth = std::end(abspth), eto = std::end(absto);
-       bpth != epth && bto != eto && *bpth == *bto; ++bpth, ++bto)
-    ;
-  for (auto epth = std::end(pth); bpth != epth; ++bpth)
-    if (*bpth != ".")
-      rel /= "..";
-
-  rel.append(bto, std::end(to));
-
-  return rel;
-}
-
-path
-relative(const path& pth, const path& to)
-{
-  std::error_code ec;
-  path rel = relative(pth, to, ec);
-  if (ec)
-    throw filesystem_error{"relative", pth, to, ec};
-}
-
-path
-relative(const path& pth, std::error_code& ec) noexcept
-{
-  path to = current_path(ec);
-  if (ec)
-    return path();
-  else
-    return relative(pth, to, ec);
-}
-
 void
 copy(const path& from, const path& to, copy_options options)
 {
@@ -210,8 +114,8 @@ copy(const path& from, const path& to,
      copy_options options, std::error_code& ec) noexcept
 {
   file_status from_stat;
-  if ((options & copy_options::create_symlinks) == copy_options::create_symlinks
-   || (options & copy_options::skip_symlinks) == copy_options::skip_symlinks)
+  if ((options & copy_options::create_symlinks) != copy_options::none
+   || (options & copy_options::skip_symlinks) != copy_options::none)
     from_stat = symlink_status(from, ec);
   else
     from_stat = status(from, ec);
@@ -219,15 +123,17 @@ copy(const path& from, const path& to,
     return;
 
   file_status to_stat;
-  if ((options & copy_options::create_symlinks) == copy_options::create_symlinks
-   || (options & copy_options::skip_symlinks) == copy_options::skip_symlinks)
+  if ((options & copy_options::create_symlinks) != copy_options::none
+   || (options & copy_options::skip_symlinks) != copy_options::none)
     to_stat = symlink_status(to, ec);
   else
     to_stat = status(to, ec);
   if (ec)
     return;
 
-  if (equivalent(from, to))
+  if (!exists(from_stat))
+    ec = std::make_error_code(std::errc::no_such_file_or_directory);
+  else if (equivalent(from, to))
     ec = std::make_error_code(static_cast<std::errc>(111)); // ???
   else if (is_other(from_stat) || is_other(to_stat))
     ec = std::make_error_code(std::errc::not_supported);
@@ -239,59 +145,54 @@ copy(const path& from, const path& to,
   if (is_symlink(from_stat))
     {
       if ((options & copy_options::skip_symlinks)
-	  == copy_options::skip_symlinks)
+	   != copy_options::none)
 	return;
-      else if ((options & copy_options::copy_symlinks)
-	       == copy_options::copy_symlinks)
-	copy_symlink(from, to, ec);
-      else if ((options & copy_options::none) == copy_options::none)
+      else if (!exists(to_stat) && (options & copy_options::copy_symlinks)
+				   != copy_options::none)
+	copy_symlink(from, to); // , options, ec
+      else
 	{
-	  path slink = read_symlink(from, ec);
-	  if (ec)
-	    return;
-	  copy(slink, to, options, ec);
+	  if (!exists(to_stat))
+	    ec = std::make_error_code(std::errc::no_such_file_or_directory);
+	  else if ((options & copy_options::copy_symlinks)
+		   != copy_options::none)
+	    ec = std::make_error_code(std::errc::function_not_supported); // ???
 	}
     }
-  else if (is_directory(from_stat)
-	   && (options & copy_options::recursive) == copy_options::recursive)
-    copy_directory(from, to, ec);
   else if (is_regular_file(from_stat))
     {
       if ((options & copy_options::directories_only)
 	  != copy_options::directories_only)
 	{
 	  if ((options & copy_options::directories_only)
-	      == copy_options::directories_only)
+	       != copy_options::none)
 	    return;
 	  else if ((options & copy_options::create_symlinks)
-		   == copy_options::create_symlinks)
-	    create_symlink(from, to, ec);
+		    != copy_options::none)
+	    create_symlink(from, to); // , ec
 	  else if ((options & copy_options::create_hard_links)
-		   == copy_options::create_hard_links)
-	    create_hard_link(from, to, ec);
+		    != copy_options::none)
+	    create_hard_link(from, to); // , ec
           else if (is_directory(to_stat))
-	    copy_file(from, to / from.filename(), options, ec);
+	    copy_file(from, to / from.filename(), options); // , ec
           else
 	    copy_file(from, to, options, ec);
 	}
     }
-  else
-    ;
-}
-
-void
-copy_directory(const path& from, const path& to, std::error_code& ec) noexcept
-{
-  recursive_directory_iterator rdi(from, ec);
-  if (ec)
-    return;
-  for (; rdi != recursive_directory_iterator(); ++rdi)
+  else if (is_directory(from_stat)
+	   && ((options & copy_options::recursive) != copy_options::none
+	       || options == copy_options::none))
     {
-      if (is_directory(rdi->path(), ec))
+      if (!exists(to_stat))
 	{
-	  
+          create_directory(to, from); // , ec
+//TODO//	  for (auto tmp : directory_iterator{from})
+//TODO//	    copy(tmp.path(), to / tmp.path().filename(),
+//TODO//		 options | copy_options::none); // copy_options::unspecified!!!
 	}
     }
+  else
+    return;
 }
 
 void
@@ -486,31 +387,6 @@ create_hard_link(const path& to, const path& new_hard_link,
     ec = std::make_error_code(static_cast<std::errc>(errno));
 }
 
-// NOTE: I'm adding functions to create files.
-// POSIC creat; Windows: CreateFile.
-// 23. [PDTS] Request for create_regular_file() and/or touch()
-// - Not at this time...
-bool
-create_regular_file(const path& pth)
-{
-  std::error_code ec;
-  create_regular_file(pth, ec);
-  if (ec)
-    throw filesystem_error{"create_file", pth, ec};
-  return true;
-}
-
-bool
-create_regular_file(const path& pth, std::error_code& ec) noexcept
-{
-  errno = 0;
-  mode_t mode = static_cast<mode_t>(perms::all);
-  int result = ::creat(pth.c_str(), mode);
-  if (result == -1)
-    ec = std::make_error_code(static_cast<std::errc>(errno));
-  return (result != -1);
-}
-
 void
 create_symlink(const path& to, const path& new_symlink)
 {
@@ -571,6 +447,14 @@ current_path(const path& pth, std::error_code& ec) noexcept
 }
 
 bool
+exists(const path& pth)
+{ return exists(status(pth)); }
+
+bool
+exists(const path& pth, std::error_code& ec) noexcept
+{ return exists(status(pth, ec)); }
+
+bool
 equivalent(const path& pth1, const path& pth2)
 {
   std::error_code ec;
@@ -602,14 +486,6 @@ equivalent(const path& pth1, const path& pth2, std::error_code& ec) noexcept
     }
   return false;
 }
-
-bool
-exists(const path& pth)
-{ return exists(status(pth)); }
-
-bool
-exists(const path& pth, std::error_code& ec) noexcept
-{ return exists(status(pth, ec)); }
 
 uintmax_t
 file_size(const path& pth)
