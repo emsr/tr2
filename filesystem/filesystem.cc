@@ -66,9 +66,9 @@ absolute(const path& pth, const path& base)
   else
     {
       if (pth.has_root_directory())
-	abase.root_name() / pth;
+	return abase.root_name() / pth;
       else
-	abase / pth;
+	return abase / pth;
     }
 }
 
