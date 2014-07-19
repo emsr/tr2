@@ -276,24 +276,31 @@ create_directories(const path& pth)
 bool
 create_directories(const path& pth, std::error_code& ec) noexcept
 {
-  file_status fs = status(pth, ec);
-  if (ec)
-    return false;
-  if (pth.empty() || exists(fs))
-    {
-      if (!is_directory(fs))
-	ec = std::make_error_code(std::errc::not_a_directory);
-      else if (!pth.empty())
-	ec = std::make_error_code(std::errc::directory_not_empty);
-      return false;
-    }
+  if (pth.empty())
+    return true;
 
-  create_directories(pth.parent_path(), ec);
-  if (ec)
-    return false;
-  create_directory(pth, ec);
-  if (ec)
-    return false;
+  //path abspth = absolute(pth); // "." not a path?!?
+  path canon = canonical(pth, ec);
+
+  path dir;
+  for (auto&& comp : canon)
+    {
+      dir /= comp;
+      auto fs = status(dir, ec);
+//      if (ec)
+//	return false;
+      if (exists(fs) && !is_directory(fs))
+	{
+	  ec = std::make_error_code(std::errc::directory_not_empty);
+	  return false;
+	}
+      else
+	{
+	  create_directory(dir, ec);
+	  if (ec)
+	    return false;
+	}
+    }
   return true;
 }
 
