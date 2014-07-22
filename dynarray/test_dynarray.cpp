@@ -138,5 +138,7 @@ main()
   std::vector<std::dynarray<double>> thing(1000, std::dynarray<double>(10, 3.141592654));
   std::cout << "thing[345][7] == 3.141592654: " << (thing[345][7] == 3.141592654) << std::endl;
 
+  std::dynarray<double>* poo = new std::dynarray<double>{100, 3.14159};
+
   return 0;
 }
