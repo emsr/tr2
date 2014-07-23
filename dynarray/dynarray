@@ -106,6 +106,14 @@ namespace std {
 
       dynarray() = delete;
 
+    protected:
+
+      // Prevent allocation of scalar objects
+      static void * operator new(size_t);
+
+      // Prevent allocation of array of objects
+      static void * operator new [] (size_t);  // #2: To prevent allocation of array of objects
+
     public:
 
       // construct and destruct:
