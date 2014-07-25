@@ -10,4 +10,10 @@
 int
 main()
 {
+  using namespace std::constants::math_constants;
+
+  auto twopie = m_2pi<long double>;
+
+  float height = 250.0f;
+  auto width = m_golden_ratio<float> * height;
 }

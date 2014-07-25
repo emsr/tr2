@@ -6,10 +6,11 @@
   We have variable templates in C++14.  In fact pi was offered as a use case for that feature.
   We can do math constants right.  The constants in math.h are double precision
   and promote computations unless you cast or erode long double precision.
+  These M_* constants are actually POSIX compatibility - std C++ does not mandate them.
   GCC has extension for long double versions suffixed by 'l'
   (but apparently no float versions with 'f' suffix).
   In any case these macros don't help with generic code.
-  There are several bespoke versions of generic template math constants around
+  There are several bespoke versions of generic template math constants around libstdc++
   using all the pre-variable-template techniques and with all the annoyances outlined
   by the variable template proposal.
 
@@ -36,13 +37,19 @@
   Although it spoils the genericity of the template variable constants
   we could offer typedefs to the different precisions.  I'll hold off for now.
 
+  I made the constants and math_constants name spaces inline for the same reason
+  library literal operator namespaces are inline: using std to get the math functions
+  should give you access to the constants as well.
+
   This would go in some <cmath> or another.
  */
 
 
 namespace std
 {
-namespace constants
+inline namespace constants
+{
+inline namespace math_constants
 {
 inline namespace v1
 {
@@ -202,5 +209,6 @@ inline namespace v1
     m_catalan       = 9.1596'55941'77219'01505'46035'14932'38411'07741e-1L;
 
 } // inline namespace v1
-} // namespace constants
+} // inline namespace math_constants
+} // inline namespace constants
 } // namespace std
