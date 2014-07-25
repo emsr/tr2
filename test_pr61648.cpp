@@ -5,35 +5,35 @@
 struct B {};
 
 B operator+(B, B) { return B(); }
-B operator"" _b(const char *, size_t) { return B(); }
+B operator""_b(const char *, size_t) { return B(); }
 
 template<char... Str>
-  B operator"" _c() { return B(); }
+  B operator""_c() { return B(); }
 
 template<>
-  B operator"" _c<'4','2','.','0'>() { return B(); }
+  B operator""_c<'4','2','.','0'>() { return B(); }
 
 template<typename T>
   class C
   {
     friend B operator+(B, B);
-    friend B operator"" _b(const char *, size_t);
+    friend B operator""_b(const char *, size_t);
 
     template<char...>
-      friend B operator"" _c();
+      friend B operator""_c();
   };
 
 template<>
   class C<int>
   {
     template<char...>
-      friend B operator"" _c();
+      friend B operator""_c();
   };
 
 template<>
   class C<float>
   {
-    friend B operator"" _c<'4','2','.','0'>();
+    friend B operator""_c<'4','2','.','0'>();
   };
 
 int main() { return 0; }
