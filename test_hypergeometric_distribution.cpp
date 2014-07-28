@@ -1,9 +1,9 @@
 // ../bin/bin/g++ -std=c++11 -o test_hypergeometric_distribution test_hypergeometric_distribution.cpp
 
-#include "hypergeometric"
+//#include "hypergeometric"
 #include <iostream>
 #include <functional>
-#include <random>
+#include <ext/random>
 #include "histogram.h"
 
 void
@@ -14,15 +14,16 @@ hyperplot(unsigned int N, unsigned int K, unsigned int n)
 
   auto gen = std::bind(hd, re);
 
-  histogram<unsigned int> bin(n, 0, n);
+  auto num = hd.max() - hd.min();
+  histogram<double> bin(num, hd.min(), hd.max() + 1);
 
   const std::size_t per = 1000;
 
-  //for (std::size_t i = 0; i < 1000 * per; ++i)
-  //  std::cout << gen() << '\n';
+  for (std::size_t i = 0; i < 1000 * per; ++i)
+    std::cout << gen() << '\n';
 
   for (std::size_t i = 0; i < 200 * per; ++i)
-    bin << gen();
+    bin << gen() + 0.5;
 
   for (std::size_t i = 1; i <= bin.size(); ++i)
   {
