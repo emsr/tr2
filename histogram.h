@@ -60,8 +60,30 @@ template<typename Tp>
      *  and possibly other accumulators rather than chain values.  We already have a means of chunking a range
      *  into a histogram.
      */
-    //histogram&
+#ifdef CHAIN_HISTOGRAM
     value_type
+    operator<<(value_type x)
+    {
+      if (x < _M_bin.front())
+      {
+	++_M_count.front();
+      }
+      else if (x >= _M_bin.back())
+      {
+	++_M_count.back();
+      }
+      else
+      {
+	auto pos = std::lower_bound(std::begin(_M_bin), std::end(_M_bin), x);
+	if (pos == _M_bin.end())
+	  ++_M_count.back();
+	else
+	  ++_M_count[pos - std::begin(_M_bin)];
+      }
+      return x;
+    }
+#else
+    histogram&
     operator<<(value_type x)
     {
       if (x < _M_bin.front())
@@ -84,6 +106,7 @@ template<typename Tp>
 	return *this;
       }
     }
+#endif
 
     /**
      *  @brief  Insert a range of value.
