@@ -37,10 +37,6 @@ hyperplot(unsigned int N, unsigned int K, unsigned int n)
 int
 main()
 {
-  const std::vector<double> mean {1.0, 3.0, 4.5, 4.75, 5.5, 6.0};
-  const double sigma {6.0};
-  const double m = mean.size() / 2.0;
-
   __gnu_cxx::hypergeometric_distribution<> hyper{};
   std::cout << "default hyper = " << hyper << '\n';
 
