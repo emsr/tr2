@@ -74,8 +74,8 @@ template<typename Tp>
       }
       else
       {
-	auto pos = std::lower_bound(std::begin(_M_bin), std::end(_M_bin), x);
-	if (pos == _M_bin.end())
+	auto pos = std::upper_bound(std::begin(_M_bin), std::end(_M_bin), x);
+	if (pos == std::end(_M_bin))
 	  ++_M_count.back();
 	else
 	  ++_M_count[pos - std::begin(_M_bin)];
@@ -98,8 +98,8 @@ template<typename Tp>
       }
       else
       {
-	auto pos = std::lower_bound(std::begin(_M_bin), std::end(_M_bin), x);
-	if (pos == _M_bin.end())
+	auto pos = std::upper_bound(std::begin(_M_bin), std::end(_M_bin), x);
+	if (pos == std::end(_M_bin))
 	  ++_M_count.back();
 	else
 	  ++_M_count[pos - std::begin(_M_bin)];
