@@ -20,38 +20,39 @@ template<typename Tp>
     return pi<Tp> * r * r; // ICE
   }
 
-template<typename T>
-  struct pauli
+template<typename Tp>
+  struct pauli : std::array<std::array<std::complex<Tp>, 2>, 2>
   {
-    std::array<std::array<std::complex<T>, 2>, 2> mat;
+    constexpr pauli(std::array<std::array<std::complex<Tp>, 2>, 2> arr) 
+    : std::array<std::array<std::complex<Tp>, 2>, 2>(arr) 
+    {}
   };
 
 template<typename T>
-  constexpr pauli<T> sigma0 = { { 1.0l, 0.0l }, { 0.0l, 1.0l } };
+  constexpr pauli<T> sigma0{ {{ {{ 1.0l, 0.0l }}, {{ 0.0l, 1.0l }} }} };
 
 template<typename T>
-  constexpr pauli<T> sigma1 = { { 0.0l, 1.0l }, { 1.0l, 0.0l } };
+  constexpr pauli<T> sigma1{ {{ {{ 0.0l, 1.0l }}, {{ 1.0l, 0.0l }} }} };
 
 template<typename T>
-  constexpr pauli<T> sigma2 = { { 0.0l, -1.0il }, { 1.0il, 0.0l } };
+  constexpr pauli<T> sigma2{ {{ {{ 0.0l, -1.0il }}, {{ 1.0il, 0.0l }} }} };
 
 template<typename T>
-  constexpr pauli<T> sigma3 = { { 1.0l, 0.0l }, { -1.0l, 0.0l } };
+  constexpr pauli<T> sigma3{ {{ {{ 1.0l, 0.0l }}, {{ -1.0l, 0.0l }} }} };
 
-template<typename T>
-  T x;
+//template<typename T>
+//  T x;
 
-template<typename T>
-  std::complex<T> z;
+//template<typename T>
+//  std::complex<T> z;
 
 int
 main()
 {
   std::cout << circular_area(2.0f) << '\n';
 
-  pauli<long double> herm22 = sigma2<long double>;
+  //pauli<long double> herm22 = sigma2<long double>;
+  pauli<long double> herm22 = sigma0<long double>;
 
-  x = 5.0;
+  //x = 5.0;
 }
-
-// ./bin/bin/g++ -std=c++14 -fdiagnostics-color=auto -o variable_template variable_template.cpp
