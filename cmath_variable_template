@@ -113,6 +113,11 @@ inline namespace v1
     constexpr _RealType
     m_2_pi          = 6.3661'97723'67581'34307'55350'53490'05744'81383e-1L; // M_2_PIl
 
+  /// Constant: @f$ 1 / \sqrt(\pi) @f$.
+  template<typename _RealType>
+    constexpr _RealType
+    m_1_sqrt_pi     = 5.6418'95835'47756'28694'80794'51560'77258'58438e-1L;
+
   /// Constant: @f$ 2 / \sqrt(\pi) @f$.
   template<typename _RealType>
     constexpr _RealType
