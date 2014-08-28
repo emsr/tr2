@@ -1,5 +1,5 @@
 // { dg-do run { target c++98_only } }
-// { dg-options "-pedantic-errors" }
+// { dg-options "-ansi -pedantic-errors" }
 
 #define f (
 #define l )
