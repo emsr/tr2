@@ -10,4 +10,6 @@ main()
   assert(ok);
   bool notok = __has_attribute(urectum);
   assert(!notok);
+
+  bool [[fartknocker]] wtf;
 }
