@@ -17,12 +17,6 @@ mie(std::vector<double> dx,
     std::vector<std::vector<double>> & dph);
 
 
-int
-main()
-{
-}
-
-
 void
 mie(std::vector<double> dx,
     std::complex<double> cm,
@@ -106,7 +100,7 @@ mie(std::vector<double> dx,
       auto a = ((d[n] * ir + rnx) * psi - psi1) / ((d[n] * ir + rnx) * xi - xi1);
       auto b = ((d[n] * cm + rnx) * psi - psi1) / ((d[n] * cm + rnx) * xi - xi1);
       dqxt[size] += tnp1 * std::real(a + b);
-      dqsc[size] += tnp1 * std::real(a * std::conj(a) + b * std::conj(b));
+      dqsc[size] += tnp1 * std::real(std::norm(a) + std::norm(b));
       if (n > 1)
         dg[size] += (dn * dn - 1.0) * std::real(anm1 * std::conj(a) + bnm1 * std::conj(b)) / dn
                   + tnm1 * std::real(anm1 * std::conj(bnm1)) / (dn * dn - dn);
@@ -143,9 +137,8 @@ mie(std::vector<double> dx,
       {
 	xs1[size][k] = (sp[k] + sm[k]) / 2.0;
 	xs2[size][k] = (sp[k] - sm[k]) / 2.0;
-	dph[size][k] = std::real(xs1[size][k] * std::conj(xs1[size][k])
-                               + xs2[size][k] * std::conj(xs2[size][k]))
-                               / dqsc[size];
+	dph[size][k] = (std::norm(xs1[size][k]) + std::norm(xs2[size][k]))
+                     / dqsc[size];
       }
     }
 
@@ -155,6 +148,6 @@ mie(std::vector<double> dx,
     auto dx2 = dx[size] * dx[size];
     dqsc[size] =  2.0 * dqsc[size] / dx2;
     dqxt[size] =  2.0 * dqxt[size] / dx2;
-    dqbk[size] =  std::real(dqbk[size] * std::conj(dqbk[size])) / dx2 / dpi;
+    dqbk[size] =  std::norm(dqbk[size]) / dx2 / dpi;
   }
 }
