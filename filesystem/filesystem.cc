@@ -85,6 +85,7 @@ canonical(const path& pth, const path& base)
 path
 canonical(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   char canon[PATH_MAX];
   char* test = ::realpath(pth.c_str(), canon);
@@ -96,6 +97,7 @@ canonical(const path& pth, std::error_code& ec) noexcept
 path
 canonical(const path& pth, const path& base, std::error_code& ec) noexcept
 {
+  ec.clear();
   path abspath = absolute(pth, base);
   return canonical(abspath, ec);
 }
@@ -113,6 +115,7 @@ void
 copy(const path& from, const path& to,
      copy_options options, std::error_code& ec) noexcept
 {
+  ec.clear();
   file_status from_stat;
   if ((options & copy_options::create_symlinks) != copy_options::none
    || (options & copy_options::skip_symlinks) != copy_options::none)
@@ -208,6 +211,7 @@ void
 copy_file(const path& from, const path& to, copy_options options,
 	  std::error_code& ec) noexcept
 {
+  ec.clear();
   if (exists(to))
     {
       if ((options & copy_options::none) == copy_options::none)
@@ -259,7 +263,10 @@ copy_symlink(const path& existing_symlink, const path& new_symlink)
 void
 copy_symlink(const path& existing_symlink, const path& new_symlink,
 	     std::error_code& ec) noexcept
-{ create_symlink(read_symlink(existing_symlink, ec), new_symlink, ec); }
+{
+  ec.clear();
+  create_symlink(read_symlink(existing_symlink, ec), new_symlink, ec);
+}
 
 //  This is "mkdir -p" - create the directory and
 //  any required intermediate directories.
@@ -276,14 +283,15 @@ create_directories(const path& pth)
 bool
 create_directories(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   if (pth.empty())
     return true;
 
-  //path abspth = absolute(pth); // "." not a path?!?
-  path canon = canonical(pth, ec);
+  path abspth = absolute(pth); // "." not a directory?!?
+  //path canon = canonical(pth, ec);
 
   path dir;
-  for (auto&& comp : canon)
+  for (auto&& comp : abspth)
     {
       dir /= comp;
       auto fs = status(dir, ec);
@@ -317,6 +325,7 @@ create_directory(const path& pth)
 bool
 create_directory(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   mode_t mode = S_IRWXU | S_IRWXG | S_IRWXO;
   int result = ::mkdir(pth.c_str(), mode);
@@ -339,6 +348,7 @@ bool
 create_directory(const path& pth, const path& attributes,
 		 std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   struct stat buf;
   int result = ::stat(attributes.c_str(), &buf);
@@ -369,6 +379,7 @@ void
 create_directory_symlink(const path& to, const path& new_symlink,
 			 std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   int result = ::symlink(to.c_str(), new_symlink.c_str());
   if (result == -1)
@@ -388,6 +399,7 @@ void
 create_hard_link(const path& to, const path& new_hard_link,
 		 std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   int result = ::link(to.c_str(), new_hard_link.c_str());
   if (result == -1)
@@ -407,6 +419,7 @@ void
 create_symlink(const path& to, const path& new_symlink,
 	       std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   int result = ::symlink(to.c_str(), new_symlink.c_str());
   if (result == -1)
@@ -426,6 +439,7 @@ current_path()
 path
 current_path(std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   long size = ::pathconf(".", _PC_PATH_MAX);
   std::unique_ptr<char> buf{std::make_unique<char>(size + 1)};
@@ -447,6 +461,7 @@ current_path(const path& pth)
 void
 current_path(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   int result = ::chdir(pth.c_str());
   if (result == -1)
@@ -459,7 +474,10 @@ exists(const path& pth)
 
 bool
 exists(const path& pth, std::error_code& ec) noexcept
-{ return exists(status(pth, ec)); }
+{
+  ec.clear();
+  return exists(status(pth, ec));
+}
 
 bool
 equivalent(const path& pth1, const path& pth2)
@@ -474,6 +492,7 @@ equivalent(const path& pth1, const path& pth2)
 bool
 equivalent(const path& pth1, const path& pth2, std::error_code& ec) noexcept
 {
+  ec.clear();
   file_status fs1 = status(pth1, ec);
   if (ec)
     return false;
@@ -507,6 +526,7 @@ file_size(const path& pth)
 uintmax_t
 file_size(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   struct stat buf;
   int result = ::stat(pth.c_str(), &buf);
@@ -532,6 +552,7 @@ hard_link_count(const path& pth)
 uintmax_t
 hard_link_count(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   struct stat buf;
   int result = ::stat(pth.c_str(), &buf);
@@ -557,11 +578,9 @@ is_empty(const path& pth)
 bool
 is_empty(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   if (is_directory(status(pth, ec)))
-    {
-      directory_iterator diter(pth);
-      return diter == directory_iterator();
-    }
+    return directory_iterator{pth} == directory_iterator{};
   else
     return file_size(pth, ec) == 0;
 }
@@ -579,6 +598,7 @@ last_write_time(const path& pth)
 file_time_type
 last_write_time(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   struct stat buf;
   int result = ::stat(pth.c_str(), &buf);
@@ -606,6 +626,7 @@ last_write_time(const path& pth,
 		file_time_type new_time,
 		std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   struct utimbuf times;
   times.actime = __detail::file_clock_type::to_time_t(new_time);
@@ -627,6 +648,7 @@ permissions(const path& pth, perms prms)
 void
 permissions(const path& pth, perms prms, std::error_code& ec) noexcept
 {
+  ec.clear();
   file_status current_status{status(pth, ec)};
   if (ec)
     return;
@@ -661,6 +683,7 @@ read_symlink(const path& pth)
 path
 read_symlink(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   path link;
   if (is_symlink(pth))
@@ -700,6 +723,7 @@ remove(const path& pth)
 bool
 remove(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   int result = ::remove(pth.c_str());
   if (result == -1)
@@ -721,6 +745,7 @@ remove_all(const path& pth)
 uintmax_t
 remove_all(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   static const directory_iterator end;
   uintmax_t count = 0;
   file_status fs = status(pth, ec);
@@ -751,6 +776,7 @@ rename(const path& from, const path& to)
 void
 rename(const path& from, const path& to, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   int result = ::rename(from.c_str(), to.c_str());
   if (result == -1)
@@ -769,6 +795,7 @@ resize_file(const path& pth, uintmax_t size)
 void
 resize_file(const path& pth, uintmax_t size, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   int result = ::truncate(pth.c_str(), size);
   if (result == -1)
@@ -788,6 +815,7 @@ space(const path& pth)
 space_info
 space(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   struct statvfs buf;
   int result = ::statvfs(pth.c_str(), &buf);
@@ -821,6 +849,7 @@ status(const path& pth)
 inline file_status
 status(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   file_status fs;
   struct stat buf;
@@ -879,6 +908,7 @@ symlink_status(const path& pth)
 file_status
 symlink_status(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   file_status fs;
   struct stat buf;
@@ -940,6 +970,7 @@ system_complete(const path& pth)
 path
 system_complete(const path& pth, std::error_code& ec) noexcept
 {
+  ec.clear();
   errno = 0;
   char real[PATH_MAX];
   char * ptr = ::realpath(pth.c_str(), real);
@@ -961,6 +992,7 @@ temp_directory_path()
 path
 temp_directory_path(std::error_code& ec) noexcept
 {
+  ec.clear();
   path tmpdir;
   const char* tmp = nullptr;
   const char* env = nullptr;

@@ -90,6 +90,7 @@ struct recursive_directory_iterator::_Impl
     _M_path{pth},
     _M_dir{}, _M_dirent{}
   {
+    ec.clear();
     errno = 0;
     this->_M_dir.push(directory_iterator{this->_M_path, ec});
     if (this->_M_dir.top() != directory_iterator{})
@@ -105,6 +106,7 @@ struct recursive_directory_iterator::_Impl
     _M_path{pth},
     _M_dir{}, _M_dirent{}
   {
+    ec.clear();
     errno = 0;
     this->_M_dir.push(directory_iterator{this->_M_path, ec});
     if (this->_M_dir.top() != directory_iterator{})
@@ -156,6 +158,7 @@ struct recursive_directory_iterator::_Impl
   _Impl&
   _M_incr(std::error_code& ec) noexcept
   {
+    ec.clear();
     static const directory_iterator end{};
     if (this->_M_recursion_pending()
 	&& is_directory(status(this->_M_dirent.path(), ec))
@@ -201,6 +204,7 @@ struct recursive_directory_iterator::_Impl
   void
   _M_pop(std::error_code& ec) noexcept
   {
+    ec.clear();
     if (this->_M_dir.size() > 1)
       {
 	this->_M_path = this->_M_path.parent_path();

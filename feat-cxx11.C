@@ -1,4 +1,3 @@
-// /home/ed/bin_feature/bin/g++ -std=gnu++11 -c feat-cxx11.C
 // { dg-do compile { target c++11_only } }
 
 #ifndef __cpp_unicode_characters
@@ -65,4 +64,30 @@
 #  error "__cpp_variadic_templates"
 #elif  __cpp_variadic_templates != 200704
 #  error "__cpp_variadic_templates != 200704"
+#endif
+
+#ifndef __cpp_alias_templates
+#  error "__cpp_alias_templates"
+#elif  __cpp_alias_templates != 200704
+#  error "__cpp_alias_templates != 200704"
+#endif
+
+//  This C++14 feature was developed as an extension for C++11.
+#ifndef __cpp_return_type_deduction
+#  error "__cpp_return_type_deduction"
+#elif  __cpp_return_type_deduction != 201304
+#  error "__cpp_return_type_deduction != 201304"
+#endif
+
+//  These C++14 features are allowed in C++11 in non-ANSI modes.
+#ifndef __cpp_binary_literals
+#  error "__cpp_binary_literals"
+#elif  __cpp_binary_literals != 201304
+#  error "__cpp_binary_literals != 201304"
+#endif
+
+#ifndef __cpp_runtime_arrays
+#  error "__cpp_runtime_arrays"
+#elif  __cpp_runtime_arrays != 201304
+#  error "__cpp_runtime_arrays != 201304"
 #endif

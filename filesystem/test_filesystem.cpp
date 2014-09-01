@@ -21,16 +21,16 @@
 
 std::string type[]
 {
-    "status_error",
-    "file_not_found",
-    "regular_file",
-    "directory_file",
-    "symlink_file",
-    "block_file",
-    "character_file",
-    "fifo_file",
-    "socket_file",
-    "type_unknown"
+    "not_found", // -1
+    "none",
+    "regular",
+    "directory",
+    "symlink",
+    "block",
+    "character",
+    "fifo",
+    "socket",
+    "unknown"
 };
 
 
@@ -50,8 +50,8 @@ table(std::ostream& out, const std::experimental::filesystem::path &p)
   out << '\t' << p.relative_path().string();
   out << '\t' << p.parent_path().string();
   out << '\t' << p.filename().string();
-  //out << '\t' << p.stem();
-  //out << '\t' << p.extension();
+  out << '\t' << p.stem();
+  out << '\t' << p.extension();
   out << '\n';
 }
 
@@ -127,14 +127,14 @@ main()
   std::experimental::filesystem::path path(std::string("./filesystem"));
   std::cout << "path: " << path << '\n';
   std::experimental::filesystem::file_status path_stat = std::experimental::filesystem::status(path);
-  std::cout << "path type: " << type[int(path_stat.type())] << '\n';
+  std::cout << "path type: " << type[int(path_stat.type()) + 1] << '\n';
   std::experimental::filesystem::space_info sp = std::experimental::filesystem::space(path);
   std::cout << "space: " << sp.capacity << "  " << sp.free << "  " << sp.available << '\n';
 
   std::experimental::filesystem::path ccpath("./filesystem.cc");
   std::cout << "ccpath: " << ccpath << '\n';
   std::experimental::filesystem::file_status ccpath_stat = std::experimental::filesystem::status(ccpath);
-  std::cout << "path type: " << type[int(ccpath_stat.type())] << '\n';
+  std::cout << "path type: " << type[int(ccpath_stat.type()) + 1] << '\n';
   std::experimental::filesystem::space_info ccsp = std::experimental::filesystem::space(ccpath);
   std::cout << "space: " << ccsp.capacity << "  " << ccsp.free << "  " << ccsp.available << '\n';
 
@@ -142,9 +142,9 @@ main()
   std::cout << "link: " << link << '\n';
   std::experimental::filesystem::create_symlink(path, link);
   path_stat = std::experimental::filesystem::status(link);
-  std::cout << "path type: " << type[int(path_stat.type())] << '\n';
+  std::cout << "path type: " << type[int(path_stat.type()) + 1] << '\n';
   std::experimental::filesystem::file_status link_stat = std::experimental::filesystem::symlink_status(link);
-  std::cout << "link type: " << type[int(link_stat.type())] << '\n';
+  std::cout << "link type: " << type[int(link_stat.type()) + 1] << '\n';
 
   std::experimental::filesystem::remove(link);
   try
@@ -156,13 +156,13 @@ main()
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
   }
-  std::cout << "path type: " << type[int(link_stat.type())] << '\n';
+  std::cout << "path type: " << type[int(link_stat.type()) + 1] << '\n';
 
   std::experimental::filesystem::path hl1(path.string() + ".hl1");
   std::cout << "hard link 1: " << hl1 << '\n';
   std::experimental::filesystem::create_hard_link(path, hl1);
   std::experimental::filesystem::file_status hl1_stat = std::experimental::filesystem::status(hl1);
-  std::cout << "hard link 1 type: " << type[int(hl1_stat.type())] << '\n';
+  std::cout << "hard link 1 type: " << type[int(hl1_stat.type()) + 1] << '\n';
   std::cout << "hard link count: " << hard_link_count(path) << '\n';
   std::cout << "hard link count: " << hard_link_count(hl1) << '\n';
 
@@ -176,7 +176,7 @@ main()
     std::cerr << "error: " << fe.what() << '\n';
     std::cerr << "path : " << fe.path1() << ", " << fe.path2() << '\n';
   }
-  std::cout << "hard link 1 type: " << type[int(hl1_stat.type())] << '\n';
+  std::cout << "hard link 1 type: " << type[int(hl1_stat.type()) + 1] << '\n';
   std::cout << "hard link count: " << hard_link_count(path) << '\n';
 
   std::cout << "current_path: " << std::experimental::filesystem::current_path() << '\n';
@@ -191,38 +191,38 @@ main()
   std::experimental::filesystem::file_status this_status = std::experimental::filesystem::status(this_test);
   std::error_code this_error;
   std::cout << "is_block_file: " << std::experimental::filesystem::is_block_file(this_status) << '\n';
-  std::cout << "is_block_file: " << std::experimental::filesystem::is_block_file(this_test);
+  std::cout << "is_block_file: " << std::experimental::filesystem::is_block_file(this_test) << '\n';
   std::cout << "is_block_file: " << std::experimental::filesystem::is_block_file(this_test, this_error) << '\n';
 
   std::cout << "is_character_file: " << std::experimental::filesystem::is_character_file(this_status) << '\n';
-  std::cout << "is_character_file: " << std::experimental::filesystem::is_character_file(this_test);
+  std::cout << "is_character_file: " << std::experimental::filesystem::is_character_file(this_test) << '\n';
   std::cout << "is_character_file: " << std::experimental::filesystem::is_character_file(this_test, this_error) << '\n';
 
   std::cout << "is_directory: " << std::experimental::filesystem::is_directory(this_status) << '\n';
-  std::cout << "is_directory: " << std::experimental::filesystem::is_directory(this_test);
+  std::cout << "is_directory: " << std::experimental::filesystem::is_directory(this_test) << '\n';
   std::cout << "is_directory: " << std::experimental::filesystem::is_directory(this_test, this_error) << '\n';
 
-  std::cout << "is_empty: " << std::experimental::filesystem::is_empty(this_test);
+  std::cout << "is_empty: " << std::experimental::filesystem::is_empty(this_test) << '\n';
   std::cout << "is_empty: " << std::experimental::filesystem::is_empty(this_test, this_error) << '\n';
 
   std::cout << "is_fifo: " << std::experimental::filesystem::is_fifo(this_status) << '\n';
-  std::cout << "is_fifo: " << std::experimental::filesystem::is_fifo(this_test);
+  std::cout << "is_fifo: " << std::experimental::filesystem::is_fifo(this_test) << '\n';
   std::cout << "is_fifo: " << std::experimental::filesystem::is_fifo(this_test, this_error) << '\n';
 
   std::cout << "is_other: " << std::experimental::filesystem::is_other(this_status) << '\n';
-  std::cout << "is_other: " << std::experimental::filesystem::is_other(this_test);
+  std::cout << "is_other: " << std::experimental::filesystem::is_other(this_test) << '\n';
   std::cout << "is_other: " << std::experimental::filesystem::is_other(this_test, this_error) << '\n';
 
   std::cout << "is_regular_file: " << std::experimental::filesystem::is_regular_file(this_status) << '\n'; 
-  std::cout << "is_regular_file: " << std::experimental::filesystem::is_regular_file(this_test);
+  std::cout << "is_regular_file: " << std::experimental::filesystem::is_regular_file(this_test) << '\n';
   std::cout << "is_regular_file: " << std::experimental::filesystem::is_regular_file(this_test, this_error) << '\n';
 
   std::cout << "is_socket: " << std::experimental::filesystem::is_socket(this_status) << '\n';
-  std::cout << "is_socket: " << std::experimental::filesystem::is_socket(this_test);
+  std::cout << "is_socket: " << std::experimental::filesystem::is_socket(this_test) << '\n';
   std::cout << "is_socket: " << std::experimental::filesystem::is_socket(this_test, this_error) << '\n';
 
   std::cout << "is_symlink: " << std::experimental::filesystem::is_symlink(this_status) << '\n';
-  std::cout << "is_symlink: " << std::experimental::filesystem::is_symlink(this_test);
+  std::cout << "is_symlink: " << std::experimental::filesystem::is_symlink(this_test) << '\n';
   std::cout << "is_symlink: " << std::experimental::filesystem::is_symlink(this_test, this_error) << '\n';
 
   std::cout << "temp_directory_path: " << std::experimental::filesystem::temp_directory_path() << '\n';
@@ -279,22 +279,23 @@ main()
   std::experimental::filesystem::create_directory(sluggo);
   std::experimental::filesystem::remove(sluggo);
 
+  std::error_code ec;
   std::experimental::filesystem::path lwbbb("./winonas/big/brown/beaver.dat");
   std::cout << '\n' << "create_directories(" << lwbbb << ")" << '\n';
   std::cout << lwbbb << '\n';
   for (auto f : lwbbb)
     std::cout << " " << f;
   std::cout << '\n';
-  std::experimental::filesystem::create_directories(lwbbb);
-  std::cout << "is_directory(" << lwbbb << "): " << std::experimental::filesystem::is_directory(lwbbb) << '\n';
+  ////std::experimental::filesystem::create_directories(lwbbb);
+  std::cout << "is_directory(" << lwbbb << "): " << std::experimental::filesystem::is_directory(lwbbb, ec) << '\n';
 
   std::cout << '\n' << "remove_all(" << lwbbb << ")" << '\n';
-  std::experimental::filesystem::remove_all(lwbbb);
-  std::cout << "is_directory(" << lwbbb << "): " << std::experimental::filesystem::is_directory(lwbbb) << '\n';
-  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::experimental::filesystem::is_directory(lwbbb.parent_path()) << '\n';
+  std::experimental::filesystem::remove_all(lwbbb, ec);
+  std::cout << "is_directory(" << lwbbb << "): " << std::experimental::filesystem::is_directory(lwbbb, ec) << '\n';
+  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::experimental::filesystem::is_directory(lwbbb.parent_path(), ec) << '\n';
   std::cout << "remove_all(" << lwbbb.parent_path() << ")" << '\n';
-  std::experimental::filesystem::remove_all(lwbbb.parent_path());
-  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::experimental::filesystem::is_directory(lwbbb.parent_path()) << '\n';
+  std::experimental::filesystem::remove_all(lwbbb.parent_path(), ec);
+  std::cout << "is_directory(" << lwbbb.parent_path() << "): " << std::experimental::filesystem::is_directory(lwbbb.parent_path(), ec) << '\n';
 
   std::cout << '\n' << '\n';
   table(std::cout, "");

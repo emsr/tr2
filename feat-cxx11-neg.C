@@ -1,6 +1,6 @@
-// /home/ed/bin_feature/bin/g++ -std=gnu++11 -c feat-cxx11-neg.C
-// { dg-do compile }
-// { dg-options "-std=gnu++11" }
+// { dg-do compile { target c++11_only } }
+// { dg-options "-pedantic-errors" }
+
 // These *are* defined in C++14 onwards.
 
 #ifndef __cpp_binary_literals
@@ -19,9 +19,9 @@
 #  error "__cpp_decltype_auto" // { dg-error "error" }
 #endif
 
-#ifndef __cpp_return_type_deduction
-#  error "__cpp_return_type_deduction" // { dg-error "error" }
-#endif
+//#ifndef __cpp_return_type_deduction
+//#  error "__cpp_return_type_deduction" // { dg-error "error" }
+//#endif
 
 #ifndef __cpp_runtime_arrays
 #  error "__cpp_runtime_arrays" // { dg-error "error" }

@@ -63,6 +63,7 @@ struct directory_iterator::_Impl
     _M_dir{nullptr},
     _M_dirent{}
   {
+    ec.clear();
     errno = 0;
     _M_dir = ::opendir(_M_path.c_str());
     if (errno != 0)
@@ -76,6 +77,7 @@ struct directory_iterator::_Impl
     _M_dir{nullptr},
     _M_dirent{}
   {
+    ec.clear();
     errno = 0;
     _M_dir = ::opendir(_M_path.c_str());
     if (errno == EACCES
@@ -97,6 +99,7 @@ struct directory_iterator::_Impl
   void
   _M_incr(std::error_code& ec) noexcept
   {
+    ec.clear();
     if (this->_M_dir)
       {
 	struct dirent dirent, *res;
