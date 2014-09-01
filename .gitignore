@@ -116,3 +116,11 @@ test_type_traits
 test_type_traits_2
 test_bitops
 test_cmath_variable_template
+test_numeric_limits
+deprecated
+ip
+complex_ref
+complex_tie
+bomb
+pr58708
+has_attribute
