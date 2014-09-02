@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o test_pr61648 test_pr61648.cpp
+// /home/ed/bin_tr2/bin/g++ -std=c++14 -o test_pr61648 test_pr61648.cpp
 
 #include <cstddef>
 
@@ -12,6 +12,16 @@ template<char... Str>
 
 template<>
   B operator""_c<'4','2','.','0'>() { return B(); }
+
+template<typename T>
+  void
+  foo()
+  {}
+
+template<>
+  void
+  foo<float>()
+  {}
 
 template<typename T>
   class C
@@ -34,6 +44,7 @@ template<>
   class C<float>
   {
     friend B operator""_c<'4','2','.','0'>();
+    friend void foo<float>();
   };
 
 int main() { return 0; }

@@ -10,7 +10,7 @@
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  1. In 20.10.2 [meta.type.synop], at the end of the
   "// 20.10.4.1, primary type categories:" chunk, add:
@@ -71,10 +71,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr bool
     is_function_v = is_function<_Tp>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  2. In 20.10.2 [meta.type.synop], at the end of the
   //  "// 20.10.4.2, composite type categories:" chunk, add:
@@ -107,10 +107,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr bool
     is_member_pointer_v = is_member_pointer<_Tp>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  3. In 20.10.2 [meta.type.synop], at the end of the
   //  "// 20.10.4.3, type properties:" chunk, add:
@@ -279,10 +279,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr bool
     has_virtual_destructor_v = has_virtual_destructor<_Tp>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  4. In 20.10.2 [meta.type.synop], at the end of the
   //  "// 20.10.5, type property queries:" chunk, add:
@@ -299,10 +299,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr std::size_t
     extent_v = extent<_Tp, _I>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  5. In 20.10.2 [meta.type.synop], at the end of the
   //  "// 20.10.6, type relations:" chunk, add:
@@ -319,10 +319,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr bool
     is_convertible_v = is_convertible<From, _Tpo>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  6. In 20.4.1 [tuple.general]/2, at the end of the
   "// 20.4.2.5, tuple helper classes:" chunk, add:
@@ -331,10 +331,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr std::size_t
     tuple_size_v = tuple_size<_Tp>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  7. In 20.11.2 [ratio.syn], at the end of the
   //  "// 20.11.5, ratio comparison" chunk, add:
@@ -363,10 +363,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr bool
     ratio_greater_equal_v = ratio_greater_equal<_R1, _R2>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  8. In 19.5 [syserr]/2, after the definition of is_error_condition_enum, add:
 
@@ -378,10 +378,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr bool
     is_error_condition_enum_v = is_error_condition_enum<_Tp>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  In 20.7.2 [memory.syn]/1, at the end of the
   //  "// 20.7.7, uses_allocator" chunk, add:
@@ -390,10 +390,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr bool
     uses_allocator_v = uses_allocator<_Tp, _Alloc>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
   //  In 20.9 [function.objects]/2, after the declaration of is_placeholder, add:
 
@@ -405,10 +405,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
     constexpr int
     is_placeholder_v = is_placeholder<_Tp>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 
-#if __cplusplus > 201300L
+#if __cplusplus > 201402L
 
 //  11. In 20.12.2 [time.syn], at the end of the
 //  "// 20.12.4, customization traits" chunk, add:
@@ -417,6 +417,6 @@ template<typename _Rep>
   constexpr bool
   treat_as_floating_point_v = treat_as_floating_point<_Rep>::value;
 
-#endif // __cplusplus > 201300L
+#endif // __cplusplus > 201402L
 
 }

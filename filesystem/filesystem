@@ -324,6 +324,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     file_status(const file_status&) noexcept = default;
 
+    file_status(file_status&&) noexcept = default;
+
     ~file_status() = default;
 
     file_status&
@@ -354,8 +356,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   private:
 
-    //  Should I put more of stat in here?
-    //  I would need non-standard accessors to be useful.
     file_type _M_file_type;
     perms _M_perms;
   };
@@ -940,7 +940,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline void
   copy(const path& __from, const path& __to, std::error_code& __ec) noexcept
-  { copy(__from, __to, copy_options::none, __ec); }
+  {
+    __ec.clear();
+    copy(__from, __to, copy_options::none, __ec);
+  }
 
   void copy_file(const path& from, const path& to, copy_options options);
 
@@ -954,7 +957,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   inline void
   copy_file(const path& __from, const path& __to,
 	    std::error_code& __ec) noexcept
-  { copy_file(__from, __to, copy_options::none, __ec); }
+  {
+    __ec.clear();
+    copy_file(__from, __to, copy_options::none, __ec);
+  }
 
   void copy_symlink(const path& existing_symlink, const path& new_symlink);
   void copy_symlink(const path& existing_symlink, const path& new_symlink,
@@ -989,7 +995,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   { return status_known(__fs) && __fs.type() != file_type::not_found; }
 
   bool exists(const path& __pth);
-  bool exists(const path& __pth, std::error_code& __ec) noexcept;
+  bool exists(const path& __pth, std::error_code& ec) noexcept;
 
   bool equivalent(const path& pth1, const path& pth2);
   bool equivalent(const path& pth1, const path& pth2,
@@ -1038,7 +1044,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   is_directory(const path& __pth, std::error_code& __ec) noexcept
-  { return is_directory(status(__pth, __ec)); }
+  {
+    __ec.clear();
+    return is_directory(status(__pth, __ec));
+  }
 
   bool is_empty(const path& pth);
   bool is_empty(const path& pth, std::error_code& ec) noexcept;
@@ -1053,7 +1062,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   is_fifo(const path& __pth, std::error_code& __ec) noexcept
-  { return is_fifo(status(__pth, __ec)); }
+  {
+    __ec.clear();
+    return is_fifo(status(__pth, __ec));
+  }
 
   //  Predeclare
   bool is_regular_file(file_status __fs) noexcept;
@@ -1073,7 +1085,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   is_other(const path& __pth, std::error_code& __ec) noexcept
-  { return is_other(status(__pth, __ec)); }
+  {
+    __ec.clear();
+    return is_other(status(__pth, __ec));
+  }
 
   inline bool
   is_regular_file(file_status __fs) noexcept
@@ -1085,7 +1100,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   is_regular_file(const path& __pth, std::error_code& __ec) noexcept
-  { return is_regular_file(status(__pth, __ec)); }
+  {
+    __ec.clear();
+    return is_regular_file(status(__pth, __ec));
+  }
 
   inline bool
   is_socket(file_status __fs) noexcept
@@ -1097,7 +1115,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   is_socket(const path& __pth, std::error_code& __ec) noexcept
-  { return is_socket(status(__pth, __ec)); }
+  {
+    __ec.clear();
+    return is_socket(status(__pth, __ec));
+  }
 
   inline bool
   is_symlink(file_status __fs) noexcept
@@ -1109,7 +1130,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   inline bool
   is_symlink(const path& __pth, std::error_code& __ec) noexcept
-  { return is_symlink(status(__pth, __ec)); }
+  {
+    __ec.clear();
+    return is_symlink(status(__pth, __ec));
+  }
 
   file_time_type last_write_time(const path& pth);
   file_time_type last_write_time(const path& pth,
@@ -1262,7 +1286,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     file_status
     status(std::error_code& __ec) const
-    { return std::experimental::filesystem::status(this->_M_path, __ec); }
+    {
+      __ec.clear();
+      return std::experimental::filesystem::status(this->_M_path, __ec);
+    }
 
     file_status
     symlink_status() const
@@ -1277,6 +1304,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     file_status
     symlink_status(std::error_code& __ec) const noexcept
     {
+      __ec.clear();
       return std::experimental::filesystem::symlink_status(this->_M_path, __ec);
     }
 
