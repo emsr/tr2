@@ -8,44 +8,47 @@ void
 mie(std::vector<double> dx,
     std::complex<double> cm,
     std::vector<double> dqv,
-    std::vector<double> & dqxt,
-    std::vector<double> & dqsc,
-    std::vector<std::complex<double>> & dqbk,
-    std::vector<double> & dg,
-    std::vector<std::vector<std::complex<double>>> & xs1,
-    std::vector<std::vector<std::complex<double>>> & xs2,
-    std::vector<std::vector<double>> & dph);
+    std::vector<double> & eff_extinct,
+    std::vector<double> & eff_scatter,
+    std::vector<std::complex<double>> & eff_backscatt,
+    std::vector<double> & asymmetry,
+    std::vector<std::vector<std::complex<double>>> & amp_perp,
+    std::vector<std::vector<std::complex<double>>> & amp_para,
+    std::vector<std::vector<double>> & phase);
 
 
 void
 mie(std::vector<double> dx,
     std::complex<double> cm,
     std::vector<double> dqv,
-    std::vector<double> & dqxt,
-    std::vector<double> & dqsc,
-    std::vector<std::complex<double>> & dqbk,
-    std::vector<double> & dg,
-    std::vector<std::vector<std::complex<double>>> & xs1,
-    std::vector<std::vector<std::complex<double>>> & xs2,
-    std::vector<std::vector<double>> & dph)
+    std::vector<double> & eff_extinct,
+    std::vector<double> & eff_scatter,
+    std::vector<std::complex<double>> & eff_backscatt,
+    std::vector<double> & asymmetry,
+    std::vector<std::vector<std::complex<double>>> & amp_perp,
+    std::vector<std::vector<std::complex<double>>> & amp_para,
+    std::vector<std::vector<double>> & phase)
 {
   auto imaxx = 12000L;
 
   constexpr double dpi = 3.1415926535897932385L;
   std::vector<double> dqv2{dqv};
-  if (dqv.end() == std::find(dqv.begin(), dqv.end(), -1.0))
+  std::sort(dqv2.begin(), dqv2.end(), std::greater<>());
+  if (dqv2.end() == std::find(dqv2.begin(), dqv2.end(), -1.0))
     dqv2.push_back(-1.0);
+//for (auto && v2 : dqv2) std::cout << ' ' << v2;
+//std::cout << '\n';
   std::vector<double> ph(dqv.size());
-  xs1.resize(dx.size(), std::vector<std::complex<double>>(dqv.size()));
-  xs2.resize(dx.size(), std::vector<std::complex<double>>(dqv.size()));
-  dph.resize(dx.size(), std::vector<double>(dqv.size()));
+  amp_perp.resize(dx.size(), std::vector<std::complex<double>>(dqv.size()));
+  amp_para.resize(dx.size(), std::vector<std::complex<double>>(dqv.size()));
+  phase.resize(dx.size(), std::vector<double>(dqv.size()));
 
-  dqxt.resize(dx.size());
-  dqsc.resize(dx.size());
-  dqbk.resize(dx.size());
-  dg.resize(dx.size());
+  eff_extinct.resize(dx.size());
+  eff_scatter.resize(dx.size());
+  eff_backscatt.resize(dx.size());
+  asymmetry.resize(dx.size());
 
-  for (auto size = 0l; size < dx.size(); ++size)
+  for (auto size = 0L; size < dx.size(); ++size)
   {
     if (dx[size] > imaxx)
       std::cerr << "\n  **  Error: Size Parameter Overflow in Mie\n";
@@ -94,16 +97,16 @@ mie(std::vector<double> dx,
       auto a2 = tnp1 / (dn * (dn + 1.0));
       auto turbo = (dn + 1.0) / dn;
       auto rnx = dn / dx[size];
-      auto psi = double(tnm1) * psi1 / dx[size] - psi0;
+      auto psi = tnm1 * psi1 / dx[size] - psi0;
       auto chi = tnm1 * chi1 / dx[size] - chi0;
       std::complex<double> xi{psi, chi};
       auto a = ((d[n] * ir + rnx) * psi - psi1) / ((d[n] * ir + rnx) * xi - xi1);
       auto b = ((d[n] * cm + rnx) * psi - psi1) / ((d[n] * cm + rnx) * xi - xi1);
-      dqxt[size] += tnp1 * std::real(a + b);
-      dqsc[size] += tnp1 * std::real(std::norm(a) + std::norm(b));
-      if (n > 1)
-        dg[size] += (dn * dn - 1.0) * std::real(anm1 * std::conj(a) + bnm1 * std::conj(b)) / dn
-                  + tnm1 * std::real(anm1 * std::conj(bnm1)) / (dn * dn - dn);
+      eff_extinct[size] += tnp1 * std::real(a + b);
+      eff_scatter[size] += tnp1 * (std::norm(a) + std::norm(b));
+      if (n > 1L)
+        asymmetry[size] += (dn * dn - 1.0) * std::real(anm1 * std::conj(a) + bnm1 * std::conj(b)) / dn
+                         + tnm1 * std::real(anm1 * std::conj(bnm1)) / (dn * dn - dn);
       anm1 = a;
       bnm1 = b;
 
@@ -111,12 +114,9 @@ mie(std::vector<double> dx,
       {
 	auto s = dqv2[k] * pi1[k];
 	auto t = s - pi0[k];
-	if (dph.size() > 0)
-	{
-          auto taun = dn * t - pi0[k];
-          sp[k] = (a2 * (a + b)) * (pi1[k] + taun) + sp[k];
-          sm[k] = (a2 * (a - b)) * (pi1[k] - taun) + sm[k];
-	}
+        auto taun = dn * t - pi0[k];
+        sp[k] += (a2 * (a + b)) * (pi1[k] + taun);
+        sm[k] += (a2 * (a - b)) * (pi1[k] - taun);
 	pi0[k] = pi1[k];
 	pi1[k] = s + t * turbo;
       }
@@ -128,26 +128,24 @@ mie(std::vector<double> dx,
       xi1 = std::complex<double>{psi1, chi1};
     }
 
-    if (dg[size] > 0.0)
-      dg[size] = 2.0 * dg[size] / dqsc[size];
+    if (asymmetry[size] > 0.0)
+      asymmetry[size] = 2.0 * asymmetry[size] / eff_scatter[size];
 
-    if (dph.size() > 0)
+    for (auto k = 0; k < dqv.size(); ++k)
     {
-      for (auto k = 0; k < dqv.size(); ++k)
-      {
-	xs1[size][k] = (sp[k] + sm[k]) / 2.0;
-	xs2[size][k] = (sp[k] - sm[k]) / 2.0;
-	dph[size][k] = (std::norm(xs1[size][k]) + std::norm(xs2[size][k]))
-                     / dqsc[size];
-      }
+      amp_perp[size][k] = (sp[k] + sm[k]) / 2.0;
+      amp_para[size][k] = (sp[k] - sm[k]) / 2.0;
+      phase[size][k] = (std::norm(amp_perp[size][k]) + std::norm(amp_para[size][k]))
+                     / eff_scatter[size];
     }
 
-    // Assumes last slot has theta = 180 or cos(theta) = -1 point.
-    dqbk[size] += (sp[dqv2.size() - 1] + sm[dqv2.size() - 1]) / 2.0;
+    // Assumes last slot has theta = 180 or cos(theta) == -1 point.
+    eff_backscatt[size] += (sp.back() + sm.back()) / 2.0;
 
     auto dx2 = dx[size] * dx[size];
-    dqsc[size] =  2.0 * dqsc[size] / dx2;
-    dqxt[size] =  2.0 * dqxt[size] / dx2;
-    dqbk[size] =  std::norm(dqbk[size]) / dx2 / dpi;
+    eff_scatter[size] *= 2.0 / dx2;
+    eff_extinct[size] *= 2.0 / dx2;
+std::cout << eff_backscatt[size] << '\n';
+    eff_backscatt[size] = std::norm(eff_backscatt[size]) / dx2 / dpi;
   }
 }
