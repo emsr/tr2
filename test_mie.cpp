@@ -1,24 +1,10 @@
 
 //  /home/ed/bin/bin/g++ -std=c++14 -o test_mie test_mie.cpp mie.cpp
 
-//  
-
-#include <vector>
-#include <complex>
 #include <iostream>
 #include <iomanip>
 
-void
-mie(std::vector<double> dx,
-    std::complex<double> cm,
-    std::vector<double> dqv,
-    std::vector<double> & eff_extinct,
-    std::vector<double> & eff_scatter,
-    std::vector<std::complex<double>> & eff_backscatt,
-    std::vector<double> & asymmetry,
-    std::vector<std::vector<std::complex<double>>> & amp_perp,
-    std::vector<std::vector<std::complex<double>>> & amp_para,
-    std::vector<std::vector<double>> & phase);
+#include "mie.h"
 
 int
 main()
@@ -37,13 +23,13 @@ main()
     std::cout << "\nParticle radius " << ++na << ": ";
   }
 
-  std::complex<double> cm;
+  std::complex<double> N;
   std::cout << "Enter particle complex index of refraction: ";
-  std::cin >> cm;
+  std::cin >> N;
 
-  std::vector<double> dqv;
+  std::vector<double> cos_theta;
   for (auto k = 50; k >= -50; --k)
-    dqv.push_back(0.02 * k);
+    cos_theta.push_back(0.02 * k);
 
   std::vector<double> eff_extinct;
   std::vector<double> eff_scatter;
@@ -52,7 +38,7 @@ main()
   std::vector<std::vector<std::complex<double>>> amp_perp;
   std::vector<std::vector<std::complex<double>>> amp_para;
   std::vector<std::vector<double>> phase;
-  mie(dx, cm, dqv,
+  mie(dx, N, cos_theta,
       eff_extinct, eff_scatter, eff_backscatt,
       asymmetry, amp_perp, amp_para, phase);
 

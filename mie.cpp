@@ -1,26 +1,13 @@
-#include <vector>
-#include <complex>
 #include <iostream>
 #include <cmath>
 #include <algorithm>
 
-void
-mie(std::vector<double> dx,
-    std::complex<double> cm,
-    std::vector<double> dqv,
-    std::vector<double> & eff_extinct,
-    std::vector<double> & eff_scatter,
-    std::vector<std::complex<double>> & eff_backscatt,
-    std::vector<double> & asymmetry,
-    std::vector<std::vector<std::complex<double>>> & amp_perp,
-    std::vector<std::vector<std::complex<double>>> & amp_para,
-    std::vector<std::vector<double>> & phase);
-
+#include "mie.h"
 
 void
 mie(std::vector<double> dx,
-    std::complex<double> cm,
-    std::vector<double> dqv,
+    std::complex<double> N,
+    std::vector<double> cos_theta,
     std::vector<double> & eff_extinct,
     std::vector<double> & eff_scatter,
     std::vector<std::complex<double>> & eff_backscatt,
@@ -32,16 +19,16 @@ mie(std::vector<double> dx,
   auto imaxx = 12000L;
 
   constexpr double dpi = 3.1415926535897932385L;
-  std::vector<double> dqv2{dqv};
-  std::sort(dqv2.begin(), dqv2.end(), std::greater<>());
-  if (dqv2.end() == std::find(dqv2.begin(), dqv2.end(), -1.0))
-    dqv2.push_back(-1.0);
-//for (auto && v2 : dqv2) std::cout << ' ' << v2;
+  std::vector<double> cos_theta2{cos_theta};
+  std::sort(cos_theta2.begin(), cos_theta2.end(), std::greater<>());
+  if (cos_theta2.end() == std::find(cos_theta2.begin(), cos_theta2.end(), -1.0))
+    cos_theta2.push_back(-1.0);
+//for (auto && v2 : cos_theta2) std::cout << ' ' << v2;
 //std::cout << '\n';
-  std::vector<double> ph(dqv.size());
-  amp_perp.resize(dx.size(), std::vector<std::complex<double>>(dqv.size()));
-  amp_para.resize(dx.size(), std::vector<std::complex<double>>(dqv.size()));
-  phase.resize(dx.size(), std::vector<double>(dqv.size()));
+  std::vector<double> ph(cos_theta.size());
+  amp_perp.resize(dx.size(), std::vector<std::complex<double>>(cos_theta.size()));
+  amp_para.resize(dx.size(), std::vector<std::complex<double>>(cos_theta.size()));
+  phase.resize(dx.size(), std::vector<double>(cos_theta.size()));
 
   eff_extinct.resize(dx.size());
   eff_scatter.resize(dx.size());
@@ -52,8 +39,8 @@ mie(std::vector<double> dx,
   {
     if (dx[size] > imaxx)
       std::cerr << "\n  **  Error: Size Parameter Overflow in Mie\n";
-    auto ir = 1.0 / cm;
-    auto y =  dx[size] * cm;
+    auto invN = 1.0 / N;
+    auto y =  dx[size] * N;
 
     long nstop;
     if (dx[size] < 0.02)
@@ -74,10 +61,10 @@ mie(std::vector<double> dx,
       d[n] = a1 - 1.0 / (a1 + d[n + 1]);
     }
 
-    std::vector<std::complex<double>> sm(dqv2.size());
-    std::vector<std::complex<double>> sp(dqv2.size());
-    std::vector<std::complex<double>> pi0(dqv2.size());
-    std::vector<std::complex<double>> pi1(dqv2.size(), 1.0);
+    std::vector<std::complex<double>> sm(cos_theta2.size());
+    std::vector<std::complex<double>> sp(cos_theta2.size());
+    std::vector<std::complex<double>> pi0(cos_theta2.size());
+    std::vector<std::complex<double>> pi1(cos_theta2.size(), 1.0);
 
     auto psi0 =  std::cos(dx[size]);
     auto psi1 =  std::sin(dx[size]);
@@ -100,8 +87,8 @@ mie(std::vector<double> dx,
       auto psi = tnm1 * psi1 / dx[size] - psi0;
       auto chi = tnm1 * chi1 / dx[size] - chi0;
       std::complex<double> xi{psi, chi};
-      auto a = ((d[n] * ir + rnx) * psi - psi1) / ((d[n] * ir + rnx) * xi - xi1);
-      auto b = ((d[n] * cm + rnx) * psi - psi1) / ((d[n] * cm + rnx) * xi - xi1);
+      auto a = ((d[n] * invN + rnx) * psi - psi1) / ((d[n] * invN + rnx) * xi - xi1);
+      auto b = ((d[n] * N + rnx) * psi - psi1) / ((d[n] * N + rnx) * xi - xi1);
       eff_extinct[size] += tnp1 * std::real(a + b);
       eff_scatter[size] += tnp1 * (std::norm(a) + std::norm(b));
       if (n > 1L)
@@ -110,9 +97,9 @@ mie(std::vector<double> dx,
       anm1 = a;
       bnm1 = b;
 
-      for (auto k = 0; k < dqv2.size(); ++k)
+      for (auto k = 0; k < cos_theta2.size(); ++k)
       {
-	auto s = dqv2[k] * pi1[k];
+	auto s = cos_theta2[k] * pi1[k];
 	auto t = s - pi0[k];
         auto taun = dn * t - pi0[k];
         sp[k] += (a2 * (a + b)) * (pi1[k] + taun);
@@ -131,7 +118,7 @@ mie(std::vector<double> dx,
     if (asymmetry[size] > 0.0)
       asymmetry[size] = 2.0 * asymmetry[size] / eff_scatter[size];
 
-    for (auto k = 0; k < dqv.size(); ++k)
+    for (auto k = 0; k < cos_theta.size(); ++k)
     {
       amp_perp[size][k] = (sp[k] + sm[k]) / 2.0;
       amp_para[size][k] = (sp[k] - sm[k]) / 2.0;
