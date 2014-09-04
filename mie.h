@@ -15,7 +15,8 @@ template<typename Num>
       Num & asymmetry,
       std::vector<std::complex<Num>> & amp_perp,
       std::vector<std::complex<Num>> & amp_para,
-      std::vector<Num> & phase);
+      std::vector<Num> & phase,
+      std::vector<Num> & polarization);
 
 #include "mie.tpp"
 

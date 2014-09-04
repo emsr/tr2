@@ -1,0 +1,37 @@
+unset border
+set polar
+set angles degrees # set gnuplot on degrees instead of radians
+
+set style line 10 lt 1 lc 0 lw 0.3 # redefine a new line style for the grid
+
+set grid polar 30 # set the grid to be displayed every 30 degrees
+set grid ls 10
+
+radius = 55
+
+set xrange [-radius:radius] # make gnuplot to go until radius
+set yrange [-radius:radius]
+
+set xtics axis # disply the xtics on the axis instead of on the border
+set ytics axis
+
+set xtics scale 0 # "remove" the tics so that only the y tics are displayed
+set xtics ("" radius) # set the xtics only go from 0 to radius with increment of radius but do not display anything. This has to be done otherwise the grid will not be displayed correctly.
+set ytics 0, 0.2*radius, radius # make the ytics go from the center (0) to radius with increment of 0.2*radius
+
+set size square 
+
+set key lmargin
+
+set_label(x, text) = sprintf("set label '%s' at (1.1*radius*cos(%f)), (1.1*radius*sin(%f)) center", text, x, x) # this places a label on the outside
+
+# Here all labels are created
+eval set_label(0, "0")
+eval set_label(30, "30")
+eval set_label(60, "60")
+eval set_label(90, "90")
+eval set_label(120, "120")
+eval set_label(150, "150")
+eval set_label(180, "180")
+
+plot "plot1.dat" using 1:2 title "A_perp" with lp, "plot1.dat" using 1:3 title "A_para" with lp

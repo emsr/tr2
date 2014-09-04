@@ -4,6 +4,11 @@
 
 #include "mie.h"
 
+///
+/// @see Improved Mie scattering algorithms
+///      W. J. Wiscombe
+///      1 May 1980 / Vol. 19, No. 9 / APPLIED OPTICS, pp 1505-1509
+///
 template<typename Num>
   void
   mie(Num ka,
@@ -15,7 +20,8 @@ template<typename Num>
       Num & asymmetry,
       std::vector<std::complex<Num>> & amp_perp,
       std::vector<std::complex<Num>> & amp_para,
-      std::vector<Num> & phase)
+      std::vector<Num> & phase,
+      std::vector<Num> & polarization)
   {
     constexpr auto imaxx = 12000L;
 
@@ -30,6 +36,7 @@ template<typename Num>
     amp_perp.resize(cos_theta.size());
     amp_para.resize(cos_theta.size());
     phase.resize(cos_theta.size());
+    polarization.resize(cos_theta.size());
 
     eff_extinct = Num(0);
     eff_scatter = Num(0);
@@ -38,14 +45,14 @@ template<typename Num>
 
     if (ka > imaxx)
       std::cerr << "\n  **  Error: Size Parameter Overflow in Mie\n";
-    auto invN = 1.0 / N;
+    auto invN = Num(1) / N;
     auto y =  ka * N;
 
     long nstop;
     if (ka < Num(0.02L))
       nstop = 2;
     else if (ka <= Num(8))
-      nstop = ka + Num(4) * std::pow(ka, Num(1.0L/3.0L)) + Num(2);
+      nstop = ka + Num(4) * std::pow(ka, Num(1.0L/3.0L)) + Num(1);
     else if (ka < Num(4200))
       nstop = ka + Num(4.05L) * std::pow(ka, Num(1.0L/3.0L)) + Num(2);
     else
@@ -57,7 +64,7 @@ template<typename Num>
     for (auto n = nmx - 1; n >= 1; --n)
     {
       auto a1 = Num(n + 1) / y;
-      d[n] = a1 - 1.0 / (a1 + d[n + 1]);
+      d[n] = a1 - Num(1) / (a1 + d[n + 1]);
     }
 
     std::vector<std::complex<Num>> sm(cos_theta2.size());
@@ -123,6 +130,8 @@ template<typename Num>
       amp_para[k] = (sp[k] - sm[k]) / Num(2);
       phase[k] = (std::norm(amp_perp[k]) + std::norm(amp_para[k]))
                / eff_scatter;
+      polarization[k] = (std::norm(amp_perp[k]) - std::norm(amp_para[k]))
+                      / (std::norm(amp_perp[k]) + std::norm(amp_para[k]));
     }
 
     // Assumes last slot has theta = 180 or cos(theta) == -1 point.
@@ -132,5 +141,7 @@ template<typename Num>
     eff_scatter *= Num(2) / ka2;
     eff_extinct *= Num(2) / ka2;
   std::cout << eff_backscatt << '\n';
+  std::cout << std::norm(eff_backscatt) << '\n';
+  std::cout << std::norm(eff_backscatt) / ka2 << '\n';
     eff_backscatt = std::norm(eff_backscatt) / ka2 / pi;
   }
