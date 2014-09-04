@@ -124,3 +124,12 @@ complex_tie
 bomb
 pr58708
 has_attribute
+dynarray/test_dynarray2
+dynamic_bitset/resize_dynamic_bitset
+dynamic_bitset/main
+BinaryIO
+quotedstd
+quoted2
+trigraphs
+test_hyper
+literals/test_suffixen2
