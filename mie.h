@@ -4,16 +4,19 @@
 #include <vector>
 #include <complex>
 
-void
-mie(std::vector<double> dx,
-    std::complex<double> N,
-    std::vector<double> cos_theta,
-    std::vector<double> & eff_extinct,
-    std::vector<double> & eff_scatter,
-    std::vector<std::complex<double>> & eff_backscatt,
-    std::vector<double> & asymmetry,
-    std::vector<std::vector<std::complex<double>>> & amp_perp,
-    std::vector<std::vector<std::complex<double>>> & amp_para,
-    std::vector<std::vector<double>> & phase);
+template<typename Num>
+  void
+  mie(Num ka,
+      std::complex<Num> N,
+      std::vector<Num> cos_theta,
+      Num & eff_extinct,
+      Num & eff_scatter,
+      std::complex<Num> & eff_backscatt,
+      Num & asymmetry,
+      std::vector<std::complex<Num>> & amp_perp,
+      std::vector<std::complex<Num>> & amp_para,
+      std::vector<Num> & phase);
+
+#include "mie.tpp"
 
 #endif
