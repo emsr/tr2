@@ -1,0 +1,316 @@
+Index: config.h.in
+===================================================================
+--- config.h.in	(revision 204791)
++++ config.h.in	(working copy)
+@@ -445,6 +445,9 @@
+ /* Define to 1 if the target supports thread-local storage. */
+ #undef HAVE_TLS
+ 
++/* Define to 1 if you have the <uchar.h> header file. */
++#undef HAVE_UCHAR_H
++
+ /* Define to 1 if you have the <unistd.h> header file. */
+ #undef HAVE_UNISTD_H
+ 
+Index: include/Makefile.am
+===================================================================
+--- include/Makefile.am	(revision 204791)
++++ include/Makefile.am	(working copy)
+@@ -667,6 +667,7 @@
+ 	${c_base_srcdir}/cstring \
+ 	${c_base_srcdir}/ctgmath \
+ 	${c_base_srcdir}/ctime \
++	${c_base_srcdir}/cuchar \
+ 	${c_base_srcdir}/cwchar \
+ 	${c_base_srcdir}/cwctype
+ 
+Index: include/Makefile.in
+===================================================================
+--- include/Makefile.in	(revision 204791)
++++ include/Makefile.in	(working copy)
+@@ -934,6 +934,7 @@
+ 	${c_base_srcdir}/cstring \
+ 	${c_base_srcdir}/ctgmath \
+ 	${c_base_srcdir}/ctime \
++	${c_base_srcdir}/cuchar \
+ 	${c_base_srcdir}/cwchar \
+ 	${c_base_srcdir}/cwctype
+ 
+Index: include/c/cuchar
+===================================================================
+--- include/c/cuchar	(revision 0)
++++ include/c/cuchar	(revision 0)
+@@ -0,0 +1,49 @@
++// -*- C++ -*- forwarding header.
++
++// Copyright (C) 2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// Under Section 7 of GPL version 3, you are granted additional
++// permissions described in the GCC Runtime Library Exception, version
++// 3.1, as published by the Free Software Foundation.
++
++// You should have received a copy of the GNU General Public License and
++// a copy of the GCC Runtime Library Exception along with this program;
++// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++// <http://www.gnu.org/licenses/>.
++
++//
++// ISO C++ 14882: 21.4
++//
++
++#ifndef _GLIBCXX_CUCHAR
++#define _GLIBCXX_CUCHAR 1
++
++#if __cplusplus < 201103L
++# include <bits/c++0x_warning.h>
++#else // _GLIBCXX_HAVE_UCHAR_H
++
++#pragma GCC system_header
++
++#include <bits/c++config.h>
++#include <cwchar>
++
++#if _GLIBCXX_HAVE_UCHAR_H
++#include_next <uchar.h>
++#else
++#warning Library support for cuchar (uchar.h) is not available.
++#endif
++
++#endif // C++11
++
++#endif // _GLIBCXX_CUCHAR
+Index: include/c_global/cuchar
+===================================================================
+--- include/c_global/cuchar	(revision 0)
++++ include/c_global/cuchar	(revision 0)
+@@ -0,0 +1,82 @@
++// -*- C++ -*- forwarding header.
++
++// Copyright (C) 2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// Under Section 7 of GPL version 3, you are granted additional
++// permissions described in the GCC Runtime Library Exception, version
++// 3.1, as published by the Free Software Foundation.
++
++// You should have received a copy of the GNU General Public License and
++// a copy of the GCC Runtime Library Exception along with this program;
++// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++// <http://www.gnu.org/licenses/>.
++
++/** @file include/cuchar
++ *  This is a Standard C++ Library file.  You should @c \#include this file
++ *  in your programs, rather than any of the @a *.h implementation files.
++ *
++ *  This is the C++ version of the Standard C Library header @c uchar.h,
++ *  and its contents are (mostly) the same as that header, but are all
++ *  contained in the namespace @c std (except for names which are defined
++ *  as macros in C).
++ */
++
++//
++// ISO C++ 14882: 21.4
++//
++
++#ifndef _GLIBCXX_CUCHAR
++#define _GLIBCXX_CUCHAR 1
++
++#pragma GCC system_header
++
++#if __cplusplus < 201103L
++# include <bits/c++0x_warning.h>
++#else
++
++#include <bits/c++config.h>
++#include <cwchar>
++
++#if _GLIBCXX_HAVE_UCHAR_H
++#include <uchar.h>
++
++// Get rid of those macros defined in <uchar.h> in lieu of real functions.
++#undef mbrtoc16
++#undef c16rtomb
++#undef mbrtoc32
++#undef c32rtomb
++
++#if _GLIBCXX_USE_UCHAR_T
++
++namespace std _GLIBCXX_VISIBILITY(default)
++{
++_GLIBCXX_BEGIN_NAMESPACE_VERSION
++
++  using ::mbrtoc16;
++  using ::c16rtomb;
++  using ::mbrtoc32;
++  using ::c32rtomb;
++
++_GLIBCXX_END_NAMESPACE_VERSION
++} // namespace std
++
++#endif //_GLIBCXX_USE_UCHAR_T
++
++#else
++#warning Library support for cuchar (uchar.h) is not available.
++#endif // _GLIBCXX_HAVE_UCHAR_H
++
++#endif // C++11
++
++#endif // _GLIBCXX_CUCHAR
+Index: include/c_std/cuchar
+===================================================================
+--- include/c_std/cuchar	(revision 0)
++++ include/c_std/cuchar	(revision 0)
+@@ -0,0 +1,82 @@
++// -*- C++ -*- forwarding header.
++
++// Copyright (C) 2013 Free Software Foundation, Inc.
++//
++// This file is part of the GNU ISO C++ Library.  This library is free
++// software; you can redistribute it and/or modify it under the
++// terms of the GNU General Public License as published by the
++// Free Software Foundation; either version 3, or (at your option)
++// any later version.
++
++// This library is distributed in the hope that it will be useful,
++// but WITHOUT ANY WARRANTY; without even the implied warranty of
++// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++// GNU General Public License for more details.
++
++// Under Section 7 of GPL version 3, you are granted additional
++// permissions described in the GCC Runtime Library Exception, version
++// 3.1, as published by the Free Software Foundation.
++
++// You should have received a copy of the GNU General Public License and
++// a copy of the GCC Runtime Library Exception along with this program;
++// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
++// <http://www.gnu.org/licenses/>.
++
++/** @file include/cuchar
++ *  This is a Standard C++ Library file.  You should @c #include this file
++ *  in your programs, rather than any of the @a *.h implementation files.
++ *
++ *  This is the C++ version of the Standard C Library header @c uchar.h,
++ *  and its contents are (mostly) the same as that header, but are all
++ *  contained in the namespace @c std (except for names which are defined
++ *  as macros in C).
++ */
++
++//
++// ISO C++ 14882: 21.4
++//
++
++#ifndef _GLIBCXX_CUCHAR
++#define _GLIBCXX_CUCHAR 1
++
++#pragma GCC system_header
++
++#if __cplusplus < 201103L
++# include <bits/c++0x_warning.h>
++#else
++
++#include <bits/c++config.h>
++#include <cwchar>
++
++#if _GLIBCXX_HAVE_UCHAR_H
++#include <uchar.h>
++
++// Get rid of those macros defined in <uchar.h> in lieu of real functions.
++#undef mbrtoc16
++#undef c16rtomb
++#undef mbrtoc32
++#undef c32rtomb
++
++#if _GLIBCXX_USE_UCHAR_T
++
++namespace std _GLIBCXX_VISIBILITY(default)
++{
++_GLIBCXX_BEGIN_NAMESPACE_VERSION
++
++  using ::mbrtoc16;
++  using ::c16rtomb;
++  using ::mbrtoc32;
++  using ::c32rtomb;
++
++_GLIBCXX_END_NAMESPACE_VERSION
++} // namespace std
++
++#endif //_GLIBCXX_USE_UCHAR_T
++
++#else
++#warning Library support for cuchar (uchar.h) is not available.
++#endif // _GLIBCXX_HAVE_UCHAR_H
++
++#endif // C++11
++
++#endif // _GLIBCXX_CUCHAR
+Index: include/precompiled/stdc++.h
+===================================================================
+--- include/precompiled/stdc++.h	(revision 204791)
++++ include/precompiled/stdc++.h	(working copy)
+@@ -56,6 +56,7 @@
+ #include <cstdbool>
+ #include <cstdint>
+ #include <ctgmath>
++#include <cuchar>
+ #include <cwchar>
+ #include <cwctype>
+ #endif
+Index: testsuite/17_intro/headers/c++200x/stdc++.cc
+===================================================================
+--- testsuite/17_intro/headers/c++200x/stdc++.cc	(revision 204791)
++++ testsuite/17_intro/headers/c++200x/stdc++.cc	(working copy)
+@@ -59,6 +59,9 @@
+ #include <tgmath.h>
+ #endif
+ #include <time.h>
++#ifdef _GLIBCXX_HAVE_UCHAR_H
++#include <uchar.h>
++#endif
+ #ifdef _GLIBCXX_HAVE_WCHAR_H
+ #include <wchar.h>
+ #endif
+Index: testsuite/17_intro/headers/c++200x/stdc++_multiple_inclusion.cc
+===================================================================
+--- testsuite/17_intro/headers/c++200x/stdc++_multiple_inclusion.cc	(revision 204791)
++++ testsuite/17_intro/headers/c++200x/stdc++_multiple_inclusion.cc	(working copy)
+@@ -59,6 +59,9 @@
+ #include <tgmath.h>
+ #endif
+ #include <time.h>
++#ifdef _GLIBCXX_HAVE_UCHAR_H
++#include <uchar.h>
++#endif
+ #ifdef _GLIBCXX_HAVE_WCHAR_H
+ #include <wchar.h>
+ #endif
+@@ -103,6 +106,9 @@
+ #include <tgmath.h>
+ #endif
+ #include <time.h>
++#ifdef _GLIBCXX_HAVE_UCHAR_H
++#include <uchar.h>
++#endif
+ #ifdef _GLIBCXX_HAVE_WCHAR_H
+ #include <wchar.h>
+ #endif

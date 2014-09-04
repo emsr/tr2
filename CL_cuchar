@@ -1,0 +1,13 @@
+2013-11-16  Edward Smith-Rowland  <3dw4rd@verizon.net>
+
+	Add <cuchar> for C++11.
+	* config.h.in: 
+	* include/Makefile.am: Add cuchar.
+	* include/Makefile.in: Add cuchar.
+	* include/c/cuchar: New.
+	* include/c_global/cuchar: New.
+	* include/c_std/cuchar: New.
+	* include/precompiled/stdc++.h: Add <cuchar>.
+	* testsuite/17_intro/headers/c++200x/stdc++.cc: Add uchar.h.
+	* testsuite/17_intro/headers/c++200x/stdc++_multiple_inclusion.cc:
+	Add uchar.h.
