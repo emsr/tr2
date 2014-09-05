@@ -1,9 +1,6 @@
 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (8.37478e-07,0.000123984)
-1.53727e-08
-3.89394e-06
-Particle radius        : 0.01
+Enter particle complex index of refraction  : Particle radius        : 0.01
 Particle size parameter: 0.0628319
 Index of refraction    : (2,-0.01)
 
@@ -23,14 +20,11 @@ phase
 
 Plot data file written to "plot1.dat"
 
-Time elapsed: 30409 us
+Time elapsed: 40184 us
 
 Do you wish to run MieScatteringModel again (y/n)? 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (7.28714e-06,0.000990779)
-9.81697e-07
-6.21667e-05
-Particle radius        : 0.02
+Enter particle complex index of refraction  : Particle radius        : 0.02
 Particle size parameter: 0.125664
 Index of refraction    : (2,-0.01)
 
@@ -50,14 +44,11 @@ phase
 
 Plot data file written to "plot2.dat"
 
-Time elapsed: 6455 us
+Time elapsed: 6575 us
 
 Do you wish to run MieScatteringModel again (y/n)? 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (0.000270764,0.0153503)
-0.000235705
-0.00238819
-Particle radius        : 0.05
+Enter particle complex index of refraction  : Particle radius        : 0.05
 Particle size parameter: 0.314159
 Index of refraction    : (2,-0.01)
 
@@ -77,14 +68,11 @@ phase
 
 Plot data file written to "plot3.dat"
 
-Time elapsed: 26086 us
+Time elapsed: 7846 us
 
 Do you wish to run MieScatteringModel again (y/n)? 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (0.0123742,0.116729)
-0.0137787
-0.0349019
-Particle radius        : 0.1
+Enter particle complex index of refraction  : Particle radius        : 0.1
 Particle size parameter: 0.628319
 Index of refraction    : (2,-0.01)
 
@@ -104,14 +92,11 @@ phase
 
 Plot data file written to "plot4.dat"
 
-Time elapsed: 6392 us
+Time elapsed: 6199 us
 
 Do you wish to run MieScatteringModel again (y/n)? 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (0.289465,0.0780017)
-0.0898743
-0.0569136
-Particle radius        : 0.2
+Enter particle complex index of refraction  : Particle radius        : 0.2
 Particle size parameter: 1.25664
 Index of refraction    : (2,-0.01)
 
@@ -131,14 +116,11 @@ phase
 
 Plot data file written to "plot5.dat"
 
-Time elapsed: 24490 us
+Time elapsed: 6415 us
 
 Do you wish to run MieScatteringModel again (y/n)? 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (0.0343877,0.844461)
-0.714297
-0.201037
-Particle radius        : 0.3
+Enter particle complex index of refraction  : Particle radius        : 0.3
 Particle size parameter: 1.88496
 Index of refraction    : (2,-0.01)
 
@@ -158,14 +140,11 @@ phase
 
 Plot data file written to "plot6.dat"
 
-Time elapsed: 5997 us
+Time elapsed: 4056 us
 
 Do you wish to run MieScatteringModel again (y/n)? 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (-1.9482,-1.28139)
-5.43743
-0.860823
-Particle radius        : 0.4
+Enter particle complex index of refraction  : Particle radius        : 0.4
 Particle size parameter: 2.51327
 Index of refraction    : (2,-0.01)
 
@@ -185,14 +164,11 @@ phase
 
 Plot data file written to "plot7.dat"
 
-Time elapsed: 8163 us
+Time elapsed: 3663 us
 
 Do you wish to run MieScatteringModel again (y/n)? 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (3.22145,0.109485)
-10.3897
-1.0527
-Particle radius        : 0.5
+Enter particle complex index of refraction  : Particle radius        : 0.5
 Particle size parameter: 3.14159
 Index of refraction    : (2,-0.01)
 
@@ -212,6 +188,6 @@ phase
 
 Plot data file written to "plot8.dat"
 
-Time elapsed: 7591 us
+Time elapsed: 3789 us
 
 Do you wish to run MieScatteringModel again (y/n)? 

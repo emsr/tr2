@@ -1,9 +1,6 @@
 
 Enter particle radius in units of wavelength: 
-Enter particle complex index of refraction  : (-0.251738,-30.1696)
-910.266
-0.0900676
-Particle radius        : 16
+Enter particle complex index of refraction  : Particle radius        : 16
 Particle size parameter: 100.531
 Index of refraction    : (4,-0.1)
 
@@ -23,6 +20,6 @@ phase
 
 Plot data file written to "plot1.dat"
 
-Time elapsed: 25296 us
+Time elapsed: 38166 us
 
 Do you wish to run MieScatteringModel again (y/n)? 

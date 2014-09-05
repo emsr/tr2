@@ -1,13 +1,19 @@
-#include <iostream>
 #include <cmath>
 #include <algorithm>
+#include <stdexcept>
 
 #include "mie.h"
+
+
+template<typename Num>
+  std::complex<Num>
+  cont_frac(long nmx, std::complex<Num> y);
+
 
 ///
 /// @see Improved Mie scattering algorithms
 ///      W. J. Wiscombe
-///      1 May 1980 / Vol. 19, No. 9 / APPLIED OPTICS, pp 1505-1509
+///      Applied Optics, Vol. 19, No. 9, pp 1505-1509, 1 May 1980
 ///
 template<typename Num>
   void
@@ -30,8 +36,6 @@ template<typename Num>
     std::sort(cos_theta2.begin(), cos_theta2.end(), std::greater<>());
     if (cos_theta2.end() == std::find(cos_theta2.begin(), cos_theta2.end(), -1.0))
       cos_theta2.push_back(-1.0);
-  //for (auto && v2 : cos_theta2) std::cout << ' ' << v2;
-  //std::cout << '\n';
     std::vector<Num> ph(cos_theta.size());
     amp_perp.resize(cos_theta.size());
     amp_para.resize(cos_theta.size());
@@ -48,6 +52,7 @@ template<typename Num>
     auto invN = Num(1) / N;
     auto y =  ka * N;
 
+    //  Estimate number of terms in Mie series.
     long nstop;
     if (ka < Num(0.02L))
       nstop = 2;
@@ -61,17 +66,25 @@ template<typename Num>
     auto nmx = long(std::max(nstop, long(std::abs(y))) + Num(15));
     std::vector<std::complex<Num>> d(nmx + 1);
 
+    //  Get starting value from continued fraction.
+    //  This may be unnecessary since we back up and do Millers algorithm.
+    //  Other codes check input values and either do forward recursion or
+    //  backwards starting right at the required max.
+    //d[nmx] = cont_frac(nmx, y);
+
+    //  Downward recurrence for Bessel function logarithmic derivative.
     for (auto n = nmx - 1; n >= 1; --n)
     {
       auto a1 = Num(n + 1) / y;
       d[n] = a1 - Num(1) / (a1 + d[n + 1]);
     }
 
-    std::vector<std::complex<Num>> sm(cos_theta2.size());
-    std::vector<std::complex<Num>> sp(cos_theta2.size());
+    std::vector<std::complex<Num>> Sm(cos_theta2.size());
+    std::vector<std::complex<Num>> Sp(cos_theta2.size());
     std::vector<std::complex<Num>> pi0(cos_theta2.size());
     std::vector<std::complex<Num>> pi1(cos_theta2.size(), Num(1));
 
+    //  Initialize Ricatti-Bessel function recursion.
     auto psi0 =  std::cos(ka);
     auto psi1 =  std::sin(ka);
     auto chi0 = -std::sin(ka);
@@ -87,7 +100,6 @@ template<typename Num>
       const auto dn = Num(n);
       tnp1 += Num(2);
       auto tnm1 = tnp1 - Num(2);
-      auto a2 = tnp1 / (dn * (dn + Num(1)));
       auto turbo = (dn + Num(1)) / dn;
       auto rnx = dn / ka;
       auto psi = tnm1 * psi1 / ka - psi0;
@@ -103,17 +115,23 @@ template<typename Num>
       anm1 = a;
       bnm1 = b;
 
+      auto a2 = tnp1 / (dn * (dn + Num(1)));
+      auto Cp = a2 * (a + b);
+      auto Cm = a2 * (a - b);
+
+      //  Increment Mie sums for S+, S- while upward recursing angular function pi.
       for (auto k = 0; k < cos_theta2.size(); ++k)
       {
 	auto s = cos_theta2[k] * pi1[k];
 	auto t = s - pi0[k];
 	auto taun = dn * t - pi0[k];
-	sp[k] += (a2 * (a + b)) * (pi1[k] + taun);
-	sm[k] += (a2 * (a - b)) * (pi1[k] - taun);
+	Sp[k] += Cp * (pi1[k] + taun);
+	Sm[k] += Cm * (pi1[k] - taun);
 	pi0[k] = pi1[k];
 	pi1[k] = s + t * turbo;
       }
 
+      //  Upward recurrence of Ricatti-Bessel functions.
       psi0 = psi1;
       psi1 = psi;
       chi0 = chi1;
@@ -126,8 +144,8 @@ template<typename Num>
 
     for (auto k = 0; k < cos_theta.size(); ++k)
     {
-      amp_perp[k] = (sp[k] + sm[k]) / Num(2);
-      amp_para[k] = (sp[k] - sm[k]) / Num(2);
+      amp_perp[k] = (Sp[k] + Sm[k]) / Num(2);
+      amp_para[k] = (Sp[k] - Sm[k]) / Num(2);
       phase[k] = (std::norm(amp_perp[k]) + std::norm(amp_para[k]))
                / eff_scatter;
       polarization[k] = (std::norm(amp_perp[k]) - std::norm(amp_para[k]))
@@ -135,13 +153,83 @@ template<typename Num>
     }
 
     // Assumes last slot has theta = 180 or cos(theta) == -1 point.
-    eff_backscatt += (sp.back() + sm.back()) / Num(2);
+    eff_backscatt += (Sp.back() + Sm.back()) / Num(2);
 
     auto ka2 = ka * ka;
     eff_scatter *= Num(2) / ka2;
     eff_extinct *= Num(2) / ka2;
-  std::cout << eff_backscatt << '\n';
-  std::cout << std::norm(eff_backscatt) << '\n';
-  std::cout << std::norm(eff_backscatt) / ka2 << '\n';
     eff_backscatt = std::norm(eff_backscatt) / ka2 / pi;
+  }
+
+
+template<typename Num>
+  std::complex<Num>
+  cont_frac(long n, std::complex<Num> y)
+  {
+    constexpr Num eps1 = Num(0.01L);
+    constexpr Num eps2 = Num(1.0e-8L);
+    constexpr long maxit = 10000;
+
+    auto zinv = Num(1) / y;
+    auto confra = Num(n + 1L) * zinv;
+    auto mm = -1L;
+    auto kk = 2L * n + 3L;
+    auto ak = Num(mm * kk) * zinv;
+    auto denom = ak;
+    auto numer = denom + Num(1) / confra;
+    auto kount = 1L;
+
+    while (true)
+    {
+      ++kount;
+
+      if (kount > maxit)
+        throw std::logic_error("cont_frac: iteration failed to converge");
+
+      //  Ref. 2, Eq. 25b
+      mm = -mm;
+      kk += 2;
+      ak = Num(mm * kk) * zinv;
+      //  Ref. 2, Eq. 32
+      if (std::abs(numer / ak) <= eps1
+       || std::abs(denom / ak) <= eps1)
+      {
+        //  Ill-conditioned case -- stride two terms instead of one.
+
+        //  Ref. 2, Eqs. 34
+        auto ntn = ak * numer + Num(1);
+        auto dtd = ak * denom + Num(1);
+        confra *= ntn / dtd;
+        //  Ref. 2, Eq. 25b
+        mm = -mm;
+        kk += 2;
+        ak = Num(mm * kk) * zinv;
+        //  Ref. 2, Eqs. 35
+        numer = ak + numer / ntn;
+        denom = ak + denom / dtd;
+        ++kount;
+        continue;
+      }
+      else
+      {
+        //  Well-conditioned case...
+
+        //  Ref. 2, Eqs. 26, 27
+        auto apt = numer / denom;
+        confra *= apt;
+        //  Check for convergence (Ref. 2, Eq. 31)
+        if (std::abs(std::real(apt) - Num(1)) >= eps2
+         || std::abs(std::imag(apt)) >= eps2)
+        {
+          //  Ref. 2, Eqs. 30A-B
+          numer = ak + Num(1) / numer;
+          denom = ak + Num(1) / denom;
+          continue;
+        }
+
+        break;
+      }
+    }
+
+    return confra;
   }
