@@ -1,3 +1,7 @@
+Sorry for the late notice but I thought I had lost these in a hardware issue.
+
+Here are some macros to finish-out C++11:
+
 C++11
 -----
 N2439	__cpp_reference_qualifiers	200710	This has library usage
@@ -7,3 +11,21 @@ N1986	__cpp_delegating_constructors	200604	Users can migrate from initializer fu
 N2540	__cpp_inheriting_constructors	200802	Ditto
 N2930	__cpp_range_based_for_loops	200907	
 N2672	__cpp_initializer_lists	200806	
+
+Some popular C++ compilers still dpon't support all these.
+It doeas add a few more macros but it finishes C++11.
+Other compilers may emerge that need to "work their way up" through these features.
+I could go either way on this - I know some don't want to clutter up compilers with lots of macros.
+
+
+C++98
+-----
+	__cpp_exceptions	199711L
+	
+	__cpp_run_time_type_id	199711L
+
+Rationale for __cpp_exceptions and __cpp_run_time_type_id:
+Several compilers exist that allow the user to turn these features off with a macro or a compiler switch.
+Providing these macros enhance portability of such code that uses macros to change code depending on availability of these features.
+
+I just used the date standard when these were added rather than try to dig up old papers.
