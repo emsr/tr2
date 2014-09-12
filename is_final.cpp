@@ -5,6 +5,9 @@
 
 namespace std
 {
+
+#define __cpp_lib_is_final 201402
+
   template<bool>
     struct __is_final_helper
     : public false_type { };
