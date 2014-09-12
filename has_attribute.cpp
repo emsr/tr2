@@ -3,8 +3,6 @@
 
 #include <cassert>
 
-#define __has_cpp_attribute(THING) __has_attribute(THING)
-
 int
 main()
 {
@@ -20,9 +18,24 @@ main()
   bool notok = __has_attribute(urectum);
   assert(!notok);
 
+  bool cpp_ok = __has_cpp_attribute(deprecated);
+  assert(cpp_ok);
+
+  bool cpp_gnuok = __has_cpp_attribute(gnu::deprecated);
+  assert(cpp_gnuok);
+
+  bool cpp_oldok = __has_cpp_attribute(__deprecated__);
+  assert(cpp_oldok);
+
+  bool cpp_notok = __has_cpp_attribute(urectum);
+  assert(!cpp_notok);
+
+  bool
 #ifdef __has_cpp_attribute
-# if __has_cpp_attribute(fartknocker)
-  bool [[fartknocker]] wtf;
+//# if __has_cpp_attribute(peripatetic)
+# if __has_include("peripatetic")
+    [[peripatetic]]
 # endif
 #endif
+  life;
 }

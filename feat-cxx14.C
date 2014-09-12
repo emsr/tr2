@@ -126,8 +126,10 @@
 #endif
 
 //  Variable templates not in yet.
-#ifdef __cpp_variable_templates
+#ifndef __cpp_variable_templates
 #  error "__cpp_variable_templates"
+#elif  __cpp_variable_templates != 201304
+#  error "__cpp_variable_templates != 201304"
 #endif
 
 #ifndef __cpp_digit_separators
@@ -218,14 +220,16 @@
 #endif
 
 //  Realistic use of __has_include.
-#if __has_include(<array>)
-#  define STD_ARRAY 1
-#  include <array>
+#ifdef __has_include
+#  if __has_include(<array>)
+#    define STD_ARRAY 1
+#    include <array>
   template<typename _Tp, size_t _Num>
     using array = std::array<_Tp, _Num>;
-#elif __has_include(<tr1/array>)
-#  define TR1_ARRAY 1
-#  include <tr1/array>
+#  elif __has_include(<tr1/array>)
+#    define TR1_ARRAY 1
+#    include <tr1/array>
   template<typename _Tp, size_t _Num>
     typedef std::tr1::array<_Tp, _Num> array;
+#  endif
 #endif

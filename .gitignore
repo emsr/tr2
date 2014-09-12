@@ -134,3 +134,7 @@ trigraphs
 test_hyper
 literals/test_suffixen2
 plot*.dat
+
+is_final
+*.o
+
