@@ -1,13 +1,14 @@
-<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2014-09-18" view-index="0" gantt-divider-location="353" resource-divider-location="300" version="2.0" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Untitled Gantt Project" company="" webLink="http://" view-date="2014-09-14" view-index="0" gantt-divider-location="353" resource-divider-location="300" version="2.0" locale="en_US">
     <description/>
-    <view zooming-state="default:2" id="gantt-chart">
+    <view zooming-state="default:5" id="gantt-chart">
         <field id="tpd3" name="Name" width="57" order="0"/>
         <field id="tpd4" name="Begin date" width="21" order="1"/>
         <field id="tpd5" name="End date" width="21" order="2"/>
     </view>
     <view id="resource-table">
-        <field id="0" name="Name" width="70" order="0"/>
-        <field id="1" name="Default role" width="29" order="1"/>
+        <field id="0" name="Name" width="52" order="0"/>
+        <field id="1" name="Default role" width="47" order="1"/>
     </view>
     <!-- -->
     <calendars>
@@ -35,13 +36,26 @@
             <taskproperty id="tpd8" name="coordinator" type="default" valuetype="text"/>
             <taskproperty id="tpd9" name="predecessorsr" type="default" valuetype="text"/>
         </taskproperties>
-        <task id="0" name="get urban data" color="#8cb6ce" meeting="false" start="2014-09-18" duration="7" complete="0" expand="true">
-            <depend id="5" type="2" difference="0" hardness="Strong"/>
+        <task id="0" name="Obtain Urban Data" color="#8cb6ce" meeting="false" start="2014-09-11" duration="8" complete="0" expand="true">
+            <depend id="12" type="2" difference="0" hardness="Rubber"/>
         </task>
-        <task id="5" name="generate visibility graphs" color="#8cb6ce" meeting="false" start="2014-09-29" duration="1" complete="0" expand="true">
+        <task id="12" name="Generate Scenarios" color="#8cb6ce" meeting="false" start="2014-09-23" duration="2" complete="0" expand="true">
+            <depend id="5" type="2" difference="0" hardness="Rubber"/>
+        </task>
+        <task id="5" name="Generate Visibility Graphs" color="#8cb6ce" meeting="false" start="2014-09-25" duration="4" complete="0" expand="true">
             <depend id="1" type="2" difference="0" hardness="Strong"/>
         </task>
-        <task id="1" name="run model" color="#8cb6ce" meeting="false" start="2014-09-30" duration="5" complete="0" expand="true"/>
+        <task id="1" name="Run Model" color="#8cb6ce" meeting="false" start="2014-10-01" duration="5" complete="0" expand="true">
+            <depend id="15" type="2" difference="0" hardness="Rubber"/>
+        </task>
+        <task id="15" name="Generate Report" color="#8cb6ce" meeting="false" start="2014-10-08" duration="2" complete="0" expand="true">
+            <depend id="24" type="2" difference="0" hardness="Strong"/>
+        </task>
+        <task id="25" name="Maintain and Enhance Model Capabilities" meeting="false" start="2014-09-15" duration="15" complete="0" expand="true"/>
+        <task id="20" name="Urban Data Status" meeting="false" start="2014-09-19" duration="1" complete="0" expand="true"/>
+        <task id="22" name="Urban Scenario Status" meeting="false" start="2014-09-26" duration="1" complete="0" expand="true"/>
+        <task id="23" name="Early Results Status" meeting="false" start="2014-10-03" duration="1" complete="0" expand="true"/>
+        <task id="24" name="*Consolidate Alion Capabilities" color="#8cb6ce" meeting="false" start="2014-10-10" duration="10" complete="0" expand="true"/>
     </tasks>
     <resources/>
     <allocations/>
