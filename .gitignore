@@ -136,5 +136,6 @@ literals/test_suffixen2
 plot*.dat
 
 is_final
+is_final_std
 *.o
 

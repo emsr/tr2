@@ -6,7 +6,7 @@
 namespace std
 {
 
-#define __cpp_lib_is_final 201402
+#define __cpp_lib_is_final 201402L
 
   /// is_final
   template<typename _Tp>
