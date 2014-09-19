@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project name="Untitled Gantt Project" company="" webLink="http://" view-date="2014-09-14" view-index="0" gantt-divider-location="353" resource-divider-location="300" version="2.0" locale="en_US">
+<?xml version="1.0" encoding="UTF-8"?><project name="Untitled Gantt Project" company="" webLink="http://" view-date="2014-09-14" view-index="0" gantt-divider-location="353" resource-divider-location="300" version="2.0" locale="en_US">
     <description/>
     <view zooming-state="default:5" id="gantt-chart">
         <field id="tpd3" name="Name" width="57" order="0"/>
@@ -7,8 +6,8 @@
         <field id="tpd5" name="End date" width="21" order="2"/>
     </view>
     <view id="resource-table">
-        <field id="0" name="Name" width="52" order="0"/>
-        <field id="1" name="Default role" width="47" order="1"/>
+        <field id="0" name="Name" width="50" order="0"/>
+        <field id="1" name="Default role" width="49" order="1"/>
     </view>
     <!-- -->
     <calendars>
@@ -57,7 +56,11 @@
         <task id="23" name="Early Results Status" meeting="false" start="2014-10-03" duration="1" complete="0" expand="true"/>
         <task id="24" name="*Consolidate Alion Capabilities" color="#8cb6ce" meeting="false" start="2014-10-10" duration="10" complete="0" expand="true"/>
     </tasks>
-    <resources/>
+    <resources>
+        <resource id="0" name="Edward Smith-Rowland" function="SoftwareDevelopment:2" contacts="" phone=""/>
+        <resource id="1" name="Scott Wiley" function="Default:1" contacts="" phone=""/>
+        <resource id="2" name="Kevin Rump" function="Default:1" contacts="" phone=""/>
+    </resources>
     <allocations/>
     <vacations/>
     <taskdisplaycolumns>
