@@ -1,0 +1,154 @@
+//  I'm renaming these relative to nXXXX.pdf
+//  distribution -> dist
+//  incomplete   -> inc
+
+  //  beta distribution
+
+  inline float
+  beta_distf(float __a, float __b, float __x)
+  { return __detail::<float>(__a, __b, __x); }
+
+  inline long double
+  beta_distl(long double __a, long double __b, long double __x)
+  { return __detail::<long double>(__a, __b, __x); }
+
+  template<typename _Ta, typename _Tb, typename _Tx>
+    inline typename __gnu_cxx::__promote_3<_Ta, _Tb, _Tx>::__type
+    beta_dist(_Ta __a, _Tb __b, _Tx __x)
+    {
+      typedef typename __gnu_cxx::__promote_3<_Ta, _Tb, _Tx>::__type __type;
+      return __detail::<__type>(__a, __b, __x);
+    }
+
+
+  //  incomplete beta function
+
+  inline float
+  beta_incf(float __a, float __b, float __x)
+  { return __detail::__beta_inc<float>(__a, __b, __x); }
+
+  inline long double
+  beta_incl(long double __a, long double __b, long double __x)
+  { return __detail::__beta_inc<long double>(__a, __b, __x); }
+
+  template<typename _Ta, typename _Tb, typename _Tx>
+    inline typename __gnu_cxx::__promote_3<_Ta, _Tb, _Tx>::__type
+    beta_inc(_Ta __a, _Tb __b, _Tx __x)
+    {
+      typedef typename __gnu_cxx::__promote_3<_Ta, _Tb, _Tx>::__type __type;
+      return __detail::__beta_inc<__type>(__a, __b, __x); }
+    }
+
+
+  //  inverse incomplete beta
+
+  inline float
+  beta_inc_invf(float __a, float __b, float __x)
+  { return __detail::__beta_inc_inv<float>(__a, __b, __x); }
+
+  inline long double
+  beta_inc_invl(long double __a, long double __b, long double __x)
+  { return __detail::__beta_inc_inv<long double>(__a, __b, __x); }
+
+  template<typename _Ta, typename _Tb, typename _Tx>
+    inline typename __gnu_cxx::__promote_3<_Ta, _Tb, _Tx>::__type
+    beta_in_invc(_Ta __a, _Tb __b, _Tx __x)
+    {
+      typedef typename __gnu_cxx::__promote_3<_Ta, _Tb, _Tx>::__type __type;
+      return __detail::__beta_inc_inv<__type>(__a, __b, __x); }
+    }
+
+
+  //  bnomial distribution
+
+  inline float
+  binomial_distf(unsigned int __k, unsigned int __n, float __p)
+  { return __detail::__beta_inc<float>(__n - __k, __k + 1, 1.0F - __p); }
+
+  inline long double
+  binomial_distl(unsigned int __k, unsigned int __n, long double __p)
+  { return __detail::__beta_inc<long double>(__n - __k, __k + 1, 1.0L - __p); }
+
+  template<typename _Tp>
+    inline typename __gnu_cxx::__promote<_Tp>::__type
+    binomial_dist(unsigned int __k, unsigned int __n, _Tp __p)
+    {
+      typedef typename __gnu_cxx::__promote<_Tp>::__type __type;
+      return __detail::__beta_inc<__type>(__n - __k, __k + 1, __type(1) - __p);
+    }
+
+
+  //  complement binomial distribution
+
+  inline float
+  binomial_dist_compf(unsigned int __k, unsigned int __n, float __p)
+  { return __detail::__beta_inc<float>(__k + 1, __n - __k, __p); }
+
+  inline long double
+  binomial_dist_compl(unsigned int __k, unsigned int __n, long double __p)
+  { return __detail::__beta_inc<long double>(__k + 1, __n - __k, __p); }
+
+  template<typename _Tp>
+    inline typename __gnu_cxx::__promote<_Tp>::__type
+    binomial_dist_comp(unsigned int __k, unsigned int __n, _Tp __p)
+    {
+      typedef typename __gnu_cxx::__promote<_Tp>::__type __type;
+      return __detail::__beta_inc<__type>(__k + 1, __n - __k, __p);
+    }
+
+
+  //  inverse binomial distribution
+
+  inline float
+  binomial_dist_invf(unsigned int __k, unsigned int __n, float __p)
+  { return __detail::<float>(__n - __k, __k + 1, 1.0F - __p); }
+
+  inline long double
+  binomial_dist_invl(unsigned int __k, unsigned int __n, long double __p)
+  { return __detail::<long double>(__n - __k, __k + 1, 1.0L - __p); }
+
+  template<typename _Tp>
+    inline typename __gnu_cxx::__promote<_Tp>::__type
+    binomial_dist_inv(unsigned int __k, unsigned int __n, _Tp __p)
+    {
+      typedef typename __gnu_cxx::__promote<_Tp>::__type __type;
+      return __detail::<__type>(__n - __k, __k + 1, __type(1) - __p);
+    }
+
+
+  //  negative binomial distribution
+  double
+  binomial_neg_dist(unsigned int __k, unsigned int __n, double __p);
+
+
+  negative binomial distribution complement
+  double
+  binomial_neg_dist_comp(unsigned int k, unsigned int n, double p);
+
+
+  //  inverse negative binomial distribution
+  double
+  binomial_neg_dist_inv(unsigned int __k, unsigned int __n, double __p);
+
+
+  //  Chebeshev polynomial. Have these..  sort of
+  //double chebyshev_poly(double __x, double* __coefficient, unsigned int __n);
+
+
+  //  chi-squared distribution
+
+  double
+  chi_sqr_dist(double __df, double __x);
+
+
+  //  chi-squared distribution complement
+
+  double
+  chi_sqr_dist_comp(double __df, double __x);
+
+
+  //  inverse chi-squared distribution complement
+
+  double
+  chi_sqr_distribution_c_inv(double __df, double __p);
+

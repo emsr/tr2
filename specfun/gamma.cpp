@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -g -std=c++11 -o test_gamma test_gamma.cpp
+// /home/ed/bin/bin/g++ -g -std=c++11 -o gamma gamma.cpp
 
 #include <iostream>
 #include <complex>

@@ -78,7 +78,7 @@ template<typename _Tp>
     _Tp __a = __a0;
     _Val __f = _Val(1);
 
-    for (;;)
+    while (true)
       {
 	_Tp __lambda = std::sqrt(__xt) * std::sqrt(__yt)
 		     + std::sqrt(__yt) * std::sqrt(__zt)
@@ -143,7 +143,7 @@ template<typename _Tp>
     _Tp __a = __a0;
     _Val __f = _Val(1);
 
-    for (;;)
+    while (true)
       {
 	_Tp __lambda = _Val(2) * std::sqrt(__xt) * std::sqrt(__yt) + __yt;
 	__a = (__a + __lambda) / _Val(4);
@@ -208,7 +208,7 @@ template<typename _Tp>
     _Val __fe = _Val(1);
     _Tp __sum = _Tp();
 
-    for (;;)
+    while (true)
       {
 	_Tp __xroot = std::sqrt(__xt);
 	_Tp __yroot = std::sqrt(__yt);
@@ -294,7 +294,7 @@ template<typename _Tp>
     _Val __f = _Val(1);
     _Tp __sum = _Tp();
 
-    for (;;)
+    while (true)
       {
 	_Tp __lambda = std::sqrt(__xt) * std::sqrt(__yt)
 		     + std::sqrt(__yt) * std::sqrt(__zt)
@@ -339,7 +339,7 @@ template<typename _Tp>
     const _Val __tolfact = _Val(2.7L) * std::sqrt(__r);
     __x = std::sqrt(__x);
     __y = std::sqrt(__y);
-    for (;;)
+    while (true)
       {
 	_Tp __xt = __x;
 	__x = (__x + __y) / _Tp(2);
@@ -426,7 +426,7 @@ template<typename _Tp>
     const _Tp __a = (__xt + __yt) / _Val(2);
     _Tp __sum = _Tp();
     _Val __sf = _Val(1) / _Val(2);
-    for (;;)
+    while (true)
       {
 	_Tp __xtt = __xt;
 	__xt = (__xt + __yt) / _Tp(2);

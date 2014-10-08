@@ -19,6 +19,12 @@ filesystem/test_filesystem
 specfun/test_gamma
 specfun/test_specfun
 specfun/trigint_error
+specfun/carlson1
+specfun/carlson2
+specfun/carlson3
+specfun/carlson4
+specfun/test_specfun
+specfun/test_specfun_ext
 
 literal_bitset
 
@@ -104,6 +110,7 @@ test_pr58781_5
 test_pr59867
 test_pr61648
 test_pr61754
+test_random
 test_search
 test_digit_sep
 test_cuchar
