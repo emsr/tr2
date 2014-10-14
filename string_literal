@@ -1,4 +1,8 @@
 // D3933 - A compile-time string library template with UDL operator templates
+// N4236 - A compile-time string library template with UDL operator templates
+
+namespace std
+{
 
 template<typename _CharT, _CharT... _Chars>
   class basic_string_literal;
@@ -78,10 +82,6 @@ template<typename _CharT, _CharT... _Chars>
     constexpr size_type find_last_not_of(const _CharT* s, size_type pos = sizeof...(_Chars)) const;
     constexpr size_type find_last_not_of(_CharT ch, size_t pos = sizeof...(_Chars)) const;
 
-    // Substring function
-    /* TODO: return type */ substr(size_type pos = 0, size_type count = std::string::npos) const;
-    /* TODO: this return type might require using a recursive structure */
-
     // Comparison functions
     template<_CharT... _OtherChars>;
     constexpr int compare(const basic_string_literal<_CharT, _OtherChars...> & other) const;
@@ -121,20 +121,12 @@ template<typename _CharT>
     using value_type = _CharT;
     using size_type = std::size_t;
     using difference_type = std::size_t;
-    // iterator types???
 
     using tail_type = basic_string_literal<_CharT>;
-    //using reverse_type = basic_string_literal<_CharT>;
 
     constexpr size_type size() const;
     constexpr size_type length() const;
     constexpr bool empty() const;
-
-    // There are no accessors for empty strings
-
-    // There are no search functions for empty strings
-
-    // There are no substring functions for empty strings
 
     template<_CharT... _OtherChars>
     constexpr int compare(const basic_string_literal<_CharT, _OtherChars...>& other) const;
@@ -154,7 +146,8 @@ template<typename _CharT>
   };
 
 template<typename _CharT, _CharT... _Chars>
-  constexpr basic_string_literal<_CharT, _Chars...> operator""S()
+  constexpr basic_string_literal<_CharT, _Chars...>
+  operator""S()
   { return basic_string_literal<_CharT, _Chars...>(); }
 
 // Concatenation
@@ -262,3 +255,11 @@ template<typename _CharT, _CharT... _Chars>
 template <typename _CharT, _CharT... _Chars>
   inline constexpr basic_string_literal<_CharT, _Chars...>
   operator""S();
+
+using string_literal = basic_string_literal<char>;
+using u16string_literal = basic_string_literal<char16_t>;
+using u32string_literal = basic_string_literal<char32_t>;
+using wstring_literal = basic_string_literal<wchar_t>;
+
+} // namespace std
+
