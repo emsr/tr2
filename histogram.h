@@ -1,3 +1,6 @@
+//
+//  COPYRIGHT:  Copyright 2010 - 2014
+//              Alion Science and Technology
 ///
 ///  \def  HISTOGRAM_H
 ///
@@ -32,7 +35,7 @@ template<typename Tp>
     using size_type = std::size_t;
 
     /**
-     *  @brief  Create a histogram
+     *  @brief  Create a histogram.
      */
     histogram(size_type n, value_type xmin, value_type xmax)
     : _M_bin(n + 1), _M_count(n + 2)
@@ -110,6 +113,19 @@ template<typename Tp>
       {
 	for(; begin != end; ++begin)
           *this << *begin;
+      }
+
+    /**
+     *  @brief  Insert a range of values.
+     *  @param[in] begin The beginning iterator for input data.
+     *  @param[in] end The ending iterator for input data.
+     */
+    template<typename Iter, typename Conv>
+      void
+      insert(Iter begin, Iter end, Conv fun)
+      {
+	for(; begin != end; ++begin)
+          *this << fun(*begin);
       }
 
     /**
