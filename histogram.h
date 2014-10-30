@@ -1,3 +1,6 @@
+//
+//  COPYRIGHT:  Copyright 2010 - 2014
+//              Alion Science and Technology
 ///
 ///  \def  HISTOGRAM_H
 ///
@@ -31,20 +34,84 @@ template<typename Tp>
     ///  Type for sizes.
     using size_type = std::size_t;
 
-    /**
-     *  @brief  Create a histogram
-     */
-    histogram(size_type n, value_type xmin, value_type xmax)
-    : _M_bin(n + 1), _M_count(n + 2)
+    class iterator
     {
-      _M_bin[n] = xmax;
-      value_type delta = (xmax - xmin) / n;
-      for (size_type i = 0; i < n; ++i)
+    public:
+      iterator()
+      : m_index{-1},
+        m_histogram{nullptr}
+      { }
+
+      iterator(size_type index, histogram<Tp> * hist)
+      : m_index{index},
+        m_histogram{hist}
+      { }
+
+      iterator
+      operator++()
+      {
+        if (this->m_index == m_histogram->_M_bin.size() - 1) // Right tail
+          this->m_index = static_cast<size_type>(-1);
+        else
+          ++this->m_index;
+        return *this;
+      }
+
+      iterator
+      operator++(int)
+      {
+        auto __temp(*this);
+        ++this;
+        return __temp;
+      }
+
+      iterator
+      operator--()
+      {
+        if (this->m_index == 0 || this->m_index = static_cast<size_type>(-1))
+          this->m_index = static_cast<size_type>(-1); // What should we do?  Whis maybe shouldn't be end.
+        else
+          --this->m_index;
+        return *this;
+      }
+
+      iterator
+      operator--(int)
+      {
+        auto __temp(*this);
+        --this;
+        return __temp;
+      }
+
+      //bin&
+      //operator*()
+
+    private:
+      size_type m_index = -1;
+      histogram<Tp> * m_histogram = nullptr;
+    };
+
+    /**
+     *  @brief  Create a histogram from a pair of bounds and a number of bins.
+     *
+     *  @param[in]  num_bins  Number of bins.
+     *  @param[in]  xmin      Lower bound of the first bin.
+     *  @param[in]  xmax      Upper bound of the last bin.
+     */
+    histogram(size_type num_bins, value_type xmin, value_type xmax)
+    : _M_bin(num_bins + 1), _M_count(num_bins + 2)
+    {
+      _M_bin[num_bins] = xmax;
+      value_type delta = (xmax - xmin) / num_bins;
+      for (size_type i = 0; i < num_bins; ++i)
 	_M_bin[i] = xmin + i * delta;
     }
 
     /**
-     *  @brief  Create a histogram.
+     *  @brief  Create a histogram with a range of bin lower bounds.
+     *
+     *  @param[in]  xbegin  Beginning iterator of a range of bin lower bounds.
+     *  @param[in]  xend    Ending iterator of a range of bin lower bounds.
      */
     template<typename Iter>
       histogram(Iter xbegin, Iter xend)
@@ -52,8 +119,8 @@ template<typename Tp>
       {
         for (; xbegin != xend; ++xbegin)
         {
-          _M_bin.push_back(*xbegin);
           _M_count.push_back(0);
+          _M_bin.push_back(*xbegin);
         }
         _M_count.push_back(0);
         if (!std::is_sorted(std::begin(_M_bin), std::end(_M_bin)))
@@ -62,6 +129,8 @@ template<typename Tp>
 
     /**
      *  @brief  Constructor taking initializer list of bin boundaries.
+     *
+     *  @param[in]  il  Input initializer list of bin boundaries.
      */
     histogram(std::initializer_list<value_type> il)
     : _M_bin{il},
@@ -113,11 +182,39 @@ template<typename Tp>
       }
 
     /**
+     *  @brief  Insert a range of values.
+     *  @param[in] begin The beginning iterator for input data.
+     *  @param[in] end   The ending iterator for input data.
+     *  @param[in] fun   The function taking *Iter and returning value_type.
+     */
+    template<typename Iter, typename Conv>
+      void
+      insert(Iter begin, Iter end, Conv fun)
+      {
+	for(; begin != end; ++begin)
+          *this << fun(*begin);
+      }
+
+    /**
      *  @brief  Return the number of bins.
      */
     size_type
     size() const noexcept
     { return _M_bin.size() - 1; }
+
+    /**
+     *  @brief  Return the iterator to the start of the histogram - left wing.
+     */
+    iterator
+    begin()
+    { return iterator{0, this}; }
+
+    /**
+     *  @brief  Return the iterator to one past the end of the histogram.
+     */
+    iterator
+    end()
+    { return iterator{}; }
 
     /**
      *  @brief  Return the number of items including items above and below the limit.
@@ -200,6 +297,24 @@ template<typename Tp>
     { return _M_bin[i - 1]; }
 
     /**
+     *  @brief  Return the left value of the ith bin where 1 <= i <= size().
+     *  @param[in]  i  The bin index.
+     *  @return  The left boundary value of the bin.
+     */
+    value_type
+    lower_bound(size_type i) const noexcept
+    { return _M_bin[i - 1]; }
+
+    /**
+     *  @brief  Return the right value of the ith bin where 1 <= i <= size().
+     *  @param[in]  i  The bin index.
+     *  @return  The left boundary value of the bin.
+     */
+    value_type
+    upper_bound(size_type i) const noexcept
+    { return _M_bin[i]; }
+
+    /**
      *  @brief  Reset the histogram by setting all the counts to zero.
      */
     void
@@ -209,12 +324,16 @@ template<typename Tp>
   private:
 
     ///  The array of bin starting values.
-    ///  The last element is the end of the last bin.
+    ///  The first element [0] is the upper bound of the left tail
+    ///  and the lower bound of the first bin.
+    ///  The last element [size() - 1] is the upper bound of the last bin
+    ///  and the lower bound of the right tail.
     std::vector<value_type> _M_bin;
 
     ///  The array of counts in each bin.
-    ///  The first element is the count of the left tail.
-    ///  The last element is the count of the right tail.
+    ///  The first element [0] is the count of the left tail.
+    ///  The last element [size() - 1] is the count of the right tail.
+    ///  This array is one larger than the bin starting value array.
     std::vector<size_type> _M_count;
   };
 
