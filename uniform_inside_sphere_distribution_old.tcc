@@ -1,6 +1,6 @@
 #pragma GCC system_header
 
-namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
+namespace __old //_GLIBCXX_VISIBILITY(default)
 {
 //_GLIBCXX_BEGIN_NAMESPACE_VERSION
 
@@ -8,11 +8,8 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
 
     // Helper class for the uniform_inside_sphere_distribution generation
     // function.
-    template<std::size_t _Dimen, bool _SmallDimen, typename _RealType>
-      class uniform_inside_sphere_helper;
-
     template<std::size_t _Dimen, typename _RealType>
-      class uniform_inside_sphere_helper<_Dimen, false, _RealType>
+      class uniform_inside_sphere_helper
       {
 	using result_type
 	  = typename uniform_inside_sphere_distribution<_Dimen, _RealType>::
@@ -41,46 +38,6 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
         }
       };
 
-    // Helper class for the uniform_inside_sphere_distribution generation
-    // function specialized for small dimensions.
-    template<std::size_t _Dimen, typename _RealType>
-      class uniform_inside_sphere_helper<_Dimen, true, _RealType>
-      {
-	using result_type
-	  = typename uniform_inside_sphere_distribution<_Dimen, _RealType>::
-	    result_type;
-
-      public:
-	template<typename _UniformOnSphereDistribution,
-		 typename _UniformRandomNumberGenerator>
-	result_type
-	operator()(_UniformOnSphereDistribution&,
-		   _UniformRandomNumberGenerator& __urng,
-		   _RealType __radius)
-        {
-	  result_type __ret;
-	  _RealType __sq;
-	  _RealType __radsq = __radius * __radius;
-	  std::__detail::_Adaptor<_UniformRandomNumberGenerator,
-				  _RealType> __aurng(__urng);
-
-	  do
-	    {
-	      __sq = _RealType(0);
-	      for (int i = 0; i < _Dimen; ++i)
-		{
-		  __ret[i] = _RealType(2) * __aurng() - _RealType(1);
-		  __sq += __ret[i] * __ret[i];
-		}
-	    }
-	  while (__sq > _RealType(1));
-
-	  for (int i = 0; i < _Dimen; ++i)
-            __ret[i] *= __radius;
-
-	  return __ret;
-        }
-      };
   }
 
 
@@ -91,7 +48,7 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
       operator()(_UniformRandomNumberGenerator& __urng,
 		 const param_type& __p)
       {
-        uniform_inside_sphere_helper<_Dimen, _Dimen < 10, _RealType> __helper;
+        uniform_inside_sphere_helper<_Dimen, _RealType> __helper;
         return __helper(_M_uosd, __urng, __p.radius());
       }
 
@@ -114,7 +71,7 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
 	   typename _Traits>
     std::basic_ostream<_CharT, _Traits>&
     operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-	       const __gnu_cxx::uniform_inside_sphere_distribution<_Dimen,
+	       const __old::uniform_inside_sphere_distribution<_Dimen,
 								_RealType>& __x)
     {
       typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
@@ -138,7 +95,7 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
 	   typename _Traits>
     std::basic_istream<_CharT, _Traits>&
     operator>>(std::basic_istream<_CharT, _Traits>& __is,
-	       __gnu_cxx::uniform_inside_sphere_distribution<_Dimen,
+	       __old::uniform_inside_sphere_distribution<_Dimen,
 							     _RealType>& __x)
     {
       typedef std::basic_istream<_CharT, _Traits>  __istream_type;
