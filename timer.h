@@ -4,23 +4,28 @@ class Timer
 {
 public:
 
-  using clock_type = std::chrono::system_clock;
-  using time_point_type = std::chrono::system_clock::time_point;
   using millisecs = std::chrono::duration<long, std::milli>;
   using microsecs = std::chrono::duration<long, std::micro>;
 
+  using clock_type = std::chrono::system_clock;
+  using time_point_type = std::chrono::system_clock::time_point;
+  using duration_type = millisecs;
+
+  Timer()
+  { this->start(); }
+
   time_point_type
   start()
-  { return m_prev_time = std::chrono::system_clock::now(); }
+  { return this->m_prev_time = std::chrono::system_clock::now(); }
 
   time_point_type
   stop()
-  { return m_curr_time = std::chrono::system_clock::now(); }
+  { return this->m_curr_time = std::chrono::system_clock::now(); }
 
   long
   time_elapsed() const
   {
-    long tm = std::chrono::duration_cast<millisecs>(m_curr_time - m_prev_time).count();
+    long tm = std::chrono::duration_cast<duration_type>(this->m_curr_time - this->m_prev_time).count();
     return tm;
   }
 
