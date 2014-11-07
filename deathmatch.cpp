@@ -4,6 +4,7 @@
 
 #include "uniform_inside_sphere_distribution.h"
 #include "uniform_inside_sphere_distribution_old.h"
+#include <ext/random>
 #include "timer.h"
 
 #include <iostream>
@@ -77,4 +78,52 @@ main(int n_app_args, char ** app_arg)
   test<8>(8.0, num);
 
   test<9>(9.0, num);
+
+  Timer timer;
+
+  //
+
+  timer.start();
+  double sum = 0.0;
+  for (int i = 0; i < num; ++i)
+  {
+    sum += std::sqrt(i*1.0);
+    sum -= std::pow(i*1.0, 0.333333);
+  }
+  timer.stop();
+  std::cout << std::endl << "  Bunch of calls to pow";
+  std::cout << std::endl << "  Total time per iter = "
+            << 1.0 * timer.time_elapsed() << " ms";
+  std::cout << std::endl << "  Mean time per iter  = "
+            << 1.0 * timer.time_elapsed() / num << " ms" << std::endl;
+
+  //
+
+  std::default_random_engine re; // the default engine
+
+  __gnu_cxx::uniform_on_sphere_distribution<3> onsphnew;
+
+  timer.start();
+  for (int i = 0; i < num; ++i)
+    onsphnew(re);
+  timer.stop();
+
+  std::cout << std::endl << "  uniform_on_sphere_distribution - Dim=" << 3;
+  std::cout << std::endl << "  Total time per iter = "
+            << 1.0 * timer.time_elapsed() << " ms";
+  std::cout << std::endl << "  Mean time per iter  = "
+            << 1.0 * timer.time_elapsed() / num << " ms" << std::endl;
+
+  //
+
+  timer.start();
+  for (int i = 0; i < num * 3; ++i)
+    re();
+  timer.stop();
+
+  std::cout << std::endl << "  default_random_engine - Dim=" << 3;
+  std::cout << std::endl << "  Total time per iter = "
+            << 1.0 * timer.time_elapsed() << " ms";
+  std::cout << std::endl << "  Mean time per iter  = "
+            << 1.0 * timer.time_elapsed() / num << " ms" << std::endl;
 }
