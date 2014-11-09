@@ -7,5 +7,10 @@
 int
 main()
 {
+  using namespace std::literals;
+
+  std::string_literal<'a', 'b', 'c'> a;
+  auto aa = "abc"S;
+
 }
 
