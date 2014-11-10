@@ -86,7 +86,7 @@ C++0x/C++11 Support in GCC
       <td>&nbsp;&nbsp;&nbsp;&nbsp;Rvalue references for <code>*this</code></td>
       <td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2007/n2439.htm">N2439</a></td>
       <td align="center"><a href="https://gcc.gnu.org/gcc-4.8/changes.html">GCC 4.8.1</a></td>
-      <td></td>
+      <td>__cpp_ref_qualifiers >= 200710</td>
     </tr>
     <tr>
       <td>Initialization of class objects by rvalues</td>
@@ -98,7 +98,7 @@ C++0x/C++11 Support in GCC
       <td>Non-static data member initializers</td>
       <td><a href="http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2008/n2756.htm">N2756</a></td>
       <td align="center"><a href="https://gcc.gnu.org/gcc-4.7/changes.html">GCC 4.7</a></td>
-      <td></td>
+      <td>__cpp_nsdmi >= 200809</td>
     </tr>
     <tr>
       <td>Variadic templates</td>
@@ -116,7 +116,7 @@ C++0x/C++11 Support in GCC
       <td>Initializer lists</td>
       <td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2672.htm">N2672</a></td>
       <td align="center"><a href="https://gcc.gnu.org/gcc-4.4/changes.html">GCC 4.4</a></td>
-      <td></td>
+      <td>__cpp_initializer_lists >= 200806</td>
     </tr>
     <tr>
       <td>Static assertions</td>
@@ -219,7 +219,8 @@ C++0x/C++11 Support in GCC
       <td>Generalized attributes</td>
       <td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2761.pdf">N2761</a></td>
       <td align="center"><a href="https://gcc.gnu.org/gcc-4.8/changes.html">GCC 4.8</a></td>
-      <td>__cpp_attributes >= 200809</td>
+      <td>__cpp_attributes >= 200809; __has_cpp_attribute(noreturn) >= 200809;
+          __has_cpp_attribute(carries_dependency) == 0 (not implemented)</td>
     </tr>
     <tr>
       <td>Generalized constant expressions</td>
@@ -239,13 +240,13 @@ C++0x/C++11 Support in GCC
       <td>Delegating constructors</td>
       <td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2006/n1986.pdf">N1986</a></td>
       <td align="center"><a href="https://gcc.gnu.org/gcc-4.7/changes.html">GCC 4.7</a></td>
-      <td></td>
+      <td>__cpp_delegating_constructors >= 200604</td>
     </tr>
     <tr>
       <td>Inheriting constructors</td>
       <td><a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2008/n2540.htm">N2540</a></td>
       <td align="center"><a href="https://gcc.gnu.org/gcc-4.8/changes.html">GCC 4.8</a></td>
-      <td></td>
+      <td>__cpp_inheriting_constructors >= 200802</td>
     </tr>
     <tr>
       <td>Explicit conversion operators</td>
@@ -329,7 +330,7 @@ C++0x/C++11 Support in GCC
       <td>Range-based for</td>
       <td><a href="http://www.open-std.org/JTC1/SC22/WG21/docs/papers/2009/n2930.html">N2930</a></td>
       <td align="center"><a href="https://gcc.gnu.org/gcc-4.6/changes.html">GCC 4.6</a></td>
-      <td></td>
+      <td>__cpp_range_based_for >= 200907</td>
     </tr>
     <tr>
       <td>Explicit virtual overrides</td>
