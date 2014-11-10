@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o deprecated_cxx1y deprecated.cpp
+// /home/ed/bin/bin/g++ -std=c++14 -o deprecated_cxx14 deprecated.cpp
 
 // /home/ed/bin/bin/g++ -std=c++11 -o deprecated_cxx11 deprecated.cpp
 

@@ -10,3 +10,11 @@
 #  error "<stuff.h>"
 #else
 #endif
+
+//  Try header that exists but we can't read.
+#if __has_include("hidden.h")
+#  warning "found hidden.h"
+#  include "hidden.h"
+#else
+#  error "hidden.h"
+#endif
