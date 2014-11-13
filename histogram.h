@@ -216,6 +216,13 @@ template<typename Tp>
     end()
     { return iterator{}; }
 
+    void
+    swap(histogram<value_type> & hist) noexcept
+    {
+      this->_M_bin.swap(hist._M_bin);
+      this->_M_count.swap(hist._M_count);
+    }
+
     /**
      *  @brief  Return the number of items including items above and below the limit.
      */
