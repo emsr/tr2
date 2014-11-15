@@ -88,9 +88,12 @@ template<typename _Tp>
 
   private:
 
+    /* Making this static iced - that shouldn't happen.
+       "When used at class scope, variable template declares a static data member template."
+       So this is redundant but shouldn't blow.  */
     template<typename _Ptr>
-      static constexpr bool
-      _S_is_compat = std::is_convertible_v<std::add_pointer_t<_Ptr>, pointer>;
+      constexpr bool
+      _S_is_compat = std::is_convertible<std::add_pointer_t<_Ptr>, pointer>();
 
   public:
 
