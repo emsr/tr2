@@ -167,41 +167,35 @@ _GLIBCXX_END_NAMESPACE_VERSION
 // Could the function static variables be thread_local?  Is there an advantage?
 // Yes! Good call! These are in a later version.
 
-  inline auto&
-  global_urng()
+  namespace __detail
   {
-    static thread_local std::default_random_engine __urng{};
+    inline auto&
+    global_urng()
+    {
+      static thread_local std::default_random_engine __urng{};
 
-    return __urng;
+      return __urng;
+    }
   }
 
-  inline void
-  randomize()
-  {
-    static std::random_device __rd{};
 
-    global_urng().seed(__rd());
-  }
+  // 26.5.7.3, function template randint
+  template<typename _IntType>
+    IntType randint(_IntType __a, _IntType __b)
+    {
+      static std::uniform_int_distribution<_IntType> __uid{};
 
-  inline int
-  pick_a_number(int __from, int __thru)
-  {
-    static std::uniform_int_distribution<> __uid{};
+      using __parm_t = decltype(__uid)::param_type;
 
-    using __parm_t = decltype(__uid)::param_type;
+      return __uid(__detail::global_urng(), __parm_t{__from, __thru});
+    }
 
-    return __uid(global_urng(), __parm_t{__from, __thru});
-  }
+  // 26.5.7.4, seeding the per-thread engine
+  void reseed()
+  { __detail::global_urng().seed(); }
 
-  inline double
-  pick_a_number(double __from, double __upto)
-  {
-    static std::uniform_real_distribution<> __urd{};
-
-    using __parm_t = decltype(__urd)::param_type;
-
-    return __urd(global_urng(), __parm_t{__from, __upto});
-  }
+  void reseed(default_random_engine::result_type __value)
+  { __detail::global_urng().seed(__value); }
 
 
 //  There is more in algorithms I think...
