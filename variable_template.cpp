@@ -1,5 +1,5 @@
 
-// /home/ed/bin_var_template_2/bin/g++ -std=c++1y -fdiagnostics-color=auto -o variable_template variable_template.cpp
+// /home/ed/bin/bin/g++ -std=c++1y -fdiagnostics-color=auto -o variable_template variable_template.cpp
 
 #include <array>
 #include <complex>
