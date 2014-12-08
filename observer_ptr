@@ -19,6 +19,10 @@
 
 namespace std
 {
+namespace experimental
+{
+inline namespace fundamentals_v2
+{
 
 template<typename _Tp>
   class observer_ptr;
@@ -255,4 +259,6 @@ template<typename _Tp>
     operator>=(observer_ptr<_Tp> const & __x, observer_ptr<_Tp> const & __y)
     { return ! (__x < __y); }
 
+} // inline namespace fundamentals_v2
+} // namespace experimental
 } // namespace std
