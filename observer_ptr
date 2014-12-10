@@ -88,9 +88,9 @@ template<typename _Tp>
 
   private:
 
-    template<typename _Ptr>
+    template<typename _Tp2>
       static constexpr bool
-      _S_is_compat = is_convertible_v<std::add_pointer_t<_Ptr>, pointer>;
+      _S_is_compat = is_convertible_v<std::add_pointer_t<_Tp2>, pointer>;
 
   public:
 
