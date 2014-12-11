@@ -19,6 +19,10 @@
 
 namespace std
 {
+namespace experimental
+{
+inline namespace fundamentals_v2
+{
 
 template<typename _Tp>
   class observer_ptr;
@@ -71,10 +75,6 @@ template<typename _Tp, typename _Up>
   bool
   operator>=(observer_ptr<_Tp> const &, observer_ptr<_Up> const &);
 
-// hash support
-template<typename _Tp>
-  struct hash<observer_ptr<_Tp>>;
-
 template<typename _Tp>
   class observer_ptr
   {
@@ -88,12 +88,13 @@ template<typename _Tp>
 
   private:
 
+<<<<<<< HEAD
     /* Making this static iced - that shouldn't happen.
        "When used at class scope, variable template declares a static data member template."
-       So this is redundant but shouldn't blow.  */
-    template<typename _Ptr>
-      constexpr bool
-      _S_is_compat = std::is_convertible<std::add_pointer_t<_Ptr>, pointer>();
+       So this is redundant but it shouldn't blow.  */
+    template<typename _Tp2>
+      static constexpr bool
+      _S_is_compat = is_convertible_v<std::add_pointer_t<_Tp2>, pointer>;
 
   public:
 
@@ -220,17 +221,17 @@ template<typename _Tp>
   template<typename _Tp, typename _Up>
     bool
     operator!=(observer_ptr<_Tp> const & __x, observer_ptr<_Up> const & __y)
-    { return ! operator==(__x, __y); }
+    { return ! (__x == __y); }
 
   template<typename _Tp>
     bool
     operator!=(observer_ptr<_Tp> const & __x, std::nullptr_t __y) noexcept
-    { return ! operator==(__x, __y); }
+    { return ! (__x == __y); }
 
   template<typename _Tp>
     bool
     operator!=(std::nullptr_t __x, observer_ptr<_Tp> const & __y) noexcept
-    { return ! operator==(__x, __y); }
+    { return ! (__x == __y)); }
 
   // -----------------------------------------------
   // non-member ordering:
@@ -257,5 +258,21 @@ template<typename _Tp>
     bool
     operator>=(observer_ptr<_Tp> const & __x, observer_ptr<_Tp> const & __y)
     { return ! (__x < __y); }
+
+} // inline namespace fundamentals_v2
+} // namespace experimental
+
+// hash support
+template<typename _Tp>
+  struct hash<experimental::observer_ptr<_Tp>>
+  : public __hash_base<size_t, experimental::observer_ptr<_Tp>>
+  {
+    size_t
+    operator()(const experimental::observer_ptr<_Tp>& __x) const noexcept
+    {
+      using __pointer = typename observer_ptr<_Tp>::pointer;
+      return std::hash<__pointer>()(__x.get());
+    }
+  };
 
 } // namespace std
