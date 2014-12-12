@@ -1,7 +1,11 @@
 
-#include <type_traits>
+#include <experimental/type_traits>
 
 // N3913 Greatest common divisor and least common multiple.
+
+namespace std {
+namespace experimental {
+inline namespace fundamentals_v2 {
 
   //  A constexpr version of abs - this should become normative someday.
   template<typename _Tp>
@@ -22,7 +26,53 @@
     { return __n == 0 ? __abs(__m) : gcd(__n, __abs(__m) % __abs(__n)); }
 
   //  Least common multiple.
-  template< class _Mp, class _Np >
+  template<typename _Mp, typename _Np >
     constexpr __common_int_t<_Mp, _Np>
     lcm(_Mp __m, _Np __n)
-    { return __m * __n == 0 ? 0 : (__abs(__m) / gcd(__m, __n)) * abs(__n); }
+    { return __m * __n == 0 ? 0 : (__abs(__m) / gcd(__m, __n)) * __abs(__n); }
+
+} // inline namespace fundamentals_v2
+} // namespace experimental
+} // namespace std
+
+/*
+
+Using
+  is_integral_v<_Tp>
+in place of
+  std::is_integral<_Mp>{}()
+causes all sorts of errors:
+
+In file included from test_lcm_gcd.cpp:6:0:
+numeric:19:10: error: the value of 'std::experimental::fundamentals_v1::is_integral_v<_Mp>' is not usable in a constant expression
+       && is_integral_v<_Np>,
+          ^
+In file included from numeric:2:0,
+                 from test_lcm_gcd.cpp:6:
+/home/ed/bin/include/c++/5.0.0/experimental/type_traits:61:18: note: 'std::experimental::fundamentals_v1::is_integral_v<_Mp>' used in its own initializer
+   constexpr bool is_integral_v = is_integral<_Tp>::value;
+                  ^
+In file included from test_lcm_gcd.cpp:6:0:
+numeric:20:37: error: the value of 'std::experimental::fundamentals_v1::is_integral_v<_Mp>' is not usable in a constant expression
+          std::common_type_t<_Mp, _Np>>;
+                                     ^
+In file included from numeric:2:0,
+                 from test_lcm_gcd.cpp:6:
+/home/ed/bin/include/c++/5.0.0/experimental/type_traits:61:18: note: 'std::experimental::fundamentals_v1::is_integral_v<_Mp>' used in its own initializer
+   constexpr bool is_integral_v = is_integral<_Tp>::value;
+                  ^
+In file included from test_lcm_gcd.cpp:6:0:
+numeric:24:15: error: '__common_int_t' does not name a type
+     constexpr __common_int_t<_Mp, _Np>
+               ^
+numeric:30:15: error: '__common_int_t' does not name a type
+     constexpr __common_int_t<_Mp, _Np>
+               ^
+test_lcm_gcd.cpp: In function 'int main()':
+test_lcm_gcd.cpp:13:55: error: 'gcd' was not declared in this scope
+   std::cout << "gcd(234,123) = " << gcd(234ULL, 123ULL) << '\n';
+                                                       ^
+test_lcm_gcd.cpp:17:55: error: 'lcm' was not declared in this scope
+   std::cout << "lcm(234,123) = " << lcm(234ULL, 123ULL) << '\n';
+
+*/
