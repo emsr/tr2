@@ -25,57 +25,6 @@ inline namespace fundamentals_v2
 {
 
 template<typename _Tp>
-  class observer_ptr;
-
-template<typename _Tp>
-  void
-  swap(observer_ptr<_Tp> &, observer_ptr<_Tp> &) noexcept;
-
-template<typename _Tp>
-  observer_ptr<_Tp>
-  make_observer(_Tp *) noexcept;
-
-template<typename _Tp, typename _Up>
-  bool
-  operator==(observer_ptr<_Tp> const &, observer_ptr<_Up> const &);
-
-template<typename _Tp>
-  bool
-  operator==(observer_ptr<_Tp> const &, std::nullptr_t) noexcept;
-
-template<typename _Tp, typename _Up>
-  bool
-  operator==(std::nullptr_t, observer_ptr<_Tp> const &) noexcept;
-
-template<typename _Tp, typename _Up>
-  bool
-  operator!=(observer_ptr<_Tp> const &, observer_ptr<_Up> const &);
-
-template<typename _Tp>
-  bool
-  operator!=(observer_ptr<_Tp> const &, std::nullptr_t) noexcept;
-
-template< typename _Tp>
-  bool
-  operator!=(std::nullptr_t, observer_ptr<_Tp> const &) noexcept;
-
-template<typename _Tp, typename _Up>
-  bool
-  operator<(observer_ptr<_Tp> const &, observer_ptr<_Up> const &);
-
-template<typename _Tp, typename _Up>
-  bool
-  operator>(observer_ptr<_Tp> const &, observer_ptr<_Up> const &);
-
-template<typename _Tp, typename _Up>
-  bool
-  operator<=(observer_ptr<_Tp> const &, observer_ptr<_Up> const &);
-
-template<typename _Tp, typename _Up>
-  bool
-  operator>=(observer_ptr<_Tp> const &, observer_ptr<_Up> const &);
-
-template<typename _Tp>
   class observer_ptr
   {
   public:
@@ -88,12 +37,11 @@ template<typename _Tp>
 
   private:
 
-<<<<<<< HEAD
     /* Making this static iced - that shouldn't happen.
        "When used at class scope, variable template declares a static data member template."
        So this is redundant but it shouldn't blow.  */
     template<typename _Tp2>
-      static constexpr bool
+      constexpr bool
       _S_is_compat = is_convertible_v<std::add_pointer_t<_Tp2>, pointer>;
 
   public:
@@ -115,29 +63,13 @@ template<typename _Tp>
     : _M_ptr{__ptr}
     { }
 
-    template<typename _Tp2,
-	     typename = std::enable_if_t<_S_is_compat<_Tp2>>>
-      explicit
-      observer_ptr(_Tp2 * __ptr) noexcept
-      : _M_ptr{__ptr}
-      { }
-
     // copying constructors (in addition to compiler-generated copy constructor):
     template<typename _Tp2,
 	     typename = std::enable_if_t<_S_is_compat<_Tp2>>>
-      observer_ptr(observer_ptr<_Tp2> const & __ptr) noexcept
+      constexpr
+      observer_ptr(observer_ptr<_Tp2> __ptr) noexcept
       : _M_ptr{__ptr.get()}
       { }
-
-    // copying assignments (in addition to compiler-generated copy assignment):
-
-    template<typename _Tp2>
-      std::enable_if_t<_S_is_compat<_Tp2>, observer_ptr &>
-      operator=(observer_ptr<_Tp2> const & __ptr) noexcept
-      {
-        this->reset(__ptr.get());
-        return *this;
-      }
 
     // observers:
     constexpr pointer
@@ -184,28 +116,22 @@ template<typename _Tp>
 
   };
 
-  // -----------------------------------------------
   // non-member swap:
-
   template<typename _Tp>
     inline void
     swap(observer_ptr<_Tp> & __x, observer_ptr<_Tp> & __y) noexcept
     { __x.swap(__y); }
 
-  // -----------------------------------------------
   // non-member make_observer:
-
   template<typename _Tp>
     observer_ptr<_Tp>
     make_observer(_Tp * __ptr) noexcept
     { return observer_ptr<_Tp>{__ptr}; }
 
-  // -----------------------------------------------
   // non-member (in)equality comparison:
-
   template<typename _Tp, typename _Up>
     bool
-    operator==(observer_ptr<_Tp> const & x, observer_ptr<_Up> const & __y)
+    operator==(observer_ptr<_Tp> const & __x, observer_ptr<_Up> const & __y)
     { return __x.get() == __y.get(); }
 
   template<typename _Tp>
@@ -231,11 +157,9 @@ template<typename _Tp>
   template<typename _Tp>
     bool
     operator!=(std::nullptr_t __x, observer_ptr<_Tp> const & __y) noexcept
-    { return ! (__x == __y)); }
+    { return ! (__x == __y); }
 
-  // -----------------------------------------------
   // non-member ordering:
-
   template<typename _Tp, typename _Up>
     bool
     operator<(observer_ptr<_Tp> const & __x, observer_ptr<_Up> const & __y)
@@ -262,17 +186,17 @@ template<typename _Tp>
 } // inline namespace fundamentals_v2
 } // namespace experimental
 
-// hash support
-template<typename _Tp>
-  struct hash<experimental::observer_ptr<_Tp>>
-  : public __hash_base<size_t, experimental::observer_ptr<_Tp>>
-  {
-    size_t
-    operator()(const experimental::observer_ptr<_Tp>& __x) const noexcept
+  // hash support
+  template<typename _Tp>
+    struct hash<experimental::observer_ptr<_Tp>>
+    : public __hash_base<size_t, experimental::observer_ptr<_Tp>>
     {
-      using __pointer = typename observer_ptr<_Tp>::pointer;
-      return std::hash<__pointer>()(__x.get());
-    }
-  };
+      size_t
+      operator()(const experimental::observer_ptr<_Tp>& __x) const noexcept
+      {
+	using __pointer = typename experimental::observer_ptr<_Tp>::pointer;
+	return std::hash<__pointer>()(__x.get());
+      }
+    };
 
 } // namespace std
