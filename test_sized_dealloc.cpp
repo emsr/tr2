@@ -1,11 +1,11 @@
 
-// /home/ed/bin/bin/g++ -g -std=c++14 -o test_sized_dealloc test_sized_dealloc.cpp
+// /home/ed/bin/bin/g++ -g -std=c++14 -DCHECK=true -o test_sized_dealloc test_sized_dealloc.cpp
 
-// /home/ed/bin/bin/g++ -g -std=c++14 -fno-sized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
+// /home/ed/bin/bin/g++ -g -std=c++14 -DCHECK=false -fno-sized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
 
-// /home/ed/bin/bin/g++ -g -std=c++11 -o test_sized_dealloc test_sized_dealloc.cpp
+// /home/ed/bin/bin/g++ -g -std=c++11 -DCHECK=false -o test_sized_dealloc test_sized_dealloc.cpp
 
-// /home/ed/bin/bin/g++ -g -std=c++11 -fsized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
+// /home/ed/bin/bin/g++ -g -std=c++11 -DCHECK=true -fsized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
 
 extern "C" void abort();
 typedef __SIZE_TYPE__ size_t;
@@ -52,8 +52,7 @@ struct D { ~D(){}; D() { throw 1; } };
 int
 main()
 {
-  //bool check = (__cplusplus >= 201402L);
-  bool check = true;
+  bool check = CHECK;
 
   delete new int;
   if (called != check)
