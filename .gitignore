@@ -148,3 +148,6 @@ is_final_std
 *.o
 
 test_inside_sphere_distribution
+
+test_sized_dealloc
+
