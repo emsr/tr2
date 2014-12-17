@@ -20,7 +20,7 @@ inline namespace fundamentals_v2 {
 					    std::common_type_t<_Mp, _Np>>;
 
   //  Greatest common divisor.
-  template<typename _Mp, typename _Np >
+  template<typename _Mp, typename _Np>
     constexpr __common_int_t<_Mp, _Np>
     gcd(_Mp __m, _Np __n)
     { return __n == 0 ? __abs(__m) : gcd(__n, __abs(__m) % __abs(__n)); }
