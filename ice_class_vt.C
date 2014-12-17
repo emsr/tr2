@@ -2,8 +2,7 @@
 
 // /home/ed/bin/bin/g++ -std=c++14 -c ice_class_vt.C 
 
-#include <type_traits>  // add_pointer, enable_if, ...
-#include <experimental/type_traits> // is_convertible_v
+#include <experimental/type_traits>
 
 template<typename _Tp>
   class observer_ptr

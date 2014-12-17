@@ -7,31 +7,29 @@ namespace std
 template<typename _CharT, _CharT... _Chars>
   class basic_string_literal;
 
+inline namespace literals {
 template<typename _CharT, _CharT... _Chars>
   constexpr basic_string_literal<_CharT, _Chars...> operator""S();
+}
 
 template<typename _CharT, _CharT... _Chars>
   class basic_string_literal
   {
-    friend constexpr basic_string_literal operator""S<_CharT, _HeadChar, _TailChars...>();
-
-  public:
-
-    static constexpr const _CharT data_[]{_HeadChar, _TailChars..., '\0'};
+    friend /*constexpr*/ basic_string_literal operator""S<_CharT, _Chars...>();
 
   private:
 
-    constexpr basic_string_literal() = default;
+    static constexpr const _CharT _M_data[]{_Chars..., _CharT{}};
 
   public:
+
+    constexpr basic_string_literal() = default;
 
     using value_type = _CharT;
     using size_type = std::size_t;
     using difference_type = std::size_t;
-    // iterator types???
 
     using tail_type = basic_string_literal<_CharT>;
-    //using reverse_type = basic_string_literal<_CharT>;
 
     // Size-related functions
     constexpr size_type size() const;
@@ -83,13 +81,18 @@ template<typename _CharT, _CharT... _Chars>
     constexpr size_type find_last_not_of(_CharT ch, size_t pos = sizeof...(_Chars)) const;
 
     // Comparison functions
-    template<_CharT... _OtherChars>;
+    template<_CharT... _OtherChars>
     constexpr int compare(const basic_string_literal<_CharT, _OtherChars...> & other) const;
 
-    constexpr int compare(const basic_string& str) const;
-    constexpr int compare(size_type pos1, size_type count1, const basic_string& str) const;
-    constexpr int compare(size_type pos1, size_type count1, const basic_string& str,
-                          size_type pos2, size_type count2) const;
+    template<typename _Traits = char_traits<_CharT>, typename _Alloc = allocator<_CharT>>
+      constexpr int compare(const basic_string<_CharT, _Traits, _Alloc>& str) const;
+    template<typename _Traits = char_traits<_CharT>, typename _Alloc = allocator<_CharT>>
+      constexpr int compare(size_type pos1, size_type count1,
+			    const basic_string<_CharT, _Traits, _Alloc>& str) const;
+    template<typename _Traits = char_traits<_CharT>, typename _Alloc = allocator<_CharT>>
+      constexpr int compare(size_type pos1, size_type count1,
+			    const basic_string<_CharT, _Traits, _Alloc>& str,
+                            size_type pos2, size_type count2) const;
     constexpr int compare(const _CharT* s) const;
     constexpr int compare(size_type pos1, size_type count1, const _CharT* s) const;
     constexpr int compare(size_type pos1, size_type count1,
@@ -107,16 +110,15 @@ template<typename _CharT>
   class basic_string_literal<_CharT>
   {
 
-    template<typename charU>
-    friend constexpr basic_string_literal operator ""S<charU>();
+    friend /*constexpr*/ basic_string_literal operator""S<_CharT>();
 
   private:
 
-    static constexpr const _CharT _data[]{'\0'};
-
-    constexpr basic_string_literal() = default;
+    static constexpr const _CharT _M_data[]{_CharT{}};
 
   public:
+
+    constexpr basic_string_literal() = default;
 
     using value_type = _CharT;
     using size_type = std::size_t;
@@ -145,103 +147,113 @@ template<typename _CharT>
     operator std::string() const;
   };
 
+inline namespace literals
+{
 template<typename _CharT, _CharT... _Chars>
   constexpr basic_string_literal<_CharT, _Chars...>
   operator""S()
   { return basic_string_literal<_CharT, _Chars...>(); }
+}
 
 // Concatenation
 
 template<typename _CharT, _CharT... _LeftChars, _CharT... _RightChars>
   inline constexpr auto
-  operator+(const basic_string_literal<_CharT, _LeftChars...>& l,
-            const basic_string_literal<_CharT, _RightChars...>& r)
+  operator+(const basic_string_literal<_CharT, _LeftChars...>& lhs,
+            const basic_string_literal<_CharT, _RightChars...>& rhs)
   -> basic_string_literal<_CharT, _LeftChars..., _RightChars...>;
 
 // Relational operators
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _LeftChars, _CharT... _RightChars>
   constexpr bool
-  operator==(const basic_string_literal<_CharT, _OtherChars...>& lhs,
-             const basic_string_literal<_CharT, _OtherChars...>& rhs);
+  operator==(const basic_string_literal<_CharT, _LeftChars...>& lhs,
+             const basic_string_literal<_CharT, _RightChars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _LeftChars, _CharT... _RightChars>
   constexpr bool
-  operator!=(const basic_string_literal<_CharT, _OtherChars...>& lhs,
-             const basic_string_literal<_CharT, _OtherChars...>& rhs);
+  operator!=(const basic_string_literal<_CharT, _LeftChars...>& lhs,
+             const basic_string_literal<_CharT, _RightChars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _LeftChars, _CharT... _RightChars>
   constexpr bool
-  operator<(const basic_string_literal<_CharT, >OtherChars...>& lhs,
-            const basic_string_literal<_CharT, _OtherChars...>& rhs);
+  operator<(const basic_string_literal<_CharT, _LeftChars...>& lhs,
+            const basic_string_literal<_CharT, _RightChars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _LeftChars, _CharT... _RightChars>
   constexpr bool
-  operator<=(const basic_string_literal<_CharT, _OtherChars...>& lhs,
-             const basic_string_literal<_CharT, _OtherChars...>& rhs);
+  operator<=(const basic_string_literal<_CharT, _LeftChars...>& lhs,
+             const basic_string_literal<_CharT, _RightChars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _LeftChars, _CharT... _RightChars>
   constexpr bool
-  operator>(const basic_string_literal<_CharT, _OtherChars...>& lhs,
-            const basic_string_literal<_CharT, _OtherChars...>& rhs);
+  operator>(const basic_string_literal<_CharT, _LeftChars...>& lhs,
+            const basic_string_literal<_CharT, _RightChars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _LeftChars, _CharT... _RightChars>
   constexpr bool
-  operator>=(const basic_string_literal<_CharT, _OtherChars...>& lhs,
-             const basic_string_literal<_CharT, _OtherChars...>& rhs);
+  operator>=(const basic_string_literal<_CharT, _LeftChars...>& lhs,
+             const basic_string_literal<_CharT, _RightChars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
   operator==(const _CharT* lhs,
-	     const basic_string_literal<_CharT, _OtherChars...>& rhs);
+	     const basic_string_literal<_CharT, _Chars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
-  operator==(const basic_string_literal<_CharT, _OtherChars...>& lhs,
+  operator==(const basic_string_literal<_CharT, _Chars...>& lhs,
 	     const _CharT* rhs);
 
-template<typename _CharT, _CharT... _OtherChars...>
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
   operator!=(const _CharT* lhs,
-	     const basic_string_literal<_CharT, _OtherChars...>& rhs);
+	     const basic_string_literal<_CharT, _Chars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>;
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
-  operator!=(const basic_string_literal<_CharT, _OtherChars...>& lhs,
+  operator!=(const basic_string_literal<_CharT, _Chars...>& lhs,
 	     const _CharT* rhs);
 
-template<typename _CharT, _CharT... _OtherChars>;
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
   operator<(const _CharT* lhs,
-	    const basic_string_literal<_CharT, _OtherChars...>& rhs);
+	    const basic_string_literal<_CharT, _Chars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>;
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
-  operator<(const basic_string_literal<_CharT, _OtherChars...>& lhs,
+  operator<(const basic_string_literal<_CharT, _Chars...>& lhs,
 	    const _CharT* rhs);
-template<typename _CharT, _CharT... _OtherChars>;
+
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
   operator<=(const _CharT* lhs,
-	     const basic_string_literal<_CharT, _OtherChars...>& rhs);
-template<typename _CharT, _CharT... _OtherChars>;
-  constexpr bool
-  operator<<=(const basic_string<_CharT, _Traits, _Alloc>& lhs, const _CharT* rhs);
+	     const basic_string_literal<_CharT, _Chars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>;
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
-  operator>(const _CharT* lhs, const basic_string<_CharT,Traits,Alloc>& rhs);
+  operator<=(const basic_string_literal<_CharT, _Chars...>& lhs,
+	     const _CharT* rhs);
 
-template<typename _CharT, _CharT... _OtherChars>;
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
-  operator>(const basic_string<_CharT,Traits,Alloc>& lhs, const _CharT* lhs);
+  operator>(const _CharT* lhs,
+	    const basic_string_literal<_CharT, _Chars...>& rhs);
 
-template<typename _CharT, _CharT... _OtherChars>;
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
-  operator>=(const _CharT* lhs, const basic_string<_CharT,Traits,Alloc>& rhs);
+  operator>(const basic_string_literal<_CharT, _Chars...>& lhs,
+	    const _CharT* rhs);
 
-template<typename CharT, class _Traits, class _Alloc>
+template<typename _CharT, _CharT... _Chars>
   constexpr bool
-  operator>=(const basic_string<_CharT, _Traits, Alloc>& lhs, const _CharT* rhs);
+  operator>=(const _CharT* lhs,
+	     const basic_string_literal<_CharT, _Chars...>& rhs);
+
+template<typename _CharT, _CharT... _Chars>
+  constexpr bool
+  operator>=(const basic_string_literal<_CharT, _Chars...>& lhs,
+	     const _CharT* rhs);
 
 // Stream inseration operator
 
@@ -256,10 +268,14 @@ template <typename _CharT, _CharT... _Chars>
   inline constexpr basic_string_literal<_CharT, _Chars...>
   operator""S();
 
-using string_literal = basic_string_literal<char>;
-using u16string_literal = basic_string_literal<char16_t>;
-using u32string_literal = basic_string_literal<char32_t>;
-using wstring_literal = basic_string_literal<wchar_t>;
+template<char... _Chars>
+  using string_literal = basic_string_literal<char, _Chars...>;
+template<char16_t... _Chars>
+  using u16string_literal = basic_string_literal<char16_t, _Chars...>;
+template<char32_t... _Chars>
+  using u32string_literal = basic_string_literal<char32_t, _Chars...>;
+template<wchar_t... _Chars>
+  using wstring_literal = basic_string_literal<wchar_t, _Chars...>;
 
 } // namespace std
 

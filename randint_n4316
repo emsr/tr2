@@ -1,0 +1,50 @@
+
+namespace std
+{
+
+  namespace __detail
+  {
+    inline auto&
+    global_urng()
+    {
+      static thread_local std::default_random_engine __urng{};
+
+      return __urng;
+    }
+  }
+
+
+  // 26.5.7.3, function template randint
+  template<typename _IntType>
+    IntType randint(_IntType __a, _IntType __b)
+    {
+      static std::uniform_int_distribution<_IntType> __uid{};
+
+      using __parm_t = decltype(__uid)::param_type;
+
+      return __uid(__detail::global_urng(), __parm_t{__from, __thru});
+    }
+
+  // 26.5.7.4, seeding the per-thread engine
+  void reseed()
+  { __detail::global_urng().seed(); }
+
+  void reseed(default_random_engine::result_type __value)
+  { __detail::global_urng().seed(__value); }
+
+  // 25.3.12
+  template<typename _RandomAccessIterator>
+    void
+    shuffle(_RandomAccessIterator __first, _RandomAccessIterator __last)
+    { shuffle(__first, __last, __detail::global_urng()); }
+
+  // 10.3
+  template<typename _PopulationIterator, typename SampleIterator,
+	   typename _Distance>
+    _SampleIterator
+    sample(_PopulationIterator __first, _PopulationIterator __last,
+	   _SampleIterator __out, _Distance __n)
+    { sample(__first, __last,__out, __n, __detail::global_urng()); }
+
+
+}
