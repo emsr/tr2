@@ -1,13 +1,14 @@
 
-// /home/ed/bin_literal/bin/g++ -std=c++1y -o test_string_view test_string_view.cpp
+// /home/ed/bin/bin/g++ -std=c++14 -o test_string_view test_string_view.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin_literal/lib64:$LD_LIBRARY_PATH ./test_string_view 
+// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_string_view 
 
-// /home/ed/bin_literal/bin/g++ -std=c++1y -o test_string_view test_string_view.cpp
+// /home/ed/bin_literal/bin/g++ -std=c++14 -o test_string_view test_string_view.cpp
 
 // LD_LIBRARY_PATH=/home/ed/bin_literal/lib64:$LD_LIBRARY_PATH ./test_string_view 
 
 //#include "string_view"
+#include <string>
 #include <experimental/string_view>
 #include <iostream>
 #include <iomanip>
@@ -31,6 +32,7 @@ int
 main()
 {
   std::cout << std::endl;
+  std::cout << "sizeof(std::string) = " << sizeof(std::string) << std::endl;
   std::cout << "sizeof(std::experimental::string_view) = " << sizeof(std::experimental::string_view) << std::endl;
   std::cout << "std::experimental::string_view::npos   = " << std::experimental::string_view::npos << std::endl;
 
@@ -54,14 +56,14 @@ main()
 
   snull.swap(sview);
   std::swap(snull, sview);
-
+/*
   std::experimental::string_view bad{nullptr, 5};
   std::cout << std::endl;
   std::cout << "bad              = " << bad << std::endl;
   std::cout << "bad.empty()      = " << std::boolalpha << bad.empty() << std::endl;
   std::cout << "bad.size()       = " << bad.size() << std::endl;
   std::cout << "bad.length()     = " << bad.length() << std::endl;
-
+*/
   unsigned long long ullptr[] = {1ULL, 2ULL, 3ULL, 0ULL};
   std::experimental::basic_string_view<unsigned long long> ullsv{ullptr};
   std::cout << std::endl;
@@ -173,9 +175,7 @@ main()
   //std::cout << "iv.front()     = " << iv.front() << std::endl;
   //std::cout << "iv.back()      = " << iv.back() << std::endl;
 
-  sview.clear();
   std::cout << std::endl;
-  std::cout << "clear()       = " << sview << std::endl;
   std::cout << "sview.empty()    = " << std::boolalpha << sview.empty() << std::endl;
   std::cout << "sview.size()     = " << sview.size() << std::endl;
   std::cout << "sview.length()   = " << sview.length() << std::endl;
@@ -232,7 +232,7 @@ main()
   std::cout << "uh.back()     = " << uh.back() << std::endl;
   std::cout << "uh.max_size() = " << uh.max_size() << std::endl;
 
-  auto uhs = std::experimental::to_string(uh);
+  auto uhs = uh.to_string();
   std::cout << std::endl;
   std::cout << "uhs             = " << uhs << std::endl;
   std::cout << "uhs.empty()     = " << std::boolalpha << uhs.empty() << std::endl;
