@@ -1,7 +1,7 @@
 
-// /home/ed/bin/bin/gcc -o has_attribute has_attribute.c
+// /home/ed/bin_var_template_2/bin/gcc -o has_attribute has_attribute.c
 
-// /home/ed/bin_feature/bin/gcc -o has_attribute has_attribute.c
+// /home/ed/bin_var_template_2/bin/gcc -o has_attribute has_attribute.c
 
 #include <assert.h>
 

@@ -1,7 +1,7 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o has_attribute has_attribute.cpp
+// /home/ed/bin_var_template_2/bin/g++ -std=c++14 -o has_attribute has_attribute.cpp
 
-// /home/ed/bin_feature/bin/g++ -std=c++14 -o has_attribute has_attribute.cpp
+// /home/ed/bin_var_template_2/bin/g++ -std=c++14 -o has_attribute has_attribute.cpp
 
 #include <cassert>
 
@@ -15,21 +15,19 @@
 #  error "__has_cpp_attribute"
 #endif
 
-//  Test underlying CPP builtin.
-
-#if !__has_attribute__(deprecated)
+#if !__has_attribute(deprecated)
 # error "deprecated"
 #endif
 
-#if !__has_attribute__(gnu::deprecated)
+#if !__has_attribute(gnu::deprecated)
 # error "gnu::deprecated"
 #endif
 
-#if __has_attribute__(hertz)
+#if __has_attribute(hertz)
 #  error "hertz"
 #endif
 
-#if __has_attribute__(uranus::hertz)
+#if __has_attribute(uranus::hertz)
 #  error "uranus::hertz"
 #endif
 
@@ -67,6 +65,11 @@
 #  error "uranus::hertz"
 #endif
 
+template <typename Tp, bool ok>
+  class A
+  {
+  };
+
 int
 main()
 {
@@ -77,4 +80,6 @@ main()
 # endif
 #endif
   life;
+
+  A<double, __has_cpp_attribute(deprecated)> xx;
 }
