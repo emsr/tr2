@@ -79,7 +79,7 @@ template<std::size_t Dim>
     for (std::size_t i = 0; i < per; ++i)
     {
       auto pt = gen();
-      for (coord : pt)
+      for (auto && coord : pt)
       {
         iv << ' ' << coord;
       }
