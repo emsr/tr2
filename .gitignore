@@ -149,3 +149,5 @@ is_final_std
 
 test_uniform_inside_sphere_distribution
 test_uniform_inside_sphere_distribution_old
+
+test_sized_dealloc
