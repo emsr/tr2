@@ -9,8 +9,7 @@
 #include <regex>
 
 const char* header =
-R"(
-#Inventor V2.1 ascii
+R"(#Inventor V2.1 ascii
 
 Separator {
 
