@@ -1,116 +1,166 @@
 //  https://gist.github.com/lichray/6034753
+// <experimental/array> -*- C++ -*-
+
+// Copyright (C) 2015 Free Software Foundation, Inc.
+//
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or (at your option)
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+/** @file experimental/functional
+ *  This is a TS C++ Library header.
+ */
+
+#ifndef _GLIBCXX_EXPERIMENTAL_ARRAY
+#define _GLIBCXX_EXPERIMENTAL_ARRAY 1
+
+#pragma GCC system_header
+
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
 
 #include <array>
 #include <functional>
- 
-template<typename... _T>
-  using common_type_t = typename std::common_type<_T...>::type;
- 
-template<typename _T>
-  using remove_cv_t = typename std::remove_cv<_T>::type;
- 
-template<bool, typename _T, typename... _U>
+#include <type_traits>
+
+namespace std
+{
+namespace experimental
+{
+inline namespace fundamentals_v2
+{
+
+//  Made this up...
+#define __cpp_lib_experimental_make_array 201411
+
+//template<typename... _Tp>
+//  using common_type_t = typename std::common_type<_Tp...>::type;
+
+//template<typename _Tp>
+//  using remove_cv_t = typename std::remove_cv<_Tp>::type;
+
+template<bool, typename _Tp, typename... _Up>
   struct lazy_conditional_c;
- 
-template<typename _T>
-  struct lazy_conditional_c<true, _T>
+
+template<typename _Tp>
+  struct lazy_conditional_c<true, _Tp>
   {
     using type = typename _T::type;
   };
- 
-template<typename _T, typename _U>
-  struct lazy_conditional_c<true, _T, _U>
+
+template<typename _Tp, typename _Up>
+  struct lazy_conditional_c<true, _Tp, _Up>
   {
-    using type = typename _T::type;
+    using type = typename _Tp::type;
   };
- 
-template<typename _T, typename _U>
-  struct lazy_conditional_c<false, _T, _U>
+
+template<typename _Tp, typename _Up>
+  struct lazy_conditional_c<false, _Tp, _Up>
   {
-    using type = typename _U::type;
+    using type = typename _Up::type;
   };
- 
-template<typename _V, typename _T, typename... _U>
-  using If = lazy_conditional_c<_V::value, _T, _U...>;
- 
-template<typename _V, typename _T, typename... _U>
-  using If_t = typename If<_V, _T, _U...>::type;
- 
-template<typename _T>
+
+template<typename _Vp, typename _Tp, typename... _Up>
+  using If = lazy_conditional_c<_Vp::value, _Tp, _Up...>;
+
+template<typename _Vp, typename _Tp, typename... _Up>
+  using If_t = typename If<_Vp, _Tp, _Up...>::type;
+
+template<typename _Tp>
   struct identity_of
   {
-    using type = _T;
+    using type = _Tp;
   };
- 
+
 template<template<typename> class _F, typename... _T>
   struct no_type
   : std::true_type
-  {};
- 
-template<template<typename> class _F, typename _T1, typename... _T2>
+  { };
+
+template<template<typename> typename _F, typename _T1, typename... _T2>
   struct no_type<_F, _T1, _T2...>
-  : std::integral_constant<bool, not F<_T1>::value and no_type<_F, _T2...>::value>
-  {};
- 
-template<template<typename> class _F, template<typename> class _G>
+  : std::integral_constant<bool, ! _F<_T1>::value && no_type<_F, _T2...>::value>
+  { };
+
+template<template<typename> typename _F, template<typename> typename _G>
   struct composed
   {
-    template<typename _T>
-      using call = _F<typename _G<_T>::type>;
+    template<typename _Tp>
+      using call = _F<typename _G<_Tp>::type>;
   };
- 
-template<typename _T>
-  struct _is_reference_wrapper : std::false_type {};
- 
-template<typename _T>
-  struct _is_reference_wrapper<std::reference_wrapper<_T>> : std::true_type {};
- 
-template<typename _T>
-  using is_reference_wrapper =
-  composed<_is_reference_wrapper, std::remove_cv>::call<_T>;
- 
-template<typename... _T>
-  constexpr auto
-  make_array(_T&&... __t)
-  -> std::array<_If_t<no_type<composed<is_reference_wrapper, std::remove_reference>::call, _T...>,
-              std::common_type<_T...>>, sizeof...(_T)>
-  {
-    return {{ std::forward<_T>(__t)... }};
-  }
- 
-template<typename _V, typename... _T>
-  constexpr auto
-  make_array(_T&&... __t)
-  -> std::array<_V, sizeof...(_T)>
-  {
-    return {{ std::forward<_T>(__t)... }};
-  }
- 
-template<size_t... _I>
-  struct _indices {};
- 
-template<size_t _N, size_t... _I>
-  struct _build_indices
-  : _build_indices<N - 1, _N - 1, _I...>
-  {};
 
-template<size_t... _I>
-  struct _build_indices<0, _I...>
-  : _indices<_I...>
-  {};
- 
-template<typename _T, size_t _N, size_t... _I>
+template<typename _Tp>
+  struct _is_reference_wrapper : std::false_type
+  { };
+
+template<typename _Tp>
+  struct _is_reference_wrapper<std::reference_wrapper<_Tp>> : std::true_type
+  { };
+
+template<typename _Tp>
+  using is_reference_wrapper =
+    composed<_is_reference_wrapper, std::remove_cv>::call<_Tp>;
+
+template<typename... _Tp>
   constexpr auto
-  _to_array(_T (&__arr)[_N], _indices<_I...>)
-  -> std::array<remove_cv_t<_T>, _N>
-  {
-    return {{ __arr[_I]... }};
-  }
- 
-template<typename _T, size_t _N>
+  make_array(_Tp&&... __t)
+  -> std::array<_If_t<no_type<composed<is_reference_wrapper, std::remove_reference>::call, _Tp...>,
+              std::common_type<_Tp...>>, sizeof...(_Tp)>
+  { return {{ std::forward<_Tp>(__t)... }}; }
+
+template<typename _Vp, typename... _Tp>
   constexpr auto
-  to_array(_T (&__arr)[_N])
-  -> std::array<remove_cv_t<_T>, _N>
-  {
-    return _to_array(__arr, _build_indices<_N>());
-  }
+  make_array(_Tp&&... __t)
+  -> std::array<_Vp, sizeof...(_Tp)>
+  { return {{ std::forward<_Tp>(__t)... }}; }
+
+template<size_t... _Idx>
+  struct _indices
+  { };
+
+template<size_t _Num, size_t... _Idx>
+  struct _build_indices
+  : _build_indices<_Num - 1, _Num - 1, _Idx...>
+  { };
+
+template<size_t... _Idx>
+  struct _build_indices<0, _Idx...>
+  : _indices<_Idx...>
+  { };
+
+template<typename _Tp, size_t _Num, size_t... _Idx>
+  constexpr auto
+  to_array_helper(_Tp (&__arr)[_Num], _indices<_I...>)
+  -> std::array<remove_cv_t<_Tp>, _Num>
+  { return {{ __arr[_Idx]... }}; }
+
+template<typename _Tp, size_t _Num>
+  constexpr auto
+  to_array(_Tp (&__arr)[_Num])
+  -> std::array<remove_cv_t<_Tp>, _Num>
+  { return to_array_helper(__arr, _build_indices<_Num>()); }
+
+} // namespace fundamentals_v2
+} // namespace experimental
+} // namespace std
+
+#endif // C++14
+
+#endif // _GLIBCXX_EXPERIMENTAL_ARRAY

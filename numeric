@@ -3,9 +3,14 @@
 
 // N3913 Greatest common divisor and least common multiple.
 
-namespace std {
-namespace experimental {
-inline namespace fundamentals_v2 {
+namespace std
+{
+namespace experimental
+{
+inline namespace fundamentals_v2
+{
+
+#define __cpp_lib_experimental_gcd_lcm 201411
 
   //  A constexpr version of abs - this should become normative someday.
   template<typename _Tp>

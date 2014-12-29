@@ -4,6 +4,12 @@
 
 namespace std
 {
+namespace experimental
+{
+inline namespace fundamentals_v2
+{
+
+#define __cpp_lib_experimental_ostream_joiner 201411
 
   template<typename _DelimT, typename _CharT = char,
 	   typename _Traits = char_traits<_CharT>>
@@ -65,4 +71,6 @@ namespace std
       return __joiner_t(__os, forward<_DelimT>(__delim));
     }
 
-}
+} // inline namespace fundamentals_v2
+} // namespace experimental
+} // namespace std
