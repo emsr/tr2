@@ -29,16 +29,16 @@ template<typename Tp>
   };
 
 template<typename T>
-  constexpr pauli<T> sigma0{ {{ {{ 1.0l, 0.0l }}, {{ 0.0l, 1.0l }} }} };
+  constexpr pauli<T> sigma0{ {{ {{ 1.0L, 0.0L }}, {{ 0.0L, 1.0L }} }} };
 
 template<typename T>
-  constexpr pauli<T> sigma1{ {{ {{ 0.0l, 1.0l }}, {{ 1.0l, 0.0l }} }} };
+  constexpr pauli<T> sigma1{ {{ {{ 0.0L, 1.0L }}, {{ 1.0L, 0.0L }} }} };
 
 template<typename T>
-  constexpr pauli<T> sigma2{ {{ {{ 0.0l, -1.0il }}, {{ 1.0il, 0.0l }} }} };
+  constexpr pauli<T> sigma2{ {{ {{ 0.0L, -1.0il }}, {{ 1.0il, 0.0L }} }} };
 
 template<typename T>
-  constexpr pauli<T> sigma3{ {{ {{ 1.0l, 0.0l }}, {{ -1.0l, 0.0l }} }} };
+  constexpr pauli<T> sigma3{ {{ {{ 1.0L, 0.0L }}, {{ -1.0L, 0.0L }} }} };
 
 //template<typename T>
 //  T x;
