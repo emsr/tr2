@@ -32,16 +32,34 @@ template<typename _CharT, _CharT... _Chars>
     using tail_type = basic_string_literal<_CharT>;
 
     // Size-related functions
-    constexpr size_type size() const;
-    constexpr size_type length() const;
-    constexpr bool empty() const;
+    constexpr size_type size() const
+    { return sizeof...(_Chars); }
+    constexpr size_type length() const
+    { return sizeof...(_Chars); }
+    constexpr bool empty() const
+    { return sizeof...(_Chars) == 0; }
 
     // Element accessor functions
-    constexpr _CharT operator[](size_type pos) const;
-    template<size_type Index> constexpr _CharT at() const;
-    constexpr _CharT at(size_type pos) const;
-    constexpr _CharT back() const;
-    constexpr _CharT front() const;
+    constexpr _CharT
+    operator[](size_type pos) const
+    { return _M_data[pos]; }
+
+    template<size_type _Idx>
+      constexpr _CharT
+      at() const
+      { return _M_data[_Idx]; }
+
+    constexpr _CharT
+    at(size_type pos) const
+    { return _M_data[pos]; }
+
+    constexpr _CharT
+    back() const
+    { return _M_data[this->size() - 1]; }
+
+    constexpr _CharT
+    front() const
+    { return _M_data[0]; }
 
     // Search functions
     template<_CharT... _OtherChars>
@@ -99,11 +117,21 @@ template<typename _CharT, _CharT... _Chars>
                           const _CharT* s, size_type count2) const;
 
     // Conversion functions
-    constexpr const char * c_str() const;
-    constexpr const char * data() const;
-    std::string to_string() const;
+    constexpr const char *
+    c_str() const
+    { return _M_data; }
+
+    constexpr const char *
+    data() const
+    { return _M_data; }
+
+    std::string
+    to_string() const;
+
     constexpr operator const char*() const;
-    constexpr long long to_number() const;
+
+    constexpr long long
+    to_number() const;
   };
 
 template<typename _CharT>
@@ -126,12 +154,20 @@ template<typename _CharT>
 
     using tail_type = basic_string_literal<_CharT>;
 
-    constexpr size_type size() const;
-    constexpr size_type length() const;
-    constexpr bool empty() const;
+    constexpr size_type
+    size() const
+    { return 1; }
+
+    constexpr size_type
+    length() const
+    { return 1; }
+
+    constexpr bool
+    empty() const
+    { return false; }
 
     template<_CharT... _OtherChars>
-    constexpr int compare(const basic_string_literal<_CharT, _OtherChars...>& other) const;
+      constexpr int compare(const basic_string_literal<_CharT, _OtherChars...>& other) const;
     constexpr int compare(const basic_string<_CharT>& str) const;
     constexpr int compare(std::size_t pos1, std::size_t count1, const basic_string<_CharT>& str) const;
     constexpr int compare(std::size_t pos1, std::size_t count1, const basic_string<_CharT>& str, std::size_t pos2, std::size_t count2) const;
