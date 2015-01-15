@@ -8,7 +8,7 @@ template<typename... _Tp>
   class variant
   {
     static constexpr auto _S_size = std::max({sizeof(_Tp)...});
-    //char _M_buffer[_S_size];
+    char _M_buffer[_S_size];
   };
 
 #endif // VARIANT

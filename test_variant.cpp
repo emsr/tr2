@@ -12,7 +12,10 @@ main()
                      sizeof(std::string),
                      sizeof(std::complex<double>)});
   std::cout << "max sizeof: " << s << '\n';
+  std::cout << "sizeof(std::size_t): " << sizeof(std::size_t) << '\n';
+  std::cout << "sizeof(std::string): " << sizeof(std::string) << '\n';
+  std::cout << "sizeof(std::complex<double>): " << sizeof(std::complex<double>) << '\n';
 
   variant<std::size_t, std::string, std::complex<double>> v;
-  //std::cout << "max sizeof: " << v._Size << '\n';
+  std::cout << "max sizeof: " << sizeof(v) << '\n';
 }
