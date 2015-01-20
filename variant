@@ -3,6 +3,7 @@
 
 #include <algorithm>
 
+//  Think about alignment!!
 
 template<typename... _Tp>
   class variant
