@@ -153,3 +153,6 @@ circ.iv
 sph.iv
 
 test_sized_dealloc
+
+test_string_literal
+test_variant
