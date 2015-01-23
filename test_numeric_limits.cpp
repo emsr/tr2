@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <map>
 #include <typeinfo>
+#include <typeindex>
 
 template<typename _Tp>
   void
@@ -26,7 +27,7 @@ template<typename _Tp>
       {std::denorm_present,       "denorm_present"}
     };
 
-    auto name{typeid(__x).name()};
+    auto name{std::type_index{typeid(__x)}.name()};
 
     std::cout << std::setiosflags(std::ios::boolalpha);
     std::cout << std::setprecision(std::digits10(__x));
