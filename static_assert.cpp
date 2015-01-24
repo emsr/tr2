@@ -8,6 +8,7 @@ template<typename _Tp>
   real_thing(_Tp __x)
   {
     static_assert(std::is_floating_point<_Tp>::value, "");
+    //static_assert(std::is_floating_point<_Tp>::value);
   };
 
 int

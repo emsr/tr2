@@ -4,14 +4,23 @@
 
 struct B {};
 
-B operator+(B, B) { return B(); }
-B operator""_b(const char *, size_t) { return B(); }
+B
+operator+(B, B)
+{ return B(); }
+
+B
+operator""_b(const char *, size_t)
+{ return B(); }
 
 template<char... Str>
-  B operator""_c() { return B(); }
+  B
+  operator""_c()
+  { return B(); }
 
 template<>
-  B operator""_c<'4','2','.','0'>() { return B(); }
+  B
+  operator""_c<'4','2','.','0'>()
+  { return B(); }
 
 template<typename T>
   void
@@ -47,4 +56,8 @@ template<>
     friend void foo<float>();
   };
 
-int main() { return 0; }
+int
+main()
+{
+  return 0;
+}

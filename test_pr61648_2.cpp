@@ -5,10 +5,14 @@
 struct B {};
 
 template<char... Str>
-  B operator""_c() { return B(); }
+  B
+  operator""_c()
+  { return B(); }
 
 template<>
-  B operator""_c<'4','2','.','0'>() { return B(); }
+  B
+  operator""_c<'4','2','.','0'>()
+  { return B(); }
 
 template<typename T>
   class C

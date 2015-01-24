@@ -157,3 +157,5 @@ test_sized_dealloc
 
 static_assert
 
+test_string_literal
+test_variant

@@ -1,7 +1,5 @@
 
-// /home/ed/bin_var_template_2/bin/g++ -std=c++14 -o has_attribute has_attribute.cpp
-
-// /home/ed/bin_var_template_2/bin/g++ -std=c++14 -o has_attribute has_attribute.cpp
+// /home/ed/bin/bin/g++ -std=c++14 -o has_attribute_cpp has_attribute.cpp
 
 #include <cassert>
 
@@ -73,7 +71,7 @@ template <typename Tp, bool ok>
 int
 main()
 {
-  bool
+  long
 #ifdef __has_cpp_attribute
 # if __has_cpp_attribute(peripatetic)
     [[peripatetic]]

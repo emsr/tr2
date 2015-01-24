@@ -1,7 +1,5 @@
 
-// /home/ed/bin_var_template_2/bin/gcc -o has_attribute has_attribute.c
-
-// /home/ed/bin_var_template_2/bin/gcc -o has_attribute has_attribute.c
+// /home/ed/bin/bin/gcc -o has_attribute_c has_attribute.c
 
 #include <assert.h>
 
@@ -25,9 +23,11 @@
 int
 main()
 {
+  long
 #ifdef __has_attribute
-# if __has_attribute(fartknocker)
-  long __attribute__((fartknocker)) wtf;
+# if __has_attribute(peripatetic)
+    __attribute__((peripatetic))
 # endif
 #endif
+  life;
 }
