@@ -131,7 +131,8 @@ complex_ref
 complex_tie
 bomb
 pr58708
-has_attribute
+has_attribute_cpp
+has_attribute_c
 dynarray/test_dynarray2
 dynamic_bitset/resize_dynamic_bitset
 dynamic_bitset/main
@@ -153,3 +154,6 @@ circ.iv
 sph.iv
 
 test_sized_dealloc
+
+static_assert
+
