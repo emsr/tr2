@@ -1,3 +1,5 @@
+#ifndef _DECIBEL_H
+#define _DECIBEL_H 1
 
 
 #include <limits>
@@ -150,4 +152,8 @@
     { return decibel<long double>(static_cast<long double>(x)); }
   }
 
+
 #include "decibel.tcc"
+
+
+#endif // _DECIBEL_H
