@@ -14,77 +14,101 @@
 
       using value_type = _Tp;
 
-      static constexpr std::size_t max_bel = std::numeric_limits<_Tp>::max_exponent10 - 1;
+      static constexpr value_type max_bel = std::numeric_limits<_Tp>::max_exponent10 - 1;
+      static constexpr value_type max_decibel = value_type{10} * max_bel;
 
-      explicit constexpr operator value_type() const { return m_db; }
+      explicit constexpr operator value_type() const { return this->m_db; }
 
       constexpr explicit decibel()
-      : m_db{-value_type{10} * max_bel}
+      : m_db{-max_decibel}
       { }
 
       constexpr explicit decibel(value_type x)
       : m_db{x}
       { }
 
+      constexpr value_type
+      power() noexcept
+      { return std::pow(value_type(10), this->m_db / value_type(10)); }
+
     private:
 
       value_type m_db;
     };
 
-  template<typename _Tp, typename _Up>
-    bool
-    operator==(decibel<_Tp> a, decibel<_Up> b)
-    { return a == b; }
+  template<typename _Tp>
+    constexpr decibel<_Tp>
+    make_decibel(_Tp x) noexcept
+    { return _Tp{10} * std::log10(x); }
 
   template<typename _Tp, typename _Up>
-    bool
-    operator!=(decibel<_Tp> a, decibel<_Up> b)
+    constexpr bool
+    operator==(decibel<_Tp> a, decibel<_Up> b) noexcept
+    { return _Tp(a) == _Up(b); }
+
+  template<typename _Tp, typename _Up>
+    constexpr bool
+    operator!=(decibel<_Tp> a, decibel<_Up> b) noexcept
     { return !(a == b); }
 
   template<typename _Tp, typename _Up>
-    bool
-    operator<(decibel<_Tp> a, decibel<_Up> b)
-    { return a < b; }
+    constexpr bool
+    operator<(decibel<_Tp> a, decibel<_Up> b) noexcept
+    { return _Tp(a) < _Up(b); }
 
   template<typename _Tp, typename _Up>
-    bool
-    operator>=(decibel<_Tp> a, decibel<_Up> b)
+    constexpr bool
+    operator>=(decibel<_Tp> a, decibel<_Up> b) noexcept
     { return !(a < b); }
 
   template<typename _Tp, typename _Up>
-    bool
-    operator>(decibel<_Tp> a, decibel<_Up> b)
+    constexpr bool
+    operator>(decibel<_Tp> a, decibel<_Up> b) noexcept
     { return b < a; }
 
   template<typename _Tp, typename _Up>
-    bool
-    operator<=(decibel<_Tp> a, decibel<_Up> b)
+    constexpr bool
+    operator<=(decibel<_Tp> a, decibel<_Up> b) noexcept
     { return !(b < a); }
 
-  template<typename _Tp, typename _Up>
-    decibel<std::common_type_t<_Tp, _Up>>
-    operator+(decibel<_Tp> a, decibel<_Up> b)
-    {
-      std::tie(a, b) = std::minmax(a, b);
+  template<typename _Tp>
+    constexpr decibel<_Tp>
+    operator-(decibel<_Tp> a)
+    { return decibel<_Tp>{-_Tp(a)}; }
 
+  template<typename _Tp>
+    constexpr decibel<_Tp>
+    operator+(decibel<_Tp> a) noexcept
+    { return a; }
+
+  template<typename _Tp, typename _Up>
+    constexpr decibel<std::common_type_t<_Tp, _Up>>
+    operator+(decibel<_Tp> a, decibel<_Up> b) noexcept
+    {
       using _Vp = std::common_type_t<_Tp, _Up>;
-      if (b - a < _Vp{10} * decibel<_Vp>::max_bel)
-        return b + _Vp{10} * std::log10(1.0 + std::pow(_Vp{10}, ((a - b) / _Vp{10})));
+
+      _Vp ma{}, mb{};
+      std::tie(ma, mb) = std::minmax(_Tp(a), _Up(b));
+
+      if (mb - ma < _Vp{10} * decibel<_Vp>::max_bel)
+        return decibel<_Vp>(mb + _Vp{10} * std::log10(_Vp{1} + std::pow(_Vp{10}, (ma - mb) / _Vp{10})));
       else
-        return b;
+        return decibel<_Vp>(mb);
     }
 
   template<typename _Tp, typename _Up>
-    decibel<std::common_type_t<_Tp, _Up>>
-    operator-(decibel<_Tp> a, decibel<_Up> b)
+    constexpr decibel<std::common_type_t<_Tp, _Up>>
+    operator-(decibel<_Tp> a, decibel<_Up> b) noexcept
     {
-      std::tie(a, b) = std::minmax(a, b);
-
       using _Vp = std::common_type_t<_Tp, _Up>;
-      if (b - a < _Vp{10} * decibel<_Vp>::max_bel)
-        return b + _Vp{10} * std::log10(1.0 - std::pow(_Vp{10}, ((a - b) / _Vp{10})));
+
+      _Vp ma{}, mb{};
+      std::tie(ma, mb) = std::minmax(_Tp(a), _Up(b));
+
+      if (mb - ma < _Vp{10} * decibel<_Vp>::max_bel)
+        return decibel<_Vp>(mb + _Vp{10} * std::log10(_Vp{1} - std::pow(_Vp{10}, (ma - mb) / _Vp{10})));
       else
-        return b;
+        return decibel<_Vp>(mb);
     }
 
   template<typename _Tp,
@@ -102,27 +126,27 @@
   namespace decibel_literals
   {
     constexpr decibel<float>
-    operator""_dBf(unsigned long long n)
+    operator""_dBf(unsigned long long n) noexcept
     { return decibel<float>(static_cast<float>(n)); }
 
     constexpr decibel<double>
-    operator""_dB(unsigned long long n)
+    operator""_dB(unsigned long long n) noexcept
     { return decibel<double>(static_cast<double>(n)); }
 
     constexpr decibel<long double>
-    operator""_dBl(unsigned long long n)
+    operator""_dBl(unsigned long long n) noexcept
     { return decibel<long double>(static_cast<long double>(n)); }
 
     constexpr decibel<float>
-    operator""_dBf(long double x)
+    operator""_dBf(long double x) noexcept
     { return decibel<float>(static_cast<float>(x)); }
 
     constexpr decibel<double>
-    operator""_dB(long double x)
+    operator""_dB(long double x) noexcept
     { return decibel<double>(static_cast<double>(x)); }
 
     constexpr decibel<long double>
-    operator""_dBl(long double x)
+    operator""_dBl(long double x) noexcept
     { return decibel<long double>(static_cast<long double>(x)); }
   }
 

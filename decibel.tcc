@@ -18,8 +18,7 @@
       const typename __ios_base::fmtflags __flags = __os.flags();
       __os.flags(__ios_base::scientific | __ios_base::left);
 
-      const _CharT * __dB = __os.widen("_dB");
-      __os << _Tp(__x) << __dB;
+      __os << _Tp(__x);
 
       __os.flags(__flags);
       __os.fill(__fill);
@@ -40,11 +39,8 @@
       const typename __ios_base::fmtflags __flags = __is.flags();
       __is.flags(__ios_base::dec | __ios_base::skipws);
 
-      // Think on this bit:  stringstream might be better.
-      std::string __dB;
-
       _Tp __xval;
-      __is >> __xval >> __dB;
+      __is >> __xval;
       __x = decibel<_Tp>{__xval};
 
       __is.flags(__flags);
