@@ -120,18 +120,21 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
       typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
       typedef typename __ostream_type::ios_base    __ios_base;
 
-      const typename __ios_base::fmtflags __flags = __os.flags();
-      const _CharT __fill = __os.fill();
       const std::streamsize __precision = __os.precision();
-      const _CharT __space = __os.widen(' ');
-      __os.flags(__ios_base::scientific | __ios_base::left);
-      __os.fill(__space);
       __os.precision(std::numeric_limits<_RealType>::max_digits10);
+      const _CharT __fill = __os.fill();
+      const _CharT __space = __os.widen(' ');
+      __os.fill(__space);
+      const typename __ios_base::fmtflags __flags = __os.flags();
+      __os.flags(__ios_base::scientific | __ios_base::left);
+
+      __os << __x.radius() << __space << __x._M_uosd;
 
       __os.flags(__flags);
       __os.fill(__fill);
       __os.precision(__precision);
-      return __os << __x.radius() << __space << __x._M_uosd;
+
+      return __os;
     }
 
   template<std::size_t _Dimen, typename _RealType, typename _CharT,
@@ -148,12 +151,12 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
       __is.flags(__ios_base::dec | __ios_base::skipws);
 
       _RealType __radius_val;
-      __is >> __radius_val;
-      __is >> __x._M_uosd;
+      __is >> __radius_val >> __x._M_uosd;
       __x.param(typename uniform_inside_sphere_distribution<_Dimen, _RealType>::
 		param_type(__radius_val));
 
       __is.flags(__flags);
+
       return __is;
     }
 
