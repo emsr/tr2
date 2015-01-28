@@ -159,3 +159,7 @@ static_assert
 
 test_string_literal
 test_variant
+
+decibel
+bel
+
