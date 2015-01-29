@@ -2,6 +2,7 @@
 // /home/ed/bin/bin/g++ -std=c++14 -o bel bel.cpp
 
 #include <iostream>
+#include <iomanip>
 
 #include "bel.h"
 
@@ -18,6 +19,8 @@ main()
 
   decibel<long double> defl;
   std::cout << "defl = " << defl << '\n';
+
+  std::cout << std::setprecision(std::numeric_limits<decltype(3_dB)::value_type>::digits10);
 
   auto half = -3_dB;
   std::cout << "half = " << half << '\n';
@@ -53,7 +56,14 @@ main()
   std::cout << "ngain = " << ngain << '\n';
 
   bel<double> w{6.66};
-  std::cout << "w   = " << w << '\n';
+  std::cout << "w   = " << w << " B\n";
   decibel<double> dw{w};
-  std::cout << "dw  = " << dw << '\n';
+  std::cout << "dw  = " << dw << " dB\n";
+  bel<double, std::centi> cw{w};
+  std::cout << "cw  = " << cw << " cB\n";
+  bel<double, std::milli> mw{w};
+  std::cout << "mw  = " << mw << " mB\n";
+
+  decibel<double> big{9999.0};
+  std::cout << "big = " << big << '\n';
 }

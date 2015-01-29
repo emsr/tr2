@@ -2,6 +2,7 @@
 // /home/ed/bin/bin/g++ -std=c++14 -o decibel decibel.cpp
 
 #include <iostream>
+#include <iomanip>
 
 #include "decibel.h"
 
@@ -18,6 +19,8 @@ main()
 
   decibel<long double> defl;
   std::cout << "defl = " << defl << '\n';
+
+  std::cout << std::setprecision(std::numeric_limits<decltype(3_dB)::value_type>::digits10);
 
   auto half = -3_dB;
   std::cout << "half = " << half << '\n';

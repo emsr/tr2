@@ -33,16 +33,28 @@
 
       constexpr explicit
       bel(value_type x)
-      : m_db{x}
+      : m_db{x <= max_value ? x : max_value}
       { }
 
-      template<typename _Up, typename _Vnit>
       constexpr
-      bel(bel<_Up, _Vnit> b)
-      {
-        using _UVinv = std::ratio_divide<_Unit, _Vnit>;
-        this->m_db = _UVinv::den * static_cast<value_type>(_Up(b)) / _UVinv::num;
-      }
+      bel(const bel &) = default;
+
+      constexpr
+      bel(bel &&) = default;
+
+      template<typename _Up, typename _Vnit>
+        constexpr
+        bel(bel<_Up, _Vnit> b)
+        {
+          using _UVinv = std::ratio_divide<_Unit, _Vnit>;
+          this->m_db = _UVinv::den * static_cast<value_type>(_Up(b)) / _UVinv::num;
+        }
+
+      constexpr bel &
+      operator=(const bel &) = default;
+
+      constexpr bel &
+      operator=(bel &&) = default;
 
       template<typename _Up, typename _Vnit>
         bel &
