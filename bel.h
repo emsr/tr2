@@ -52,7 +52,7 @@
           std::tie(ma, mb) = std::minmax(this->m_db, value_type(bel(b)));
 
           this->m_db = mb;
-          if (mb - ma < max_bel)
+          if (mb - ma < max_value)
             this->m_db += factor * std::log10(value_type{1} + std::pow(value_type{10}, (ma - mb) / factor));
 
           return *this;
@@ -66,7 +66,7 @@
           std::tie(ma, mb) = std::minmax(this->m_db, value_type(bel(b)));
 
           this->m_db = mb;
-          if (mb - ma < max_bel)
+          if (mb - ma < max_value)
             this->m_db += factor * std::log10(value_type{1} - std::pow(value_type{10}, (ma - mb) / factor));
 
           return *this;
@@ -159,34 +159,37 @@
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
-    constexpr bel<std::common_type_t<_Tp, _Up>, _Unit>
+    constexpr bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
     operator+(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;
       using _Wnit = __common_unit<_Unit, _Vnit>;
+      using _NBel = bel<_Vp, _Wnit>;
 
       _Vp ma{}, mb{};
-      std::tie(ma, mb) = std::minmax(_Tp(a), _Up(b));
+      std::tie(ma, mb) = std::minmax(_Vp(_NBel(a)), _Vp(_NBel(b)));
 
-      if (mb - ma < _Vp{10} * bel<_Vp>::max_bel)
-        return bel<_Vp>(mb + _Vp{10} * std::log10(_Vp{1} + std::pow(_Vp{10}, (ma - mb) / _Vp{10})));
+      if (mb - ma < _NBel::max_value)
+        return _NBel(mb + _NBel::factor * std::log10(_Vp{1} + std::pow(_Vp{10}, (ma - mb) / _NBel::factor)));
       else
-        return bel<_Vp>(mb);
+        return _NBel(mb);
     }
 
   template<typename _Tp, typename _Unit, typename _Up, typename _Vnit>
-    constexpr bel<std::common_type_t<_Tp, _Up>, _Unit>
+    constexpr bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
     operator-(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;
+      using _Wnit = __common_unit<_Unit, _Vnit>;
+      using _NBel = bel<_Vp, _Wnit>;
 
       _Vp ma{}, mb{};
-      std::tie(ma, mb) = std::minmax(_Tp(a), _Up(b));
+      std::tie(ma, mb) = std::minmax(_Vp(_NBel(a)), _Vp(_NBel(b)));
 
-      if (mb - ma < _Vp{10} * bel<_Vp>::max_bel)
-        return bel<_Vp>(mb + _Vp{10} * std::log10(_Vp{1} - std::pow(_Vp{10}, (ma - mb) / _Vp{10})));
+      if (mb - ma < _NBel::max_value)
+        return _NBel(mb + _NBel::factor * std::log10(_Vp{1} - std::pow(_Vp{10}, (ma - mb) / _NBel::factor)));
       else
-        return bel<_Vp>(mb);
+        return _NBel(mb);
     }
 
   template<typename _Tp, typename _Unit,

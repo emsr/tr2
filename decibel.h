@@ -29,6 +29,36 @@
       : m_db{x}
       { }
 
+      template<typename _Up>
+        decibel &
+        operator+=(decibel<_Up> b) noexcept
+        {
+          value_type ma{}, mb{};
+          std::tie(ma, mb) = std::minmax(this->m_db, value_type(decibel(b)));
+          value_type factor = value_type(10);
+
+          this->m_db = mb;
+          if (mb - ma < factor * max_bel)
+            this->m_db += factor * std::log10(value_type{1} + std::pow(value_type{10}, (ma - mb) / factor));
+
+          return *this;
+        }
+
+      template<typename _Up>
+        decibel &
+        operator-=(decibel<_Up> b) noexcept
+        {
+          value_type ma{}, mb{};
+          std::tie(ma, mb) = std::minmax(this->m_db, value_type(decibel(b)));
+          value_type factor = value_type(10);
+
+          this->m_db = mb;
+          if (mb - ma < factor * max_bel)
+            this->m_db += factor * std::log10(value_type{1} - std::pow(value_type{10}, (ma - mb) / factor));
+
+          return *this;
+        }
+
       constexpr value_type
       power() noexcept
       { return std::pow(value_type(10), this->m_db / value_type(10)); }

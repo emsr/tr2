@@ -39,8 +39,16 @@ main()
   std::cout << "(-3_dB <= 3_dB): " << le << '\n';
 
   auto loss = 54_dB + half;
-  std::cout << loss << '\n';
+  std::cout << "loss = " << loss << '\n';
 
   auto gain = 16.4_dB - half;
-  std::cout << gain << '\n';
+  std::cout << "gain = " << gain << '\n';
+
+  auto nloss = 54_dB;
+  nloss += half;
+  std::cout << "nloss = " << nloss << '\n';
+
+  auto ngain = 16.4_dB;
+  ngain -= half;
+  std::cout << "ngain = " << ngain << '\n';
 }
