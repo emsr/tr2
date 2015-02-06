@@ -228,7 +228,8 @@ template<typename Tp>
      */
     size_type
     count() const noexcept
-    { return std::accumulate(std::begin(_M_count), std::end(_M_count), 0); }
+    { return std::accumulate(std::begin(this->_M_count),
+			     std::end(this->_M_count), 0); }
 
     /**
      *  @brief  Return the number of items from below the lower limit up to bin @c i.
@@ -237,8 +238,9 @@ template<typename Tp>
     size_type
     count(size_type i) const noexcept
     {
-      size_type m = (i < _M_count.size() ? i : _M_count.size());
-      return std::accumulate(_M_count.begin(), _M_count.begin() + m, 0);
+      size_type m = (i < this->_M_count.size() ? i : this->_M_count.size());
+      return std::accumulate(this->_M_count.begin(),
+			     this->_M_count.begin() + m, 0);
     }
 
     /**
@@ -251,8 +253,8 @@ template<typename Tp>
       value_type sum = 0;
       for (size_type i = 1; i <= size(); ++i)
       {
-        num += _M_count[i];
-        sum += _M_count[i] * (value(i) + value(i + 1)) / 2;
+        num += this->_M_count[i];
+        sum += this->_M_count[i] * (value(i) + value(i + 1)) / 2;
       }
 
       return sum / num;
@@ -268,8 +270,8 @@ template<typename Tp>
       value_type sum = 0;
       for (size_type i = 1; i <= size(); ++i)
       {
-        num += _M_count[i];
-        sum += _M_count[i] * (value(i) + value(i + 1)) / 2;
+        num += this->_M_count[i];
+        sum += this->_M_count[i] * (value(i) + value(i + 1)) / 2;
       }
       value_type mean = sum / num;
 
@@ -277,7 +279,7 @@ template<typename Tp>
       for (size_type i = 1; i <= size(); ++i)
       {
         value_type del = (value(i) + value(i + 1)) / 2 - mean;
-        sig += _M_count[i] * del * del;
+        sig += this->_M_count[i] * del * del;
       }
       sig /= num;
 
@@ -292,7 +294,7 @@ template<typename Tp>
      */
     size_type
     operator[](size_type i) const noexcept
-    { return _M_count[i]; }
+    { return this->_M_count[i]; }
 
     /**
      *  @brief  Return the left value of the ith bin where 1 <= i <= size().
@@ -301,7 +303,7 @@ template<typename Tp>
      */
     value_type
     value(size_type i) const noexcept
-    { return _M_bin[i - 1]; }
+    { return this->_M_bin[i - 1]; }
 
     /**
      *  @brief  Return the left value of the ith bin where 1 <= i <= size().
@@ -310,7 +312,7 @@ template<typename Tp>
      */
     value_type
     lower_bound(size_type i) const noexcept
-    { return _M_bin[i - 1]; }
+    { return this->_M_bin[i - 1]; }
 
     /**
      *  @brief  Return the right value of the ith bin where 1 <= i <= size().
@@ -319,14 +321,15 @@ template<typename Tp>
      */
     value_type
     upper_bound(size_type i) const noexcept
-    { return _M_bin[i]; }
+    { return this->_M_bin[i]; }
 
     /**
      *  @brief  Reset the histogram by setting all the counts to zero.
      */
     void
     reset()
-    { std::fill(std::begin(_M_count), std::end(_M_count), 0); }
+    { std::fill(std::begin(this->_M_count),
+		std::end(this->_M_count), 0); }
 
   private:
 
