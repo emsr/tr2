@@ -1,7 +1,13 @@
 #pragma once
 
-#ifndef _GLIBCXX_COORDINATE_H_
-#define _GLIBCXX_COORDINATE_H_ 1
+#ifndef _GLIBCXX_COORDINATE_H
+#define _GLIBCXX_COORDINATE_H 1
+
+#pragma GCC system_header
+
+#if __cplusplus < 201500L
+# include <bits/c++1z_warning.h>
+#else
 
 #include <assert.h>
 #include <iterator>
@@ -9,33 +15,33 @@
 
 #define constexpr
 
-namespace std
+namespace std _GLIBCXX_VISIBILITY(default)
 {
 namespace experimental
 {
-inline namespace D4087
+inline namespace fundamentals_v2
 {
 
 namespace __detail
 {
 
-  template<typename ConcreteType, typename ValueType, int Rank>
+  template<typename _ConcTp, typename _Tp, int _Rank>
 	class coordinate_facade
 	{
-	  static_assert(std::is_fundamental<ValueType>::value, "ValueType must be fundamental!");
-	  static_assert(Rank > 0, "Rank must be greater than 0!");
+	  static_assert(std::is_fundamental<_Tp>::value, "ValueType must be fundamental!");
+	  static_assert(_Rank > 0, "Rank must be greater than 0!");
 
 	public:
-	  using reference       = ValueType&;
-	  using const_reference = const ValueType&;
-	  using size_type       = size_t;
-	  using value_type      = ValueType;
-	  static const int rank = Rank;
+	  using reference       = _Tp&;
+	  using const_reference = const _Tp&;
+	  using size_type       = std::size_t;
+	  using value_type      = _Tp;
+	  static const int rank = _Rank;
 
 	  constexpr
 	  coordinate_facade() noexcept
 	  {
-		static_assert(std::is_base_of<coordinate_facade, ConcreteType>::value, "ConcreteType must be derived from coordinate_facade.");
+		static_assert(std::is_base_of<coordinate_facade, _ConcTp>::value, "ConcreteType must be derived from coordinate_facade.");
 		for (int i = 0; i < rank; ++i)
 		  elems[i] = {};
 	  }
@@ -43,7 +49,7 @@ namespace __detail
 	  constexpr
 	  coordinate_facade(value_type e0) noexcept
 	  {
-		static_assert(std::is_base_of<coordinate_facade, ConcreteType>::value, "ConcreteType must be derived from coordinate_facade.");
+		static_assert(std::is_base_of<coordinate_facade, _ConcTp>::value, "ConcreteType must be derived from coordinate_facade.");
 		static_assert(rank == 1, "This constructor can only be used with rank == 1.");
 		elems[0] = e0;
 	  }
@@ -52,7 +58,7 @@ namespace __detail
 	  constexpr
 	  coordinate_facade(std::initializer_list<value_type> il)
 	  {
-		static_assert(std::is_base_of<coordinate_facade, ConcreteType>::value, "ConcreteType must be derived from coordinate_facade.");
+		static_assert(std::is_base_of<coordinate_facade, _ConcTp>::value, "ConcreteType must be derived from coordinate_facade.");
 		assert(il.size() == rank);
 		for (int i = 0; i < rank; ++i)
 		  elems[i] = begin(il)[i];
@@ -73,7 +79,7 @@ namespace __detail
 	  { return elems[component_idx]; }
 
 	  constexpr bool
-	  operator==(const ConcreteType& rhs) const noexcept
+	  operator==(const _ConcTp& rhs) const noexcept
 	  {
 		for (int i = 0; i < rank; ++i)
 		  if (elems[i] != rhs.elems[i])
@@ -82,55 +88,55 @@ namespace __detail
 	  }
 
 	  constexpr bool
-	  operator!=(const ConcreteType& rhs) const noexcept
+	  operator!=(const _ConcTp& rhs) const noexcept
 	  { return !(to_concrete() == rhs); }
 
-	  constexpr ConcreteType
+	  constexpr _ConcTp
 	  operator+() const noexcept
 	  { return to_concrete(); }
 
-	  constexpr ConcreteType
+	  constexpr _ConcTp
 	  operator-() const
 	  {
-		ConcreteType ret = to_concrete();
+		_ConcTp ret = to_concrete();
 		for (int i = 0; i < rank; ++i)
 		  ret.elems[i] = -ret.elems[i];
 		return ret;
 	  }
 
-	  constexpr ConcreteType
-	  operator+(const ConcreteType& rhs) const
+	  constexpr _ConcTp
+	  operator+(const _ConcTp& rhs) const
 	  {
-		ConcreteType ret = to_concrete();
+		_ConcTp ret = to_concrete();
 		ret += rhs;
 		return ret;
 	  }
 
-	  constexpr ConcreteType
-	  operator-(const ConcreteType& rhs) const
+	  constexpr _ConcTp
+	  operator-(const _ConcTp& rhs) const
 	  {
-		ConcreteType ret = to_concrete();
+		_ConcTp ret = to_concrete();
 		ret -= rhs;
 		return ret;
 	  }
 
-	  constexpr ConcreteType&
-	  operator+=(const ConcreteType& rhs)
+	  constexpr _ConcTp&
+	  operator+=(const _ConcTp& rhs)
 	  {
 		for (int i = 0; i < rank; ++i)
 		  elems[i] += rhs.elems[i];
 		return to_concrete();
 	  }
 
-	  constexpr ConcreteType&
-	  operator-=(const ConcreteType& rhs)
+	  constexpr _ConcTp&
+	  operator-=(const _ConcTp& rhs)
 	  {
 		for (int i = 0; i < rank; ++i)
 		  elems[i] -= rhs.elems[i];
 		return to_concrete();
 	  }
 
-	  constexpr ConcreteType&
+	  constexpr _ConcTp&
 	  operator++()
 	  {
 		static_assert(rank == 1, "This operator can only be used with rank == 1.");
@@ -138,16 +144,16 @@ namespace __detail
 		return to_concrete();
 	  }
 
-	  constexpr ConcreteType
+	  constexpr _ConcTp
 	  operator++(int)
 	  {
 		static_assert(rank == 1, "This operator can only be used with rank == 1.");
-		ConcreteType ret = to_concrete();
+		_ConcTp ret = to_concrete();
 		++(*this);
 		return ret;
 	  }
 
-	  constexpr ConcreteType&
+	  constexpr _ConcTp&
 	  operator--()
 	  {
 		static_assert(rank == 1, "This operator can only be used with rank == 1.");
@@ -155,43 +161,43 @@ namespace __detail
 		return to_concrete();
 	  }
 
-	  constexpr ConcreteType
+	  constexpr _ConcTp
 	  operator--(int)
 	  {
 		static_assert(rank == 1, "This operator can only be used with rank == 1.");
-		ConcreteType ret = to_concrete();
+		_ConcTp ret = to_concrete();
 		--(*this);
 		return ret;
 	  }
 
-	  constexpr ConcreteType
+	  constexpr _ConcTp
 	  operator*(value_type v) const
 	  {
-		ConcreteType ret = to_concrete();
+		_ConcTp ret = to_concrete();
 		ret *= v;
 		return ret;
 	  }
 
-	  constexpr ConcreteType
+	  constexpr _ConcTp
 	  operator/(value_type v) const
 	  {
-		ConcreteType ret = to_concrete();
+		_ConcTp ret = to_concrete();
 		ret /= v;
 		return ret;
 	  }
 
-	  friend constexpr ConcreteType
-	  operator*(value_type v, const ConcreteType& rhs)
+	  friend constexpr _ConcTp
+	  operator*(value_type v, const _ConcTp& rhs)
 	  { return rhs * v; }
 
-	  constexpr ConcreteType& operator*=(value_type v)
+	  constexpr _ConcTp& operator*=(value_type v)
 	  {
 		for (int i = 0; i < rank; ++i)
 		  elems[i] *= v;
 		return to_concrete();
 	  }
 
-	  constexpr ConcreteType& operator/=(value_type v)
+	  constexpr _ConcTp& operator/=(value_type v)
 	  {
 		for (int i = 0; i < rank; ++i)
 		  elems[i] /= v;
@@ -201,13 +207,13 @@ namespace __detail
 	  value_type elems[rank];
 
 	private:
-	  constexpr const ConcreteType&
+	  constexpr const _ConcTp&
 	  to_concrete() const noexcept
-	  { return static_cast<const ConcreteType&>(*this); }
+	  { return static_cast<const _ConcTp&>(*this); }
 
-	  constexpr ConcreteType&
+	  constexpr _ConcTp&
 	  to_concrete() noexcept
-	  { return static_cast<ConcreteType&>(*this); }
+	  { return static_cast<_ConcTp&>(*this); }
 	};
 
 	template<typename T>
@@ -231,11 +237,11 @@ namespace __detail
 
 } // namespaqce __detail
 
-  template<int Rank>
+  template<int _Rank>
 	class index
-	: private __detail::coordinate_facade<index<Rank>, ptrdiff_t, Rank>
+	: private __detail::coordinate_facade<index<_Rank>, std::ptrdiff_t, _Rank>
 	{
-	  using Base = __detail::coordinate_facade<index<Rank>, ptrdiff_t, Rank>;
+	  using Base = __detail::coordinate_facade<index<_Rank>, std::ptrdiff_t, _Rank>;
 	  friend Base;
 
 	public:
@@ -270,10 +276,10 @@ namespace __detail
 	{
 	public:
 	  static const int rank = 1;
-	  using reference = ptrdiff_t&;
-	  using const_reference = const ptrdiff_t&;
-	  using size_type = size_t;
-	  using value_type = ptrdiff_t;
+	  using reference = std::ptrdiff_t&;
+	  using const_reference = const std::ptrdiff_t&;
+	  using size_type = std::size_t;
+	  using value_type = std::ptrdiff_t;
 
 	  constexpr
 	  index() noexcept
@@ -404,20 +410,20 @@ namespace __detail
 	  { return index(rhs * v); }
 
 	private:
-	  ptrdiff_t value;
+	  std::ptrdiff_t value;
 	};
 
-  template<int Rank>
+  template<int _Rank>
 	struct bounds_iterator;
 
 	// Preconditions (for all functions): after operation:
 	//  - every component must be greater than or equal to zero
 	//  - product of all components must not overflow ptrdiff_t
-  template<int Rank>
+  template<int _Rank>
 	class bounds
-	: private __detail::coordinate_facade<bounds<Rank>, ptrdiff_t, Rank>
+	: private __detail::coordinate_facade<bounds<_Rank>, std::ptrdiff_t, _Rank>
 	{
-	  using Base = __detail::coordinate_facade<bounds<Rank>, ptrdiff_t, Rank>;
+	  using Base = __detail::coordinate_facade<bounds<_Rank>, std::ptrdiff_t, _Rank>;
 	  friend Base;
 
 	public:
@@ -523,17 +529,17 @@ namespace __detail
 	  }
 	};
 
-  template<int Rank>
+  template<int _Rank>
 	struct bounds_iterator
 	: public iterator<random_access_iterator_tag,
-					  index<Rank>,
-					  ptrdiff_t,
-					  const __detail::arrow_proxy<index<Rank>>,
-					  const index<Rank>>
+					  index<_Rank>,
+					  std::ptrdiff_t,
+					  const __detail::arrow_proxy<index<_Rank>>,
+					  const index<_Rank>>
 	{
 		// Preconditions: bnd.contains(curr) unless bnd.size() == 0
 	  explicit
-	  bounds_iterator(bounds<Rank> bnd, index<Rank> curr = index<Rank>{}) noexcept
+	  bounds_iterator(bounds<_Rank> bnd, index<_Rank> curr = index<_Rank>{}) noexcept
 	  : bnd{std::move(bnd)},
 		curr{std::move(curr)}
 	  { }
@@ -544,12 +550,12 @@ namespace __detail
 
 	  pointer
 	  operator->() const noexcept
-	  { return __detail::arrow_proxy<index<Rank>>{curr}; }
+	  { return __detail::arrow_proxy<index<_Rank>>{curr}; }
 
 	  bounds_iterator&
 	  operator++() noexcept
 	  {
-		for (int i = Rank; i-- > 0;)
+		for (int i = _Rank; i-- > 0;)
 		{
 		  if (++curr[i] < bnd[i])
 		    return *this;
@@ -558,7 +564,7 @@ namespace __detail
 		}
 
 		// If we're here we've wrapped over - set to past-the-end.
-		for (int i = 0; i < Rank; ++i)
+		for (int i = 0; i < _Rank; ++i)
 		  curr[i] = bnd[i];
 		return *this;
 	  }
@@ -573,7 +579,7 @@ namespace __detail
 	  bounds_iterator&
 	  operator--() noexcept
 	  {
-		for (int i = Rank; i-- > 0;)
+		for (int i = _Rank; i-- > 0;)
 		{
 		  if (curr[i]-- > 0)
 				  return *this;
@@ -607,12 +613,12 @@ namespace __detail
 	  {
 		auto linear_idx = linearize(curr) + n;
 
-		bounds<Rank> stride;
-		stride[Rank - 1] = 1;
-		for (int i = Rank - 1; i-- > 0;)
+		bounds<_Rank> stride;
+		stride[_Rank - 1] = 1;
+		for (int i = _Rank - 1; i-- > 0;)
 		  stride[i] = stride[i + 1] * bnd[i + 1];
 
-		for (int i = 0; i < Rank; ++i)
+		for (int i = 0; i < _Rank; ++i)
 		{
 		  curr[i] = linear_idx / stride[i];
 		  linear_idx = linear_idx % stride[i];
@@ -651,7 +657,7 @@ namespace __detail
 	  bool
 	  operator<(const bounds_iterator& rhs) const noexcept
 	  {
-		for (int i = 0; i < Rank; ++i)
+		for (int i = 0; i < _Rank; ++i)
 		{
 		  if (curr[i] < rhs.curr[i])
 					return true;
@@ -679,14 +685,14 @@ namespace __detail
 	  }
 
 	private:
-	  ptrdiff_t
-	  linearize(const index<Rank>& idx) const noexcept
+	  std::ptrdiff_t
+	  linearize(const index<_Rank>& idx) const noexcept
 	  {
 		// TODO: Smarter impl.
 
 		// Check if past-the-end
 		bool pte = true;
-		for (int i = 0; i < Rank; ++i)
+		for (int i = 0; i < _Rank; ++i)
 		{
 		  if (idx[i] != bnd[i])
 			{
@@ -695,13 +701,13 @@ namespace __detail
 			}
 		}
 
-		ptrdiff_t multiplier = 1;
-		ptrdiff_t res = 0;
+		std::ptrdiff_t multiplier = 1;
+		std::ptrdiff_t res = 0;
 
 		if (pte)
 		{
 		  res = 1;
-		  for (int i = Rank; i-- > 0;)
+		  for (int i = _Rank; i-- > 0;)
 			{
 					res += (idx[i] - 1) * multiplier;
 					multiplier *= bnd[i];
@@ -709,7 +715,7 @@ namespace __detail
 		}
 		else
 		{
-		  for (int i = Rank; i-- > 0;)
+		  for (int i = _Rank; i-- > 0;)
 			{
 					res += idx[i] * multiplier;
 					multiplier *= bnd[i];
@@ -719,15 +725,15 @@ namespace __detail
 		return res;
 	  }
 
-	  bounds<Rank> bnd;
-	  index<Rank> curr;
+	  bounds<_Rank> bnd;
+	  index<_Rank> curr;
 	};
 
   template<>
 	struct bounds_iterator<1>
 	: public iterator<random_access_iterator_tag,
 					  index<1>,
-					  ptrdiff_t,
+					  std::ptrdiff_t,
 					  const __detail::arrow_proxy<index<1>>,
 					  const index<1>>
 	{
@@ -840,14 +846,14 @@ namespace __detail
 	  index<1> curr;
 	};
 
-	template<int Rank>
-	bounds_iterator<Rank>
-	operator+(typename bounds_iterator<Rank>::difference_type n,
-			  const bounds_iterator<Rank>& rhs) noexcept
+	template<int _Rank>
+	bounds_iterator<_Rank>
+	operator+(typename bounds_iterator<_Rank>::difference_type n,
+			  const bounds_iterator<_Rank>& rhs) noexcept
 	{ return rhs + n; }
 
-} // inline namespace D4087
+} // inline namespace fundamentals_v2
 } // namespace experimental
 } // namespace std
 
-#endif // _GLIBCXX_COORDINATE_H_
+#endif // _GLIBCXX_COORDINATE_H

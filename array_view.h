@@ -1,41 +1,69 @@
-#pragma once
+// <array_view.h> -*- C++ -*-
 
-#ifndef _GLIBCXX_ARRAY_VIEW_H_
-#define _GLIBCXX_ARRAY_VIEW_H_ 1
+// Copyright (C) 2001-2014 Free Software Foundation, Inc.
+//
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or (at your option)
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+#ifndef _GLIBCXX_ARRAY_VIEW_H
+#define _GLIBCXX_ARRAY_VIEW_H 1
+
+#pragma GCC system_header
+
+#if __cplusplus < 201500L
+# include <bits/c++1z_warning.h>
+#else
 
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
 #include "coordinate.h"
 
-namespace std
+namespace std _GLIBCXX_VISIBILITY(default)
 {
 namespace experimental
 {
-inline namespace D4087
+inline namespace fundamentals_v2
 {
 
-  template<typename ValueType, int Rank> class array_view;
-  template<typename ValueType, int Rank> class strided_array_view;
+  template<typename _Tp, int _Rank> class array_view;
+  template<typename _Tp, int _Rank> class strided_array_view;
 
   namespace __detail
   {
   	// Note: This should be replaced with std::index_sequence if available.
-  	template<size_t... I> struct index_seq {};
+  	template<std::size_t... I> struct index_seq {};
 
   	template<typename T>  struct append_1;
-  	template<size_t... I> struct append_1<index_seq<I...>> { using type = index_seq<I..., sizeof...(I)>; };
+  	template<std::size_t... I> struct append_1<index_seq<I...>> { using type = index_seq<I..., sizeof...(I)>; };
   	template<typename T>  using  append_1_t = typename append_1<T>::type;
 
-  	template<size_t N> struct make_seq;
-  	template<size_t N> using  make_seq_t = typename make_seq<N>::type;
+  	template<std::size_t N> struct make_seq;
+  	template<std::size_t N> using  make_seq_t = typename make_seq<N>::type;
 
-  	template<size_t N> struct make_seq    { using type = append_1_t<make_seq_t<N - 1>>; };
+  	template<std::size_t N> struct make_seq    { using type = append_1_t<make_seq_t<N - 1>>; };
   	template<>         struct make_seq<0> { using type = index_seq<>; };
 
-  	template<typename T, size_t... I>
+  	template<typename T, std::size_t... I>
   	constexpr bounds<sizeof...(I)> make_bounds_inner(index_seq<I...>) noexcept
-  	{ return{ static_cast<ptrdiff_t>(std::extent<T, I>::value)... }; }
+  	{ return{ static_cast<std::ptrdiff_t>(std::extent<T, I>::value)... }; }
 
   	// Make bounds from an array type extents.
   	template<typename T>
@@ -43,13 +71,13 @@ inline namespace D4087
   	{ return make_bounds_inner<T>(make_seq_t<std::rank<T>::value>{}); }
 
   	// Make a stride vector from bounds, assuming contiguous memory.
-  	template<int Rank>
-  	  constexpr index<Rank>
-	  make_stride(const bounds<Rank>& bnd) noexcept
+  	template<int _Rank>
+  	  constexpr index<_Rank>
+	  make_stride(const bounds<_Rank>& bnd) noexcept
   	  {
-		index<Rank> stride;
-		stride[Rank - 1] = 1;
-		for (int i = Rank - 1; i-- > 0;)
+		index<_Rank> stride;
+		stride[_Rank - 1] = 1;
+		for (int i = _Rank - 1; i-- > 0;)
 		  stride[i] = stride[i + 1] * bnd[i + 1];
 		return stride;
   	  }
@@ -64,13 +92,13 @@ inline namespace D4087
 	  to_pointer(T(&t)[N]) noexcept
   	  { return to_pointer(t[0]); }
 
-  	template<typename T, typename ValueType>
+  	template<typename T, typename _Tp>
   	  struct is_viewable
 	  : std::integral_constant<bool,
-							   std::is_convertible<decltype(std::declval<T>().size()), ptrdiff_t>::value
-												&& std::is_convertible<decltype(std::declval<T>().data()), ValueType*>::value
+							   std::is_convertible<decltype(std::declval<T>().size()), std::ptrdiff_t>::value
+												&& std::is_convertible<decltype(std::declval<T>().data()), _Tp*>::value
 												&& std::is_same<std::remove_cv_t<std::remove_pointer_t<decltype(std::declval<T>().data())>>,
-												   std::remove_cv_t<ValueType>>::value>
+												   std::remove_cv_t<_Tp>>::value>
 	  {};
 
   	template<typename T>
@@ -88,28 +116,28 @@ inline namespace D4087
 	  : is_array_view_oracle<std::decay_t<T>>
   	  {};
 
-  	template<template<typename, int> typename ViewType, typename ValueType, int Rank>
+  	template<template<typename, int> typename ViewType, typename _Tp, int _Rank>
   	  struct slice_return_type
-	  { using type = ViewType<ValueType, Rank - 1>; };
+	  { using type = ViewType<_Tp, _Rank - 1>; };
 
-  	template<template<typename, int> typename ViewType, typename ValueType>
-  	  struct slice_return_type<ViewType, ValueType, 1>
+  	template<template<typename, int> typename ViewType, typename _Tp>
+  	  struct slice_return_type<ViewType, _Tp, 1>
 	  { using type = void; };
 
-  	template<template<typename, int> typename ViewType, typename ValueType, int Rank>
-  	  using slice_return_type_t = typename slice_return_type<ViewType, ValueType, Rank>::type;
+  	template<template<typename, int> typename ViewType, typename _Tp, int _Rank>
+  	  using slice_return_type_t = typename slice_return_type<ViewType, _Tp, _Rank>::type;
 
-  	template<typename ValueType, int Rank>
+  	template<typename _Tp, int _Rank>
   	  class any_array_view_base
   	  {
   	  public:
-		static const int rank = Rank;
+		static const int rank = _Rank;
 		using index_type  = index<rank>;
 		using bounds_type = bounds<rank>;
-		using size_type   = size_t;
-		using value_type  = ValueType;
-		using pointer     = ValueType*;
-		using reference   = ValueType&;
+		using size_type   = std::size_t;
+		using value_type  = _Tp;
+		using pointer     = _Tp*;
+		using reference   = _Tp&;
 
 		constexpr bounds_type
 		bounds() const noexcept
@@ -181,11 +209,11 @@ inline namespace D4087
 
   } // namespace __detail
 
-  template<typename ValueType, int Rank = 1>
+  template<typename _Tp, int _Rank = 1>
 	class array_view
-	: public __detail::any_array_view_base<ValueType, Rank>
+	: public __detail::any_array_view_base<_Tp, _Rank>
 	{
-	  using Base = __detail::any_array_view_base<ValueType, Rank>;
+	  using Base = __detail::any_array_view_base<_Tp, _Rank>;
 	  template<typename AnyValueType, int AnyRank> friend class array_view;
 	  template<typename AnyValueType, int AnyRank> friend class strided_array_view;
 
@@ -272,7 +300,7 @@ inline namespace D4087
 	  // Returns a slice of the view.
 	  // Preconditions: slice < (*this).bounds()[0]
 	  template<int _dummy_rank = rank>
-		constexpr typename __detail::slice_return_type<std::experimental::D4087::array_view, value_type, Rank>::type
+		constexpr typename __detail::slice_return_type<std::experimental::fundamentals_v2::array_view, value_type, _Rank>::type
 		operator[](typename std::enable_if<_dummy_rank != 1, typename index_type::value_type>::type slice) const
 		{
 		  static_assert(_dummy_rank == rank, "_dummy_rank must have the default value!");
@@ -281,7 +309,7 @@ inline namespace D4087
 		  index_type idx;
 		  idx[0] = slice;
 
-		  std::experimental::D4087::bounds<rank - 1> bound;
+		  std::experimental::fundamentals_v2::bounds<rank - 1> bound;
 		  for (int i = 1; i < rank; ++i)
 			bound[i - 1] = Base::bnd[i];
 
@@ -293,12 +321,12 @@ inline namespace D4087
 	  { return Base::data_ptr; }
 	};
 
-  template<typename ValueType, int Rank = 1>
+  template<typename _Tp, int _Rank = 1>
 	class strided_array_view
-	: public __detail::any_array_view_base<ValueType, Rank>
+	: public __detail::any_array_view_base<_Tp, _Rank>
 	{
-	  using Base = __detail::any_array_view_base<ValueType, Rank>;
-	  friend strided_array_view<const ValueType, Rank>;
+	  using Base = __detail::any_array_view_base<_Tp, _Rank>;
+	  friend strided_array_view<const _Tp, _Rank>;
 
 	public:
 	  using Base::rank;
@@ -339,8 +367,10 @@ inline namespace D4087
 	  { }
 
 	  template<typename ViewValueType,
-			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<ViewValueType>, pointer>::value
-										&& std::is_same<std::remove_cv_t<ViewValueType>, std::remove_cv_t<value_type>>::value>>
+			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<ViewValueType>,
+															   pointer>::value
+										&& std::is_same<std::remove_cv_t<ViewValueType>,
+														std::remove_cv_t<value_type>>::value>>
 		constexpr strided_array_view&
 		operator=(const strided_array_view<ViewValueType, rank>& rhs) noexcept
 		{
@@ -355,7 +385,7 @@ inline namespace D4087
 	  // Returns a slice of the view.
 	  // Preconditions: slice < (*this).bounds()[0]
 	  template<int _dummy_rank = rank>
-		constexpr __detail::slice_return_type_t<std::experimental::D4087::strided_array_view, value_type, Rank>
+		constexpr __detail::slice_return_type_t<std::experimental::fundamentals_v2::strided_array_view, value_type, _Rank>
 		operator[](typename std::enable_if<_dummy_rank != 1,
 										   typename index_type::value_type>::type slice) const noexcept
 		{
@@ -365,8 +395,8 @@ inline namespace D4087
 		  index_type idx;
 		  idx[0] = slice;
 
-		  std::experimental::D4087::bounds<rank - 1> bound;
-		  std::experimental::D4087::index<rank - 1> stride;
+		  std::experimental::fundamentals_v2::bounds<rank - 1> bound;
+		  std::experimental::fundamentals_v2::index<rank - 1> stride;
 		  for (int i = 1; i < rank; ++i)
 		  {
 			bound[i - 1] = Base::bnd[i];
@@ -377,8 +407,8 @@ inline namespace D4087
 		}
 	};
 
-} // inline namespace D4087
+} // inline namespace fundamentals_v2
 } // namespace experimenta
 } // namespace std
 
-#endif // _GLIBCXX_ARRAY_VIEW_H_
+#endif // _GLIBCXX_ARRAY_VIEW_H
