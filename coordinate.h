@@ -11,7 +11,7 @@
 
 #include <assert.h>
 #include <iterator>
-#include <type_traits>
+#include <experimental/type_traits>
 
 #define constexpr
 
@@ -28,7 +28,7 @@ namespace __detail
   template<typename _ConcTp, typename _Tp, int _Rank>
 	class coordinate_facade
 	{
-	  static_assert(std::is_fundamental<_Tp>::value, "ValueType must be fundamental!");
+	  static_assert(std::is_fundamental_v<_Tp>, "ValueType must be fundamental!");
 	  static_assert(_Rank > 0, "Rank must be greater than 0!");
 
 	public:
@@ -41,7 +41,8 @@ namespace __detail
 	  constexpr
 	  coordinate_facade() noexcept
 	  {
-		static_assert(std::is_base_of<coordinate_facade, _ConcTp>::value, "ConcreteType must be derived from coordinate_facade.");
+		static_assert(std::is_base_of_v<coordinate_facade, _ConcTp>,
+					  "ConcreteType must be derived from coordinate_facade.");
 		for (int i = 0; i < rank; ++i)
 		  elems[i] = {};
 	  }
@@ -49,7 +50,8 @@ namespace __detail
 	  constexpr
 	  coordinate_facade(value_type e0) noexcept
 	  {
-		static_assert(std::is_base_of<coordinate_facade, _ConcTp>::value, "ConcreteType must be derived from coordinate_facade.");
+		static_assert(std::is_base_of_v<coordinate_facade, _ConcTp>,
+					  "ConcreteType must be derived from coordinate_facade.");
 		static_assert(rank == 1, "This constructor can only be used with rank == 1.");
 		elems[0] = e0;
 	  }
@@ -58,7 +60,8 @@ namespace __detail
 	  constexpr
 	  coordinate_facade(std::initializer_list<value_type> il)
 	  {
-		static_assert(std::is_base_of<coordinate_facade, _ConcTp>::value, "ConcreteType must be derived from coordinate_facade.");
+		static_assert(std::is_base_of_v<coordinate_facade, _ConcTp>,
+					  "ConcreteType must be derived from coordinate_facade.");
 		assert(il.size() == rank);
 		for (int i = 0; i < rank; ++i)
 		  elems[i] = begin(il)[i];

@@ -32,7 +32,7 @@
 #else
 
 #include <stdexcept>
-#include <type_traits>
+#include <experimental/type_traits>
 #include <utility>
 #include "coordinate.h"
 
@@ -63,12 +63,12 @@ inline namespace fundamentals_v2
 
   	template<typename T, std::size_t... I>
   	constexpr bounds<sizeof...(I)> make_bounds_inner(index_seq<I...>) noexcept
-  	{ return{ static_cast<std::ptrdiff_t>(std::extent<T, I>::value)... }; }
+  	{ return{ static_cast<std::ptrdiff_t>(std::extent_v<T, I>)... }; }
 
   	// Make bounds from an array type extents.
   	template<typename T>
-  	constexpr auto make_bounds() noexcept -> decltype(make_bounds_inner<T>(make_seq_t<std::rank<T>::value>{}))
-  	{ return make_bounds_inner<T>(make_seq_t<std::rank<T>::value>{}); }
+  	constexpr auto make_bounds() noexcept -> decltype(make_bounds_inner<T>(make_seq_t<std::rank_v<T>>{}))
+  	{ return make_bounds_inner<T>(make_seq_t<std::rank_v<T>>{}); }
 
   	// Make a stride vector from bounds, assuming contiguous memory.
   	template<int _Rank>
@@ -95,10 +95,10 @@ inline namespace fundamentals_v2
   	template<typename T, typename _Tp>
   	  struct is_viewable
 	  : std::integral_constant<bool,
-							   std::is_convertible<decltype(std::declval<T>().size()), std::ptrdiff_t>::value
-												&& std::is_convertible<decltype(std::declval<T>().data()), _Tp*>::value
-												&& std::is_same<std::remove_cv_t<std::remove_pointer_t<decltype(std::declval<T>().data())>>,
-												   std::remove_cv_t<_Tp>>::value>
+							   std::is_convertible_v<decltype(std::declval<T>().size()), std::ptrdiff_t>
+												&& std::is_convertible_v<decltype(std::declval<T>().data()), _Tp*>
+												&& std::is_same_v<std::remove_cv_t<std::remove_pointer_t<decltype(std::declval<T>().data())>>,
+												   std::remove_cv_t<_Tp>>>
 	  {};
 
   	template<typename T>
@@ -241,17 +241,19 @@ inline namespace fundamentals_v2
 
 	  template<typename ViewValueType, int ViewRank,
 			   typename = std::enable_if_t<rank == 1
-										&& std::is_convertible<std::add_pointer_t<ViewValueType>, pointer>::value
-										&& std::is_same<std::remove_cv_t<ViewValueType>, std::remove_cv_t<value_type>>::value>>
+										&& std::is_convertible_v<std::add_pointer_t<ViewValueType>, pointer>
+										&& std::is_same_v<std::remove_cv_t<ViewValueType>, std::remove_cv_t<value_type>>>>
 		constexpr array_view(const array_view<ViewValueType, ViewRank>& rhs) noexcept
 		: Base{static_cast<typename bounds_type::value_type>(rhs.size()), 1, rhs.data()}
 		{ }
 
 	  // Preconditions: product of the ArrayType extents must be <= ptrdiff_t max.
 	  template<typename ArrayType,
-			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<std::remove_all_extents_t<ArrayType>>, pointer>::value
-										&& std::is_same<std::remove_cv_t<std::remove_all_extents_t<ArrayType>>, std::remove_cv_t<value_type>>::value
-										&& std::rank<ArrayType>::value == rank>>
+			   typename = std::enable_if_t<std::is_convertible_v<std::add_pointer_t<std::remove_all_extents_t<ArrayType>>,
+																 pointer>
+										&& std::is_same_v<std::remove_cv_t<std::remove_all_extents_t<ArrayType>>,
+														  std::remove_cv_t<value_type>>
+										&& std::rank_v<ArrayType> == rank>>
 		constexpr array_view(ArrayType& data) noexcept
 		: Base{__detail::make_bounds<ArrayType>(),
 			   __detail::make_stride(__detail::make_bounds<ArrayType>()),
@@ -259,10 +261,10 @@ inline namespace fundamentals_v2
 		{ }
 
 	  template<typename ViewValueType,
-			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<ViewValueType>,
-															   pointer>::value
-										&& std::is_same<std::remove_cv_t<ViewValueType>,
-														std::remove_cv_t<value_type>>::value>>
+			   typename = std::enable_if_t<std::is_convertible_v<std::add_pointer_t<ViewValueType>,
+																 pointer>
+										&& std::is_same_v<std::remove_cv_t<ViewValueType>,
+														  std::remove_cv_t<value_type>>>>
 		constexpr
 		array_view(const array_view<ViewValueType, rank>& rhs) noexcept
 		: Base{rhs.bnd, rhs.srd, rhs.data_ptr}
@@ -282,10 +284,10 @@ inline namespace fundamentals_v2
 	  { }
 
 	  template<typename ViewValueType,
-			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<ViewValueType>,
-															   pointer>::value
-										&& std::is_same<std::remove_cv_t<ViewValueType>,
-														std::remove_cv_t<value_type>>::value>>
+			   typename = std::enable_if_t<std::is_convertible_v<std::add_pointer_t<ViewValueType>,
+																 pointer>
+										&& std::is_same_v<std::remove_cv_t<ViewValueType>,
+														  std::remove_cv_t<value_type>>>>
 		constexpr array_view&
 		operator=(const array_view<ViewValueType, rank>& rhs) noexcept
 		{
@@ -342,15 +344,19 @@ inline namespace fundamentals_v2
 	  { }
 
 	  template<typename ViewValueType,
-			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<ViewValueType>, pointer>::value
-										&& std::is_same<std::remove_cv_t<ViewValueType>, std::remove_cv_t<value_type>>::value>>
+			   typename = std::enable_if_t<std::is_convertible_v<std::add_pointer_t<ViewValueType>,
+										   pointer>
+										&& std::is_same_v<std::remove_cv_t<ViewValueType>,
+														  std::remove_cv_t<value_type>>>>
 		constexpr strided_array_view(const array_view<ViewValueType, rank>& rhs) noexcept
 		: Base{rhs.bnd, rhs.srd, rhs.data_ptr}
 		{ }
 
   	  template<typename ViewValueType,
-			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<ViewValueType>, pointer>::value
-										&& std::is_same<std::remove_cv_t<ViewValueType>, std::remove_cv_t<value_type>>::value>>
+			   typename = std::enable_if_t<std::is_convertible_v<std::add_pointer_t<ViewValueType>,
+																 pointer>
+										&& std::is_same_v<std::remove_cv_t<ViewValueType>,
+														  std::remove_cv_t<value_type>>>>
 		constexpr
 		strided_array_view(const strided_array_view<ViewValueType, rank>& rhs) noexcept
 		: Base{rhs.bnd, rhs.srd, rhs.data_ptr}
@@ -367,10 +373,10 @@ inline namespace fundamentals_v2
 	  { }
 
 	  template<typename ViewValueType,
-			   typename = std::enable_if_t<std::is_convertible<std::add_pointer_t<ViewValueType>,
-															   pointer>::value
-										&& std::is_same<std::remove_cv_t<ViewValueType>,
-														std::remove_cv_t<value_type>>::value>>
+			   typename = std::enable_if_t<std::is_convertible_v<std::add_pointer_t<ViewValueType>,
+																 pointer>
+										&& std::is_same_v<std::remove_cv_t<ViewValueType>,
+														  std::remove_cv_t<value_type>>>>
 		constexpr strided_array_view&
 		operator=(const strided_array_view<ViewValueType, rank>& rhs) noexcept
 		{
