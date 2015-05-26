@@ -1,7 +1,7 @@
 // Components for manipulating sequences of objects where the size is fixed
 // at construction. -*- C++ -*-
 
-// Copyright (C) 2014 Free Software Foundation, Inc.
+// Copyright (C) 2015 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -125,7 +125,7 @@ namespace std {
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
-	dynarray(size_type __num, const _Alloc& __alloc)
+	dynarray(allocator_arg_t, const _Alloc& __alloc, size_type __num)
 	: _M_size{__num},
 	  _M_data{this->_M_allocate(__num)}
 	{
@@ -150,7 +150,8 @@ namespace std {
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
-	dynarray(size_type __num, const _Tp& __val, const _Alloc& __alloc)
+	dynarray(allocator_arg_t, const _Alloc& __alloc,
+		 size_type __num, const _Tp& __val)
 	: _M_size{__num},
 	  _M_data{this->_M_allocate(__num)}
 	{
@@ -175,7 +176,8 @@ namespace std {
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
-	dynarray(const dynarray& __dyna, const _Alloc& __alloc)
+	dynarray(allocator_arg_t, const _Alloc& __alloc,
+		 const dynarray& __dyna)
 	: _M_size{__dyna._M_size},
 	  _M_data{_M_allocate(__dyna._M_size)}
         {
@@ -200,7 +202,8 @@ namespace std {
 
       template<typename _Alloc>
 	[[gnu::always_inline]]
-	dynarray(std::initializer_list<value_type> __il, const _Alloc& __alloc)
+	dynarray(allocator_arg_t, const _Alloc& __alloc,
+		 std::initializer_list<value_type> __il)
 	: _M_size{__il.size()},
 	  _M_data{_M_allocate(__il.size())}
 	{
@@ -346,7 +349,7 @@ namespace std {
     struct uses_allocator<dynarray<_Tp>, _Alloc> : true_type { };
 
   template<typename _Tp>
-    bool
+    inline bool
     operator==(const dynarray<_Tp>& __lhs,
 	       const dynarray<_Tp>& __rhs)
     {
@@ -355,13 +358,7 @@ namespace std {
     }
 
   template<typename _Tp>
-    bool
-    operator!=(const dynarray<_Tp>& __lhs,
-	       const dynarray<_Tp>& __rhs)
-    { return !(__lhs == __rhs); }
-
-  template<typename _Tp>
-    bool
+    inline bool
     operator<(const dynarray<_Tp>& __lhs,
 	      const dynarray<_Tp>& __rhs)
     {
@@ -370,19 +367,25 @@ namespace std {
     }
 
   template<typename _Tp>
-    bool
+    inline bool
+    operator!=(const dynarray<_Tp>& __lhs,
+	       const dynarray<_Tp>& __rhs)
+    { return !(__lhs == __rhs); }
+
+  template<typename _Tp>
+    inline bool
     operator<=(const dynarray<_Tp>& __lhs,
 	       const dynarray<_Tp>& __rhs)
     { return !(__rhs < __lhs); }
 
   template<typename _Tp>
-    bool
+    inline bool
     operator>(const dynarray<_Tp>& __lhs,
 	      const dynarray<_Tp>& __rhs)
     { return __rhs < __lhs; }
 
   template<typename _Tp>
-    bool
+    inline bool
     operator>=(const dynarray<_Tp>& __lhs,
 	       const dynarray<_Tp>& __rhs)
     { return !(__lhs < __rhs); }
