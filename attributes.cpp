@@ -7,6 +7,10 @@
 
 // /home/ed/bin_binio/bin/g++ -std=c++14 -pedantic -o attributes attributes.cpp
 
+// /home/ed/bin_biniold/bin/g++ -std=c++14 -o attributes attributes.cpp
+
+// /home/ed/bin_biniold/bin/g++ -std=c++14 -pedantic -o attributes attributes.cpp
+
 enum class Planets
 {
   Mercury,
@@ -35,9 +39,9 @@ class C
 public:
   enum Foo
   {
-    XX,
-    YY [[deprecated("unused")]],
-    ZZ
+    T,
+    U [[deprecated("unused")]],
+    V
   };
 };
 
@@ -45,11 +49,11 @@ template<typename Tp>
   class D
   {
   public:
-    enum Foo
+    enum Bar
     {
-      XX,
-      YY [[deprecated("unused")]],
-      ZZ
+      X,
+      Y [[deprecated("unused")]],
+      Z
     };
   };
 
@@ -64,9 +68,9 @@ namespace poo [[gnu::visibility("default")]]
 
   int i = Mauve;
 
-  auto j = C::YY;
+  auto j = C::U; // { dg-warning ".C::U. is deprecated" }
 
-  auto k = D<int>::YY;
+  auto k = D<int>::Y; // { dg-warning ".D<int>::Y. is deprecated" }
 }
 
 int

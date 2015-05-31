@@ -71,7 +71,7 @@ template<typename Num>
     {
       //  Even angles.
       for (auto k = 0; k <= 180; ++k)
-        cos_theta.push_back(k * pi / 180);
+        cos_theta.push_back(std::cos(k * pi / 180));
     }
     else
     {
@@ -79,6 +79,8 @@ template<typename Num>
       for (auto k = 50; k >= -50; --k)
         cos_theta.push_back(0.02L * k);
     }
+    //for (auto k = 0L; k < cos_theta.size(); ++k)
+    //  std::cout << cos_theta[k] << '\n';
 
     Num eff_extinct;
     Num eff_scatter;

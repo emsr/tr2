@@ -1,4 +1,4 @@
-// /home/ed/bin/bin_concepts -std=c++1z -o concept1 concept1.cpp
+// /home/ed/bin_concepts/bin/g++ -std=c++1z -o concept1 concept1.cpp
 
 //  Constrained type specifiers.
 //  dcl.spec.auto.constr

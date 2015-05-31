@@ -12,8 +12,8 @@
       here for reference
 
 		    sqrt(z)
-      (1) Ai(z)   = ------- (I  (xi) - I (xi))
-		       3      -1/3	1/3
+      (1) Ai(z)   = ------- (I (xi) - I (xi))
+		       3      -1/3     1/3
 
 		    sqrt(z/3)
       (2) Ai(z)   = --------- K (xi)
@@ -87,13 +87,13 @@
       the corresponding Bessel functions of the first kind are recovered
       via the identities
 
-	    J (Z) = EXP(NU PI I/2) I (Z EXP(-PI I/2)) ,
+	    J (z) = exp(nu pi i/2) I (z exp(-pi i/2)) ,
 	     nu 		    nu
-		  0 <= ARG(Z) <= PI/2
+		  0 <= arg(z) <= pi/2
       AND
-	    J (Z) = EXP(-NU PI I/2) I (Z EXP(PI I/2)) ,
-	     nu 		     NU
-		 -PI/2 <= ARG(Z) < 0 .
+	    J (z) = exp(-nu pi i/2) I (z exp(pi i/2)) ,
+	     nu 		     nu
+		 -pi/2 <= arg(z) < 0 .
 
       The particular backward recursion algorithm used is discussed in 
     
@@ -125,11 +125,11 @@
       See individual subprogram comments for additional details.
 
  
-@param[in]  z       The argument at which the Airy function and its derivative are to be computed.
-@param[in]  deps    Relative error required.  At present, deps is used only in the 
-                    backward recursion algorithms.
-@param[out]  zai    The value computed for Ai(z).
-@param[out]  zaipr  The value computed for Ai'(z).
+  @param[in]  z       The argument at which the Airy function and its derivative are to be computed.
+  @param[in]  deps    Relative error required.  At present, deps is used only in the 
+                      backward recursion algorithms.
+  @param[out]  zai    The value computed for Ai(z).
+  @param[out]  zaipr  The value computed for Ai'(z).
 
     Date of last revision
       May 5, 1986
@@ -308,25 +308,25 @@ zairy(z, deps, zai, zaipr, ier)
 
 /**
 
-    PURPOSE
-      COMPUTE THE MODIFIED BESSEL FUNCTIONS OF THE FIRST KIND ORDERS 
-      + OR - 1/3 AND + OR - 2/3 NEEDED TO COMPUTE THE AIRY FUNCTIONS
-      AND THEIR DERIVATIVES FROM THEIR REPRESENTATION IN TERMS OF THE
-      MODIFIED BESSEL FUNCTIONS.  THIS PROGRAM IS ONLY USED FOR Z
-      LESS THAN TWO IN MODULUS AND IN THE CLOSED RIGHT HALF PLANE.
-      THIS STEMS FROM THE FACT THAT THE VALUES OF THE MODIFIED 
-      BESSEL FUNCTIONS OCCURING IN THE REPRESENTATIONS OF THE AIRY
-      FUNCTIONS AND THEIR DERIVATIVES ARE ALMOST EQUAL FOR Z LARGE
-      IN THE RIGHT HALF PLANE.  THIS MEANS THAT LOSS OF SIGNIFICANCE
-      OCCURS IF THESE REPRESENTATIONS ARE USED FOR Z TO LARGE IN
-      MAGNITUDE.  THIS ALGORITHM IS ALSO NOT USED FOR Z TOO SMALL,
-      SINCE A LOW ORDER RATIONAL APPROXIMATION CAN BE USED INSTEAD.
+    Purpose
+      Compute the modified Bessel functions of the first kind orders 
+      + or - 1/3 and + or - 2/3 needed to compute the Airy functions
+      and their derivatives from their representation in terms of the
+      modified Bessel functions.  This program is only used for z
+      less than two in modulus and in the closed right half plane.
+      This stems from the fact that the values of the modified 
+      Bessel functions occuring in the representations of the Airy
+      functions and their derivatives are almost equal for z large
+      in the right half plane.  This means that loss of significance
+      occurs if these representations are used for z to large in
+      magnitude.  This algorithm is also not used for z too small,
+      since a low order rational approximation can be used instead.
 
-      THIS SUBROUTINE IS AN IMPLEMENTATION OF A MODIFIED VERSION OF
-      MILLER'S ALGORITHM FOR COMPUTATION BY BACKWARD RECURRENCE
-      FROM THE RECURRENCE RELATION
+      This subroutine is an implementation of a modified version of
+      Miller's algorithm for computation by backward recurrence
+      from the recurrence relation
 
-	I-SUB-(NU-1) = (2*NU/Z)*I-SUB-NU + I-SUB-(NU+1)
+	I-sub-(nu-1) = (2*nu/z)*I-sub-nu + I-sub-(nu+1)
 
       SATISFIED BY THE MODIFIED BESSEL FUNCTIONS OF THE FIRST KIND.
       THE NORMALIZATION RELATIONSHIP USED IS
@@ -403,21 +403,20 @@ zairy(z, deps, zai, zaipr, ier)
 void
 ziairy(z,deps,zi1d3,zim1d3,zi2d3,zim2d3)
 {
-      double complex z, zi1d3, zim1d3, zi2d3, zim2d3
-      double precision     deps
+      double complex z, zi1d3, zim1d3, zi2d3, zim2d3;
+      double deps;
 
       double complex z1dz, zplst2, zp2, zpold2, zplst1, zp1, zpold1, 
-                 zsum1, zsum2, zd2pow, zero, zone
-      double precision     dzr, dzi, dzrabs, dziabs, du, dv, d1dzi,
+                 zsum1, zsum2, zd2pow, zero, zone;
+      double dzr, dzi, dzrabs, dziabs, du, dv, d1dzi,
                  d1dzr, dmodz, dtest, dn, d2n, dzp2r, d2d3,
                  dzp2i, dnpn1, dnpn2, dnp2n1, dnp2n2, dfac1, dfac2,
                  done, dtwo, d2sqr2, dhalf, dgm4d3, dgm5d3, d1d3,
-                 d4d3, d5d3, d8d3, d10d3, d14d3, d16d3
-      double precision   spr, spi, splstr, splsti, slamn, skn, sone,
-                 stwo
-      logical    lstcnv
+                 d4d3, d5d3, d8d3, d10d3, d14d3, d16d3;
+      double spr, spi, splstr, splsti, slamn, skn, sone, stwo;
+      bool lstcnv;
 
-      integer    n, l, nend
+      int n, l, nend
 
       data sone/1.0/, stwo/2.0/
       data zero/(0.0d+00,0.0d+00)/, zone/(1.0d+00,0.0d+00)/
@@ -430,194 +429,180 @@ ziairy(z,deps,zi1d3,zim1d3,zi2d3,zim2d3)
            d2sqr2/2.828427124746190d+01/
 
       //  compute 1/z for use in recurrence for speed and abs(z)
-      dzr = std::real(z)
-      dzi = std::imag(z)
-      dzrabs = std::abs(dzr)
-      dziabs = std::abs(dzi)
-      du = dmax1(dzrabs,dziabs)
-      dv = dmin1(dzrabs,dziabs)
-      d1dzi = (done + (dv/du)**2)
-      dmodz = du*dsqrt(d1dzi)
-      d1dzi = du*d1dzi
-      d1dzr = (dzr/du)/d1dzi
-      d1dzi = -(dzi/du)/d1dzi
-      z1dz = dcmplx(d1dzr,d1dzi)
+      dzr = std::real(z);
+      dzi = std::imag(z);
+      dzrabs = std::abs(dzr);
+      dziabs = std::abs(dzi);
+      du = std::max(dzrabs, dziabs);
+      dv = std::min(dzrabs, dziabs);
+      d1dzi = (done + (dv/du)**2);
+      dmodz = du * std::sqrt(d1dzi);
+      d1dzi = du * d1dzi;
+      d1dzr = (dzr / du) / d1dzi;
+      d1dzi = -(dzi / du) / d1dzi;
+      z1dz = dcmplx(d1dzr, d1dzi);
 
       //  initialize for forward recursion based on order 2/3
-      n = 0
-      d2n = dfloat(n + n) + d4d3
-      zplst2 = zone
-      zp2 = dcmplx(d2n*d1dzr,d2n*d1dzi)
+      n = 0;
+      d2n = double(n + n) + d4d3;
+      zplst2 = zone;
+      zp2 = d2n * dcmplx(d1dzr, d1dzi);
 
       //  calculate weak convergence test and set flag for weak convergence loop
-      dtest = d2sqr2/deps
-      lstcnv = .false.
+      dtest = d2sqr2 / deps;
+      lstcnv = false;
 
 
       //  loop until weak and strong convergence tests satisfied when recurring forward
-   10   continue
+   10 continue
 
         //  loop until current convergence test satisfied
-   20     continue
+   20   continue
           //  update n dependent quantities
-          n = n + 1
-          d2n = d2n + dtwo
+          ++n;
+          d2n += dtwo;
           //  interchange values
-          zpold2 = zplst2
-          zplst2 = zp2
+          zpold2 = zplst2;
+          zplst2 = zp2;
           //  recur forward one step
-          zp2 = dcmplx(d2n*std::real(zplst2),d2n*std::imag(zplst2))*z1dz
-                  + zpold2
+          zp2 = z1dz * d2n * zplst2 + zpold2;
 
           //  check if convergence test (in 1-norm) satisfied
 
           if (std::abs(std::real(zp2)) + std::abs(std::imag(zp2)) >= dtest)
             go to 30
-          //  end if
 
-          go to 20
-        //  repeat
+        go to 20
 
    30   continue
 
         //  if strong convergence, then weak and strong convergence
-          if (lstcnv) go to 40
-        //  end if
+        if (lstcnv) go to 40
 
         //  calculate strong convergence test in single precision.  see
-          //  the olver and sookne papers cited for details.
-        spr = std::real(zp2)
-        spi = std::imag(zp2)
-        splstr = std::real(zplst2)
-        splsti = std::imag(zplst2)
+        //  the olver and sookne papers cited for details.
+        spr = std::real(zp2);
+        spi = std::imag(zp2);
+        splstr = std::real(zplst2);
+        splsti = std::imag(zplst2);
         //  compute scale factor to avoid possible overflow
-        slamn = dmax1(abs(spr),abs(spi))
+        slamn = std::max(std::abs(spr), std::abs(spi));
         //  compute the k-sub-n of strong convergence lemma
-        skn = sqrt(((spr/slamn)**2 + (spi/slamn)**2)/
-                   ((splstr/slamn)**2 + (splsti/slamn)**2))
+        skn = std::sqrt(((spr/slamn)**2 + (spi/slamn)**2)/
+                        ((splstr/slamn)**2 + (splsti/slamn)**2));
         //  compute quantity needed for lambda-sub-n of strong convergence lemma
-        slamn = dble(n+1)/dmodz
+        slamn = double(n + 1) / dmodz;
         //  determine appropriate value for rho-sub-n of lemma
-        if (skn + sone/skn > stwo*slamn) skn = slamn +
-          sqrt(slamn*slamn - sone)
+        if (skn + sone / skn > stwo * slamn)
+          skn = slamn + std::sqrt(slamn * slamn - sone);
         //  compute test value - sqrt(2) multiple already included
-        dtest = dtest*dble(sqrt(skn-sone/skn))
+        dtest *= std::sqrt(skn - sone / skn);
         //  set strong convergence test flag
-        lstcnv = .true.
+        lstcnv = true;
         go to 10
-   40   continue
+   40 continue
       //  repeat
 
       //  prepare for backward recurrence for both orders 1/3 and 2/3
-      dn = dfloat(n)
-      n = n + 1
-      d2n = dfloat(n+n)
-      zplst1 = zero
-      zplst2 = zero
+      dn = double(n);
+      ++n;
+      d2n = dfloat(n+n);
+      zplst1 = zero;
+      zplst2 = zero;
       //  carefully compute 1/zp2 to avoid overflow in complex divide
-      dzp2r = std::real(zp2)
-      dzp2i = std::imag(zp2)
-      dzrabs = std::abs(dzp2r)
-      dziabs = std::abs(dzp2i)
-      du = dmax1(dzrabs,dziabs)
-      dv = dmin1(dzrabs,dziabs)
-      d1dzi = du*(done + (dv/du)**2)
-      d1dzr = (dzp2r/du)/d1dzi
-      d1dzi = -(dzp2i/du)/d1dzi
-      zp1 = dcmplx(d1dzr,d1dzi)
-      zp2 = zp1
+      dzp2r = std::real(zp2);
+      dzp2i = std::imag(zp2);
+      dzrabs = std::abs(dzp2r);
+      dziabs = std::abs(dzp2i);
+      du = std::max(dzrabs, dziabs);
+      dv = std::min(dzrabs, dziabs);
+      d1dzi = du * (done + (dv/du)**2);
+      d1dzr = (dzp2r / du) / d1dzi;
+      d1dzi = -(dzp2i / du) / d1dzi;
+      zp1 = dcmplx(d1dzr, d1dzi);
+      zp2 = zp1;
       //  set up n dependent parameters used in normalization sum
-      dnpn1 = dn + d1d3
-      dnpn2 = dn + d2d3
-      dnp2n1 = (dn - done) + d2d3
-      dnp2n2 = (dn - done) + d4d3
+      dnpn1 = dn + d1d3;
+      dnpn2 = dn + d2d3;
+      dnp2n1 = (dn - done) + d2d3;
+      dnp2n2 = (dn - done) + d4d3;
       //  initialize normalization sum
-      dfac1 = dnpn1*dnp2n1/dn
-      zsum1 = dcmplx(dfac1*std::real(zp1),dfac1*std::imag(zp1))
-      dfac2 = dnpn2*dnp2n2/dn
-      zsum2 = dcmplx(dfac2*std::real(zp2),dfac2*std::imag(zp2))
+      dfac1 = dnpn1 * dnp2n1 / dn;
+      zsum1 = dfac1 * zp1;
+      dfac2 = dnpn2 * dnp2n2 / dn;
+      zsum2 = dfac2 * zp2;
       //  set ending loop index to correspond to k=1 term of the
       //  normalization relationship
       nend = n - 3
 
       //  if backward recurrence loop will be nontrivial
-        if (nend > 0)
-      then
+      if (nend > 0)
+      {
         //  loop until backward recursion to k=1 term of normalization
-          do 50 l=1,nend
+        do 50 l = 1, nend
           //  update n dependent quantities
-          n = n - 1
-          d2n = d2n - dtwo
-          dfac1 = d2n + d2d3
-          dfac2 = d2n + d4d3
+          --n;
+          d2n = d2n - dtwo;
+          dfac1 = d2n + d2d3;
+          dfac2 = d2n + d4d3;
           //  interchanges for order 1/3 recurrence
-          zpold1 = zplst1
-          zplst1 = zp1
+          zpold1 = zplst1;
+          zplst1 = zp1;
           //  recur back one step for order 1/3
           zp1 = dcmplx(dfac1*std::real(zplst1),dfac1*std::imag(zplst1))*
                 z1dz + zpold1
           //  interchanges for order 2/3 recurrence
-          zpold2 = zplst2
-          zplst2 = zp2
+          zpold2 = zplst2;
+          zplst2 = zp2;
           //  recur back one step for order 2/3
-          zp2 = dcmplx(dfac2*std::real(zplst2),dfac2*std::imag(zplst2))*
-                z1dz + zpold2
+          zp2 = dfac2 * zplst2* z1dz + zpold2;
           //  update quantities for computing normalization sums
-          dn = dn - done
-          dnpn1 = dn + d1d3
-          dnp2n1 = dn - d1d3
-          dnpn2 = dn + d2d3
-          dnp2n2 = dnpn1
-          dfac1 = dnp2n1/dn
-          dfac2 = dnp2n2/dn
+          dn = dn - done;
+          dnpn1 = dn + d1d3;
+          dnp2n1 = dn - d1d3;
+          dnpn2 = dn + d2d3;
+          dnp2n2 = dnpn1;
+          dfac1 = dnp2n1 / dn;
+          dfac2 = dnp2n2 / dn;
           //  update normalization sums
-          zsum1 = (zsum1 + dcmplx(dnpn1*std::real(zp1),
-                                  dnpn1*std::imag(zp1)))
-          zsum1 = dcmplx(dfac1*std::real(zsum1),dfac1*std::imag(zsum1))
-          zsum2 = (zsum2 + dcmplx(dnpn2*std::real(zp2),
-                                  dnpn2*std::imag(zp2)))
-          zsum2 = dcmplx(dfac2*std::real(zsum2),dfac2*std::imag(zsum2))
-   50     continue
-        //  repeat
-
-      end if
+          zsum1 += dnpn1 * zp1;
+          zsum1 *= dfac1;
+          zsum2 += dnpn2 * zp2;
+          zsum2 *= dfac2;
+   50   continue
+      }
 
       //  perform last two recurrence steps for order 1/3
-      zpold1 = zplst1
-      zplst1 = zp1
-      zp1 = dcmplx(d14d3*std::real(zplst1),d14d3*std::imag(zplst1))*
-            z1dz + zpold1
-      zsum1 = zsum1 + dcmplx(d4d3*std::real(zp1),d4d3*std::imag(zp1))
-      zpold1 = zplst1
-      zplst1 = zp1
-      zp1 = dcmplx(d8d3*std::real(zplst1),d8d3*std::imag(zplst1))*z1dz +
-            zpold1
-      zsum1 = (zsum1 + zsum1) + zp1
+      zpold1 = zplst1;
+      zplst1 = zp1;
+      zp1 = z1dz * d14d3 * zplst1 + zpold1;
+      zsum1 += d4d3 * zp1;
+      zpold1 = zplst1;
+      zplst1 = zp1;
+      zp1 = d8d3 * zplst1 * z1dz + zpold1;
+      zsum1 = (zsum1 + zsum1) + zp1;
 
       //  compute scale factor and scale results for order 1/3 case
-      zd2pow = dcmplx(dhalf*dzr,dhalf*dzi)**(-d1d3)
-      zpold1 = zd2pow*std::exp(-z)
-      zsum1 = zpold1*dcmplx(dgm4d3*std::real(zsum1),dgm4d3*std::imag(zsum1))
-      zplst1 = zplst1/zsum1
-      zi1d3 = zp1/zsum1
+      zd2pow = dcmplx(dhalf*dzr, dhalf*dzi)**(-d1d3);
+      zpold1 = zd2pow * std::exp(-z);
+      zsum1 *= zpold1 * dgm4d3;
+      zplst1 /= zsum1;
+      zi1d3 = zp1 / zsum1;
 
       //  perform last two recurrence steps for order 2/3
       zpold2 = zplst2
       zplst2 = zp2
-      zp2 = dcmplx(d16d3*std::real(zplst2),d16d3*std::imag(zplst2))*
-            z1dz + zpold2
-      zsum2 = zsum2 + dcmplx(d5d3*std::real(zp2),d5d3*std::imag(zp2))
-      zpold2 = zplst2
-      zplst2 = zp2
-      zp2 = dcmplx(d10d3*std::real(zplst2),d10d3*std::imag(zplst2))*z1dz +
-            zpold2
+      zp2 = d16d3 * zplst2 * z1dz + zpold2
+      zsum2 += d5d3 * zp2;
+      zpold2 = zplst2;
+      zplst2 = zp2;
+      zp2 = d10d3 * zplst2 * z1dz + zpold2
       zsum2 = (zsum2 + zsum2) + zp2
 
       //  compute scale factor and scale results for order 2/3 case
-      zsum2 = zd2pow*zpold1*dcmplx(dgm5d3*std::real(zsum2),
-                                   dgm5d3*std::imag(zsum2))
-      zplst2 = zplst2/zsum2
-      zi2d3 = zp2/zsum2
+      zsum2 *= zd2pow * zpold1 * dgm5d3;
+      zplst2 /= zsum2;
+      zi2d3 = zp2 / zsum2;
 
       //  recur back one step from order 1/3 to get order -2/3
       zim2d3 = dcmplx(d2d3*std::real(zi1d3),d2d3*std::imag(zi1d3))*z1dz +
@@ -859,9 +844,9 @@ zkairy(z,deps,zk1d3,zk2d3,ier)
       A(z)/B(z), Where A(z) and B(z) are cubic polynomials with
       real coefficients, approximates
 
-	gamma(nu+1)		       2 
+	Gamma(nu+1)		       2 
 	----------- I (Z) =  F (;nu+1;z /4) ,
-	 (Z/2)**nu   nu     0 1
+	 (z/2)**nu   nu     0 1
      
       Where the function on the right is a generalized Gaussian
       hypergeometric function.  For abs(z) <= 1/4  and
@@ -873,7 +858,7 @@ zkairy(z,deps,zk1d3,zk2d3,ier)
       nomials in the higher order approximants, see
 
       Luke, Y.L., Mathematical Functions and their Approximations,
-	Academic Press, pp 361-363, 1975.
+      Academic Press, pp 361-363, 1975.
 
       An asymptotic expression for the error is given as well as
       other useful expressions in the event one wants to extend
@@ -971,83 +956,83 @@ zcrary(z, zf1d3, zfm1d3, zf2d3, zfm2d3)
 
         //  evaluate numerator polynomial for nu=1/3 approximant
         dal = da1d3(1)
-        dt  = ds*dal
-        dal = da1d3(2) + dr*dal
+        dt  = ds * dal
+        dal = da1d3(2) + dr * dal
         dbe = da1d3(3) - dt
-        dt  = ds*dal
-        dal = dbe + dr*dal
+        dt  = ds * dal
+        dal = dbe + dr * dal
         dbe = da1d3(4) - dt
-        zf1d3 = dcmplx(dal*dx+dbe,dal*dy)
+        zf1d3 = dcmplx(dal * dx + dbe, dal * dy)
         //  evaluate denominator polynomial for nu=1/3 approximant and
         //  compute ratio of numerator and denominator
         dal = db1d3(1)
-        dt  = ds*dal
-        dal = db1d3(2) + dr*dal
+        dt  = ds * dal
+        dal = db1d3(2) + dr * dal
         dbe = db1d3(3) - dt
-        dt  = ds*dal
-        dal = dbe + dr*dal
+        dt  = ds * dal
+        dal = dbe + dr * dal
         dbe = db1d3(4) - dt  
-        zf1d3 = zf1d3/dcmplx(dal*dx+dbe,dal*dy)
+        zf1d3 /= dcmplx(dal * dx + dbe, dal * dy)
 
         //  evaluate numerator polynomial for nu=-1/3 approximant
         dal = dam1d3(1)
-        dt  = ds*dal
-        dal = dam1d3(2) + dr*dal
+        dt  = ds * dal
+        dal = dam1d3(2) + dr * dal
         dbe = dam1d3(3) - dt
-        dt  = ds*dal
-        dal = dbe + dr*dal  
+        dt  = ds * dal
+        dal = dbe + dr * dal  
         dbe = dam1d3(4) - dt
-        zfm1d3 = dcmplx(dal*dx+dbe,dal*dy)
+        zfm1d3 = dcmplx(dal * dx + dbe, dal * dy)
         //  evaluate denominator polynomial for nu=-1/3 approximant and
         //  compute ratio of numerator and denominator
         dal = dbm1d3(1)
-        dt  = ds*dal
-        dal = dbm1d3(2) + dr*dal
+        dt  = ds * dal
+        dal = dbm1d3(2) + dr * dal
         dbe = dbm1d3(3) - dt
-        dt  = ds*dal
-        dal = dbe + dr*dal
+        dt  = ds * dal
+        dal = dbe + dr * dal
         dbe = dbm1d3(4) - dt
-        zfm1d3 = zfm1d3/dcmplx(dal*dx+dbe,dal*dy)
+        zfm1d3 /= dcmplx(dal * dx + dbe,dal * dy)
 
         //  evaluate numerator polynomial for nu=2/3 approximant
         dal = da2d3(1)
-        dt  = ds*dal
-        dal = da2d3(2) + dr*dal
+        dt  = ds * dal
+        dal = da2d3(2) + dr * dal
         dbe = da2d3(3) - dt
-        dt  = ds*dal
-        dal = dbe + dr*dal  
+        dt  = ds * dal
+        dal = dbe + dr * dal  
         dbe = da2d3(4) - dt
-        zf2d3 = dcmplx(dal*dx+dbe,dal*dy)
+        zf2d3 = dcmplx(dal * dx + dbe, dal * dy)
         //  evaluate denominator polynomial for nu=2/3 approximant and
         //  compute ratio of numerator and denominator
         dal = db2d3(1)
-        dt  = ds*dal
-        dal = db2d3(2) + dr*dal
+        dt  = ds * dal
+        dal = db2d3(2) + dr * dal
         dbe = db2d3(3) - dt
-        dt  = ds*dal
-        dal = dbe + dr*dal  
+        dt  = ds * dal
+        dal = dbe + dr * dal  
         dbe = db2d3(4) - dt
-        zf2d3 = zf2d3/dcmplx(dal*dx+dbe,dal*dy)
+        zf2d3 /= dcmplx(dal * dx + dbe, dal * dy)
 
         //  evaluate numerator polynomial for nu=-2/3 approximant
         dal = dam2d3(1)
-        dt  = ds*dal
-        dal = dam2d3(2) + dr*dal
+        dt  = ds * dal
+        dal = dam2d3(2) + dr * dal
         dbe = dam2d3(3) - dt  
-        dt  = ds*dal
-        dal = dbe + dr*dal
+        dt  = ds * dal
+        dal = dbe + dr * dal
         dbe = dam2d3(4) - dt
-        zfm2d3 = dcmplx(dal*dx+dbe,dal*dy)
+        zfm2d3 = dcmplx(dal * dx + dbe, dal * dy)
         //  evaluate denominator polynomial for nu=-2/3 approximant and
         //  compute ratio of numerator and denominator
         dal = dbm2d3(1)
-        dt  = ds*dal
-        dal = dbm2d3(2) + dr*dal
+        dt  = ds * dal
+        dal = dbm2d3(2) + dr * dal
         dbe = dbm2d3(3) - dt
-        dt  = ds*dal
-        dal = dbe + dr*dal
+        dt  = ds * dal
+        dal = dbe + dr * dal
         dbe = dbm2d3(4) - dt
-        zfm2d3 = zfm2d3/dcmplx(dal*dx+dbe,dal*dy)
+        zfm2d3 /= dcmplx(dal * dx + dbe, dal * dy)
 
       end if
 
@@ -1058,7 +1043,7 @@ zcrary(z, zf1d3, zfm1d3, zf2d3, zfm2d3)
 /**
 
     Purpose
-      This subroutine evaluates ai(z) and ai'(z) from their asymptotic
+      This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
       expansions for abs(arg(z)) < 2*pi/3.  For speed, the number
       of terms needed to achieve about 16 decimals accuracy is tabled
       and determined from abs(z).
@@ -1136,27 +1121,27 @@ zasary(z,zai,zaipr)
            ddk(15)/ 0.1000000000000000d+01/
 
       //  compute -xi and z**(1/4)
-      zpw1d4 = zsqrt(z)
-      zxim = z*zpw1d4
-      zxim = dcmplx(d2d3*std::real(zxim),d2d3*std::imag(zxim))
-      zpw1d4 = zsqrt(zpw1d4)
+      zpw1d4 = zsqrt(z);
+      zxim = z * zpw1d4;
+      zxim *= d2d3;
+      zpw1d4 = zsqrt(zpw1d4);
 
       //  compute outer factors in the expansions
-      zoutpr = std::exp(-zxim)
-      zoutpr = dcmplx(dpmhd2*std::real(zoutpr),dpmhd2*std::imag(zoutpr))
-      zout = zoutpr/zpw1d4
-      zoutpr = -zpw1d4*zoutpr
+      zoutpr = std::exp(-zxim);
+      zoutpr *= dpmhd2;
+      zout = zoutpr / zpw1d4;
+      zoutpr *= -zpw1d4;
 
       //  determine number of terms to use
-      nterm = nterms(min0(5,(int(std::abs(z))-10)/5))
+      nterm = nterms(min0(5, (int(std::abs(z)) - 10) / 5));
       //  initialize for modified horner's rule evaluation of sums
       //  it is assumed that at least three terms are used
-      zxim = zmone/zxim
-      dx = std::real(zxim)
-      dy = std::imag(zxim)
-      dr = dx + dx
-      ds = dx*dx + dy*dy
-      ndx = ntermx - nterm + 1
+      zxim = zmone / zxim;
+      dx = std::real(zxim);
+      dy = std::imag(zxim);
+      dr = dx + dx;
+      ds = dx * dx + dy * dy;
+      ndx = ntermx - nterm + 1;
       dal = dck(ndx)
       dalpr = ddk(ndx)
       ndx = ndx + 1
@@ -1165,18 +1150,18 @@ zasary(z,zai,zaipr)
       ndx = ndx + 1
 
       //  loop until components contributing to sums are computed
-        do 10 k=ndx,ntermx
-        dsdata = ds*dal
-        dal = dbe + dr*dal
+      do 10 k=ndx,ntermx
+        dsdata = ds * dal
+        dal = dbe + dr * dal
         dbe = dck(k) - dsdata
-        dsdata = ds*dalpr
-        dalpr = dbepr + dr*dalpr
+        dsdata = ds * dalpr
+        dalpr = dbepr + dr * dalpr
         dbepr = ddk(k) - dsdata
-   10   continue
+   10 continue
 
       //  complete evaluation of the airy functions
-      zai = zout*dcmplx(dal*dx+dbe,dal*dy)
-      zaipr = zoutpr*dcmplx(dalpr*dx+dbepr,dalpr*dy)
+      zai = zout * dcmplx(dal * dx + dbe, dal * dy);
+      zaipr = zoutpr * dcmplx(dalpr * dx + dbepr, dalpr * dy);
 
       return
 }
@@ -1213,7 +1198,7 @@ zasary(z,zai,zaipr)
 
  */
 void
-zasaly(z,zai,zaipr)
+zasaly(z, zai, zaipr)
 {
       double complex z, zai, zaipr
 
