@@ -1,3 +1,6 @@
+
+// https://thenewcpp.wordpress.com/2013/07/24/improving-the-variant-class/
+
 #ifndef VARIANT
 #define VARIANT 1
 
