@@ -1,6 +1,6 @@
 // PR c++/63889 - Ice with redundant static in class scope constexpr variable template.
 
-// /home/ed/bin/bin/g++ -std=c++14 -c ice_class_vt.C 
+// $HOME/bin/bin/g++ -std=c++14 -c ice_class_vt.C 
 
 #include <experimental/type_traits>
 

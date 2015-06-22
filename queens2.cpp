@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++11 -O3 -o queens2 queens2.cpp
+// $HOME/bin/bin/g++ -std=c++11 -O3 -o queens2 queens2.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./queens2
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./queens2
 
 #include <iostream>
 #include <vector>

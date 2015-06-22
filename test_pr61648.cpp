@@ -1,4 +1,4 @@
-// /home/ed/bin_tr2/bin/g++ -std=c++14 -o test_pr61648 test_pr61648.cpp
+// $HOME/bin_tr2/bin/g++ -std=c++14 -o test_pr61648 test_pr61648.cpp
 
 #include <cstddef>
 

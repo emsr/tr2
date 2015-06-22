@@ -1,5 +1,5 @@
 
-//  /home/ed/bin/bin/g++ -std=c++1y -o complex_ref complex_ref.cpp
+//  $HOME/bin/bin/g++ -std=c++1y -o complex_ref complex_ref.cpp
 
 #include <complex>
 #include <functional>

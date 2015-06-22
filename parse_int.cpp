@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -std=c++1y -o parse_int parse_int.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o parse_int parse_int.cpp
 
 #include <vector> // Get parse_numbers.h to work.
 #include "parse_numbers.h"

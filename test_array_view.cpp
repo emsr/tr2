@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1z -o test_array_view test_array_view.cpp
+// $HOME/bin/bin/g++ -std=c++1z -o test_array_view test_array_view.cpp
 
 #include "array_view.h"
 

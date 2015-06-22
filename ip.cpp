@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o ip ip.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o ip ip.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./ip
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./ip
 
 #include <array>
 #include <iostream>

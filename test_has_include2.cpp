@@ -1,4 +1,4 @@
-// /home/ed/bin_feature/bin/g++ -std=c++14 -c -o test_has_include2 test_has_include2.cpp
+// $HOME/bin_feature/bin/g++ -std=c++14 -c -o test_has_include2 test_has_include2.cpp
 
 //  Try header that exists but we can't read.
 #if __has_include("hidden.h")

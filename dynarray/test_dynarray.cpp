@@ -1,10 +1,10 @@
 // http://www.open-std.org/JTC1/sc22/WG21/docs/papers/2013/n3532.html
 
-// /home/ed/bin/bin/g++ -std=c++1y -UUSE_ALLOCA -o test_dynarray test_dynarray.cpp
+// $HOME/bin/bin/g++ -std=c++1y -UUSE_ALLOCA -o test_dynarray test_dynarray.cpp
 
-// /home/ed/bin/bin/g++ -std=c++1y -o test_dynarray test_dynarray.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o test_dynarray test_dynarray.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_dynarray
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_dynarray
 
 #include "dynarray"
 #include <iostream>

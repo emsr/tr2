@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -std=c++11 -o test_cuchar test_cuchar.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o test_cuchar test_cuchar.cpp
 
 #include <cwchar>
 #include <cuchar>

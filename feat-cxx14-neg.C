@@ -1,4 +1,4 @@
-// /home/ed/bin_feature/bin/g++ -std=gnu++1y -c feat-cxx14-neg.C
+// $HOME/bin_feature/bin/g++ -std=gnu++1y -c feat-cxx14-neg.C
 // { dg-do compile { target c++14 } }
 
 #ifndef __cpp_constexpr

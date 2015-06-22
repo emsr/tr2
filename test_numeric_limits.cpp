@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o test_numeric_limits test_numeric_limits.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_numeric_limits test_numeric_limits.cpp
 
-// LD_LIBRARY_PATH=//home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_numeric_limits
+// LD_LIBRARY_PATH=/$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_numeric_limits
 
 #include "numeric_limits"
 #include <iostream>

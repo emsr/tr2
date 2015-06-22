@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++1z -o deathmatch deathmatch.cpp
+// $HOME/bin/bin/g++ -std=c++1z -o deathmatch deathmatch.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./deathmatch 100000
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./deathmatch 100000
 
 #include "uniform_inside_sphere_distribution.h"
 #include "uniform_inside_sphere_distribution_old.h"

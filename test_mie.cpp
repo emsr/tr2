@@ -1,7 +1,7 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_mie test_mie.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_mie test_mie.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_mie
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_mie
 
 #include <iostream>
 #include <iomanip>

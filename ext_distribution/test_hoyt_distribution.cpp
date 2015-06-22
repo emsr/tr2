@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++0x -o test_hoyt_distribution test_hoyt_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++0x -o test_hoyt_distribution test_hoyt_distribution.cpp
 
 #include "hoyt_distribution.h"
 #include <iostream>

@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o udl_bug_workaround2 udl_bug_workaround2.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o udl_bug_workaround2 udl_bug_workaround2.cpp
 
 #include <iostream>
 

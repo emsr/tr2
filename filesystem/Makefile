@@ -1,4 +1,4 @@
-CXX = /home/ed/bin/bin/g++ -g -std=c++14 -fdiagnostics-color=always
+CXX = $$HOME/bin/bin/g++ -g -std=c++14 -fdiagnostics-color=always
 
 all: test_filesystem
 

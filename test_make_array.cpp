@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o test_make_array test_make_array.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_make_array test_make_array.cpp
 
 #include "make_array"
 #include <iostream>

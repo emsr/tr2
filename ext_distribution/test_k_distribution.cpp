@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++0x -o test_k_distribution test_k_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++0x -o test_k_distribution test_k_distribution.cpp
 
 #include <iostream>
 #include <functional>

@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++0x -o test_rice_distribution test_rice_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++0x -o test_rice_distribution test_rice_distribution.cpp
 
 #include "rice_distribution_multi.h"
 #include <iostream>

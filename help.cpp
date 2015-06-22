@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -fdiagnostics-color=auto -o help help.cpp
+// $HOME/bin/bin/g++ -std=c++11 -fdiagnostics-color=auto -o help help.cpp
 
 #include <iostream>
 #include <sstream>

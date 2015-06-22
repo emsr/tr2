@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o test_specfun_ext test_specfun_ext.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o test_specfun_ext test_specfun_ext.cpp
 
 
 #include <iostream>

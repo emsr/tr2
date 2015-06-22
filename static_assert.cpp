@@ -1,11 +1,11 @@
 
-// /home/ed/bin/bin/g++ -std=c++1z -o static_assert static_assert.cpp
+// $HOME/bin/bin/g++ -std=c++1z -o static_assert static_assert.cpp
 
-// /home/ed/bin/bin/g++ -std=c++11 -o static_assert static_assert.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o static_assert static_assert.cpp
 
-// /home/ed/bin/bin/g++ -pedantic -std=c++11 -o static_assert static_assert.cpp
+// $HOME/bin/bin/g++ -pedantic -std=c++11 -o static_assert static_assert.cpp
 
-// /home/ed/bin_concepts/bin/g++ -std=c++1z -o static_assert static_assert.cpp
+// $HOME/bin_concepts/bin/g++ -std=c++1z -o static_assert static_assert.cpp
 
 #include <type_traits>
 

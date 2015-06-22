@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1z -c auto_var.cpp
+// $HOME/bin/bin/g++ -std=c++1z -c auto_var.cpp
 
 #include <initializer_list>
 

@@ -1,4 +1,4 @@
-// /home/ed/bin_feature/bin/gcc -c test_has_include.c
+// $HOME/bin_feature/bin/gcc -c test_has_include.c
 
 #if __has_include__(<complex.h>)
 #else

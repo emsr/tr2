@@ -1,4 +1,4 @@
-// /home/ed/bin_feature/bin/g++ -std=c++1y -c features_lib_cxx14.cpp
+// $HOME/bin_feature/bin/g++ -std=c++1y -c features_lib_cxx14.cpp
 
 #include <utility>
 #include <tuple>

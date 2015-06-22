@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o test_pr61663 test_pr61663.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_pr61663 test_pr61663.cpp
 
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61663
 

@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o test_common_float test_common_float.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o test_common_float test_common_float.cpp
 
 #include <type_traits>
 #include <iostream>

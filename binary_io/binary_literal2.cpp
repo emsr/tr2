@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o binary_literal2 binary_literal2.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o binary_literal2 binary_literal2.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./binary_literal2
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./binary_literal2
 
 #include <iostream>
 

@@ -1,4 +1,4 @@
-// /home/ed/bin_feature/bin/g++ -std=c++1y -Itestinc -o features_test_cxx14 features_test_cxx14.cpp
+// $HOME/bin_feature/bin/g++ -std=c++1y -Itestinc -o features_test_cxx14 features_test_cxx14.cpp
 
 // Begin C++11 tests which should still pass.
 

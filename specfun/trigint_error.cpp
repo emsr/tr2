@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o trigint_error trigint_error.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o trigint_error trigint_error.cpp
 
 #include <iostream>
 #include <iomanip>

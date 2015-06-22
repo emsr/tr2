@@ -1,7 +1,7 @@
 
 //  n3915 - apply() call a function with arguments from a tuple (V2) - Peter Sommerlad - 2013-12-23
 
-// /home/ed/bin/bin/g++ -std=c++1y -o apply apply.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o apply apply.cpp
 
 #include<tuple>
 #include<iostream>

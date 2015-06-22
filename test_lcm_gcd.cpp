@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_lcm_gcd test_lcm_gcd.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_lcm_gcd test_lcm_gcd.cpp
 
 #include <iostream>
 

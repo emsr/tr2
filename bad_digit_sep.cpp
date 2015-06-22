@@ -1,4 +1,4 @@
-// /home/ed/bin_binio/bin/g++ -std=c++1y -o bad_digit_sep bad_digit_sep.cpp
+// $HOME/bin_binio/bin/g++ -std=c++1y -o bad_digit_sep bad_digit_sep.cpp
 
 #include <iostream>
 

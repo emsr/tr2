@@ -1,9 +1,9 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_things_cpp14 test_things_cpp14.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++14 -o test_things_cpp14 test_things_cpp14.cpp > /dev/null
 
-// /home/ed/bin/bin/g++ -std=c++14 -pedantic -o test_things_cpp14 test_things_cpp14.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++14 -pedantic -o test_things_cpp14 test_things_cpp14.cpp > /dev/null
 
-// /home/ed/bin/bin/g++ -std=c++14 -ansi -o test_things_cpp14 test_things_cpp14.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++14 -ansi -o test_things_cpp14 test_things_cpp14.cpp > /dev/null
 
 auto
 fun(int i)

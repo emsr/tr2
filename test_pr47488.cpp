@@ -1,4 +1,4 @@
-//  /home/ed/bin/bin/g++ -std=c++11 -o test_pr47488 test_pr47488.cpp
+//  $HOME/bin/bin/g++ -std=c++11 -o test_pr47488 test_pr47488.cpp
 
 template<typename T>
   int

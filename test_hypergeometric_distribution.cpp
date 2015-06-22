@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o test_hypergeometric_distribution test_hypergeometric_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o test_hypergeometric_distribution test_hypergeometric_distribution.cpp
 
-// /home/ed/bin-4.9/bin/g++ -std=c++11 -o test_hypergeometric_distribution test_hypergeometric_distribution.cpp
+// $HOME/bin-4.9/bin/g++ -std=c++11 -o test_hypergeometric_distribution test_hypergeometric_distribution.cpp
 
 //#include "hypergeometric"
 #include <iostream>

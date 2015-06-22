@@ -1,3 +1,5 @@
+*.exe
+*.dll
 
 any/test_any
 

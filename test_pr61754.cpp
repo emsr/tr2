@@ -15,9 +15,9 @@ main()
  //Old2 newold2 [[gnu::unused]];
 }
 
-// /home/ed/bin/bin/g++ -std=c++14 -Wall -Wextra -pedantic -o test_pr61754 test_pr61754.cpp
+// $HOME/bin/bin/g++ -std=c++14 -Wall -Wextra -pedantic -o test_pr61754 test_pr61754.cpp
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_pr61754 test_pr61754.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_pr61754 test_pr61754.cpp
 
-// /home/ed/bin/bin/g++ -std=c++14 -Wdeprecated-declarations -o test_pr61754 test_pr61754.cpp
+// $HOME/bin/bin/g++ -std=c++14 -Wdeprecated-declarations -o test_pr61754 test_pr61754.cpp
 

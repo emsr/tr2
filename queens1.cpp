@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -O3 -o queens1 queens1.cpp
+// $HOME/bin/bin/g++ -O3 -o queens1 queens1.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./queens1
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./queens1
 
 #include <iostream>
 #include <list>

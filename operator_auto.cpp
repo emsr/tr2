@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o operator_auto operator_auto.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o operator_auto operator_auto.cpp
 
 #include <cassert>
 

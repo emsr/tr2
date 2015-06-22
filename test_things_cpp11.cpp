@@ -1,9 +1,9 @@
 
-// /home/ed/bin/bin/g++ -std=c++11 -o test_things_cpp11 test_things_cpp11.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++11 -o test_things_cpp11 test_things_cpp11.cpp > /dev/null
 
-// /home/ed/bin/bin/g++ -std=c++11 -pedantic -o test_things_cpp11 test_things_cpp11.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++11 -pedantic -o test_things_cpp11 test_things_cpp11.cpp > /dev/null
 
-// /home/ed/bin/bin/g++ -std=c++11 -ansi -o test_things_cpp11 test_things_cpp11.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++11 -ansi -o test_things_cpp11 test_things_cpp11.cpp > /dev/null
 
 auto
 fun(int i)

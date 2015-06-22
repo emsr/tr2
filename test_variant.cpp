@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o test_variant test_variant.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_variant test_variant.cpp
 
 #include "variant"
 #include <string>

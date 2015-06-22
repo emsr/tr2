@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o test_aggregate_nsdmi test_aggregate_nsdmi.cpp 
+// $HOME/bin/bin/g++ -std=c++1y -o test_aggregate_nsdmi test_aggregate_nsdmi.cpp 
 
 struct S
 {

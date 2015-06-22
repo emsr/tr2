@@ -1,6 +1,6 @@
-// /home/ed/bin_feature/bin/g++ -std=c++14 -c test_has_include.cpp
+// $HOME/bin_feature/bin/g++ -std=c++14 -c test_has_include.cpp
 
-// /home/ed/bin/bin/g++ -std=c++14 -c test_has_include.cpp
+// $HOME/bin/bin/g++ -std=c++14 -c test_has_include.cpp
 
 #if __has_include__(<complex>)
 #else

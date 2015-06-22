@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/gcc -o has_attribute_c has_attribute.c
+// $HOME/bin/bin/gcc -o has_attribute_c has_attribute.c
 
 #include <assert.h>
 

@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++1z -o test_uniform_inside_sphere_distribution test_uniform_inside_sphere_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++1z -o test_uniform_inside_sphere_distribution test_uniform_inside_sphere_distribution.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_uniform_inside_sphere_distribution
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_uniform_inside_sphere_distribution
 
 //#include <ext/random>
 #include "uniform_inside_sphere_distribution.h"

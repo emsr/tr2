@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o pr58708 pr58708.cc
+// $HOME/bin/bin/g++ -std=c++1y -o pr58708 pr58708.cc
 
 #include <iostream>
 #include <type_traits>

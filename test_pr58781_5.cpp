@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o test_pr58781_5 test_pr58781_5.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o test_pr58781_5 test_pr58781_5.cpp
 
 #include <cstddef>
 

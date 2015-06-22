@@ -1,7 +1,7 @@
 
-// /home/ed/bin/bin/g++ -std=c++1y -o literal_bitset literal_bitset.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o literal_bitset literal_bitset.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./literal_bitset
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./literal_bitset
 
 #include <bitset>
 #include <iostream>

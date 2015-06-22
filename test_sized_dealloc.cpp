@@ -1,11 +1,11 @@
 
-// /home/ed/bin/bin/g++ -g -std=c++14 -DCHECK=true -o test_sized_dealloc test_sized_dealloc.cpp
+// $HOME/bin/bin/g++ -g -std=c++14 -DCHECK=true -o test_sized_dealloc test_sized_dealloc.cpp
 
-// /home/ed/bin/bin/g++ -g -std=c++14 -DCHECK=false -fno-sized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
+// $HOME/bin/bin/g++ -g -std=c++14 -DCHECK=false -fno-sized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
 
-// /home/ed/bin/bin/g++ -g -std=c++11 -DCHECK=false -o test_sized_dealloc test_sized_dealloc.cpp
+// $HOME/bin/bin/g++ -g -std=c++11 -DCHECK=false -o test_sized_dealloc test_sized_dealloc.cpp
 
-// /home/ed/bin/bin/g++ -g -std=c++11 -DCHECK=true -fsized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
+// $HOME/bin/bin/g++ -g -std=c++11 -DCHECK=true -fsized-deallocation -o test_sized_dealloc test_sized_dealloc.cpp
 
 extern "C" void abort();
 typedef __SIZE_TYPE__ size_t;

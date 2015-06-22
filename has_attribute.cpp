@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o has_attribute_cpp has_attribute.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o has_attribute_cpp has_attribute.cpp
 
 #include <cassert>
 

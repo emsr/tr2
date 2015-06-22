@@ -1,4 +1,4 @@
-// /home/ed/bin_var_template_2/bin/g++ -std=c++1z -o utf8_char_literal utf8_char_literal.cpp
+// $HOME/bin_var_template_2/bin/g++ -std=c++1z -o utf8_char_literal utf8_char_literal.cpp
 
 #include <cassert>
 #include <experimental/type_traits>

@@ -2,7 +2,7 @@
 #include <iostream>
 #include <tuple> // For ignore and get and tuple_size.
 
-// /home/ed/bin/bin/g++ -std=c++1y -o complex_tie complex_tie.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o complex_tie complex_tie.cpp
 
 namespace std
 {

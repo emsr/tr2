@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++0x -o test_nakagami_fading_model test_nakagami_fading_model.cpp NakagamiFadingModel.cpp
+// $HOME/bin/bin/g++ -std=c++0x -o test_nakagami_fading_model test_nakagami_fading_model.cpp NakagamiFadingModel.cpp
 
 #include <iostream>
 #include <iomanip>

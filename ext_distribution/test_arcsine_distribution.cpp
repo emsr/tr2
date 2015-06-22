@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++0x -o test_arcsine_distribution test_arcsine_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++0x -o test_arcsine_distribution test_arcsine_distribution.cpp
 
 #include <iostream>
 #include <functional>

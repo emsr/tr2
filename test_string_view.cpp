@@ -1,11 +1,11 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_string_view test_string_view.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_string_view test_string_view.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_string_view 
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_string_view 
 
-// /home/ed/bin_literal/bin/g++ -std=c++14 -o test_string_view test_string_view.cpp
+// $HOME/bin_literal/bin/g++ -std=c++14 -o test_string_view test_string_view.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin_literal/lib64:$LD_LIBRARY_PATH ./test_string_view 
+// LD_LIBRARY_PATH=$HOME/bin_literal/lib64:$LD_LIBRARY_PATH ./test_string_view 
 
 //#include "string_view"
 #include <string>

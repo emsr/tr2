@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++0x -o test_rice_fading_model test_rice_fading_model.cpp RiceFadingModel.cpp
+// $HOME/bin/bin/g++ -std=c++0x -o test_rice_fading_model test_rice_fading_model.cpp RiceFadingModel.cpp
 
 #include <iostream>
 #include <iomanip>

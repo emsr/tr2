@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o plot plot.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o plot plot.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./plot
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./plot
 
 #include <vector>
 #include <string>

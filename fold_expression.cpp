@@ -1,5 +1,5 @@
 
-// /home/ed/bin_git/bin/g++ -std=c++1z -pedantic -DVOMIT -o fold_expression fold_expression.cpp
+// $HOME/bin_git/bin/g++ -std=c++1z -pedantic -DVOMIT -o fold_expression fold_expression.cpp
 
 #include <iostream>
 

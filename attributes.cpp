@@ -1,15 +1,15 @@
 
-// /home/ed/bin/bin/g++ -std=c++1z -pedantic -o attributes attributes.cpp
+// $HOME/bin/bin/g++ -std=c++1z -pedantic -o attributes attributes.cpp
 
-// /home/ed/bin_binio/bin/g++ -std=c++1z -o attributes attributes.cpp
+// $HOME/bin_binio/bin/g++ -std=c++1z -o attributes attributes.cpp
 
-// /home/ed/bin_binio/bin/g++ -std=c++14 -o attributes attributes.cpp
+// $HOME/bin_binio/bin/g++ -std=c++14 -o attributes attributes.cpp
 
-// /home/ed/bin_binio/bin/g++ -std=c++14 -pedantic -o attributes attributes.cpp
+// $HOME/bin_binio/bin/g++ -std=c++14 -pedantic -o attributes attributes.cpp
 
-// /home/ed/bin_biniold/bin/g++ -std=c++14 -o attributes attributes.cpp
+// $HOME/bin_biniold/bin/g++ -std=c++14 -o attributes attributes.cpp
 
-// /home/ed/bin_biniold/bin/g++ -std=c++14 -pedantic -o attributes attributes.cpp
+// $HOME/bin_biniold/bin/g++ -std=c++14 -pedantic -o attributes attributes.cpp
 
 enum class Planets
 {

@@ -1,15 +1,15 @@
 /*
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=23827
 
-/home/ed/bin/bin/gcc -x c -std=c89 -pedantic-errors -o test_pr23827 test_pr23827.cpp
+$HOME/bin/bin/gcc -x c -std=c89 -pedantic-errors -o test_pr23827 test_pr23827.cpp
 
-/home/ed/bin/bin/gcc -x c -std=c11 -pedantic-errors -o test_pr23827 test_pr23827.cpp
+$HOME/bin/bin/gcc -x c -std=c11 -pedantic-errors -o test_pr23827 test_pr23827.cpp
 
-/home/ed/bin/bin/g++ -std=c++98 -pedantic-errors -o test_pr23827 test_pr23827.cpp
+$HOME/bin/bin/g++ -std=c++98 -pedantic-errors -o test_pr23827 test_pr23827.cpp
 
-/home/ed/bin/bin/g++ -std=c++11 -pedantic-errors -o test_pr23827 test_pr23827.cpp
+$HOME/bin/bin/g++ -std=c++11 -pedantic-errors -o test_pr23827 test_pr23827.cpp
 
-/home/ed/bin/bin/g++ -std=c++14 -pedantic-errors -o test_pr23827 test_pr23827.cpp
+$HOME/bin/bin/g++ -std=c++14 -pedantic-errors -o test_pr23827 test_pr23827.cpp
 
 ./test_pr23827
 

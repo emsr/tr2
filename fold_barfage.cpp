@@ -1,8 +1,8 @@
-// /home/ed/bin_git/bin/g++ -std=c++11 -c -o fold_barfage.o fold_barfage.cpp
+// $HOME/bin_git/bin/g++ -std=c++11 -c -o fold_barfage.o fold_barfage.cpp
 
-// /home/ed/bin_git/bin/g++ -std=c++11 -pedantic -c -o fold_barfage.o fold_barfage.cpp
+// $HOME/bin_git/bin/g++ -std=c++11 -pedantic -c -o fold_barfage.o fold_barfage.cpp
 
-// /home/ed/bin_git/bin/g++ -std=c++1z -c -o fold_barfage.o fold_barfage.cpp
+// $HOME/bin_git/bin/g++ -std=c++1z -c -o fold_barfage.o fold_barfage.cpp
 
 /*
 __MATH_INLINE int

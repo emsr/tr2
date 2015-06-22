@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -fdiagnostics-color=auto -o test_random test_random.cpp
+// $HOME/bin/bin/g++ -std=c++14 -fdiagnostics-color=auto -o test_random test_random.cpp
 
 #include <random>
 #include "random" // n3742: Three <random>-related Proposals, v2

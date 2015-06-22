@@ -1,9 +1,9 @@
 
-// /home/ed/bin/bin/g++ -std=c++11 -o uniform_container_erasure uniform_container_erasure.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o uniform_container_erasure uniform_container_erasure.cpp
 
-// /home/ed/bin/bin/g++ -std=c++14 -o uniform_container_erasure uniform_container_erasure.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o uniform_container_erasure uniform_container_erasure.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./uniform_container_erasure > ./uniform_container_erasure.out
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./uniform_container_erasure > ./uniform_container_erasure.out
 
 #include <algorithm>
 #include <deque>

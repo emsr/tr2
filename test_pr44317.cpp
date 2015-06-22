@@ -9,14 +9,14 @@ void test()
   FAIL(); // { dg-error "expected primary-expression before" }
 }
 
-// /home/ed/bin/bin/g++ -std=c++98 -c test_pr44317.cpp
+// $HOME/bin/bin/g++ -std=c++98 -c test_pr44317.cpp
 
-// /home/ed/bin/bin/g++ -std=c++98 -Wpedantic -c test_pr44317.cpp
+// $HOME/bin/bin/g++ -std=c++98 -Wpedantic -c test_pr44317.cpp
 
-// /home/ed/bin/bin/g++ -std=c++11 -c test_pr44317.cpp
+// $HOME/bin/bin/g++ -std=c++11 -c test_pr44317.cpp
 
-// /home/ed/bin/bin/g++ -std=c++11 -Wpedantic -c test_pr44317.cpp
+// $HOME/bin/bin/g++ -std=c++11 -Wpedantic -c test_pr44317.cpp
 
-// /home/ed/bin/bin/g++ -std=gnu++11 -c test_pr44317.cpp
+// $HOME/bin/bin/g++ -std=gnu++11 -c test_pr44317.cpp
 
-// /home/ed/bin/bin/g++ -std=gnu++11 -Wpedantic -c test_pr44317.cpp
+// $HOME/bin/bin/g++ -std=gnu++11 -Wpedantic -c test_pr44317.cpp

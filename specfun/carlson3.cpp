@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -g -std=c++11 -o carlson3 carlson3.cpp
+// $HOME/bin/bin/g++ -g -std=c++11 -o carlson3 carlson3.cpp
 
 #include <cmath>
 #include <iostream>

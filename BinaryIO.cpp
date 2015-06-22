@@ -1,7 +1,7 @@
 //  http://www.cplusplus.com/forum/general/103479/
 //  This has a cute screen clearing thing too!
 
-// /home/ed/bin/bin/g++ -o BinaryIO BinaryIO.cpp
+// $HOME/bin/bin/g++ -o BinaryIO BinaryIO.cpp
 
 #include <iostream>
 #include <iomanip>

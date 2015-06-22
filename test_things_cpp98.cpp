@@ -1,9 +1,9 @@
 
-// /home/ed/bin/bin/g++ -std=c++98 -o test_things test_things.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++98 -o test_things test_things.cpp > /dev/null
 
-// /home/ed/bin/bin/g++ -std=c++98 -pedantic -o test_things test_things.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++98 -pedantic -o test_things test_things.cpp > /dev/null
 
-// /home/ed/bin/bin/g++ -std=c++98 -ansi -o test_things test_things.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++98 -ansi -o test_things test_things.cpp > /dev/null
 
 auto
 fun(int i)

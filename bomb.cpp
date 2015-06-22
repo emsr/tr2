@@ -1,7 +1,7 @@
 
-// /home/ed/bin/bin/g++ -std=c++1y -o bomb bomb.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o bomb bomb.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./bomb 
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./bomb 
 
 #include <iostream>
 #include <stdexcept>

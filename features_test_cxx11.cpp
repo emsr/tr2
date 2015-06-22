@@ -1,4 +1,4 @@
-// /home/ed/bin_feature/bin/g++ -std=c++11 -o features_test_cxx11 features_test_cxx11.cpp
+// $HOME/bin_feature/bin/g++ -std=c++11 -o features_test_cxx11 features_test_cxx11.cpp
 
 // Begin C++11 tests.
 

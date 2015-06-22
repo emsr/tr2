@@ -8,9 +8,9 @@
  * Created on October 11, 2013, 2:32 PM
  */
 
-// /home/ed/bin/bin/g++ -std=c++11 -o resize_dynamic_bitset resize_dynamic_bitset.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o resize_dynamic_bitset resize_dynamic_bitset.cpp
 
-// /home/ed/bin/bin/g++ -std=c++11 -m32 -o resize_dynamic_bitset resize_dynamic_bitset.cpp
+// $HOME/bin/bin/g++ -std=c++11 -m32 -o resize_dynamic_bitset resize_dynamic_bitset.cpp
 
 #include <iostream>
 #include <cstdlib>

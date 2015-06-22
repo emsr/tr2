@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -std=c++1y -o mem_init mem_init.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o mem_init mem_init.cpp
 
 // http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3653.html
 

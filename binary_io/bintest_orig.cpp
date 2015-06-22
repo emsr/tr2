@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o bintest_orig bintest_orig.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o bintest_orig bintest_orig.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./bintest_orig
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./bintest_orig
 
 #include <iostream>
 #include <iomanip>

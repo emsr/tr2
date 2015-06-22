@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o lambdabah lambdabah.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o lambdabah lambdabah.cpp
 
 // 'Identity' is a lambda that accepts an argument of any type and returns the value of its parameter.
 

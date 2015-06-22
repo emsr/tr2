@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++1z -O3 -o queens4 queens4.cpp
+// $HOME/bin/bin/g++ -std=c++1z -O3 -o queens4 queens4.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./queens4
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./queens4
 
 /*
     Some more minor changes.

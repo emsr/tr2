@@ -9,4 +9,4 @@ int f2(bar) { return 0; }
 
 void f3(foo, bar) { }
 
-// /home/ed/bin/bin/g++ -std=c++14 -c test_pr48266_2.cpp
+// $HOME/bin/bin/g++ -std=c++14 -c test_pr48266_2.cpp

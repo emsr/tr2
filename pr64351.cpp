@@ -1,6 +1,6 @@
 //  libstdc++/64351 - std::uniform_real_distribution<float>(0, 1) returns 1
 
-// /home/ed/bin/bin/g++ -std=c++14 -o pr64351 pr64351.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o pr64351 pr64351.cpp
 
 #include <random>
 #include <cstdint>

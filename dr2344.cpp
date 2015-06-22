@@ -1,4 +1,4 @@
-//  /home/ed/bin/bin/g++ -std=c++1y -o dr2344 dr2344.cpp
+//  $HOME/bin/bin/g++ -std=c++1y -o dr2344 dr2344.cpp
 
 #include <sstream>
 #include <iomanip>

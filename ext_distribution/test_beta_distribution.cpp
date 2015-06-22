@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++0x -o test_beta_distribution test_beta_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++0x -o test_beta_distribution test_beta_distribution.cpp
 
 #include <cassert>
 #include <ext/random>

@@ -1,13 +1,13 @@
 
-// /home/ed/bin/bin/g++ -g -std=c++14 -fdiagnostics-color=always -o test_filesystem test_filesystem.cpp path.cc directory_iterator.cc recursive_directory_iterator.cc filesystem.cc
+// $HOME/bin/bin/g++ -g -std=c++14 -fdiagnostics-color=always -o test_filesystem test_filesystem.cpp path.cc directory_iterator.cc recursive_directory_iterator.cc filesystem.cc
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.txt 2> test.err
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.txt 2> test.err
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.new.txt 2> test.new.err
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.new.txt 2> test.new.err
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.new2.txt 2> test.new2.err
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_filesystem > test.new2.txt 2> test.new2.err
 
 
 #include <iostream>

@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o hello_ruby hello_ruby.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o hello_ruby hello_ruby.cpp
 
 #include <string>
 

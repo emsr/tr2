@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o test_pr59867 test_pr59867.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_pr59867 test_pr59867.cpp
 
 #include <iostream>
 using namespace std;

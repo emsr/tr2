@@ -1,6 +1,6 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o buggy_lambda buggy_lambda.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o buggy_lambda buggy_lambda.cpp
 
-// LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./buggy_lambda
+// LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./buggy_lambda
 
 #include <iostream>
 #include <set>

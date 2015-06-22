@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++14 -o test_hankel test_hankel.cpp > /dev/null
+// $HOME/bin/bin/g++ -std=c++14 -o test_hankel test_hankel.cpp > /dev/null
 
 #include "hankel.tpp"
 

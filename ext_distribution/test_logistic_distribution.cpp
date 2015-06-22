@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++11 -o test_logistic_distribution test_logistic_distribution.cpp
+// $HOME/bin/bin/g++ -std=c++11 -o test_logistic_distribution test_logistic_distribution.cpp
 
 #include "logistic_distribution.h"
 #include <iostream>

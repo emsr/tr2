@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_type_traits_2 test_type_traits_2.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_type_traits_2 test_type_traits_2.cpp
 
 #include<experimental/type_traits>
 #include<iostream>

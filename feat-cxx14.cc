@@ -1,4 +1,4 @@
-// /home/ed/bin_feature/bin/g++ -std=gnu++1y -c feat-cxx14.cc
+// $HOME/bin_feature/bin/g++ -std=gnu++1y -c feat-cxx14.cc
 // { dg-options "-std=gnu++14" }
 // { dg-do compile }
 

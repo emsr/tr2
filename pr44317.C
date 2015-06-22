@@ -10,4 +10,4 @@ test()
   FAIL();
 }
 
-// /home/ed/bin_tr2/bin/g++ -c -pedantic pr44317.C
+// $HOME/bin_tr2/bin/g++ -c -pedantic pr44317.C

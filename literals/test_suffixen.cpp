@@ -1,4 +1,4 @@
-// /home/ed/bin_tr2/bin/g++ -std=c++1y -fdiagnostics-color=auto -o test_suffixen test_suffixen.cpp
+// $HOME/bin_tr2/bin/g++ -std=c++1y -fdiagnostics-color=auto -o test_suffixen test_suffixen.cpp
 
 // n3642.pdf by Peter Sommerlad
 

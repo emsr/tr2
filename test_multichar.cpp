@@ -1,5 +1,5 @@
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_multichar test_multichar.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_multichar test_multichar.cpp
 
 int
 operator""_foo(int ch)

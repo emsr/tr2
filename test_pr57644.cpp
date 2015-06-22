@@ -10,4 +10,4 @@ main()
   return f.i;
 }
 
-// /home/ed/bin/bin/g++ -std=c++14 -o test_pr57644 test_pr57644.cpp
+// $HOME/bin/bin/g++ -std=c++14 -o test_pr57644 test_pr57644.cpp

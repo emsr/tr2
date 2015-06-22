@@ -1,9 +1,9 @@
 /*
 https://gcc.gnu.org/bugzilla/show_bug.cgi?id=23827
 
-/home/ed/bin/bin/gcc -std=c89 -pedantic-errors -o test_pr23827 test_pr23827.c
+$HOME/bin/bin/gcc -std=c89 -pedantic-errors -o test_pr23827 test_pr23827.c
 
-/home/ed/bin/bin/gcc -std=c11 -pedantic-errors -o test_pr23827 test_pr23827.c
+$HOME/bin/bin/gcc -std=c11 -pedantic-errors -o test_pr23827 test_pr23827.c
 
 ./test_pr23827
 

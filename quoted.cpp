@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -fdiagnostics-color=auto -o quoted quoted.cpp
+// $HOME/bin/bin/g++ -std=c++1y -fdiagnostics-color=auto -o quoted quoted.cpp
 
 #include <string>
 #include <cstddef>

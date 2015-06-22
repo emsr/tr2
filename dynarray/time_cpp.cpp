@@ -1,11 +1,11 @@
 
-//  /home/ed/bin/bin/g++ -std=c++1y -DVECTOR -o time_vector time_cpp.cpp > /dev/null
+//  $HOME/bin/bin/g++ -std=c++1y -DVECTOR -o time_vector time_cpp.cpp > /dev/null
 
-//  /home/ed/bin/bin/g++ -std=c++1y -UVECTOR -o time_dynarray time_cpp.cpp > /dev/null
+//  $HOME/bin/bin/g++ -std=c++1y -UVECTOR -o time_dynarray time_cpp.cpp > /dev/null
 
-//  LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./time_vector
+//  LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./time_vector
 
-//  LD_LIBRARY_PATH=/home/ed/bin/lib64:$LD_LIBRARY_PATH ./time_dynarray
+//  LD_LIBRARY_PATH=$HOME/bin/lib64:$LD_LIBRARY_PATH ./time_dynarray
 
 //  http://stackoverflow.com/questions/5142366/how-fast-is-d-compared-to-c
 

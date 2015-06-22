@@ -1,4 +1,4 @@
-// /home/ed/bin_git/bin/g++ -std=c++14 -o is_final_std is_final_std.cpp
+// $HOME/bin_git/bin/g++ -std=c++14 -o is_final_std is_final_std.cpp
 
 #include<type_traits>
 #include<iostream>

@@ -1,4 +1,4 @@
-// /home/ed/bin/bin/g++ -std=c++1y -o test_digit_sep test_digit_sep.cpp
+// $HOME/bin/bin/g++ -std=c++1y -o test_digit_sep test_digit_sep.cpp
 
 #include <iostream>
 
