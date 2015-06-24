@@ -8,6 +8,7 @@
 #include <fstream>
 #include <functional>
 #include <regex>
+#include <string>
 
 const char* header =
 R"(#Inventor V2.1 ascii
