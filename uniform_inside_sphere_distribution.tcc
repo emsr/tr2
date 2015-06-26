@@ -81,9 +81,12 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
 	  return __ret;
         }
       };
-  }
+  } // namespace
 
-
+  //
+  //  Experiments have shown that rejection is more efficient than transform
+  //  for dimensions less than 8.
+  //
   template<std::size_t _Dimen, typename _RealType>
     template<typename _UniformRandomNumberGenerator>
       typename uniform_inside_sphere_distribution<_Dimen, _RealType>::result_type
@@ -91,7 +94,7 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
       operator()(_UniformRandomNumberGenerator& __urng,
 		 const param_type& __p)
       {
-        uniform_inside_sphere_helper<_Dimen, _Dimen < 10, _RealType> __helper;
+        uniform_inside_sphere_helper<_Dimen, _Dimen < 8, _RealType> __helper;
         return __helper(_M_uosd, __urng, __p.radius());
       }
 
@@ -120,13 +123,13 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
       typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
       typedef typename __ostream_type::ios_base    __ios_base;
 
-      const std::streamsize __precision = __os.precision();
-      __os.precision(std::numeric_limits<_RealType>::max_digits10);
-      const _CharT __fill = __os.fill();
-      const _CharT __space = __os.widen(' ');
-      __os.fill(__space);
       const typename __ios_base::fmtflags __flags = __os.flags();
+      const _CharT __fill = __os.fill();
+      const std::streamsize __precision = __os.precision();
+      const _CharT __space = __os.widen(' ');
       __os.flags(__ios_base::scientific | __ios_base::left);
+      __os.fill(__space);
+      __os.precision(std::numeric_limits<_RealType>::max_digits10);
 
       __os << __x.radius() << __space << __x._M_uosd;
 
@@ -161,4 +164,4 @@ namespace __gnu_cxx //_GLIBCXX_VISIBILITY(default)
     }
 
 //_GLIBCXX_END_NAMESPACE_VERSION
-} // namespace
+} // namespace __gnu_cxx
