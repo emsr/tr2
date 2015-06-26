@@ -1,0 +1,180 @@
+//  https://gist.github.com/lichray/6034753
+// <experimental/array> -*- C++ -*-
+
+// Copyright (C) 2015 Free Software Foundation, Inc.
+//
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or (at your option)
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+/** @file experimental/functional
+ *  This is a TS C++ Library header.
+ */
+
+#ifndef _GLIBCXX_EXPERIMENTAL_ARRAY
+#define _GLIBCXX_EXPERIMENTAL_ARRAY 1
+
+#pragma GCC system_header
+
+#if __cplusplus <= 201103L
+# include <bits/c++14_warning.h>
+#else
+
+#include <array>
+#include <functional>
+#include <type_traits>
+
+namespace std
+{
+namespace experimental
+{
+inline namespace fundamentals_v2
+{
+
+//  Made this up...
+#define __cpp_lib_experimental_make_array 201411
+
+namespace __detail
+{
+
+  template<bool, typename _Tp, typename... _Up>
+    struct __lazy_conditional;
+
+  template<typename _Tp>
+    struct __lazy_conditional<true, _Tp>
+    {
+      using type = typename _Tp::type;
+    };
+
+  template<typename _Tp, typename _Up>
+    struct __lazy_conditional<true, _Tp, _Up>
+    {
+      using type = typename _Tp::type;
+    };
+
+  template<typename _Tp, typename _Up>
+    struct __lazy_conditional<false, _Tp, _Up>
+    {
+      using type = typename _Up::type;
+    };
+
+  template<typename _Vp, typename _Tp, typename... _Up>
+    using __if = __lazy_conditional<_Vp::value, _Tp, _Up...>;
+
+  template<typename _Vp, typename _Tp, typename... _Up>
+    using __if_t = typename __if<_Vp, _Tp, _Up...>::type;
+
+
+  template<template<typename> typename _F, typename... _Tp>
+    struct __no_type
+    : std::true_type
+    { };
+
+  template<template<typename> typename _F, typename _Tp, typename... _Up>
+    struct __no_type<_F, _Tp, _Up...>
+    : std::integral_constant<bool, ! _F<_Tp>::value
+				   && __no_type<_F, _Up...>::value>
+    { };
+
+
+  template<template<typename> typename _F,
+	   template<typename> typename _G>
+    struct __compose
+    {
+      template<typename _Tp>
+	using __call = _F<typename _G<_Tp>::type>;
+    };
+
+
+  template<typename _Tp>
+    struct __is_reference_wrapper_helper
+    : std::false_type
+    { };
+
+  template<typename _Tp>
+    struct __is_reference_wrapper_helper<std::reference_wrapper<_Tp>>
+    : std::true_type
+    { };
+
+  template<typename _Tp>
+    using __is_reference_wrapper =
+      __compose<__is_reference_wrapper_helper, std::remove_cv>::__call<_Tp>;
+
+
+  template<typename _Tp, size_t _Num, size_t... _Idx>
+    constexpr auto
+    __to_array_helper(_Tp (&__arr)[_Num], std::index_sequence<_Idx...>)
+    -> std::array<remove_cv_t<_Tp>, _Num>
+    { return {{ __arr[_Idx]... }}; }
+
+
+  template<typename... _Tp>
+    using __array_t = __if_t<__no_type<__compose<__is_reference_wrapper,
+						 std::remove_reference>::__call,
+				       _Tp...>,
+			     std::common_type<_Tp...>>;
+
+} // namespace __detail
+
+  /**
+   *  @brief  Convert a reference to a C-style array into a std::array.
+   *
+   *  @tparam _Tp  The element type of the array.
+   *  @tparam _Num  The size of the array.
+   */
+  template<typename _Tp, size_t _Num>
+    constexpr std::array<std::remove_cv_t<_Tp>, _Num>
+    to_array(_Tp (&__arr)[_Num])
+    {
+      return __detail::__to_array_helper(__arr,
+					 std::make_index_sequence<_Num>());
+    }
+
+  /**
+   *  @brief  Make a std::array from a sequence of elements.
+   *
+   *  @tparam _Tp  The element type of the array.
+   *  @tparam _Num  The size of the array.
+   */
+  template<typename... _Tp>
+    constexpr auto
+    make_array(_Tp&&... __t)
+    -> std::array<__detail::__array_t<_Tp...>, sizeof...(_Tp)>
+    { return {{ std::forward<_Tp>(__t)... }}; }
+
+  /**
+   *  @brief  Make a std::array from a sequence of elements.
+   *  The type of the first element determines the element type for the array.
+   *
+   *  @tparam _Tp  The element type of the array.
+   *  @tparam _Num  The size of the array.
+   */
+  template<typename _Vp, typename... _Tp>
+    constexpr auto
+    make_array(_Tp&&... __t)
+    -> std::array<_Vp, sizeof...(_Tp)>
+    { return {{ std::forward<_Tp>(__t)... }}; }
+
+} // namespace fundamentals_v2
+} // namespace experimental
+} // namespace std
+
+#endif // C++14
+
+#endif // _GLIBCXX_EXPERIMENTAL_ARRAY
