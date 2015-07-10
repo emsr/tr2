@@ -81,7 +81,7 @@
       For moderate modulus of z, three techniques are used.  Two use
       a backward recursion algorithm with (1), (3), (4), and (6). The
       third uses the confluent hypergeometric representations given by
-      (2)and (5).  The backward recursion algorithm generates values of
+      (2) and (5).  The backward recursion algorithm generates values of
       the modified Bessel functions of the first kind of orders + or -
       1/3 and + or - 2/3 for z in the right half plane.  Values for
       the corresponding Bessel functions of the first kind are recovered
@@ -152,19 +152,19 @@ zairy(z, deps, zai, zaipr, ier)
                  drsqpi, dzsmal, d1d3, d2d3,
                  dgm2d3, dgm1d3, d2g2d3, dsqrt3
 
-      data zepd6 /( 8.660254037844386d-01, 5.0d-01)/,
-           zempd6/( 8.660254037844386d-01,-5.0d-01)/,
-           zepd3 /( 5.0d-01, 8.660254037844386d-01)/,
-           zempd3/( 5.0d-01,-8.660254037844386d-01)/
-      data dzero /0.0d+00/,
-           d1d3  /3.333333333333333d-01/,
-           d2d3  /6.666666666666667d-01/,
-           dsqrt3/1.732050807568877d+00/,
-           dgm1d3/2.588194037928068d-01/,
-           dgm2d3/3.550280538878172d-01/,
-           d2g2d3/1.775140269439086d-01/,
-           drsqpi/2.820947917738781d-01/
-      data dzsmal/2.5d-01/,dziacc/2.0d+00/,dzbig/15.0d+00/
+      data zepd6 /( 8.660254037844386e-01, 5.0e-01)/,
+           zempd6/( 8.660254037844386e-01,-5.0e-01)/,
+           zepd3 /( 5.0e-01, 8.660254037844386e-01)/,
+           zempd3/( 5.0e-01,-8.660254037844386e-01)/
+      data dzero /0/,
+           d1d3  /3.333333333333333e-01/,
+           d2d3  /6.666666666666667e-01/,
+           dsqrt3/1.732050807568877e+00/,
+           dgm1d3/2.588194037928068e-01/,
+           dgm2d3/3.550280538878172e-01/,
+           d2g2d3/1.775140269439086e-01/,
+           drsqpi/2.820947917738781e-01/
+      data dzsmal/2.5e-01/,dziacc/2/,dzbig/15/
 
       ier = 0
 
@@ -328,56 +328,56 @@ zairy(z, deps, zai, zaipr, ier)
 
 	I-sub-(nu-1) = (2*nu/z)*I-sub-nu + I-sub-(nu+1)
 
-      SATISFIED BY THE MODIFIED BESSEL FUNCTIONS OF THE FIRST KIND.
-      THE NORMALIZATION RELATIONSHIP USED IS
-	     NU Z 
-	(Z/2)  E		 INF  (K+NU)*GAMMA(2 NU+K)
-	-----------  = I (Z) + 2 SUM  -------------------- I (Z) .
-	GAMMA(NU+1)	NU	 K=1   K! GAMMA(1 + 2 NU)   NU+K
+      satisfied by the modified Bessel functions of the first kind.
+      the normalization relationship used is
+	     nu z 
+	(z/2)  e		 INF  (k+nu)*Gamma(2 nu+k)
+	-----------  = I (z) + 2 SUM  -------------------- I (z) .
+	Gamma(nu+1)	nu	 k=1   k! Gamma(1 + 2 nu)   nu+k
 
-      THIS MODIFICATION OF THE ALGORITHM IS GIVEN IN PART IN
+      This modification of the algorithm is given in part in
 
-      OLVER, F.W.J. AND SOOKNE, D.J., NOTE ON BACKWARD RECURRENCE
-	ALGORITHMS, MATH. OF COMP., VOL. 26, NO. 120, OCT. 1972.
+      Olver, F.W.J. and Sookne, D.J., Note on Backward Recurrence
+	ALGORITHMS, Math. of Comp., Vol. 26, no. 120, Oct. 1972.
 
-      AND FURTHER ELABORATED FOR THE BESSEL FUNCTIONS IN
+      And further elaborated for the Bessel functions in
   
-      SOOKNE, D.J., BESSEL FUNCTIONS I AN J OF COMPLEX ARGUMENT 
-	AND INTEGER ORDER, J. RES. NBS - SERIES B, VOL 77B, NOS.
-	3 & 4, JULY-DECEMBER, 1973.
+      Sookne, D.J., Bessel FUNCTIONS I and J of Complex Argument 
+	and Integer Order, J. Res. NBS - Series B, Vol 77B, Nos.
+	3 & 4, July-December, 1973.
 
-      INSIGHT WAS ALSO GAINED FROM
+      Insight was also gained from
 
-      CODY, W.J., PRELIMINARY REPORT ON SOFTWARE FOR THE MODIFIED
-	BESSEL FUNCTIONS OF THE FIRST KIND, ARGONNE NATIONAL
-	LABORATORY, APPLIED MATHEMATICS DIVISION, TECH. MEMO. 
-	NO. 357, AUGUST, 1980.
+      Cody, W.J., Preliminary Report on Software for the Modified
+	Bessel Functions of the First Kind, Argonne National
+	Laboratory, Applied Mathematics Division, Tech. Memo. 
+	No. 357, August, 1980.
 
-      CODY IMPLEMENTS THE ALGORITHM OF SOOKNE FOR FRACTIONAL ORDER
-      AND NONNEGATIVE REAL ARGUMENT.  LIKE CODY, WE DO NOT CHANGE
-      THE CONVERGENCE TESTING MECHANISM IN ANY SUBSTANTIAL WAY.
-      HOWEVER, WE DO TRIM THE OVERHEAD BY MAKING THE ADDITIONAL
-      ASSUMPTION THAT PERFORMING THE CONVERGENCE TEST FOR THE
-      FUNCTIONS OF ORDER 2/3 WILL SUFFICE FOR ORDER 1/3 AS WELL.
-      THIS ASSUMPTION HAS NOT BEEN ESTABLISHED BY RIGOUROUS
-      ANALYSIS AT THIS TIME.  TWO ADDITIONAL CHANGES HAVE BEEN
-      MADE FOR THE SAKE OF SPEED.  FIRST, THE STRONG CONVERGENCE
-      CRITERIA IS COMPUTED IN SINGLE PRECISION SINCE MAGNITUDE IS
-      THE MOST IMPORTANT THING HERE.  SECOND, THE TESTS ARE
-      PERFORMED IN THE 1-NORM INSTEAD OF THE USUAL EUCLIDEAN
-      NORM USED IN THE COMPLEX PLANE.  TO INSURE THE VALIDITY
-      OF THE RESULTS, THE INEQUALITY
+      Cody implements the algorithm of Sookne for fractional order
+      and nonnegative real argument.  Like Cody, we do not change
+      the convergence testing mechanism in any substantial way.
+      However, we do trim the overhead by making the additional
+      assumption that performing the convergence test for the
+      functions of order 2/3 will suffice for order 1/3 as well.
+      This assumption has not been established by rigourous
+      analysis at this time.  Two additional changes have been
+      made for the sake of speed.  First, the strong convergence
+      criteria is computed in single precision since magnitude is
+      the most important thing here.  Second, the tests are
+      performed in the 1-norm instead of the usual euclidean
+      norm used in the complex plane.  To insure the validity
+      of the results, the inequality
 					   2	2 
-	ABS(X) + ABS(Y) <= SQRT(2) SQRT(X  + Y ) 
+	abs(x) + abs(y) <= sqrt(2) sqrt(x  + y ) 
 
-      WAS USED TO MODIFY THE CONVERGENCE TESTS.
+      was used to modify the convergence tests.
 
-      NOTE ALSO THAT FOR THE SAKE OF SPEED AND THE FACT THAT THIS
-      SUBROUTINE WILL BE DRIVEN BY ANOTHER, CHECKS THAT ARE NOT
-      ABSOLUTELY NECESSARY ARE NOT MADE.  UNDER THESE ASSUMPTIONS
-      AN ERROR RETURN IS NOT NEEDED.
+      Note also that for the sake of speed and the fact that this
+      subroutine will be driven by another, checks that are not
+      absolutely necessary are not made.  Under these assumptions
+      an error return is not needed.
 
-      ARGUMENTS
+      Arguments
 	Z      DOUBLE PRECISION COMPLEX INPUT VARIABLE SET EQUAL
 	       TO THE ARGUMENT AT WHICH THE MODIFIED BESSEL
 	       FUNCTIONS COMPUTED BY THIS PROGRAM ARE TO BE
@@ -400,9 +400,9 @@ zairy(z, deps, zai, zaipr, ier)
 	RICK A. WHITAKER
 
  */
-void
-ziairy(z,deps,zi1d3,zim1d3,zi2d3,zim2d3)
-{
+  void
+  ziairy(z, deps, zi1d3, zim1d3, zi2d3, zim2d3)
+  {
       double complex z, zi1d3, zim1d3, zi2d3, zim2d3;
       double deps;
 
@@ -418,15 +418,15 @@ ziairy(z,deps,zi1d3,zim1d3,zi2d3,zim2d3)
 
       int n, l, nend
 
-      data sone/1.0/, stwo/2.0/
-      data zero/(0.0d+00,0.0d+00)/, zone/(1.0d+00,0.0d+00)/
-      data done/1.0d+00/, dtwo/2.0d+00/, dhalf/5.0d-01/,
-           d1d3  /3.333333333333333d-01/, d2d3  /6.666666666666667d-01/,
-           d4d3  /1.333333333333333d+00/, d5d3  /1.666666666666667d+00/,
-           d8d3  /2.666666666666667d+00/, d10d3 /3.333333333333333d+00/,
-           d14d3 /4.666666666666667d+00/, d16d3 /5.333333333333333d+00/,
-           dgm4d3/8.929795115692492d-01/, dgm5d3/9.027452929509336d-01/,
-           d2sqr2/2.828427124746190d+01/
+      data sone/1/, stwo/2/
+      data zero{0}, zone{1}
+      data done/1.0e+00/, dtwo/2.0e+00/, dhalf/5.0e-01/,
+           d1d3  /3.333333333333333e-01/, d2d3  /6.666666666666667e-01/,
+           d4d3  /1.333333333333333e+00/, d5d3  /1.666666666666667e+00/,
+           d8d3  /2.666666666666667e+00/, d10d3 /3.333333333333333e+00/,
+           d14d3 /4.666666666666667e+00/, d16d3 /5.333333333333333e+00/,
+           dgm4d3/8.929795115692492e-01/, dgm5d3/9.027452929509336e-01/,
+           d2sqr2/2.828427124746190e+01/
 
       //  compute 1/z for use in recurrence for speed and abs(z)
       dzr = std::real(z);
@@ -590,30 +590,28 @@ ziairy(z,deps,zi1d3,zim1d3,zi2d3,zim2d3)
       zi1d3 = zp1 / zsum1;
 
       //  perform last two recurrence steps for order 2/3
-      zpold2 = zplst2
-      zplst2 = zp2
-      zp2 = d16d3 * zplst2 * z1dz + zpold2
+      zpold2 = zplst2;
+      zplst2 = zp2;
+      zp2 = d16d3 * zplst2 * z1dz + zpold2;
       zsum2 += d5d3 * zp2;
       zpold2 = zplst2;
       zplst2 = zp2;
       zp2 = d10d3 * zplst2 * z1dz + zpold2
       zsum2 = (zsum2 + zsum2) + zp2
 
-      //  compute scale factor and scale results for order 2/3 case
+      //  Compute scale factor and scale results for order 2/3 case
       zsum2 *= zd2pow * zpold1 * dgm5d3;
       zplst2 /= zsum2;
       zi2d3 = zp2 / zsum2;
 
-      //  recur back one step from order 1/3 to get order -2/3
-      zim2d3 = dcmplx(d2d3*std::real(zi1d3),d2d3*std::imag(zi1d3))*z1dz +
-               zplst1
+      //  Recur back one step from order 1/3 to get order -2/3
+      zim2d3 = d2d3 * zi1d3 * z1dz + zplst1;
 
-      //  recur back one step from order 2/3 to get order -1/3
-      zim1d3 = dcmplx(d4d3*std::real(zi2d3),d4d3*std::imag(zi2d3))*z1dz +
-               zplst2
+      //  Recur back one step from order 2/3 to get order -1/3
+      zim1d3 = d4d3 * zi2d3 * z1dz + zplst2;
 
       return
-}
+  }
 
 
 
@@ -670,168 +668,157 @@ ziairy(z,deps,zi1d3,zim1d3,zi2d3,zim2d3)
 			ARG(Z) = 3*PI/4, WE EXPECT 20 ITERATIONS
 			TO GIVE 7 OR 8 DECIMALS OF ACCURACY.
 
-    DATE OF LAST REVISION
-      MAY 7, 1986
+    Date of Last Revision
+      May 7, 1986
 
     AUTHOR
-      RICK A. WHITAKER
+      Rick A. Whitaker
 
  */
-void
-zkairy(z,deps,zk1d3,zk2d3,ier)
-      double complex z, zk1d3, zk2d3
-      double precision     deps
-      integer    ier
+  void
+  zkairy(const std::complex<_Tp> & z, _Tp deps,
+         std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
+         int & ier)
+  {
+    using dcmplx = std::complex<_Tp>;
 
-      double complex zone, zf10, zf11, zf12, zf13, zphi10,
-                 zphi11, zphi12, zphi13, zf20, zf21, zf22,
-                 zf23, zphi20, zphi21, zphi22, zphi23, zfact1,
-                 zfact2, zratnw, zratol
-      double precision     dtwo, deight, d16, d24, dthree, dfive, 
-                 delti, dan1i, dan2i, dp12i, dp22i, dfco(8),
-                 dp13i, dp23i, dp11i, dp21i, dan1, dphico(6),
-                 dan2, dp11, dp12, dp13, dp21, dp22,
-                 dp23, delt, deta, dq, dgamm, dgam,
-                 danm1, danm2, dqzr, dqzi
-      integer    i
+    std::complex<_Tp> zf10, zf11, zf12, zf13, zphi10,
+               zphi11, zphi12, zphi13, zf20, zf21, zf22,
+               zf23, zphi20, zphi21, zphi22, zphi23, zfact1,
+               zfact2, zratnw, zratol
+    _Tp
+               dan1, dan2, dp11, dp12, dp13, dp21, dp22,
+               dp23, delt, deta, dq, dgamm, dgam,
+               danm1, danm2, dqzr, dqzi
 
-      double complex zrat1
+    double complex zrat1
 
-      double complex dcmplx
+    constexpr _Tp dtwo{2}, deight{8}, d16{16}, d24{24},
+                  dthree[3}, dfive{5}, delti{32},
+        	  dan1i{4.855555555555555e+01}, dan2i{4.722222222222222e+01},
+        	  dp12i{3.144444444444444e+01}, dp22i{3.277777777777777e+01},
+        	  dp13i{-9.259259259259259e-01}, dp23i{1.296296296296296e+00},
+        	  dp11i{-7.907407407407407e+01}, dp21i{-8.129629629629629e+01};
+    constexpr std::complex<_Tp> zone{1}
 
-      data dtwo/2.0d+00/,deight/8.0d+00/,d16/16.0d+00/d24/24.0d+00/,
-           dthree/3.0d+00/,dfive/5.0d+00/delti/32.0d+00/,
-           dan1i/4.855555555555555d+01/dan2i/4.722222222222222d+01/,
-           dp12i/3.144444444444444d+01/,dp22i/3.277777777777777d+01/,
-           dp13i/-9.259259259259259d-01/,dp23i/1.296296296296296d+00/,
-           dp11i/-7.907407407407407d+01/,dp21i/-8.129629629629629d+01/
-      data zone/(1.0d+00,0.0d+00)/
+    constexpr _Tp dfco[8]{144, 77, 62208, 95472, 17017, 65, 90288, 13585};
+    constexpr _Tp dphico[6]{67, 91152, 12697, 79, 96336, 19633};
 
-      data dfco/144.0d+00,77.0d+00,62208.0d+00,95472.0d+00,
-                17017.0d+00,65.0d+00,90288.0d+00,13585.0d+00/
-      data dphico/67.0d+00,91152.0d+00,12697.0d+00,79.0d+00,
-                  96336.0d+00,19633.0d+00/
+    ier = 0
 
-      ier = 0
+    //  Initialize polynomials for recurrence
+    zf10 = zone;
+    zf20 = zone;
+    zphi10 = zone;
+    zphi20 = zone;
+    zf11 = dcmplx((dfco[0]*std::real(z)+dfco[1])/dfco[1],
+                   dfco[0]*std::imag(z)/dfco[1])
+    zf12 = dcmplx(dfco[2]*std::real(z)+dfco[3],dfco[2]*std::imag(z))*z
+    zf12 = dcmplx((std::real(zf12)+dfco[4])/dfco[4],
+                   std::imag(zf12)/dfco[4])
+    zf21 = dcmplx((dfco[0]*std::real(z)+dfco[5])/dfco[5],
+                   dfco[0]*std::imag(z)/dfco[5])
+    zf22 = dcmplx(dfco[2]*std::real(z)+dfco[6],dfco[2]*std::imag(z))*z
+    zf22 = dcmplx((std::real(zf22)+dfco[7])/dfco[7],
+                   std::imag(zf22)/dfco[7])
+    zphi11 = dcmplx((dfco[0]*std::real(z)+dphico[0])/dfco[1],
+                     std::imag(zf11))
+    zphi12 = dcmplx(dfco[2]*std::real(z)+dphico[1],
+                    dfco[2]*std::imag(z))*z
+    zphi12 = dcmplx((std::real(zphi12)+dphico[2])/dfco[4],
+                     std::imag(zphi12)/dfco[4])
+    zphi21 = dcmplx((dfco[0]*std::real(z)+dphico[3])/dfco[5],
+                     std::imag(zf21))
+    zphi22 = dcmplx(dfco[2]*std::real(z)+dphico[4],
+                     dfco[2]*std::imag(z))*z
+    zphi22 = dcmplx((std::real(zphi22)+dphico[5])/dfco[7],
+                     std::imag(zphi22)/dfco[7])
 
-      //  initialize polynomials for recurrence
-      zf10 = zone
-      zf20 = zone
-      zphi10 = zone
-      zphi20 = zone
-      zf11 = dcmplx((dfco(1)*std::real(z)+dfco(2))/dfco(2),
-                     dfco(1)*std::imag(z)/dfco(2))
-      zf12 = dcmplx(dfco(3)*std::real(z)+dfco(4),dfco(3)*std::imag(z))*z
-      zf12 = dcmplx((std::real(zf12)+dfco(5))/dfco(5),
-                     std::imag(zf12)/dfco(5))
-      zf21 = dcmplx((dfco(1)*std::real(z)+dfco(6))/dfco(6),
-                     dfco(1)*std::imag(z)/dfco(6))
-      zf22 = dcmplx(dfco(3)*std::real(z)+dfco(7),dfco(3)*std::imag(z))*z
-      zf22 = dcmplx((std::real(zf22)+dfco(8))/dfco(8),
-                     std::imag(zf22)/dfco(8))
-      zphi11 = dcmplx((dfco(1)*std::real(z)+dphico(1))/dfco(2),
-                       std::imag(zf11))
-      zphi12 = dcmplx(dfco(3)*std::real(z)+dphico(2),
-                      dfco(3)*std::imag(z))*z
-      zphi12 = dcmplx((std::real(zphi12)+dphico(3))/dfco(5),
-                       std::imag(zphi12)/dfco(5))
-      zphi21 = dcmplx((dfco(1)*std::real(z)+dphico(4))/dfco(6),
-                       std::imag(zf21))
-      zphi22 = dcmplx(dfco(3)*std::real(z)+dphico(5),
-                       dfco(3)*std::imag(z))*z
-      zphi22 = dcmplx((std::real(zphi22)+dphico(6))/dfco(8),
-                       std::imag(zphi22)/dfco(8))
+    //  Initialize for recursion
+    zratol = zphi22 / zf22;
+    zrat1 = zphi12 / zf12;
+    delt = delti;
+    dan1 = dan1i;
+    dan2 = dan2i;
+    dp11 = dp11i;
+    dp12 = dp12i;
+    dp13 = dp13i;
+    dp21 = dp21i;
+    dp22 = dp22i;
+    dp23 = dp23i;
+    deta = d24;
+    dgamm = dthree;
+    dgam = dfive;
+    dq = d16 * dgam;
 
-      //  initialize for recursion
-      zratol = zphi22/zf22
-      zrat1 = zphi12/zf12
-      delt = delti
-      dan1 = dan1i
-      dan2 = dan2i
-      dp11 = dp11i
-      dp12 = dp12i
-      dp13 = dp13i
-      dp21 = dp21i
-      dp22 = dp22i
-      dp23 = dp23i
-      deta = d24
-      dgamm = dthree
-      dgam = dfive
-      dq = d16*dgam
+    //  Loop until maximum iterations used or convergence
+    for (int i = 1; i < 100; ++i)
+    {
+      //  evaluate next term in recurrence for order 1/3 polynomials
+      dqzr = dq * std::real(z);
+      dqzi = dq * std::imag(z);
+      zfact1 = dcmplx(dqzr - dp11, dqzi);
+      zfact2 = dcmplx(dqzr - dp12, dqzi);
+      zf13 = zfact1 * zf12 + zfact2 * zf11 - dp13 * zf10;
+      zf13 = dcmplx(std::real(zf13)/dan1,std::imag(zf13)/dan1);
+      zphi13 = zfact1 * zphi12 + zfact2 * zphi11 - dp13 * zphi10;
+      zphi13 = dcmplx(std::real(zphi13)/dan1,std::imag(zphi13)/dan1);
+      //  Evaluate next term in recurrence for order 2/3 polynomials
+      zfact1 = dcmplx(dqzr - dp21, dqzi);
+      zfact2 = dcmplx(dqzr - dp22, dqzi);
+      zf23 = zfact1 * zf22 + zfact2 * zf21 - dp23 * zf20;
+      zf23 = zf23 / dan2;
+      zphi23 = zfact1 * zphi22 + zfact2 * zphi21 - dp23 * zphi20;
+      zphi23 = zphi23 / dan2;
 
-      //  loop until maximum iterations used or convergence
-      do 10 i=1,100
-        //  evaluate next term in recurrence for order 1/3 polynomials
-        dqzr = dq*std::real(z)
-        dqzi = dq*std::imag(z)
-        zfact1 = dcmplx(dqzr-dp11,dqzi)
-        zfact2 = dcmplx(dqzr-dp12,dqzi)
-        zf13 = zfact1*zf12 + zfact2*zf11 - dcmplx(dp13*std::real(zf10),
-                                                  dp13*std::imag(zf10))
-        zf13 = dcmplx(std::real(zf13)/dan1,std::imag(zf13)/dan1)
-        zphi13 = zfact1*zphi12 + zfact2*zphi11 -
-                 dcmplx(dp13*std::real(zphi10),dp13*std::imag(zphi10))
-        zphi13 = dcmplx(std::real(zphi13)/dan1,std::imag(zphi13)/dan1)
-        //  evaluate next term in recurrence for order 2/3 polynomials
-        zfact1 = dcmplx(dqzr-dp21,dqzi)
-        zfact2 = dcmplx(dqzr-dp22,dqzi)
-        zf23 = zfact1*zf22 + zfact2*zf21 - dcmplx(dp23*std::real(zf20),
-                                                  dp23*std::imag(zf20))
-        zf23 = dcmplx(std::real(zf23)/dan2,std::imag(zf23)/dan2)
-        zphi23 = zfact1*zphi22 + zfact2*zphi21 -
-                 dcmplx(dp23*std::real(zphi20),dp23*std::imag(zphi20))
-        zphi23 = dcmplx(std::real(zphi23)/dan2,std::imag(zphi23)/dan2)
+      //  check for convergence
+      zratnw = zphi23 / zf23;
+      zrat1 = zphi13 / zf13;
 
-        //  check for convergence
-        zratnw = zphi23/zf23
-        zrat1 = zphi13/zf13
+      if (std::abs(zratnw - zratol) < deps * std::abs(zratnw))
+      {
+       //  Convergence.
+	zk2d3 = zratnw;
+	zk1d3 = zphi13 / zf13;
+	return;
+      }
 
+      //  Prepare for next iteration
+      zratol = zratnw;
+      zf20 = zf21;
+      zf21 = zf22;
+      zf22 = zf23;
+      zphi20 = zphi21;
+      zphi21 = zphi22;
+      zphi22 = zphi23;
+      zf10 = zf11;
+      zf11 = zf12;
+      zf12 = zf13;
+      zphi10 = zphi11;
+      zphi11 = zphi12;
+      zphi12 = zphi13;
+      delt = delt + d24;
+      dp12 = dp12 + delt;
+      dp22 = dp22 + delt;
+      deta = deta + deight;
+      dan1 = dan1 + deta;
+      dan2 = dan2 + deta;
+      danm1 = dan1 - delt - d16;
+      danm2 = dan2 - delt - d16;
+      dgamm = dgam;
+      dgam = dgam + dtwo;
+      dp23 = -dgam/dgamm;
+      dp13 = dp23*danm1;
+      dp23 = dp23*danm2;
+      dp11 = -dan1 - dp12 - dp13;
+      dp21 = -dan2 - dp22 - dp23;
+      dq = d16 * dgam;
+    }
 
-        if (std::abs(zratnw-zratol)
-            < deps*std::abs(zratnw)) go to 20
-
-        //  prepare for next iteration
-        zratol = zratnw
-        zf20 = zf21
-        zf21 = zf22
-        zf22 = zf23
-        zphi20 = zphi21
-        zphi21 = zphi22
-        zphi22 = zphi23
-        zf10 = zf11
-        zf11 = zf12
-        zf12 = zf13
-        zphi10 = zphi11
-        zphi11 = zphi12
-        zphi12 = zphi13
-        delt = delt + d24
-        dp12 = dp12 + delt
-        dp22 = dp22 + delt
-        deta = deta + deight
-        dan1 = dan1 + deta
-        dan2 = dan2 + deta
-        danm1 = dan1 - delt - d16
-        danm2 = dan2 - delt - d16
-        dgamm = dgam
-        dgam = dgam + dtwo
-        dp23 = -dgam/dgamm
-        dp13 = dp23*danm1
-        dp23 = dp23*danm2
-        dp11 = -dan1 - dp12 - dp13
-        dp21 = -dan2 - dp22 - dp23
-        dq = d16*dgam
-   10 continue
-
-      //  maximum iterations exceeded
-      ier = 129
-      return
-      //  convergence
-   20 continue
-      zk2d3 = zratnw
-      zk1d3 = zphi13/zf13
-
-      return
-}
+    //  Maximum iterations exceeded
+    ier = 129;
+    return;
+  }
 
 
 
@@ -899,145 +886,145 @@ zkairy(z,deps,zk1d3,zk2d3,ier)
       Rick A. Whitaker
 
  */
-void
-zcrary(z, zf1d3, zfm1d3, zf2d3, zfm2d3)
-{
-      double complex z, zf1d3, zfm1d3, zf2d3, zfm2d3
+template<typename _Tp>
+  void
+  zcrary(const std::complex<_Tp> & z,
+         std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
+         std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3)
+  {
+    using dcmplx = std::complex<_Tp>;
 
-      double complex zone, zzz
-      double precision     dx, dy, dr, ds, dt, dtwo,
-                 dal, dbe, da1d3(4), dam1d3(4),
-                 da2d3(4), dam2d3(4), db1d3(4),
-                 dbm1d3(4), db2d3(4), dbm2d3(4),
-                 dsmall
+    constexpr _Tp dtwo = 2;
+    constexpr std::complex<_Tp> zone{1};
 
-      data dtwo/2.0d+00/,zone/(1.0d+00,1.0d+00)/
+    //  dsmall is the 1/3 root of the smallest magnitude
+    //  floating-point number representable on the machine
+    constexpr _Tp dsmall = 1.0e-12;
 
-      //  dsmall is the 1/3 root of the smallest magnitude
-      //  floating-point number representable on the machine
-      data dsmall/1.0d-12/
+    constexpr _Tp da1d3[4]{  81, 32400, 2585520, 37920960 };
+    constexpr _Tp db1d3[4]{ -35, 5040, -574560, 37920960 };
+    constexpr _Tp dam1d3[4]{ 81, 22680, 1156680, 7711200 };
+    constexpr _Tp dbm1d3[4]{ -10, 1260, -128520, 7711200 };
+    constexpr _Tp da2d3[4]{ 162, 75735, 7270560, 139352400 };
+    constexpr _Tp db2d3[4]{ -110, 16830, -2019600, 139352400 };
+    constexpr _Tp dam2d3[4]{ 162, 36855, 1415232, 4481568 };
+    constexpr _Tp dbm2d3[4]{ -7, 819, -78624, 4481568 };
 
-      data da1d3 /81d+00,32400d+00,2585520d+00,37920960d+00/,
-           db1d3 /-35d+00,5040d+00,-574560d+00,37920960d+00/,
-           dam1d3/81d+00,22680d+00,1156680d+00,7711200d+00/,
-           dbm1d3/-10d+00,1260d+00,-128520d+00,7711200d+00/,
-           da2d3 /162d+00,75735d+00,7270560d+00,139352400d+00/,
-           db2d3 /-110d+00,16830d+00,-2019600d+00,139352400d+00/,
-           dam2d3/162d+00,36855d+00,1415232d+00,4481568d+00/,
-           dbm2d3/-7d+00,819d+00,-78624d+00,4481568d+00/
+    //  check to see if z**3 will underflow and act accordingly
 
-      //  check to see if z**3 will underflow and act accordingly
+    if (std::abs(z) < dsmall)
+    {
+      //  All ratios are 1 
+      zf1d3  = zone;
+      zfm1d3 = zone;
+      zf2d3  = zone;
+      zfm2d3 = zone;
+    }
+    else
+    {
+      //  Initialize argument dependent quantities used throughout
+      std::complex<_Tp> zzz = z * z * z;
+      _Tp dx = std::real(zzz);
+      _Tp dy = std::imag(zzz);
+      _Tp dr = dtwo * dx;
+      _Tp ds = dx * dx + dy * dy;
 
-      if (std::abs(z) < dsmall)
-      then
-        //  all ratios are 1 
-        zf1d3  = zone
-        zfm1d3 = zone
-        zf2d3  = zone
-        zfm2d3 = zone
-      else
-        //  initialize argument dependent quantities used throughout
-        zzz = z**3
-        dx = std::real(zzz)
-        dy = std::imag(zzz)
-        dr = dtwo*dx
-        ds = dx*dx + dy*dy
+      //  All of the following polynomial evaluations are done using
+      //  a modified of Horner's rule which exploits the fact that
+      //  the polynomial coefficients are all real.  the algorithm is
+      //  discussed in detail in
 
-         //  all of the following polynomial evaluations are done using
-         //  a modified of horner's rule which exploits the fact that
-         //  the polynomial coefficients are all real.  the algorithm is
-         //  discussed in detail in
+      //  Knuth, D. E., The Art of Computer Programming: Seminumerical
+      //  Algorithms (Vol. 2), Addison-Wesley, pp 423-424, 1969.
 
-         //  knuth, d. e., the art of computer programming: seminumerical
-         //  algorithms (vol. 2), addison-wesley, pp 423-424, 1969.
+      //  If n is the degree of the polynomial, n - 3 multiplies are
+      //  saved and 4 * n - 6 additions are saved.
 
-         //  if n is the degree of the polynomial, n-3 multiplies are
-         //  saved and 4*n-6 additions are saved.
+      //  Evaluate numerator polynomial for nu=1/3 approximant
+      _Tp dt, dtwo, dal, dbe;
 
-        //  evaluate numerator polynomial for nu=1/3 approximant
-        dal = da1d3(1)
-        dt  = ds * dal
-        dal = da1d3(2) + dr * dal
-        dbe = da1d3(3) - dt
-        dt  = ds * dal
-        dal = dbe + dr * dal
-        dbe = da1d3(4) - dt
-        zf1d3 = dcmplx(dal * dx + dbe, dal * dy)
-        //  evaluate denominator polynomial for nu=1/3 approximant and
-        //  compute ratio of numerator and denominator
-        dal = db1d3(1)
-        dt  = ds * dal
-        dal = db1d3(2) + dr * dal
-        dbe = db1d3(3) - dt
-        dt  = ds * dal
-        dal = dbe + dr * dal
-        dbe = db1d3(4) - dt  
-        zf1d3 /= dcmplx(dal * dx + dbe, dal * dy)
+      dal = da1d3[0]
+      dt  = ds * dal
+      dal = da1d3[1] + dr * dal
+      dbe = da1d3[2] - dt
+      dt  = ds * dal
+      dal = dbe + dr * dal
+      dbe = da1d3[3] - dt
+      zf1d3 = dcmplx(dal * dx + dbe, dal * dy)
+      //  evaluate denominator polynomial for nu=1/3 approximant and
+      //  compute ratio of numerator and denominator
+      dal = db1d3[0]
+      dt  = ds * dal
+      dal = db1d3[1] + dr * dal
+      dbe = db1d3[2] - dt
+      dt  = ds * dal
+      dal = dbe + dr * dal
+      dbe = db1d3[3] - dt  
+      zf1d3 /= dcmplx(dal * dx + dbe, dal * dy)
 
-        //  evaluate numerator polynomial for nu=-1/3 approximant
-        dal = dam1d3(1)
-        dt  = ds * dal
-        dal = dam1d3(2) + dr * dal
-        dbe = dam1d3(3) - dt
-        dt  = ds * dal
-        dal = dbe + dr * dal  
-        dbe = dam1d3(4) - dt
-        zfm1d3 = dcmplx(dal * dx + dbe, dal * dy)
-        //  evaluate denominator polynomial for nu=-1/3 approximant and
-        //  compute ratio of numerator and denominator
-        dal = dbm1d3(1)
-        dt  = ds * dal
-        dal = dbm1d3(2) + dr * dal
-        dbe = dbm1d3(3) - dt
-        dt  = ds * dal
-        dal = dbe + dr * dal
-        dbe = dbm1d3(4) - dt
-        zfm1d3 /= dcmplx(dal * dx + dbe,dal * dy)
+      //  evaluate numerator polynomial for nu=-1/3 approximant
+      dal = dam1d3[0]
+      dt  = ds * dal
+      dal = dam1d3[1] + dr * dal
+      dbe = dam1d3[2] - dt
+      dt  = ds * dal
+      dal = dbe + dr * dal  
+      dbe = dam1d3[3] - dt
+      zfm1d3 = dcmplx(dal * dx + dbe, dal * dy)
+      //  evaluate denominator polynomial for nu=-1/3 approximant and
+      //  compute ratio of numerator and denominator
+      dal = dbm1d3[0]
+      dt  = ds * dal
+      dal = dbm1d3[1] + dr * dal
+      dbe = dbm1d3[2] - dt
+      dt  = ds * dal
+      dal = dbe + dr * dal
+      dbe = dbm1d3[3] - dt
+      zfm1d3 /= dcmplx(dal * dx + dbe,dal * dy)
 
-        //  evaluate numerator polynomial for nu=2/3 approximant
-        dal = da2d3(1)
-        dt  = ds * dal
-        dal = da2d3(2) + dr * dal
-        dbe = da2d3(3) - dt
-        dt  = ds * dal
-        dal = dbe + dr * dal  
-        dbe = da2d3(4) - dt
-        zf2d3 = dcmplx(dal * dx + dbe, dal * dy)
-        //  evaluate denominator polynomial for nu=2/3 approximant and
-        //  compute ratio of numerator and denominator
-        dal = db2d3(1)
-        dt  = ds * dal
-        dal = db2d3(2) + dr * dal
-        dbe = db2d3(3) - dt
-        dt  = ds * dal
-        dal = dbe + dr * dal  
-        dbe = db2d3(4) - dt
-        zf2d3 /= dcmplx(dal * dx + dbe, dal * dy)
+      //  evaluate numerator polynomial for nu=2/3 approximant
+      dal = da2d3[0]
+      dt  = ds * dal
+      dal = da2d3[1] + dr * dal
+      dbe = da2d3[2] - dt
+      dt  = ds * dal
+      dal = dbe + dr * dal  
+      dbe = da2d3[3] - dt
+      zf2d3 = dcmplx(dal * dx + dbe, dal * dy)
+      //  evaluate denominator polynomial for nu=2/3 approximant and
+      //  compute ratio of numerator and denominator
+      dal = db2d3[0]
+      dt  = ds * dal
+      dal = db2d3[1] + dr * dal
+      dbe = db2d3[2] - dt
+      dt  = ds * dal
+      dal = dbe + dr * dal  
+      dbe = db2d3[3] - dt
+      zf2d3 /= dcmplx(dal * dx + dbe, dal * dy)
 
-        //  evaluate numerator polynomial for nu=-2/3 approximant
-        dal = dam2d3(1)
-        dt  = ds * dal
-        dal = dam2d3(2) + dr * dal
-        dbe = dam2d3(3) - dt  
-        dt  = ds * dal
-        dal = dbe + dr * dal
-        dbe = dam2d3(4) - dt
-        zfm2d3 = dcmplx(dal * dx + dbe, dal * dy)
-        //  evaluate denominator polynomial for nu=-2/3 approximant and
-        //  compute ratio of numerator and denominator
-        dal = dbm2d3(1)
-        dt  = ds * dal
-        dal = dbm2d3(2) + dr * dal
-        dbe = dbm2d3(3) - dt
-        dt  = ds * dal
-        dal = dbe + dr * dal
-        dbe = dbm2d3(4) - dt
-        zfm2d3 /= dcmplx(dal * dx + dbe, dal * dy)
+      //  evaluate numerator polynomial for nu=-2/3 approximant
+      dal = dam2d3[0]
+      dt  = ds * dal
+      dal = dam2d3[1] + dr * dal
+      dbe = dam2d3[2] - dt  
+      dt  = ds * dal
+      dal = dbe + dr * dal
+      dbe = dam2d3[3] - dt
+      zfm2d3 = dcmplx(dal * dx + dbe, dal * dy)
+      //  evaluate denominator polynomial for nu=-2/3 approximant and
+      //  compute ratio of numerator and denominator
+      dal = dbm2d3[0]
+      dt  = ds * dal
+      dal = dbm2d3[1] + dr * dal
+      dbe = dbm2d3[2] - dt
+      dt  = ds * dal
+      dal = dbe + dr * dal
+      dbe = dbm2d3[3] - dt
+      zfm2d3 /= dcmplx(dal * dx + dbe, dal * dy)
+    }
 
-      end if
-
-      return
-}
+    return;
+  }
 
 
 /**
@@ -1069,102 +1056,107 @@ zcrary(z, zf1d3, zfm1d3, zf2d3, zfm2d3)
       Rick A. Whitaker
 
  */
-void
-zasary(z,zai,zaipr)
-{
-      double complex z, zai, zaipr
+template<typename _Tp>
+  void
+  zasary(const std::complex<_Tp> & z,
+         std::complex<_Tp> & zai, std::complex<_Tp> & zaipr)
+  {
+    using dcmplx = std::complex<_Tp>;
 
-      double complex zout, zoutpr, zpw1d4, zxim, zmone
-      double precision     dpmhd2, d2d3, dx, dy, dr, ds,
-                 dal, dbe, dalpr, dbepr, dsdata,
-                 dck(15), ddk(15)
-      integer    nterm, ntermx, ndx, k, nterms(5)
+    std::complex<_Tp> zout, zoutpr, zpw1d4, zxim, zmone
+    _Tp dx, dy, dr, ds,
+               dal, dbe, dalpr, dbepr, dsdata
+    int nterm, ndx;
 
-      integer    int, min0
+    constexpr _Tp d2d3 = 6.666666666666667e-01;
+    constexpr _Tp dpmhd2 = 2.820947917738781e-01;
+    constexpr std::complex<_Tp> zmone{-1};
+    constexpr int ntermx = 15;
+    constexpr int nterms[5]{ 15, 12, 11, 11, 9 };
 
-      data d2d3  /6.666666666666667d-01/,
-           dpmhd2/2.820947917738781d-01/,
-           zmone /(-1.0d+00,0.0d+00)/
-      data ntermx/15/,nterms/15,12,11,11,9/
+    //  coefficients for the expansion
+    constexpr _Tp
+    dck[15]
+    { 0.5989251356587907e+05,
+      0.9207206599726415e+04,
+      0.1533169432012796e+04,
+      0.2784650807776026e+03,
+      0.5562278536591708e+02,
+      0.1234157333234524e+02,
+      0.3079453030173167e+01,
+      0.8776669695100169e+00,
+      0.2915913992307505e+00,
+      0.1160990640255154e+00,
+      0.5764919041266972e-01,
+      0.3799305912780064e-01,
+      0.3713348765432099e-01,
+      0.6944444444444444e-01,
+      0.1000000000000000e+01 };
 
-      //  coefficients for the expansion
-      data dck( 1)/ 0.5989251356587907d+05/,
-           dck( 2)/ 0.9207206599726415d+04/,
-           dck( 3)/ 0.1533169432012796d+04/,
-           dck( 4)/ 0.2784650807776026d+03/,
-           dck( 5)/ 0.5562278536591708d+02/,
-           dck( 6)/ 0.1234157333234524d+02/,
-           dck( 7)/ 0.3079453030173167d+01/,
-           dck( 8)/ 0.8776669695100169d+00/,
-           dck( 9)/ 0.2915913992307505d+00/,
-           dck(10)/ 0.1160990640255154d+00/,
-           dck(11)/ 0.5764919041266972d-01/,
-           dck(12)/ 0.3799305912780064d-01/,
-           dck(13)/ 0.3713348765432099d-01/,
-           dck(14)/ 0.6944444444444444d-01/,
-           dck(15)/ 0.1000000000000000d+01/
+    constexpr _Tp
+    ddk[15]
+    { -0.6133570666385206e+05,
+      -0.9446354823095932e+04,
+      -0.1576357303337100e+04,
+      -0.2870332371092211e+03,
+      -0.5750830351391427e+02,
+      -0.1280729308073563e+02,
+      -0.3210493584648621e+01,
+      -0.9204799924129446e+00,
+      -0.3082537649010791e+00,
+      -0.1241058960272751e+00,
+      -0.6266216349203231e-01,
+      -0.4246283078989483e-01,
+      -0.4388503086419753e-01,
+      -0.9722222222222222e-01,
+       0.1000000000000000e+01 };
 
-      data ddk( 1)/-0.6133570666385206d+05/,
-           ddk( 2)/-0.9446354823095932d+04/,
-           ddk( 3)/-0.1576357303337100d+04/,
-           ddk( 4)/-0.2870332371092211d+03/,
-           ddk( 5)/-0.5750830351391427d+02/,
-           ddk( 6)/-0.1280729308073563d+02/,
-           ddk( 7)/-0.3210493584648621d+01/,
-           ddk( 8)/-0.9204799924129446d+00/,
-           ddk( 9)/-0.3082537649010791d+00/,
-           ddk(10)/-0.1241058960272751d+00/,
-           ddk(11)/-0.6266216349203231d-01/,
-           ddk(12)/-0.4246283078989483d-01/,
-           ddk(13)/-0.4388503086419753d-01/,
-           ddk(14)/-0.9722222222222222d-01/,
-           ddk(15)/ 0.1000000000000000d+01/
+    //  compute -xi and z**(1/4)
+    zpw1d4 = zsqrt(z);
+    zxim = z * zpw1d4;
+    zxim *= d2d3;
+    zpw1d4 = zsqrt(zpw1d4);
 
-      //  compute -xi and z**(1/4)
-      zpw1d4 = zsqrt(z);
-      zxim = z * zpw1d4;
-      zxim *= d2d3;
-      zpw1d4 = zsqrt(zpw1d4);
+    //  Compute outer factors in the expansions
+    zoutpr = std::exp(-zxim);
+    zoutpr *= dpmhd2;
+    zout = zoutpr / zpw1d4;
+    zoutpr *= -zpw1d4;
 
-      //  compute outer factors in the expansions
-      zoutpr = std::exp(-zxim);
-      zoutpr *= dpmhd2;
-      zout = zoutpr / zpw1d4;
-      zoutpr *= -zpw1d4;
+    //  Determine number of terms to use
+    nterm = nterms[std::min(5, (int(std::abs(z)) - 10) / 5)];
+    //  Initialize for modified horner's rule evaluation of sums
+    //  it is assumed that at least three terms are used
+    zxim = zmone / zxim;
+    dx = std::real(zxim);
+    dy = std::imag(zxim);
+    dr = dx + dx;
+    ds = dx * dx + dy * dy;
+    ndx = ntermx - nterm + 1;
+    dal = dck[ndx];
+    dalpr = ddk[ndx];
+    ++ndx;
+    dbe = dck[ndx];
+    dbepr = ddk[ndx];
+    ++ndx;
 
-      //  determine number of terms to use
-      nterm = nterms(min0(5, (int(std::abs(z)) - 10) / 5));
-      //  initialize for modified horner's rule evaluation of sums
-      //  it is assumed that at least three terms are used
-      zxim = zmone / zxim;
-      dx = std::real(zxim);
-      dy = std::imag(zxim);
-      dr = dx + dx;
-      ds = dx * dx + dy * dy;
-      ndx = ntermx - nterm + 1;
-      dal = dck(ndx)
-      dalpr = ddk(ndx)
-      ndx = ndx + 1
-      dbe = dck(ndx)
-      dbepr = ddk(ndx)
-      ndx = ndx + 1
+    //  Loop until components contributing to sums are computed
+    do 10 k = ndx, ntermx
+    {
+      dsdata = ds * dal;
+      dal = dbe + dr * dal;
+      dbe = dck[k] - dsdata;
+      dsdata = ds * dalpr;
+      dalpr = dbepr + dr * dalpr;
+      dbepr = ddk[k] - dsdata;
+    }
 
-      //  loop until components contributing to sums are computed
-      do 10 k=ndx,ntermx
-        dsdata = ds * dal
-        dal = dbe + dr * dal
-        dbe = dck(k) - dsdata
-        dsdata = ds * dalpr
-        dalpr = dbepr + dr * dalpr
-        dbepr = ddk(k) - dsdata
-   10 continue
+    //  Complete evaluation of the airy functions
+    zai = zout * dal * dcmplx(dx, dy) + dbe;
+    zaipr = zoutpr * dalpr * dcmplx(dx, dy) + dbepr;
 
-      //  complete evaluation of the airy functions
-      zai = zout * dcmplx(dal * dx + dbe, dal * dy);
-      zaipr = zoutpr * dcmplx(dalpr * dx + dbepr, dalpr * dy);
-
-      return
-}
+    return;
+  }
 
 
 
@@ -1197,125 +1189,134 @@ zasary(z,zai,zaipr)
       Rick A. Whitaker
 
  */
-void
-zasaly(z, zai, zaipr)
-{
-      double complex z, zai, zaipr
+template<typename _Tp>
+  void
+  zasaly(const std::complex<_Tp> & z,
+         std::complex<_Tp> & zai, std::complex<_Tp> & zaipr)
+  {
+    using dcmplx = std::complex<_Tp>;
 
-      double complex zwk, zsinxi, zcosxi, zpw1d4, zxi, zone
-      double precision     dpimh, d2d3, d9d4, dx, dy, dr,
-                 ds, dals, dalc, dalprs, dalprc, dbes,
-                 dbec, dbeprs, dbeprc, dsdata, dpid4,
-                 dcks(9), dckc(9), ddks(9),
-                 ddkc(9)
-      integer    nterm, ntermx, ndx, k, nterms(5)
+    std::complex<_Tp> zwk, zsinxi, zcosxi, zpw1d4, zxi, zone
+    _Tp dpimh, d2d3, d9d4, dx, dy, dr,
+        ds, dals, dalc, dalprs, dalprc, dbes,
+        dbec, dbeprs, dbeprc, dsdata, dpid4
+    int nterm, ntermx, ndx, k, nterms[5]
 
-      integer    int, min0
+    constexpr _Tp d2d3 = 6.666666666666667e-01;
+    constexpr _Tp d9e4/2.25e+00/,
+    constexpr _Tp dpimh/5.641895835477563e-01/,
+    constexpr _Tp dpid4/7.853981633974483e-01/,
+    constexpr std::complex<_Tp> zone{1};
+    constexpr int ntermx = 9;
+    constexpr int nterms[5]{ 9, 7, 6, 6, 5 };
 
-      data d2d3  /6.666666666666667d-01/,d9d4/2.25d+00/,
-           dpimh/5.641895835477563d-01/,
-           dpid4/7.853981633974483d-01/,
-           zone /(1.0d+00,0.0d+00)/
-      data ntermx/9/,nterms/9,7,6,6,5/
+    //  coefficients for the expansion
+    constexpr _Tp
+    dckc[9]
+    { 0.2519891987160237e+08,
+      0.4195248751165511e+06,
+      0.9207206599726415e+04,
+      0.2784650807776026e+03,
+      0.1234157333234524e+02,
+      0.8776669695100169e+00,
+      0.1160990640255154e+00,
+      0.3799305912780064e-01,
+      0.6944444444444444e-01 };
+    constexpr _Tp
+    dcks[9]
+    { 0.3148257417866826e+07,
+      0.5989251356587907e+05,
+      0.1533169432012796e+04,
+      0.5562278536591708e+02,
+      0.3079453030173167e+01,
+      0.2915913992307505e+00,
+      0.5764919041266972e-01,
+      0.3713348765432099e-01,
+      0.1000000000000000e+01 };
 
-      //  coefficients for the expansion
-      data dckc( 1)/ 0.2519891987160237d+08/,
-           dckc( 2)/ 0.4195248751165511d+06/,
-           dckc( 3)/ 0.9207206599726415d+04/,
-           dckc( 4)/ 0.2784650807776026d+03/,
-           dckc( 5)/ 0.1234157333234524d+02/,
-           dckc( 6)/ 0.8776669695100169d+00/,
-           dckc( 7)/ 0.1160990640255154d+00/,
-           dckc( 8)/ 0.3799305912780064d-01/,
-           dckc( 9)/ 0.6944444444444444d-01/
-      data dcks( 1)/ 0.3148257417866826d+07/,
-           dcks( 2)/ 0.5989251356587907d+05/,
-           dcks( 3)/ 0.1533169432012796d+04/,
-           dcks( 4)/ 0.5562278536591708d+02/,
-           dcks( 5)/ 0.3079453030173167d+01/,
-           dcks( 6)/ 0.2915913992307505d+00/,
-           dcks( 7)/ 0.5764919041266972d-01/,
-           dcks( 8)/ 0.3713348765432099d-01/,
-           dcks( 9)/ 0.1000000000000000d+01/
+    constexpr _Tp
+    ddks[9]
+    { -0.2569790838391133e+08,
+      -0.4289524004000691e+06,
+      -0.9446354823095932e+04,
+      -0.2870332371092211e+03,
+      -0.1280729308073563e+02,
+      -0.9204799924129446e+00,
+      -0.1241058960272751e+00,
+      -0.4246283078989483e-01,
+      -0.9722222222222222e-01 };
+    constexpr _Tp
+    ddkc[9]
+    { -0.3214536521400865e+07,
+      -0.6133570666385206e+05,
+      -0.1576357303337100e+04,
+      -0.5750830351391427e+02,
+      -0.3210493584648621e+01,
+      -0.3082537649010791e+00,
+      -0.6266216349203231e-01,
+      -0.4388503086419753e-01,
+       0.1000000000000000e+01 };
 
-      data ddks( 1)/-0.2569790838391133d+08/,
-           ddks( 2)/-0.4289524004000691d+06/,
-           ddks( 3)/-0.9446354823095932d+04/,
-           ddks( 4)/-0.2870332371092211d+03/,
-           ddks( 5)/-0.1280729308073563d+02/,
-           ddks( 6)/-0.9204799924129446d+00/,
-           ddks( 7)/-0.1241058960272751d+00/,
-           ddks( 8)/-0.4246283078989483d-01/,
-           ddks( 9)/-0.9722222222222222d-01/
-      data ddkc( 1)/-0.3214536521400865d+07/,
-           ddkc( 2)/-0.6133570666385206d+05/,
-           ddkc( 3)/-0.1576357303337100d+04/,
-           ddkc( 4)/-0.5750830351391427d+02/,
-           ddkc( 5)/-0.3210493584648621d+01/,
-           ddkc( 6)/-0.3082537649010791d+00/,
-           ddkc( 7)/-0.6266216349203231d-01/,
-           ddkc( 8)/-0.4388503086419753d-01/,
-           ddkc( 9)/ 0.1000000000000000d+01/
+    //  Set up working value of z
+    zwk = -z;
+    //  Compute xi and z**(1/4)
+    zpw1d4 = std::sqrt(zwk);
+    zxi = zwk * zpw1d4;
+    zxi = d2d3 * zxi;
+    zpw1d4 = std::sqrt(zpw1d4);
 
-      //  set up working value of z
-      zwk = -z
-      //  compute xi and z**(1/4)
-      zpw1d4 = zsqrt(zwk)
-      zxi = zwk*zpw1d4
-      zxi = dcmplx(d2d3*std::real(zxi),d2d3*std::imag(zxi))
-      zpw1d4 = zsqrt(zpw1d4)
+    //  Compute sine and cosine factors in the expansions.
+    zcosxi = zxi + dpid4;
+    zsinxi = std::sin(zcosxi);
+    zcosxi = std::cos(zcosxi);
 
-      //  compute sine and cosine factors in the expansions
-      zcosxi = dcmplx(std::real(zxi)+dpid4,std::imag(zxi)) 
-      zsinxi = std::sin(zcosxi)
-      zcosxi = std::cos(zcosxi)
+    //  Determine number of terms to use.
+    nterm = nterms[std::min(5, (int(std::abs(z)) - 10) / 5)];
+    //  Initialize for modified Horner's rule evaluation of sums
+    //  it is assumed that at least three terms are used
+    zwk = std::pow(zone / zwk, 3);
+    zwk = d9d4 * zwk;
+    dx = -std::real(zwk);
+    dy = -std::imag(zwk);
+    dr = dx + dx;
+    ds = dx * dx + dy * dy;
+    ndx = ntermx - nterm + 1;
+    dals = dcks[ndx];
+    dalc = dckc[ndx];
+    dalprs = ddks[ndx];
+    dalprc = ddkc[ndx];
+    ++ndx;
+    dbes = dcks[ndx];
+    dbec = dckc[ndx];
+    dbeprs = ddks[ndx];
+    dbeprc = ddkc[ndx];
+    ++ndx;
 
-      //  determine number of terms to use
-      nterm = nterms(min0(5,(int(std::abs(z))-10)/5))
-      //  initialize for modified horner's rule evaluation of sums
-      //  it is assumed that at least three terms are used
-      zwk = (zone/zwk)**3
-      zwk = dcmplx(d9d4*std::real(zwk),d9d4*std::imag(zwk))  
-      dx = -std::real(zwk)
-      dy = -std::imag(zwk)
-      dr = dx + dx
-      ds = dx*dx + dy*dy
-      ndx = ntermx - nterm + 1
-      dals = dcks(ndx)
-      dalc = dckc(ndx)
-      dalprs = ddks(ndx)
-      dalprc = ddkc(ndx)
-      ndx = ndx + 1
-      dbes = dcks(ndx)
-      dbec = dckc(ndx)
-      dbeprs = ddks(ndx)
-      dbeprc = ddkc(ndx)
-      ndx = ndx + 1
+    //  Loop until components contributing to sums are computed
+    for (int k = ndx; k <= ntermx; ++k) // TODO Loop term!!
+    {
+      dsdata = ds * dals;
+      dals = dbes + dr*dals;
+      dbes = dcks[k] - dsdata;
+      dsdata = ds * dalc;
+      dalc = dbec + dr * dalc;
+      dbec = dckc[k] - dsdata;
+      dsdata = ds * dalprs;
+      dalprs = dbeprs + dr * dalprs;
+      dbeprs = ddks[k] - dsdata;
+      dsdata = ds * dalprc;
+      dalprc = dbeprc + dr * dalprc;
+      dbeprc = ddkc[k] - dsdata;
+    }
 
-      //  loop until components contributing to sums are computed
-      do 10 k=ndx,ntermx
-        dsdata = ds*dals
-        dals = dbes + dr*dals
-        dbes = dcks(k) - dsdata
-        dsdata = ds*dalc
-        dalc = dbec + dr*dalc
-        dbec = dckc(k) - dsdata
-        dsdata = ds*dalprs
-        dalprs = dbeprs + dr*dalprs
-        dbeprs = ddks(k) - dsdata
-        dsdata = ds*dalprc
-        dalprc = dbeprc + dr*dalprc
-        dbeprc = ddkc(k) - dsdata
-   10 continue
+    //  Complete evaluation of the Airy functions
+    zxi = zone / zxi;
+    zai =       zsinxi * dals * dcmplx(dx, dy) + dbes
+        - zxi * zcosxi * dalc * dcmplx(dx, dy) + dbec;
+    zai = dpimh * zai / zpw1d4;
+    zaipr =       zcosxi * dalprc * dcmplx(dx, dy) + dbeprc
+          + zxi * zsinxi * dalprs * dcmplx(dx, dy) + dbeprs;
+    zaipr = -dpimh * zaipr * zpw1d4;
 
-      //  complete evaluation of the airy functions
-      zxi = zone/zxi
-      zai = zsinxi*dcmplx(dals*dx+dbes,dals*dy) -
-            zxi*zcosxi*dcmplx(dalc*dx+dbec,dalc*dy)
-      zai = dcmplx(dpimh*std::real(zai),dpimh*std::imag(zai))/zpw1d4
-      zaipr = zcosxi*dcmplx(dalprc*dx+dbeprc,dalprc*dy) +
-              zxi*zsinxi*dcmplx(dalprs*dx+dbeprs,dalprs*dy)
-      zaipr = dcmplx(-dpimh*std::real(zaipr),-dpimh*std::imag(zaipr))*zpw1d4
-
-      return
-}
+    return;
+  }
