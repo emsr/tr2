@@ -1,7 +1,13 @@
 // $HOME/bin_var_template_2/bin/g++ -std=c++1z -o utf8_char_literal utf8_char_literal.cpp
 
+// $HOME/bin_var_template_2/bin/g++ -std=c++14 -o utf8_char_literal utf8_char_literal.cpp
+
+// $HOME/bin_var_template_2/bin/g++ -std=c++11 -o utf8_char_literal utf8_char_literal.cpp
+
+// $HOME/bin_var_template_2/bin/g++ -std=gnu++11 -o utf8_char_literal utf8_char_literal.cpp
+
 #include <cassert>
-#include <experimental/type_traits>
+#include <type_traits>
 
 #include <iostream>
 #include <typeinfo>
@@ -17,7 +23,7 @@ main()
 
   auto c = 'c';
   auto u8c = u8'c';
-  auto okc = std::experimental::is_same_v<decltype(u8c), decltype(c)>;
+  auto okc = std::is_same<decltype(u8c), decltype(c)>::value;
   assert(okc);
 
   auto u8s = u8"c";
@@ -26,6 +32,6 @@ main()
   std::cout << typeid(u8c).name() << std::endl;
   std::cout << typeid(x).name() << std::endl;
 
-  auto ok = std::experimental::is_same_v<decltype(u8c), decltype(x)>;
+  auto ok = std::is_same<decltype(u8c), decltype(x)>::value;
   assert(ok);
 }

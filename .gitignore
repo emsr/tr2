@@ -10,6 +10,9 @@ binary_io/bintest
 
 deprecated_cxx11
 deprecated_cxx1y
+deprecated_cxx14
+deprecated
+deprecated_*.txt
 
 dynarray/test_dynarray
 
@@ -82,6 +85,8 @@ filesystem/test.new.err
 filesystem/test.new.txt
 filesystem/test.new2.err
 filesystem/test.new2.txt
+filesystem/test_std.*
+filesystem/test_filesystem_std
 hello_ruby
 module.cpp
 null_iterators
@@ -127,7 +132,6 @@ test_type_traits_2
 test_bitops
 test_cmath_variable_template
 test_numeric_limits
-deprecated
 ip
 complex_ref
 complex_tie
@@ -166,3 +170,22 @@ decibel
 bel
 pr64351
 buggy_lambda
+
+test_has_include2
+test_make_array
+test_ostream_joiner
+uniform_container_erasure
+uniform_container_erasure_std
+uniform_container_erasure*.out
+utf8_char_literal
+pr64626
+viewer
+
+fold_expression
+operator_auto
+deathmatch
+
+gmon.out
+gprof.out
+
+*.s
