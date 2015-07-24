@@ -24,16 +24,16 @@
 
       explicit constexpr
       operator value_type() const
-      { return this->m_db; }
+      { return this->_M_val; }
 
       constexpr explicit
       decibel()
-      : m_db{-max_decibel}
+      : _M_val{-max_decibel}
       { }
 
       constexpr explicit
       decibel(value_type x)
-      : m_db{x}
+      : _M_val{x}
       { }
 
       template<typename _Up>
@@ -41,12 +41,12 @@
         operator+=(decibel<_Up> b) noexcept
         {
           value_type ma{}, mb{};
-          std::tie(ma, mb) = std::minmax(this->m_db, value_type(decibel(b)));
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(decibel(b)));
           value_type factor = value_type(10);
 
-          this->m_db = mb;
+          this->_M_val = mb;
           if (mb - ma < factor * max_bel)
-            this->m_db += factor * std::log10(value_type{1} + std::pow(value_type{10}, (ma - mb) / factor));
+            this->_M_val += factor * std::log10(value_type{1} + std::pow(value_type{10}, (ma - mb) / factor));
 
           return *this;
         }
@@ -56,23 +56,23 @@
         operator-=(decibel<_Up> b) noexcept
         {
           value_type ma{}, mb{};
-          std::tie(ma, mb) = std::minmax(this->m_db, value_type(decibel(b)));
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(decibel(b)));
           value_type factor = value_type(10);
 
-          this->m_db = mb;
+          this->_M_val = mb;
           if (mb - ma < factor * max_bel)
-            this->m_db += factor * std::log10(value_type{1} - std::pow(value_type{10}, (ma - mb) / factor));
+            this->_M_val += factor * std::log10(value_type{1} - std::pow(value_type{10}, (ma - mb) / factor));
 
           return *this;
         }
 
       constexpr value_type
       power() noexcept
-      { return std::pow(value_type(10), this->m_db / value_type(10)); }
+      { return std::pow(value_type(10), this->_M_val / value_type(10)); }
 
     private:
 
-      value_type m_db;
+      value_type _M_val;
     };
 
   template<typename _Tp>

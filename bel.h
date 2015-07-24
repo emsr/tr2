@@ -29,16 +29,16 @@
 
       explicit constexpr
       operator value_type() const
-      { return this->m_db; }
+      { return this->_M_val; }
 
       constexpr explicit
       bel()
-      : m_db{-max_value}
+      : _M_val{-max_value}
       { }
 
       constexpr explicit
       bel(value_type x)
-      : m_db{x <= max_value ? x : max_value}
+      : _M_val{x <= max_value ? x : max_value}
       { }
 
       constexpr
@@ -52,7 +52,7 @@
         bel(bel<_Up, _Vnit> b)
         {
           using _UVinv = std::ratio_divide<_Unit, _Vnit>;
-          this->m_db = _UVinv::den * static_cast<value_type>(_Up(b)) / _UVinv::num;
+          this->_M_val = _UVinv::den * static_cast<value_type>(_Up(b)) / _UVinv::num;
         }
 
       constexpr bel &
@@ -66,11 +66,11 @@
         operator+=(bel<_Up, _Vnit> b) noexcept
         {
           value_type ma{}, mb{};
-          std::tie(ma, mb) = std::minmax(this->m_db, value_type(bel(b)));
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(bel(b)));
 
-          this->m_db = mb;
+          this->_M_val = mb;
           if (mb - ma < max_value)
-            this->m_db += factor * std::log10(value_type{1} + std::pow(value_type{10}, (ma - mb) / factor));
+            this->_M_val += factor * std::log10(value_type{1} + std::pow(value_type{10}, (ma - mb) / factor));
 
           return *this;
         }
@@ -80,22 +80,22 @@
         operator-=(bel<_Up, _Vnit> b) noexcept
         {
           value_type ma{}, mb{};
-          std::tie(ma, mb) = std::minmax(this->m_db, value_type(bel(b)));
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(bel(b)));
 
-          this->m_db = mb;
+          this->_M_val = mb;
           if (mb - ma < max_value)
-            this->m_db += factor * std::log10(value_type{1} - std::pow(value_type{10}, (ma - mb) / factor));
+            this->_M_val += factor * std::log10(value_type{1} - std::pow(value_type{10}, (ma - mb) / factor));
 
           return *this;
         }
 
       constexpr value_type
       power() const noexcept
-      { return std::pow(value_type(10), this->m_db / factor); }
+      { return std::pow(value_type(10), this->_M_val / factor); }
 
     private:
 
-      value_type m_db;
+      value_type _M_val;
     };
 
   template<typename _Tp>
@@ -263,6 +263,119 @@
     operator""_dBl(long double x) noexcept
     { return decibel<long double>(static_cast<long double>(x)); }
   }
+
+
+  template<typename _Tp>
+    class neper
+    {
+    public:
+      using value_type = _Tp;
+
+      static constexpr value_type max_neper = std::log(value_type{10}) * std::numeric_limits<_Tp>::max_exponent10 - 1;
+      static constexpr value_type factor = std::exp(value_type{1});
+      static constexpr value_type max_value = factor * max_neper;
+
+      explicit constexpr
+      operator value_type() const
+      { return this->_M_val; }
+
+      constexpr explicit
+      neper()
+      : _M_val{-max_value}
+      { }
+
+      constexpr explicit
+      neper(value_type x)
+      : _M_val{x <= max_value ? x : max_value}
+      { }
+
+      constexpr
+      neper(const neper &) = default;
+
+      constexpr
+      neper(neper &&) = default;
+
+      template<typename _Up, typename _Vnit>
+        constexpr explicit
+        neper(bel<_Up, _Vnit> b)
+        {
+          this->_M_val = std::log(value_type{10}) * static_cast<value_type>(_Up(b) / (2 * (bel<_Up, _Vnit>::factor));
+        }
+
+      constexpr neper &
+      operator=(const neper &) = default;
+
+      constexpr neper &
+      operator=(neper &&) = default;
+
+      template<typename _Up>
+        CXX14CONSTEXPR neper &
+        operator+=(neper<_Up> b) noexcept
+        {
+          value_type ma{}, mb{};
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(neper(b)));
+
+          this->_M_val = mb;
+          if (mb - ma < max_value)
+            this->_M_val += std::log(value_type{1} + std::exp(ma - mb));
+
+          return *this;
+        }
+
+      template<typename _Up>
+        CXX14CONSTEXPR neper &
+        operator-=(neper<_Up> b) noexcept
+        {
+          value_type ma{}, mb{};
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(neper(b)));
+
+          this->_M_val = mb;
+          if (mb - ma < max_value)
+            this->_M_val += std::log(value_type{1} - std::exp(ma - mb));
+
+          return *this;
+        }
+
+      constexpr value_type
+      power() const noexcept
+      { return std::exp(this->_M_val); }
+
+    private:
+
+      value_type _M_val;
+    };
+
+  template<typename _Tp, typename _Up>
+    CXX14CONSTEXPR neper<std::common_type_t<_Tp, _Up>>
+    operator+(neper<_Tp> a, neper<_Up> b) noexcept
+    {
+      using _Vp = std::common_type_t<_Tp, _Up>;
+      using _Nep = neper<_Vp>;
+
+      _Vp ma{}, mb{};
+      std::tie(ma, mb) = std::minmax(_Vp(_Nep(a)), _Vp(_Nep(b)));
+
+      if (mb - ma < _Nep::max_value)
+        return _Nep(mb + std::log(_Vp{1} + std::exp(ma - mb)));
+      else
+        return _Nep(mb);
+    }
+
+  template<typename _Tp, typename _Up>
+    CXX14CONSTEXPR neper<std::common_type_t<_Tp, _Up>>
+    operator-(neper<_Tp> a, neper<_Up> b) noexcept
+    {
+      using _Vp = std::common_type_t<_Tp, _Up>;
+      using _Nep = neper<_Vp>;
+
+      _Vp ma{}, mb{};
+      std::tie(ma, mb) = std::minmax(_Vp(_Nep(a)), _Vp(_Nep(b)));
+
+      if (mb - ma < _Nep::max_value)
+        return _Nep(mb + std::log(_Vp{1} - std::exp(ma - mb)));
+      else
+        return _Nep(mb);
+    }
 
 
 #include "bel.tcc"
