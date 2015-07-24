@@ -10,6 +10,9 @@
 #include <algorithm> // minmax
 
 
+#define CXX14CONSTEXPR
+
+
   template<typename _Tp, typename _Unit = std::ratio<1>>
     class bel
     {
@@ -24,7 +27,9 @@
       static constexpr value_type factor = value_type(_Unit::den) / value_type(_Unit::num);
       static constexpr value_type max_value = factor * max_bel;
 
-      explicit constexpr operator value_type() const { return this->m_db; }
+      explicit constexpr
+      operator value_type() const
+      { return this->m_db; }
 
       constexpr explicit
       bel()
@@ -57,7 +62,7 @@
       operator=(bel &&) = default;
 
       template<typename _Up, typename _Vnit>
-        bel &
+        CXX14CONSTEXPR bel &
         operator+=(bel<_Up, _Vnit> b) noexcept
         {
           value_type ma{}, mb{};
@@ -71,7 +76,7 @@
         }
 
       template<typename _Up, typename _Vnit>
-        bel &
+        CXX14CONSTEXPR bel &
         operator-=(bel<_Up, _Vnit> b) noexcept
         {
           value_type ma{}, mb{};
@@ -97,9 +102,25 @@
     using decibel = bel<_Tp, std::deci>;
 
   template<typename _Tp>
+    using centibel = bel<_Tp, std::centi>;
+
+  template<typename _Tp>
+    using millibel = bel<_Tp, std::milli>;
+
+  template<typename _Tp>
     constexpr decibel<_Tp>
     make_decibel(_Tp x) noexcept
     { return _Tp{10} * std::log10(x); }
+
+  template<typename _Tp>
+    constexpr centibel<_Tp>
+    make_centibel(_Tp x) noexcept
+    { return _Tp{100} * std::log10(x); }
+
+  template<typename _Tp>
+    constexpr millibel<_Tp>
+    make_millibel(_Tp x) noexcept
+    { return _Tp{1000} * std::log10(x); }
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
@@ -171,7 +192,7 @@
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
-    constexpr bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
+    CXX14CONSTEXPR bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
     operator+(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;
@@ -188,7 +209,7 @@
     }
 
   template<typename _Tp, typename _Unit, typename _Up, typename _Vnit>
-    constexpr bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
+    CXX14CONSTEXPR bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
     operator-(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;

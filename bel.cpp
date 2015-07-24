@@ -66,4 +66,9 @@ main()
 
   decibel<double> big{9999.0};
   std::cout << "big = " << big << '\n';
+
+  centibel<float> cB{30};
+  std::cout << "cB  = " << cB << " cB\n";
+  cB -= 3dB;
+  std::cout << "cB  = " << cB << " cB\n";
 }

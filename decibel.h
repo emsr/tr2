@@ -9,6 +9,9 @@
 #include <algorithm> // minmax
 
 
+#define CXX14CONSTEXPR
+
+
   template<typename _Tp>
     class decibel
     {
@@ -19,18 +22,22 @@
       static constexpr value_type max_bel = std::numeric_limits<_Tp>::max_exponent10 - 1;
       static constexpr value_type max_decibel = value_type{10} * max_bel;
 
-      explicit constexpr operator value_type() const { return this->m_db; }
+      explicit constexpr
+      operator value_type() const
+      { return this->m_db; }
 
-      constexpr explicit decibel()
+      constexpr explicit
+      decibel()
       : m_db{-max_decibel}
       { }
 
-      constexpr explicit decibel(value_type x)
+      constexpr explicit
+      decibel(value_type x)
       : m_db{x}
       { }
 
       template<typename _Up>
-        decibel &
+        CXX14CONSTEXPR decibel &
         operator+=(decibel<_Up> b) noexcept
         {
           value_type ma{}, mb{};
@@ -45,7 +52,7 @@
         }
 
       template<typename _Up>
-        decibel &
+        CXX14CONSTEXPR decibel &
         operator-=(decibel<_Up> b) noexcept
         {
           value_type ma{}, mb{};
@@ -114,7 +121,7 @@
     { return a; }
 
   template<typename _Tp, typename _Up>
-    constexpr decibel<std::common_type_t<_Tp, _Up>>
+    CXX14CONSTEXPR decibel<std::common_type_t<_Tp, _Up>>
     operator+(decibel<_Tp> a, decibel<_Up> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;
@@ -129,7 +136,7 @@
     }
 
   template<typename _Tp, typename _Up>
-    constexpr decibel<std::common_type_t<_Tp, _Up>>
+    CXX14CONSTEXPR decibel<std::common_type_t<_Tp, _Up>>
     operator-(decibel<_Tp> a, decibel<_Up> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;
