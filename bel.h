@@ -90,6 +90,10 @@
         }
 
       constexpr value_type
+      root_power() const noexcept
+      { return std::pow(value_type(10), this->_M_val / (2 * factor)); }
+
+      constexpr value_type
       power() const noexcept
       { return std::pow(value_type(10), this->_M_val / factor); }
 
@@ -337,8 +341,12 @@
         }
 
       constexpr value_type
-      power() const noexcept
+      root_power() const noexcept
       { return std::exp(this->_M_val); }
+
+      constexpr value_type
+      power() const noexcept
+      { return std::exp(2 * this->_M_val); }
 
     private:
 
