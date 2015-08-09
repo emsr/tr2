@@ -59,16 +59,23 @@ main()
   std::cout << "w   = " << w << " B\n";
   decibel<double> dw{w};
   std::cout << "dw  = " << dw << " dB\n";
-  bel<double, std::centi> cw{w};
+  level<double, std::centi> cw{w};
   std::cout << "cw  = " << cw << " cB\n";
-  bel<double, std::milli> mw{w};
+  level<double, std::milli> mw{w};
   std::cout << "mw  = " << mw << " mB\n";
 
   decibel<double> big{9999.0};
   std::cout << "big = " << big << '\n';
 
-  centibel<float> cB{30};
+  centibel<float> cB{30.0};
   std::cout << "cB  = " << cB << " cB\n";
-  cB -= 3dB;
+  std::cout << "cB (power) = " << cB.power() << "\n";
+  std::cout << "3 dB (power) = " << 3_dB .power() << "\n";
+  cB -= 3_dB;
+  std::cout << "cB  = " << cB << " cB\n";
+  cB = centibel<float>{30.0};
+  std::cout << "cB (power) = " << cB.power() << "\n";
+  std::cout << "-3 dB (power) = " << -3_dB .power() << "\n";
+  cB += -3_dB;
   std::cout << "cB  = " << cB << " cB\n";
 }

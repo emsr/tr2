@@ -1,5 +1,5 @@
-#ifndef _BEL_H
-#define _BEL_H 1
+#ifndef _LEVEL_H
+#define _LEVEL_H 1
 
 
 #include <experimental/ratio>
@@ -14,7 +14,7 @@
 
 
   template<typename _Tp, typename _Unit = std::ratio<1>>
-    class bel
+    class level
     {
       static_assert(std::experimental::ratio_not_equal_v<_Unit, std::ratio<0>>
                  && (_Unit::num == 1 && (_Unit::den == 1 || _Unit::den % 10 == 0)
@@ -23,50 +23,50 @@
 
       using value_type = _Tp;
 
-      static constexpr value_type max_bel = std::numeric_limits<_Tp>::max_exponent10 - 1;
+      static constexpr value_type max_level = std::numeric_limits<_Tp>::max_exponent10 - 1;
       static constexpr value_type factor = value_type(_Unit::den) / value_type(_Unit::num);
-      static constexpr value_type max_value = factor * max_bel;
+      static constexpr value_type max_value = factor * max_level;
 
       explicit constexpr
       operator value_type() const
       { return this->_M_val; }
 
       constexpr explicit
-      bel()
+      level()
       : _M_val{-max_value}
       { }
 
       constexpr explicit
-      bel(value_type x)
+      level(value_type x)
       : _M_val{x <= max_value ? x : max_value}
       { }
 
       constexpr
-      bel(const bel &) = default;
+      level(const level &) = default;
 
       constexpr
-      bel(bel &&) = default;
+      level(level &&) = default;
 
       template<typename _Up, typename _Vnit>
         constexpr
-        bel(bel<_Up, _Vnit> b)
+        level(level<_Up, _Vnit> b)
         {
           using _UVinv = std::ratio_divide<_Unit, _Vnit>;
           this->_M_val = _UVinv::den * static_cast<value_type>(_Up(b)) / _UVinv::num;
         }
 
-      constexpr bel &
-      operator=(const bel &) = default;
+      constexpr level &
+      operator=(const level &) = default;
 
-      constexpr bel &
-      operator=(bel &&) = default;
+      constexpr level &
+      operator=(level &&) = default;
 
       template<typename _Up, typename _Vnit>
-        CXX14CONSTEXPR bel &
-        operator+=(bel<_Up, _Vnit> b) noexcept
+        CXX14CONSTEXPR level &
+        operator+=(level<_Up, _Vnit> b) noexcept
         {
           value_type ma{}, mb{};
-          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(bel(b)));
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(level(b)));
 
           this->_M_val = mb;
           if (mb - ma < max_value)
@@ -76,11 +76,11 @@
         }
 
       template<typename _Up, typename _Vnit>
-        CXX14CONSTEXPR bel &
-        operator-=(bel<_Up, _Vnit> b) noexcept
+        CXX14CONSTEXPR level &
+        operator-=(level<_Up, _Vnit> b) noexcept
         {
           value_type ma{}, mb{};
-          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(bel(b)));
+          std::tie(ma, mb) = std::minmax(this->_M_val, value_type(level(b)));
 
           this->_M_val = mb;
           if (mb - ma < max_value)
@@ -103,13 +103,16 @@
     };
 
   template<typename _Tp>
-    using decibel = bel<_Tp, std::deci>;
+    using bel = level<_Tp, std::ratio<1L,1L>>;
 
   template<typename _Tp>
-    using centibel = bel<_Tp, std::centi>;
+    using decibel = level<_Tp, std::deci>;
 
   template<typename _Tp>
-    using millibel = bel<_Tp, std::milli>;
+    using centibel = level<_Tp, std::centi>;
+
+  template<typename _Tp>
+    using millibel = level<_Tp, std::milli>;
 
   template<typename _Tp>
     constexpr decibel<_Tp>
@@ -129,47 +132,47 @@
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
     constexpr bool
-    operator==(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    operator==(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     { return _Tp(a) == _Up(b); }
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
     constexpr bool
-    operator!=(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    operator!=(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     { return !(a == b); }
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
     constexpr bool
-    operator<(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    operator<(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     { return _Tp(a) < _Up(b); }
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
     constexpr bool
-    operator>=(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    operator>=(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     { return !(a < b); }
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
     constexpr bool
-    operator>(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    operator>(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     { return b < a; }
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
     constexpr bool
-    operator<=(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    operator<=(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     { return !(b < a); }
 
   template<typename _Tp, typename _Unit>
-    constexpr bel<_Tp, _Unit>
-    operator-(bel<_Tp, _Unit> a)
-    { return bel<_Tp, _Unit>{-_Tp(a)}; }
+    constexpr level<_Tp, _Unit>
+    operator-(level<_Tp, _Unit> a)
+    { return level<_Tp, _Unit>{-_Tp(a)}; }
 
   template<typename _Tp, typename _Unit>
-    constexpr bel<_Tp, _Unit>
-    operator+(bel<_Tp, _Unit> a) noexcept
+    constexpr level<_Tp, _Unit>
+    operator+(level<_Tp, _Unit> a) noexcept
     { return a; }
 
   template<typename _Unit, typename _Vnit,
@@ -196,50 +199,38 @@
 
   template<typename _Tp, typename _Unit,
            typename _Up, typename _Vnit>
-    CXX14CONSTEXPR bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
-    operator+(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    CXX14CONSTEXPR level<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
+    operator+(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;
       using _Wnit = __common_unit<_Unit, _Vnit>;
-      using _NBel = bel<_Vp, _Wnit>;
+      using _NLevel = level<_Vp, _Wnit>;
 
-      _Vp ma{}, mb{};
-      std::tie(ma, mb) = std::minmax(_Vp(_NBel(a)), _Vp(_NBel(b)));
-
-      if (mb - ma < _NBel::max_value)
-        return _NBel(mb + _NBel::factor * std::log10(_Vp{1} + std::pow(_Vp{10}, (ma - mb) / _NBel::factor)));
-      else
-        return _NBel(mb);
+      return _NLevel(a) += _NLevel(b);
     }
 
   template<typename _Tp, typename _Unit, typename _Up, typename _Vnit>
-    CXX14CONSTEXPR bel<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
-    operator-(bel<_Tp, _Unit> a, bel<_Up, _Vnit> b) noexcept
+    CXX14CONSTEXPR level<std::common_type_t<_Tp, _Up>, __common_unit<_Unit, _Vnit>>
+    operator-(level<_Tp, _Unit> a, level<_Up, _Vnit> b) noexcept
     {
       using _Vp = std::common_type_t<_Tp, _Up>;
       using _Wnit = __common_unit<_Unit, _Vnit>;
-      using _NBel = bel<_Vp, _Wnit>;
+      using _NLevel = level<_Vp, _Wnit>;
 
-      _Vp ma{}, mb{};
-      std::tie(ma, mb) = std::minmax(_Vp(_NBel(a)), _Vp(_NBel(b)));
-
-      if (mb - ma < _NBel::max_value)
-        return _NBel(mb + _NBel::factor * std::log10(_Vp{1} - std::pow(_Vp{10}, (ma - mb) / _NBel::factor)));
-      else
-        return _NBel(mb);
+      return _NLevel(a) -= _NLevel(b);
     }
 
   template<typename _Tp, typename _Unit,
 	   typename _CharT, typename _Traits>
     std::basic_ostream<_CharT, _Traits> &
     operator<<(std::basic_ostream<_CharT, _Traits> &,
-	       const bel<_Tp, _Unit> &);
+	       const level<_Tp, _Unit> &);
 
   template<typename _Tp, typename _Unit,
 	   typename _CharT, typename _Traits>
     std::basic_istream<_CharT, _Traits> &
     operator>>(std::basic_istream<_CharT, _Traits> &,
-	       bel<_Tp, _Unit> &);
+	       level<_Tp, _Unit> &);
 
   namespace decibel_literals
   {
@@ -275,7 +266,8 @@
     public:
       using value_type = _Tp;
 
-      static constexpr value_type max_neper = std::log(value_type{10}) * std::numeric_limits<_Tp>::max_exponent10 - 1;
+      static constexpr value_type max_neper = std::log(value_type{10})
+                                            * std::numeric_limits<_Tp>::max_exponent10 - 1;
       static constexpr value_type factor = std::exp(value_type{1});
       static constexpr value_type max_value = factor * max_neper;
 
@@ -301,9 +293,10 @@
 
       template<typename _Up, typename _Vnit>
         constexpr explicit
-        neper(bel<_Up, _Vnit> b)
+        neper(level<_Up, _Vnit> b)
         {
-          this->_M_val = std::log(value_type{10}) * static_cast<value_type>(_Up(b) / (2 * (bel<_Up, _Vnit>::factor));
+          this->_M_val = std::log(value_type{10})
+                       * static_cast<value_type>(_Up(b) / (2 * (level<_Up, _Vnit>::factor)));
         }
 
       constexpr neper &
@@ -319,9 +312,10 @@
           value_type ma{}, mb{};
           std::tie(ma, mb) = std::minmax(this->_M_val, value_type(neper(b)));
 
-          this->_M_val = mb;
           if (mb - ma < max_value)
-            this->_M_val += std::log(value_type{1} + std::exp(ma - mb));
+            this->_M_val = mb + std::log1p(std::exp(ma - mb));
+          else
+            this->_M_val = +max_value;
 
           return *this;
         }
@@ -333,9 +327,10 @@
           value_type ma{}, mb{};
           std::tie(ma, mb) = std::minmax(this->_M_val, value_type(neper(b)));
 
-          this->_M_val = mb;
-          if (mb - ma < max_value)
-            this->_M_val += std::log(value_type{1} - std::exp(ma - mb));
+          if (mb - ma < std::numeric_limits<value_type>::epsilon())
+            this->_M_val = -max_value;
+          else if (mb - ma < max_value)
+            this->_M_val = mb + std::log1p(-std::exp(ma - mb));
 
           return *this;
         }
@@ -360,13 +355,7 @@
       using _Vp = std::common_type_t<_Tp, _Up>;
       using _Nep = neper<_Vp>;
 
-      _Vp ma{}, mb{};
-      std::tie(ma, mb) = std::minmax(_Vp(_Nep(a)), _Vp(_Nep(b)));
-
-      if (mb - ma < _Nep::max_value)
-        return _Nep(mb + std::log(_Vp{1} + std::exp(ma - mb)));
-      else
-        return _Nep(mb);
+      return _Nep(a) += _Nep(b);
     }
 
   template<typename _Tp, typename _Up>
@@ -376,17 +365,48 @@
       using _Vp = std::common_type_t<_Tp, _Up>;
       using _Nep = neper<_Vp>;
 
-      _Vp ma{}, mb{};
-      std::tie(ma, mb) = std::minmax(_Vp(_Nep(a)), _Vp(_Nep(b)));
-
-      if (mb - ma < _Nep::max_value)
-        return _Nep(mb + std::log(_Vp{1} - std::exp(ma - mb)));
-      else
-        return _Nep(mb);
+      return _Nep(a) -= _Nep(b);
     }
+
+  template<typename _Tp, typename _CharT, typename _Traits>
+    std::basic_ostream<_CharT, _Traits> &
+    operator<<(std::basic_ostream<_CharT, _Traits> &,
+	       const neper<_Tp> &);
+
+  template<typename _Tp, typename _CharT, typename _Traits>
+    std::basic_istream<_CharT, _Traits> &
+    operator>>(std::basic_istream<_CharT, _Traits> &,
+	       neper<_Tp> &);
+
+  namespace neper_literals
+  {
+    constexpr neper<float>
+    operator""_Npf(unsigned long long n) noexcept
+    { return neper<float>(static_cast<float>(n)); }
+
+    constexpr neper<double>
+    operator""_Np(unsigned long long n) noexcept
+    { return neper<double>(static_cast<double>(n)); }
+
+    constexpr neper<long double>
+    operator""_Npl(unsigned long long n) noexcept
+    { return neper<long double>(static_cast<long double>(n)); }
+
+    constexpr neper<float>
+    operator""_Npf(long double x) noexcept
+    { return neper<float>(static_cast<float>(x)); }
+
+    constexpr neper<double>
+    operator""_Np(long double x) noexcept
+    { return neper<double>(static_cast<double>(x)); }
+
+    constexpr neper<long double>
+    operator""_Npl(long double x) noexcept
+    { return neper<long double>(static_cast<long double>(x)); }
+  }
 
 
 #include "bel.tcc"
 
 
-#endif // _BEL_H
+#endif // _LEVEL_H
