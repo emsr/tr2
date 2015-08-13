@@ -1,3 +1,7 @@
+#include <array>
+#include <type_traits>
+#include <ext/random>
+#include <ext/cmath>
 
 
   /**
@@ -40,7 +44,7 @@
 	friend class von_mises_fisher_distribution<_RealType>;
 
 	explicit
-	param_type(std::array<_RealType, _Dim> __mu = make_array(1, 0...),
+	param_type(std::array<_RealType, _Dim> __mu/* = make_array(1, 0...)*/,
 		   _RealType __kappa = _RealType(1))
 	: _M_mu(__mu), _M_kappa(__kappa)
 	{
@@ -79,7 +83,7 @@
        * @f$\mu@f$ and @f$\kappa@f$.
        */
       explicit
-      von_mises_fisher_distribution(result_type __mu = make_array(),
+      von_mises_fisher_distribution(result_type __mu/* = make_array(1, 0, 0)*/,
 				    result_type __kappa = result_type::value_type(1))
 	: _M_param(__mu, __kappa)
       { }
@@ -106,7 +110,7 @@
       /**
        * @brief Returns the @f$ \kappa @f$ of the distribution.
        */
-      result_type::value_type
+      typename result_type::value_type
       kappa() const
       { return _M_param.kappa(); }
 
@@ -131,7 +135,10 @@
       result_type
       min() const
       {
-	return make_array();
+	constexpr auto __minv = -std::numeric_limits<_RealType>::max();
+        std::array<_RealType, _Dim> __arr;
+        __arr.fill(__minv);
+	return __arr;
       }
 
       /**
@@ -140,7 +147,10 @@
       result_type
       max() const
       {
-	return make_array();
+	constexpr auto __maxv = std::numeric_limits<_RealType>::max();
+        std::array<_RealType, _Dim> __arr;
+        __arr.fill(__maxv);
+	return __arr;
       }
 
       /**
@@ -202,7 +212,7 @@
 	       typename _CharT, typename _Traits>
 	friend std::basic_ostream<_CharT, _Traits>&
 	operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-		   const __gnu_cxx::von_mises_fisher_distribution<_RealType1, _Dim1>& __x);
+		   const von_mises_fisher_distribution<_RealType1, _Dim1>& __x);
 
       /**
        * @brief Extracts a %von_mises_fisher_distribution random number distribution
@@ -217,7 +227,7 @@
 	       typename _CharT, typename _Traits>
 	friend std::basic_istream<_CharT, _Traits>&
 	operator>>(std::basic_istream<_CharT, _Traits>& __is,
-		   __gnu_cxx::von_mises_fisher_distribution<_RealType1, _Dim1>& __x);
+		   von_mises_fisher_distribution<_RealType1, _Dim1>& __x);
 
     private:
       template<typename _ForwardIterator,
@@ -235,8 +245,8 @@
    */
   template<typename _RealType, std::size_t _Dim>
     inline bool
-    operator!=(const __gnu_cxx::von_mises_fisher_distribution<_RealType, _Dim>& __d1,
-	       const __gnu_cxx::von_mises_fisher_distribution<_RealType, _Dim>& __d2)
+    operator!=(const von_mises_fisher_distribution<_RealType, _Dim>& __d1,
+	       const von_mises_fisher_distribution<_RealType, _Dim>& __d2)
     { return !(__d1 == __d2); }
 
 
@@ -246,7 +256,7 @@
    *
    * This is the @c von_mises_distribution with a different interface.
    */
-  template<typename _RealType = double>
+  template<typename _RealType>
     class von_mises_fisher_distribution<_RealType, 2>
     {
       static_assert(std::is_floating_point<_RealType>::value,
@@ -261,7 +271,7 @@
 	friend class von_mises_fisher_distribution<_RealType>;
 
 	explicit
-	param_type(std::array<_RealType, 2> __mu = make_array(1, 0),
+	param_type(std::array<_RealType, 2> __mu/* = make_array(1, 0)*/,
 		   _RealType __kappa = _RealType(1))
 	: _M_mu(__mu), _M_kappa(__kappa)
 	{
@@ -300,7 +310,7 @@
        * @f$\mu@f$ and @f$\kappa@f$.
        */
       explicit
-      von_mises_fisher_distribution(result_type __mu = make_array(),
+      von_mises_fisher_distribution(result_type __mu/* = make_array(1, 0)*/,
 				    result_type __kappa = result_type::value_type(1))
 	: _M_param(__mu, __kappa)
       { }
@@ -327,7 +337,7 @@
       /**
        * @brief Returns the @f$ \kappa @f$ of the distribution.
        */
-      result_type::value_type
+      typename result_type::value_type
       kappa() const
       { return _M_param.kappa(); }
 
@@ -352,7 +362,10 @@
       result_type
       min() const
       {
-	return make_array();
+	constexpr auto __minv = -std::numeric_limits<_RealType>::max();
+        std::array<_RealType, 2> __arr;
+        __arr.fill(__minv);
+	return __arr;
       }
 
       /**
@@ -361,7 +374,10 @@
       result_type
       max() const
       {
-	return make_array();
+	constexpr auto __minv = -std::numeric_limits<_RealType>::max();
+        std::array<_RealType, 2> __arr;
+        __arr.fill(__minv);
+	return __arr;
       }
 
       /**
@@ -422,7 +438,7 @@
       template<typename _RealType1, typename _CharT, typename _Traits>
 	friend std::basic_ostream<_CharT, _Traits>&
 	operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-		   const __gnu_cxx::von_mises_fisher_distribution<_RealType1, 2>& __x);
+		   const von_mises_fisher_distribution<_RealType1, 2>& __x);
 
       /**
        * @brief Extracts a %von_mises_fisher_distribution random number distribution
@@ -436,7 +452,7 @@
       template<typename _RealType1, typename _CharT, typename _Traits>
 	friend std::basic_istream<_CharT, _Traits>&
 	operator>>(std::basic_istream<_CharT, _Traits>& __is,
-		   __gnu_cxx::von_mises_fisher_distribution<_RealType1, 2>& __x);
+		   von_mises_fisher_distribution<_RealType1, 2>& __x);
 
     private:
       template<typename _ForwardIterator,

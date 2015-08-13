@@ -1,11 +1,12 @@
+#include <iostream>
 
 
   template<typename _RealType, std::size_t _Dim>
     template<typename _UniformRandomNumberGenerator>
-      typename von_mises_fisher_distribution<_RealType>::result_type
-      von_mises_fisher_distribution<_RealType>::
+      typename von_mises_fisher_distribution<_RealType, _Dim>::result_type
+      von_mises_fisher_distribution<_RealType, _Dim>::
       operator()(_UniformRandomNumberGenerator& __urng,
-		 const param_type& __p)
+		 const typename von_mises_fisher_distribution<_RealType, _Dim>::param_type& __p)
       {
 	const result_type __pi
 	  = __gnu_cxx::__math_constants<result_type>::__pi;
@@ -45,10 +46,10 @@
     template<typename _OutputIterator,
 	     typename _UniformRandomNumberGenerator>
       void
-      von_mises_fisher_distribution<_RealType>::
+      von_mises_fisher_distribution<_RealType, _Dim>::
       __generate_impl(_OutputIterator __f, _OutputIterator __t,
 		      _UniformRandomNumberGenerator& __urng,
-		      const param_type& __param)
+		      const typename von_mises_fisher_distribution<_RealType, _Dim>::param_type& __param)
       {
 	__glibcxx_function_requires(_OutputIteratorConcept<_OutputIterator>)
 
@@ -60,7 +61,7 @@
 	   typename _CharT, typename _Traits>
     std::basic_ostream<_CharT, _Traits>&
     operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-	       const __gnu_cxx::von_mises_fisher_distribution<_RealType, _Dim>& __x)
+	       const von_mises_fisher_distribution<_RealType, _Dim>& __x)
     {
       typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
       typedef typename __ostream_type::ios_base    __ios_base;
@@ -86,7 +87,7 @@
 	   typename _CharT, typename _Traits>
     std::basic_istream<_CharT, _Traits>&
     operator>>(std::basic_istream<_CharT, _Traits>& __is,
-	       __gnu_cxx::von_mises_fisher_distribution<_RealType, _Dim>& __x)
+	       von_mises_fisher_distribution<_RealType, _Dim>& __x)
     {
       typedef std::basic_istream<_CharT, _Traits>  __istream_type;
       typedef typename __istream_type::ios_base    __ios_base;
@@ -98,7 +99,7 @@
       __is >> __mu;
       _RealType __kappa;
       __is >> __kappa;
-      __x.param(typename __gnu_cxx::von_mises_fisher_distribution<_RealType, _Dim>::
+      __x.param(typename von_mises_fisher_distribution<_RealType, _Dim>::
 		param_type(__mu, __kappa));
 
       __is.flags(__flags);
