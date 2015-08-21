@@ -1,0 +1,7 @@
+.kdev4/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+cmake_install.cmake
+hermite_test
+hermite_test.kdev4
