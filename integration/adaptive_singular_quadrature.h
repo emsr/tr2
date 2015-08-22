@@ -29,12 +29,12 @@
 #include <tuple>
 #include <stdexcept>
 
-#include "qk_integrate.h"
+#include "gauss_kronrad_quadrature.h"
 #include "integration_workspace.h"
-#include "qelg.h"
+#include "extrapolation_table.h"
 
-#ifndef QAGS_INTEGRATE_H
-#define QAGS_INTEGRATE_H
+#ifndef ADAPTIVE_SINGULAR_QUADRATURE_H
+#define ADAPTIVE_SINGULAR_QUADRATURE_H
 
 namespace __gnu_test
 {
@@ -47,11 +47,11 @@ namespace __gnu_test
                 (1 - 50 * std::numeric_limits<_Tp>::epsilon()) * resabs);
     }
 
-  //Throws appropriate error if errcode nonzero
+  //  Throws appropriate error if errcode nonzero
   void check_error(int errcode);
 
-  //Integrate potentially singular function from a to b using recursive
-  //Gauss-Kronrod algorithm
+  //  Integrate potentially singular function from a to b using recursive
+  //  Gauss-Kronrod algorithm
   template<typename _FunTp, typename _Tp>
     std::pair<_Tp, _Tp>
     qags_integrate(const _FunTp &func,
@@ -59,21 +59,21 @@ namespace __gnu_test
                    _Tp epsabs, _Tp epsrel,
                    size_t limit);
 
-  //Integrate function from -infinity to +infinity
+  //  Integrate function from -infinity to +infinity
   template<typename _FunTp, typename _Tp>
     std::pair<_Tp, _Tp>
     qagi_integrate(const _FunTp &func,
                    _Tp epsabs, _Tp epsrel,
                    size_t limit);
 
-  //Integrate function from -infinity to b
+  //  Integrate function from -infinity to b
   template<typename _FunTp, typename _Tp>
     std::pair<_Tp, _Tp>
     qagil_integrate(const _FunTp &func, _Tp b,
                     _Tp epsabs, _Tp epsrel,
                     size_t limit);
 
-  //Integrate function from a to +infinity
+  //  Integrate function from a to +infinity
   template<typename _FunTp, typename _Tp>
     std::pair<_Tp, _Tp>
     qagiu_integrate(const _FunTp &func,
@@ -88,7 +88,7 @@ namespace __gnu_test
                    _Tp epsabs, _Tp epsrel,
                    size_t limit)
     {
-      const qk_intrule qkintrule = QK_21;
+      const qk_intrule qkintrule = Gauss_Kronrad_21;
 
       _Tp area, errsum;
       _Tp res_ext, err_ext;
@@ -108,21 +108,21 @@ namespace __gnu_test
       int extrapolate = 0;
       int disallow_extrapolation = 0;
 
-      /* Initialize results */
+      //  Initialize results.
 
       integration_workspace<_Tp> workspace(limit);
 
-    //   _Tp result = 0;
-    //   _Tp abserr = 0;
+      //_Tp result = 0;
+      //_Tp abserr = 0;
 
-      /* Test on accuracy */
+      //  Test on accuracy.
 
-      if (epsabs<=0 &&
-          (epsrel < 50 * std::numeric_limits<_Tp>::epsilon() || epsrel<0.5e-28))
+      if (epsabs <= 0
+          && (epsrel < _Tp(50) * std::numeric_limits<_Tp>::epsilon() || epsrel < _Tp(0.5e-28)))
 	throw std::logic_error("tolerance cannot be acheived with given epsabs"
                                " and epsrel in qags_integrate()");
 
-      /* Perform the first integration */
+      //  Perform the first integration.
 
       typedef std::tuple<_Tp&,_Tp&,_Tp&,_Tp&> ret_type;
 
@@ -131,19 +131,19 @@ namespace __gnu_test
 
       workspace.set_initial(a, b, result0, abserr0);
 
-      tolerance = std::max(epsabs, epsrel*std::abs(result0));
+      tolerance = std::max(epsabs, epsrel * std::abs(result0));
 
-      if (abserr0 <= 100*std::numeric_limits<_Tp>::epsilon()*resabs0 &&
+      if (abserr0 <= 100 * std::numeric_limits<_Tp>::epsilon() * resabs0 &&
           abserr0 > tolerance)
 	throw std::runtime_error("cannot reach tolerance because of roundoff"
-                            " error on first attempt in qags_integrate()");
+				 " error on first attempt in qags_integrate()");
       else if ((abserr0 <= tolerance && abserr0 != resasc0) || abserr0 == 0.0)
 	return std::make_pair(result0, abserr0);
       else if (limit == 1)
 	throw std::runtime_error("a maximum of one iteration was insufficient"
                             " in qags_integrate()");
 
-      /* Initialization */
+      //  Initialization.
 
       extrapolation_table<_Tp> table;
       table.append(result0);
@@ -169,7 +169,7 @@ namespace __gnu_test
           _Tp resabs1, resabs2;
           _Tp last_e_i;
 
-          /* Bisect the subinterval with the largest error estimate */
+          //  Bisect the subinterval with the largest error estimate.
 
           workspace.retrieve(a_i, b_i, r_i, e_i);
 
@@ -192,12 +192,12 @@ namespace __gnu_test
           error12 = error1 + error2;
           last_e_i = e_i;
 
-          /* Improve previous approximations to the integral and test for
-            accuracy.
+          //  Improve previous approximations to the integral and test for
+          //  accuracy.
 
-            We write these expressions in the same way as the original
-            QUADPACK code so that the rounding errors are the same, which
-            makes testing easier. */
+          //  We write these expressions in the same way as the original
+          //  QUADPACK code so that the rounding errors are the same, which
+          //  makes testing easier.
 
           errsum = errsum + error12 - e_i;
           area = area + area12 - r_i;
@@ -208,18 +208,19 @@ namespace __gnu_test
             {
               _Tp delta = r_i - area12;
 
-              if (std::abs(delta) <= 1.0e-5*std::abs(area12) && error12 >= 0.99*e_i)
+              if (std::abs(delta) <= 1.0e-5 * std::abs(area12)
+				  && error12 >= 0.99 * e_i)
         	{
                   if (!extrapolate)
-                    roundoff_type1++;
+                    ++roundoff_type1;
                   else
-                    roundoff_type2++;
+                    ++roundoff_type2;
         	}
               if (iteration > 10 && error12 > e_i)
         	roundoff_type3++;
             }
 
-          /* Test for roundoff and eventually set error flag */
+          //  Test for roundoff and eventually set error flag.
 
           if (roundoff_type1 + roundoff_type2 >= 10 || roundoff_type3 >= 20)
             error_type = 2;       /* round off error */
@@ -227,13 +228,13 @@ namespace __gnu_test
           if (roundoff_type2 >= 5)
             error_type2 = 1;
 
-          /* set error flag in the case of bad integrand behaviour at
-            a point of the integration range */
+          //  Set error flag in the case of bad integrand behaviour at
+          //  a point of the integration range.
 
           if (workspace.subinterval_too_small (a1, a2, b2))
             error_type = 4;
 
-          /* append the newly-created intervals to the list */
+          // Append the newly-created intervals to the list.
           workspace.update(a1, b1, area1, error1, a2, b2, area2, error2);
 
           if (errsum <= tolerance)
@@ -251,7 +252,7 @@ namespace __gnu_test
               break;
             }
 
-          if (iteration == 2)       /* set up variables on first iteration */
+          if (iteration == 2)  //  Set up variables on first iteration.
             {
               error_over_large_intervals = errsum;
               ertest = tolerance;
@@ -269,8 +270,8 @@ namespace __gnu_test
 
           if (!extrapolate)
             {
-              /* test whether the interval to be bisected next is the
-        	smallest interval. */
+              //  Test whether the interval to be bisected next is the
+	      //  smallest interval.
 
               if (workspace.large_interval())
         	continue;
@@ -283,7 +284,7 @@ namespace __gnu_test
             if (workspace.increase_nrmax())
               continue;
 
-          /* Perform extrapolation */
+          //  Perform extrapolation.
 
           table.append(area);
 
@@ -306,7 +307,7 @@ namespace __gnu_test
         	break;
             }
 
-          /* Prepare bisection of the smallest interval. */
+          //  Prepare bisection of the smallest interval.
 
           if (table.get_nn() == 1)
             disallow_extrapolation = 1;
@@ -314,7 +315,7 @@ namespace __gnu_test
           if (error_type == 5)
             break;
 
-          /* work on interval with largest error */
+          //  Work on interval with largest error.
 
           workspace.reset_nrmax();
           extrapolate = 0;
@@ -323,8 +324,8 @@ namespace __gnu_test
 	}
       while (iteration < limit);
 
-    //   result = res_ext;
-    //   abserr = err_ext;
+      //result = res_ext;
+      //abserr = err_ext;
 
       if (err_ext == std::numeric_limits<_Tp>::max())
 	{
@@ -360,7 +361,7 @@ namespace __gnu_test
             }
 	}
 
-      /*  Test on divergence. */
+      //  Test on divergence.
 
       {
 	_Tp max_area = std::max(std::abs(res_ext), std::abs(area));
@@ -383,7 +384,8 @@ namespace __gnu_test
       throw std::runtime_error("Unknown error in qags_integrate()");
     }
 
-  //Throws appropriate error if errcode nonzero
+
+  //  Throws appropriate error if errcode nonzero
   void
   check_error(int errcode)
   {
@@ -394,24 +396,25 @@ namespace __gnu_test
       case 0: break;
       case 1:
         throw std::runtime_error("number of iterations was insufficient"
-                            " in qags_integrate()");
+				 " in qags_integrate()");
       case 2:
         throw std::runtime_error("cannot reach tolerance because of roundoff"
-                            " error in qags_integrate()");
+				 " error in qags_integrate()");
       case 3:
         throw std::runtime_error("bad integrand behavior found in the"
-                            " integration interval in qags_integrate()");
+				 " integration interval in qags_integrate()");
       case 4:
         throw std::runtime_error("roundoff error detected in the extrapolation"
-                            " table in qags_integrate()");
+				 " table in qags_integrate()");
       case 5:
         throw std::runtime_error("integral is divergent, or slowly convergent"
-                            " in qags_integrate()");
+				 " in qags_integrate()");
       default:
         throw std::runtime_error("could not integrate function in"
-                            " qags_integrate()");
+				 " qags_integrate()");
       }
   }
+
 
   template<typename _FunTp, typename _Tp>
     _Tp
@@ -421,6 +424,7 @@ namespace __gnu_test
       _Tp y = func(x) + func(-x);
       return (y / t) / t;
     }
+
 
   template<typename _FunTp, typename _Tp>
     std::pair<_Tp, _Tp>
@@ -433,6 +437,7 @@ namespace __gnu_test
 	                    _Tp(0), _Tp(1), epsabs, epsrel, limit);
     }
 
+
   template<typename _FunTp, typename _Tp>
     _Tp
     il_transform(const _FunTp &func, _Tp b, _Tp t)
@@ -441,6 +446,7 @@ namespace __gnu_test
       _Tp y = func(x);
       return (y / t) / t;
     }
+
 
   template<typename _FunTp, typename _Tp>
     std::pair<_Tp, _Tp>
@@ -453,6 +459,7 @@ namespace __gnu_test
 	                    _Tp(0), _Tp(1), epsabs, epsrel, limit);
     }
 
+
   template<typename _FunTp, typename _Tp>
     _Tp
     iu_transform(const _FunTp &func, _Tp a, _Tp t)
@@ -461,6 +468,7 @@ namespace __gnu_test
       _Tp y = func(x);
       return (y / t) / t;
     }
+
 
   template <class _FunTp, class _Tp>
     std::pair<_Tp, _Tp>
@@ -475,4 +483,4 @@ namespace __gnu_test
 
 } // namespace __gnu_test
 
-#endif // QAGS_INTEGRATE_H
+#endif // ADAPTIVE_SINGULAR_QUADRATURE_H

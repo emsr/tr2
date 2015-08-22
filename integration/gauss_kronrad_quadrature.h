@@ -34,19 +34,19 @@
 
 #include "err.h"
 
-#ifndef QK_INTEGRATE_H
-#define QK_INTEGRATE_H
+#ifndef GAUSS_KRONRAD_QUADRATURE_H
+#define GAUSS_KRONRAD_QUADRATURE_H
 
 namespace __gnu_test
 {
   enum qk_intrule
   {
-    QK_15,
-    QK_21,
-    QK_31,
-    QK_41,
-    QK_51,
-    QK_61
+    Gauss_Kronrad_15,
+    Gauss_Kronrad_21,
+    Gauss_Kronrad_31,
+    Gauss_Kronrad_41,
+    Gauss_Kronrad_51,
+    Gauss_Kronrad_61
   };
 
   namespace qk_impl
@@ -76,23 +76,23 @@ namespace __gnu_test
 
       switch(qkintrule)
         {
-	case QK_15:
-          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, QK_15>::integrate));
+	case Gauss_Kronrad_15:
+          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, Gauss_Kronrad_15>::integrate));
           break;
-	case QK_21:
-          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, QK_21>::integrate));
+	case Gauss_Kronrad_21:
+          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, Gauss_Kronrad_21>::integrate));
           break;
-	case QK_31:
-          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, QK_31>::integrate));
+	case Gauss_Kronrad_31:
+          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, Gauss_Kronrad_31>::integrate));
           break;
-	case QK_41:
-          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, QK_41>::integrate));
+	case Gauss_Kronrad_41:
+          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, Gauss_Kronrad_41>::integrate));
           break;
-	case QK_51:
-          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, QK_51>::integrate));
+	case Gauss_Kronrad_51:
+          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, Gauss_Kronrad_51>::integrate));
           break;
-	case QK_61:
-          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, QK_61>::integrate));
+	case Gauss_Kronrad_61:
+          qk_int_func = (qk_int_func_type)(&(qk_impl::qk_integrator<_Tp, _FunTp, Gauss_Kronrad_61>::integrate));
           break;
 	default:
 	  throw std::logic_error("Unrecognized gauss-kronrod integration size"
@@ -183,7 +183,7 @@ namespace __gnu_test
       }
 
     template<typename _Tp, typename _FunTp>
-      class qk_integrator<_Tp, _FunTp, QK_15>
+      class qk_integrator<_Tp, _FunTp, Gauss_Kronrad_15>
       {
       private:
 	qk_integrator();
@@ -233,7 +233,7 @@ namespace __gnu_test
       };
 
     template<typename _Tp, typename _FunTp>
-      class qk_integrator<_Tp, _FunTp, QK_21>
+      class qk_integrator<_Tp, _FunTp, Gauss_Kronrad_21>
       {
       private:
 	qk_integrator();
@@ -292,7 +292,7 @@ namespace __gnu_test
       };
 
     template<typename _Tp, typename _FunTp>
-      class qk_integrator<_Tp, _FunTp, QK_31>
+      class qk_integrator<_Tp, _FunTp, Gauss_Kronrad_31>
       {
       private:
 	qk_integrator();
@@ -363,7 +363,7 @@ namespace __gnu_test
       };
 
     template<typename _Tp, typename _FunTp>
-      class qk_integrator<_Tp, _FunTp, QK_41>
+      class qk_integrator<_Tp, _FunTp, Gauss_Kronrad_41>
       {
       private:
 	qk_integrator();
@@ -446,7 +446,7 @@ namespace __gnu_test
       };
 
     template <typename _Tp, typename _FunTp>
-      class qk_integrator<_Tp, _FunTp, QK_51>
+      class qk_integrator<_Tp, _FunTp, Gauss_Kronrad_51>
       {
       private:
 	qk_integrator();
@@ -542,7 +542,7 @@ namespace __gnu_test
       };
 
     template<typename _Tp, typename _FunTp>
-      class qk_integrator<_Tp, _FunTp, QK_61>
+      class qk_integrator<_Tp, _FunTp, Gauss_Kronrad_61>
       {
       private:
 	qk_integrator();
@@ -653,4 +653,4 @@ namespace __gnu_test
 
 } // namespace __gnu_test
 
-#endif // QK_INTEGRATE_H
+#endif // GAUSS_KRONRAD_QUADRATURE_H

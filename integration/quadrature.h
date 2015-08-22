@@ -22,11 +22,11 @@
 //
 // Provides readable access to integration functions
 
-#ifndef INTEGRATION_H
-#define INTEGRATION_H
+#ifndef QUADRATURE_H
+#define QUADRATURE_H
 
-#include "qag_integrate.h"
-#include "qags_integrate.h"
+#include "adaptive_quadrature.h"
+#include "adaptive_singular_quadrature.h"
 
 #include <limits>
 
@@ -38,7 +38,8 @@ namespace __gnu_test
   //   error limits.
   //  max_iter is the maximum number of iterations allowed
   //  qkintrule is the Gauss-Kronrod integration rule, and can be either:
-  //  QK_15, QK_21, QK_31, QK_41, QK_51, QK_61
+  //  Gauss_Kronrad_15, Gauss_Kronrad_21, Gauss_Kronrad_31, Gauss_Kronrad_41,
+  //  Gauss_Kronrad_51, Gauss_Kronrad_61
   //  Higher-order rules converge more rapidly for most functions,
   //  but may slow convergence for less well-behaved ones.
   template<class _FunTp, class _Tp>
@@ -46,8 +47,8 @@ namespace __gnu_test
     integrate_smooth(const _FunTp &func, _Tp a, _Tp b,
     		     _Tp absolute_error_lim,
     		     _Tp relative_error_lim,
-    		     const size_t max_iter=1024,
-    		     const qk_intrule qkintrule=QK_61)
+    		     const size_t max_iter = 1024,
+    		     const qk_intrule qkintrule = Gauss_Kronrad_61)
   {
     return qag_integrate(func, a, b, absolute_error_lim, relative_error_lim,
                         max_iter, qkintrule);
@@ -169,4 +170,4 @@ namespace __gnu_test
 
 } // namespace __gnu_test
 
-#endif // INTEGRATION_H
+#endif // QUADRATURE_H

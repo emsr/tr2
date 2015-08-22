@@ -30,11 +30,11 @@
 #include <sstream>
 #include <stdexcept>
 
-#include "qk_integrate.h"
+#include "gauss_kronrad_quadrature.h"
 #include "integration_workspace.h"
 
-#ifndef QAG_INTEGRATE_H
-#define QAG_INTEGRATE_H
+#ifndef ADAPTIVE_QUADRATURE_H
+#define ADAPTIVE_QUADRATURE_H
 namespace __gnu_test
 {
   // Integrates function func from a to b
@@ -44,7 +44,8 @@ namespace __gnu_test
   // qag_integrate() returns
   // max_iter is the maximum number of integration steps allowed
   // qksz is the size of the Gauss-Kronrod integration
-  //  (QK_15, QK_21, QK_31, QK_41, QK_51, or QK_61)
+  // (Gauss_Kronrad_15, Gauss_Kronrad_21, Gauss_Kronrad_31, Gauss_Kronrad_41,
+  // Gauss_Kronrad_51, or Gauss_Kronrad_61)
   // Returns a pair with the first value being the integration result,
   // and the second value being the estimated error.
   template <class _Tp, class _FunTp>
@@ -164,8 +165,8 @@ namespace __gnu_test
               if (roundoff_type1 >= 6 || roundoff_type2 >= 20)
         	error_type = 2;   /* round off error */
 
-              /* set error flag in the case of bad integrand behaviour at
-        	a point of the integration range */
+              //  Set error flag in the case of bad integrand behaviour at
+	      //  a point of the integration range.
 
               if (workspace.subinterval_too_small(a1, a2, b2))
         	error_type = 3;
@@ -188,17 +189,18 @@ namespace __gnu_test
 	return std::make_pair(result, abserr);
       else if (error_type == 2)
 	throw std::runtime_error("roundoff error prevents tolerance from being"
-                            " achieved in qag_integrate()");
+				 " achieved in qag_integrate()");
       else if (error_type == 3)
 	throw std::runtime_error("bad integrand behavior found in integrand"
-                            " inteveral in qag_integrate()");
+				 " inteveral in qag_integrate()");
       else if (iteration == max_iter)
 	throw std::runtime_error("maximum number of iterations reached in"
-                            " qag_integrate()");
+				 " qag_integrate()");
       else
-	throw std::runtime_error("could not integrate function in qag_integrate()");
+	throw std::runtime_error("could not integrate function in"
+				 " qag_integrate()");
     }
 
 } // namespace __gnu_test
 
-#endif // 
+#endif // ADAPTIVE_QUADRATURE_H

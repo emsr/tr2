@@ -24,7 +24,7 @@ cmake_minimum_required(VERSION 2.8)
 
 set(CMAKE_C_COMPILER "/home/ed/bin_specfun/bin/gcc")
 set(CMAKE_CXX_COMPILER "/home/ed/bin_specfun/bin/g++")
-set(CMAKE_CXX_FLAGS "-std=c++11 -Wall -Wno-missing-braces")
+set(CMAKE_CXX_FLAGS "-std=c++14 -Wall -Wno-missing-braces")
 
 project(hermite_test)
 

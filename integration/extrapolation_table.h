@@ -30,11 +30,12 @@
 #include <cmath>
 #include <algorithm>
 
-#ifndef QELG_H
-#define QELG_H
+#ifndef EXTRAPOLATION_TABLE_H
+#define EXTRAPOLATION_TABLE_H
 
 namespace __gnu_test
 {
+
   template<typename _Tp>
     class extrapolation_table
     {
@@ -83,7 +84,8 @@ namespace __gnu_test
       const _Tp current = rlist2[cur_n];
 
       _Tp absolute = std::numeric_limits<_Tp>::max();
-      _Tp relative = _Tp(5) * std::numeric_limits<_Tp>::epsilon() * std::abs(current);
+      _Tp relative = _Tp(5) * std::numeric_limits<_Tp>::epsilon()
+			    * std::abs(current);
 
       const size_t newelm = cur_n/2;
       const size_t n_orig = cur_n;
@@ -115,33 +117,33 @@ namespace __gnu_test
           _Tp e1abs = std::abs(e1);
           _Tp delta2 = e2 - e1;
           _Tp err2 = std::abs(delta2);
-          _Tp tol2 = std::max(std::abs(e2), e1abs)*std::numeric_limits<_Tp>::epsilon();
+          _Tp tol2 = std::max(std::abs(e2), e1abs)
+		   * std::numeric_limits<_Tp>::epsilon();
           _Tp delta3 = e1 - e0;
           _Tp err3 = std::abs(delta3);
-          _Tp tol3 = std::max(e1abs, std::abs(e0))*std::numeric_limits<_Tp>::epsilon();
-
-          _Tp e3, delta1, err1, tol1, ss;
+          _Tp tol3 = std::max(e1abs, std::abs(e0))
+		   * std::numeric_limits<_Tp>::epsilon();
 
           if (err2 <= tol2 && err3 <= tol3)
             {
-              /* If e0, e1 and e2 are equal to within machine accuracy,
-        	convergence is assumed.  */
+              //  If e0, e1 and e2 are equal to within machine accuracy,
+	      //  convergence is assumed.
 
               result = res;
               absolute = err2 + err3;
-              relative = 5*std::numeric_limits<_Tp>::epsilon()*std::abs(res);
+              relative = 5 * std::numeric_limits<_Tp>::epsilon() * std::abs(res);
               abserr = std::max(absolute, relative);
               return std::make_pair(result, abserr);
             }
 
-          e3 = rlist2[cur_n - 2 * ii];
+          _Tp e3 = rlist2[cur_n - 2 * ii];
           rlist2[cur_n - 2 * ii] = e1;
-          delta1 = e1 - e3;
-          err1 = std::abs(delta1);
-          tol1 = std::max(e1abs, std::abs(e3)) * std::numeric_limits<_Tp>::epsilon();
+          _Tp delta1 = e1 - e3;
+          _Tp err1 = std::abs(delta1);
+          _Tp tol1 = std::max(e1abs, std::abs(e3)) * std::numeric_limits<_Tp>::epsilon();
 
-          /* If two elements are very close to each other, omit a part of
-            the table by adjusting the value of n */
+          //  If two elements are very close to each other, omit a part of
+          //  the table by adjusting the value of n.
 
           if (err1 <= tol1 || err2 <= tol2 || err3 <= tol3)
             {
@@ -149,11 +151,10 @@ namespace __gnu_test
               break;
             }
 
-          ss = (1 / delta1 + 1 / delta2) - 1 / delta3;
+          _Tp ss = (1 / delta1 + 1 / delta2) - 1 / delta3;
 
-          /* Test to detect irregular behaviour in the table, and
-            eventually omit a part of the table by adjusting the value of
-            n. */
+          //  Test to detect irregular behaviour in the table, and eventually
+          //  omit a part of the table by adjusting the value of n.
 
           if (std::abs(ss * e1) <= _Tp(0.0001L))
             {
@@ -161,8 +162,7 @@ namespace __gnu_test
               break;
             }
 
-          /* Compute a new element and eventually adjust the value of
-            result. */
+          // Compute a new element and eventually adjust the value of result.
 
           res = e1 + 1 / ss;
           rlist2[cur_n - 2 * ii] = res;
@@ -178,7 +178,7 @@ namespace __gnu_test
           }
 	}
 
-      /* Shift the table */
+      //  Shift the table.
 
       {
 	const size_t limexp = 50 - 1;
@@ -222,11 +222,11 @@ namespace __gnu_test
           res3la[2] = result;
 	}
 
-      /* In QUADPACK the variable table->nres is incremented at the top of
-	qelg, so it increases on every call. This leads to the array
-	res3la being accessed when its elements are still undefined, so I
-	have moved the update to this point so that its value more
-	useful. */
+      //  In QUADPACK the variable table->nres is incremented at the top of
+      //  qelg, so it increases on every call. This leads to the array
+      //  res3la being accessed when its elements are still undefined, so I
+      //  have moved the update to this point so that its value more
+      //  useful.
 
       nres = nres_orig + 1;
 
@@ -237,4 +237,4 @@ namespace __gnu_test
 
 } // namespace __gnu_test
 
-#endif // QELG_H
+#endif // EXTRAPOLATION_TABLE_H

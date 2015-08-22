@@ -31,7 +31,7 @@
 
 //#include "simple_integrate.h"
 #include "factorial_table.h"
-#include "integration.h"
+#include "quadrature.h"
 
 using namespace std;
 using namespace __gnu_test;
@@ -106,6 +106,15 @@ template<typename _Tp>
 int
 main()
 {
+  std::cout << "\nTesting float Hermite funstions...\n";
+  try
+    {
+      test_hermite<float>();
+    }
+  catch(...)
+    {}
+
+  std::cout << "\nTesting double Hermite funstions...\n";
   try
     {
       test_hermite<double>();
@@ -113,6 +122,7 @@ main()
   catch(...)
     {}
 
+  std::cout << "\nTesting long double Hermite funstions...\n";
   try
     {
       test_hermite<long double>();
