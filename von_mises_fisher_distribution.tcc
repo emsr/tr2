@@ -8,7 +8,6 @@
 #else
 
 #include <iostream>
-#include <iterator>
 
 #ifdef _GLIBCXX_USE_C99_STDINT_TR1
 
@@ -142,8 +141,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __os.fill(__space);
       __os.precision(std::numeric_limits<_RealType>::max_digits10);
 
-      std::copy(std::begin(__x.mu()), std::begin(__x.mu()),
-		std::ostream_iterator<double, _CharT, _Traits>(__os));
+      for (auto __k : __x.mu())
+	__os << __k << __space;
       __os << __x.kappa();
 
       __os.flags(__flags);
