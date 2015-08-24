@@ -1,5 +1,3 @@
-#include <iostream>
-
 #ifndef VON_MISES_FISHER_DISTRIBUTION_TCC
 #define VON_MISES_FISHER_DISTRIBUTION_TCC 1
 
@@ -8,6 +6,9 @@
 #if __cplusplus < 201103L
 # include <bits/c++0x_warning.h>
 #else
+
+#include <iostream>
+#include <iterator>
 
 #ifdef _GLIBCXX_USE_C99_STDINT_TR1
 
@@ -124,7 +125,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       }
 
 
-  template<typename _RealType, std::size_t _Dim,
+  template<std::size_t _Dim, typename _RealType,
 	   typename _CharT, typename _Traits>
     std::basic_ostream<_CharT, _Traits>&
     operator<<(std::basic_ostream<_CharT, _Traits>& __os,
@@ -141,7 +142,34 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __os.fill(__space);
       __os.precision(std::numeric_limits<_RealType>::max_digits10);
 
-      __os << __x.mu();
+      std::copy(std::begin(__x.mu()), std::begin(__x.mu()),
+		std::ostream_iterator<double, _CharT, _Traits>(__os));
+      __os << __x.kappa();
+
+      __os.flags(__flags);
+      __os.fill(__fill);
+      __os.precision(__precision);
+      return __os;
+    }
+
+  template<typename _RealType,
+	   typename _CharT, typename _Traits>
+    std::basic_ostream<_CharT, _Traits>&
+    operator<<(std::basic_ostream<_CharT, _Traits>& __os,
+	       const von_mises_fisher_distribution<2, _RealType>& __x)
+    {
+      typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
+      typedef typename __ostream_type::ios_base    __ios_base;
+
+      const typename __ios_base::fmtflags __flags = __os.flags();
+      const _CharT __fill = __os.fill();
+      const std::streamsize __precision = __os.precision();
+      const _CharT __space = __os.widen(' ');
+      __os.flags(__ios_base::scientific | __ios_base::left);
+      __os.fill(__space);
+      __os.precision(std::numeric_limits<_RealType>::max_digits10);
+
+      __os << __x.mu()[0] << __space << __x.mu()[1];
       __os << __space << __x.kappa();
 
       __os.flags(__flags);
@@ -150,7 +178,33 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       return __os;
     }
 
-  template<typename _RealType, std::size_t _Dim,
+  template<typename _RealType,
+	   typename _CharT, typename _Traits>
+    std::basic_ostream<_CharT, _Traits>&
+    operator<<(std::basic_ostream<_CharT, _Traits>& __os,
+	       const von_mises_fisher_distribution<3, _RealType>& __x)
+    {
+      typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
+      typedef typename __ostream_type::ios_base    __ios_base;
+
+      const typename __ios_base::fmtflags __flags = __os.flags();
+      const _CharT __fill = __os.fill();
+      const std::streamsize __precision = __os.precision();
+      const _CharT __space = __os.widen(' ');
+      __os.flags(__ios_base::scientific | __ios_base::left);
+      __os.fill(__space);
+      __os.precision(std::numeric_limits<_RealType>::max_digits10);
+
+      __os << __x.mu()[0] << __space << __x.mu()[1] << __space << __x.mu()[2];
+      __os << __space << __x.kappa();
+
+      __os.flags(__flags);
+      __os.fill(__fill);
+      __os.precision(__precision);
+      return __os;
+    }
+
+  template<std::size_t _Dim, typename _RealType,
 	   typename _CharT, typename _Traits>
     std::basic_istream<_CharT, _Traits>&
     operator>>(std::basic_istream<_CharT, _Traits>& __is,
@@ -167,6 +221,52 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _RealType __kappa;
       __is >> __kappa;
       __x.param(typename von_mises_fisher_distribution<_Dim, _RealType>::
+		param_type(__mu, __kappa));
+
+      __is.flags(__flags);
+      return __is;
+    }
+
+  template<typename _RealType,
+	   typename _CharT, typename _Traits>
+    std::basic_istream<_CharT, _Traits>&
+    operator>>(std::basic_istream<_CharT, _Traits>& __is,
+	       von_mises_fisher_distribution<2, _RealType>& __x)
+    {
+      typedef std::basic_istream<_CharT, _Traits>  __istream_type;
+      typedef typename __istream_type::ios_base    __ios_base;
+
+      const typename __ios_base::fmtflags __flags = __is.flags();
+      __is.flags(__ios_base::dec | __ios_base::skipws);
+
+      std::array<_RealType, 2> __mu;
+      __is >> __mu[0] >> __mu[1];
+      _RealType __kappa;
+      __is >> __kappa;
+      __x.param(typename von_mises_fisher_distribution<2, _RealType>::
+		param_type(__mu, __kappa));
+
+      __is.flags(__flags);
+      return __is;
+    }
+
+  template<typename _RealType,
+	   typename _CharT, typename _Traits>
+    std::basic_istream<_CharT, _Traits>&
+    operator>>(std::basic_istream<_CharT, _Traits>& __is,
+	       von_mises_fisher_distribution<3, _RealType>& __x)
+    {
+      typedef std::basic_istream<_CharT, _Traits>  __istream_type;
+      typedef typename __istream_type::ios_base    __ios_base;
+
+      const typename __ios_base::fmtflags __flags = __is.flags();
+      __is.flags(__ios_base::dec | __ios_base::skipws);
+
+      std::array<_RealType, 3> __mu;
+      __is >> __mu[0] >> __mu[1] >> __mu[2];
+      _RealType __kappa;
+      __is >> __kappa;
+      __x.param(typename von_mises_fisher_distribution<3, _RealType>::
 		param_type(__mu, __kappa));
 
       __is.flags(__flags);
