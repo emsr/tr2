@@ -1,15 +1,23 @@
 #include <complex>
 #include <iostream>
 #include <tuple> // For ignore and get and tuple_size.
+#include <functional> // For reference_wrapper and ref.
+#include <experimental/array> // For make_array.
 
 // $HOME/bin/bin/g++ -std=c++1y -o complex_tie complex_tie.cpp
 
 namespace std
 {
+
+  template<typename _Tp>
+    inline array<_Tp, 2>
+    make_array(complex<_Tp> & __z)
+    { return make_array(__z.real(), __z.imag()); }
+
   template<typename _Tp>
     inline complex<_Tp&>
     complex_tie(_Tp& __re, _Tp& __im) noexcept
-    { return complex<_Tp&>(__re, __im); }
+    { return complex<std::reference_wrapper<_Tp>>(std::ref(__re), std::ref(__im)); }
 
   template<typename _Tp>
     inline complex<_Tp&>
