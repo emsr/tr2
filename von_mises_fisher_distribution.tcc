@@ -1,55 +1,61 @@
 #include <iostream>
 
+#ifndef VON_MISES_FISHER_DISTRIBUTION_TCC
+#define VON_MISES_FISHER_DISTRIBUTION_TCC 1
 
-  template<typename _RealType, std::size_t _Dim>
+#pragma GCC system_header
+
+#if __cplusplus < 201103L
+# include <bits/c++0x_warning.h>
+#else
+
+#ifdef _GLIBCXX_USE_C99_STDINT_TR1
+
+namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
+{
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
+
+  template<std::size_t _Dim, typename _RealType>
     template<typename _UniformRandomNumberGenerator>
-      typename von_mises_fisher_distribution<_RealType, _Dim>::result_type
-      von_mises_fisher_distribution<_RealType, _Dim>::
+      typename von_mises_fisher_distribution<_Dim, _RealType>::result_type
+      von_mises_fisher_distribution<_Dim, _RealType>::
       operator()(_UniformRandomNumberGenerator& __urng,
-		 const typename von_mises_fisher_distribution<_RealType, _Dim>::param_type& __p)
+		 const typename von_mises_fisher_distribution<_Dim, _RealType>::param_type& __p)
       {
-	const result_type __pi
-	  = __gnu_cxx::__math_constants<result_type>::__pi;
-	std::__detail::_Adaptor<_UniformRandomNumberGenerator, result_type>
+	std::__detail::_Adaptor<_UniformRandomNumberGenerator, typename result_type::value_type>
 	  __aurng(__urng);
 
-	result_type __f;
-	while (1)
-	  {
-	    result_type __rnd = std::cos(__pi * __aurng());
-	    __f = (result_type(1) + __p._M_r * __rnd) / (__p._M_r + __rnd);
-	    result_type __c = __p._M_kappa * (__p._M_r - __f);
+	//  The beta distribution depends only on _Dim.
 
-	    result_type __rnd2 = __aurng();
-	    if (__c * (result_type(2) - __c) > __rnd2)
-	      break;
-	    if (std::log(__c / __rnd2) >= __c - result_type(1))
+	typename result_type::value_type __W;
+	while (true)
+	  {
+	    auto __z = this->_M_bd(__urng);
+	    __W = (1 - (1 + __p._M_b) * __z) / (1 - (1 - __p._M_b) * __z);
+	    auto __thing = __p._M_kappa * __W
+			 + __p._M_Dim * std::log(1 - __p._M_x * __W) - __p._M_c;
+	    if (__thing >= std::log(__aurng()))
 	      break;
 	  }
+	auto __rt = std::sqrt(1 - __W * __W);
+	auto __V = _M_uosd(__urng);
 
-	result_type __res = std::acos(__f);
-#if _GLIBCXX_USE_C99_MATH_TR1
-	__res = std::copysign(__res, __aurng() - result_type(0.5));
-#else
-	if (__aurng() < result_type(0.5))
-	  __res = -__res;
-#endif
-	__res += __p._M_mu;
-	if (__res > __pi)
-	  __res -= result_type(2) * __pi;
-	else if (__res < -__pi)
-	  __res += result_type(2) * __pi;
+	result_type __res;
+	for (int __i = 0; __i < __res.size() - 1; ++__i)
+	  __res[__i] = __rt * __V[__i];
+	__res[__res.size() - 1] = __W;
+
 	return __res;
       }
 
-  template<typename _RealType, std::size_t _Dim>
+  template<std::size_t _Dim, typename _RealType>
     template<typename _OutputIterator,
 	     typename _UniformRandomNumberGenerator>
       void
-      von_mises_fisher_distribution<_RealType, _Dim>::
+      von_mises_fisher_distribution<_Dim, _RealType>::
       __generate_impl(_OutputIterator __f, _OutputIterator __t,
 		      _UniformRandomNumberGenerator& __urng,
-		      const typename von_mises_fisher_distribution<_RealType, _Dim>::param_type& __param)
+		      const typename von_mises_fisher_distribution<_Dim, _RealType>::param_type& __param)
       {
 	__glibcxx_function_requires(_OutputIteratorConcept<_OutputIterator>)
 
@@ -57,11 +63,72 @@
 	  *__f++ = this->operator()(__urng, __param);
       }
 
+  template<typename _RealType>
+    template<typename _UniformRandomNumberGenerator>
+      typename von_mises_fisher_distribution<2, _RealType>::result_type
+      von_mises_fisher_distribution<2, _RealType>::
+      operator()(_UniformRandomNumberGenerator& __urng)
+      {
+	using __res_t = typename von_mises_distribution<_RealType>::result_type;
+	__res_t __vmd_res = _M_vmd(__urng);
+
+	result_type __res;
+	__res[0] = std::cos(__vmd_res);
+	__res[1] = std::sin(__vmd_res);
+
+	return __res;
+      }
+
+  template<typename _RealType>
+    template<typename _UniformRandomNumberGenerator>
+      typename von_mises_fisher_distribution<2, _RealType>::result_type
+      von_mises_fisher_distribution<2, _RealType>::
+      operator()(_UniformRandomNumberGenerator& __urng,
+		 const typename von_mises_fisher_distribution<2, _RealType>::param_type& __p)
+      {
+	using __parm_t = typename von_mises_distribution<_RealType>::param_type;
+	using __res_t = typename von_mises_distribution<_RealType>::result_type;
+	__parm_t __parm(__p._M_theta0);
+	__res_t __vmd_res = _M_vmd(__urng, __parm);
+
+	result_type __res;
+	__res[0] = std::cos(__vmd_res);
+	__res[1] = std::sin(__vmd_res);
+
+	return __res;
+      }
+
+  template<typename _RealType>
+    template<typename _UniformRandomNumberGenerator>
+      typename von_mises_fisher_distribution<3, _RealType>::result_type
+      von_mises_fisher_distribution<3, _RealType>::
+      operator()(_UniformRandomNumberGenerator& __urng,
+		 const typename von_mises_fisher_distribution<3, _RealType>::param_type& __p)
+      {
+	std::__detail::_Adaptor<_UniformRandomNumberGenerator,
+				typename result_type::value_type>
+	  __aurng(__urng);
+
+	auto __xi = __aurng();
+	auto __W = 1 + std::log(__xi + (1 - __xi) * std::exp(-2 * __p.kappa()))
+		 / __p.kappa();
+	auto __rt = std::sqrt(1 - __W * __W);
+	auto __V = _M_uosd(__urng);
+
+	result_type __res;
+	__res[0] = __rt * __V[0];
+	__res[1] = __rt * __V[1];
+	__res[2] = __W;
+
+	return __res;
+      }
+
+
   template<typename _RealType, std::size_t _Dim,
 	   typename _CharT, typename _Traits>
     std::basic_ostream<_CharT, _Traits>&
     operator<<(std::basic_ostream<_CharT, _Traits>& __os,
-	       const von_mises_fisher_distribution<_RealType, _Dim>& __x)
+	       const von_mises_fisher_distribution<_Dim, _RealType>& __x)
     {
       typedef std::basic_ostream<_CharT, _Traits>  __ostream_type;
       typedef typename __ostream_type::ios_base    __ios_base;
@@ -87,7 +154,7 @@
 	   typename _CharT, typename _Traits>
     std::basic_istream<_CharT, _Traits>&
     operator>>(std::basic_istream<_CharT, _Traits>& __is,
-	       von_mises_fisher_distribution<_RealType, _Dim>& __x)
+	       von_mises_fisher_distribution<_Dim, _RealType>& __x)
     {
       typedef std::basic_istream<_CharT, _Traits>  __istream_type;
       typedef typename __istream_type::ios_base    __ios_base;
@@ -99,9 +166,18 @@
       __is >> __mu;
       _RealType __kappa;
       __is >> __kappa;
-      __x.param(typename von_mises_fisher_distribution<_RealType, _Dim>::
+      __x.param(typename von_mises_fisher_distribution<_Dim, _RealType>::
 		param_type(__mu, __kappa));
 
       __is.flags(__flags);
       return __is;
     }
+
+_GLIBCXX_END_NAMESPACE_VERSION
+} // namespace
+
+#endif // _GLIBCXX_USE_C99_STDINT_TR1
+
+#endif // C++11
+
+#endif // _VON_MISES_FISHER_DISTRIBUTION_TCC
