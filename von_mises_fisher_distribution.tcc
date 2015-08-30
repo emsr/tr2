@@ -42,8 +42,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 	result_type __res;
 	for (int __i = 0; __i < __res.size() - 1; ++__i)
-	  __res[__i] = __rt * __V[__i];
-	__res[__res.size() - 1] = __W;
+	  __res[__i] = __rt * __V[__i] + __W * __p.mu()[__i];
+	__res[__res.size() - 1] = __W * __p.mu()[__res.size() - 1];
 
 	return __res;
       }
@@ -116,9 +116,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	auto __V = _M_uosd(__urng);
 
 	result_type __res;
-	__res[0] = __rt * __V[0];
-	__res[1] = __rt * __V[1];
-	__res[2] = __W;
+	__res[0] = __rt * __V[0] + __W * __p.mu()[0];
+	__res[1] = __rt * __V[1] + __W * __p.mu()[1];
+	__res[2] = __W * __p.mu()[2];
 
 	return __res;
       }

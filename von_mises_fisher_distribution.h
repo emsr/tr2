@@ -285,7 +285,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			const param_type& __p);
 
       param_type _M_param;
-      uniform_on_sphere_distribution<_Dim, _RealType> _M_uosd;
+      uniform_on_sphere_distribution<_Dim - 1, _RealType> _M_uosd;
       beta_distribution<_RealType> _M_bd;
     };
 
@@ -732,7 +732,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			const param_type& __p);
 
       param_type _M_param;
-      uniform_on_sphere_distribution<3, _RealType> _M_uosd;
+      uniform_on_sphere_distribution<2, _RealType> _M_uosd;
     };
 
 _GLIBCXX_END_NAMESPACE_VERSION
