@@ -181,6 +181,8 @@ utf8_char_literal
 pr64626
 viewer
 
+test_von_mises_fisher_distribution
+
 fold_expression
 operator_auto
 deathmatch
