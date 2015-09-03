@@ -30,6 +30,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  __mod += __comp * __comp;
 	return std::sqrt(__mod);
       }
+
+    template<typename _RealType, std::size_t _Dim>
+      void
+      __make_basis(const std::array<_RealType, _Dim>& __mu,
+		   std::array<std::array<_RealType, _Dim>, _Dim - 1>& __lambda);
   }
 
   /**
@@ -93,6 +98,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 	  this->_M_c = this->_M_kappa * this->_M_x
 		     + this->_M_Dim * std::log(1 - this->_M_x * this->_M_x);
+
+	  __detail::__make_basis(this->_M_mu, this->_M_lambda);
 	}
 
 	std::array<_RealType, _Dim>
@@ -110,6 +117,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       private:
 	std::array<_RealType, _Dim> _M_mu;
+	std::array<std::array<_RealType, _Dim>, _Dim - 1> _M_lambda;
 	_RealType _M_kappa;
 	_RealType _M_Dim;
 	_RealType _M_b;
@@ -549,6 +557,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 				 < std::numeric_limits<_RealType>::epsilon());
 	  _GLIBCXX_DEBUG_ASSERT(this->_M_kappa >= _RealType(0));
 
+	  __detail::__make_basis(this->_M_mu, this->_M_lambda);
+
 	  _M_c = 0;
 	}
 
@@ -567,6 +577,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       private:
 	std::array<_RealType, 3> _M_mu;
+	std::array<std::array<_RealType, 3>, 2> _M_lambda;
 	_RealType _M_kappa;
 	_RealType _M_c;
       };

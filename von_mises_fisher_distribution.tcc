@@ -15,6 +15,48 @@ namespace __gnu_cxx _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
+  namespace __detail
+  {
+    template<typename _RealType, std::size_t _Dim>
+      void
+      __make_normal(std::array<_RealType, _Dim> &__lambda)
+      {
+	_RealType __len{};
+	for (int i = 0; i < _Dim; ++i)
+	  __len += __lambda[i] * __lambda[i];
+	__len = std::sqrt(__len);
+	for (int i = 0; i < _Dim; ++i)
+	  __lambda[i] /=__len;
+      }
+
+    template<typename _RealType, std::size_t _Dim>
+      void
+      __make_basis(const std::array<_RealType, _Dim>& __mu,
+		   std::array<std::array<_RealType, _Dim>, _Dim - 1>& __lambda)
+      {
+	size_t __max = 0;
+	for (size_t __i = 1; __i < _Dim; ++__i)
+	  if (std::abs(__mu[__i]) > std::abs(__mu[__max]))
+	    __max = __i;
+	for (size_t __i = 0; __i < _Dim - 1; ++__i)
+	  {
+	    __lambda[__i][(__max + __i) % _Dim] = _RealType(1);
+	    auto __mudot = __mu[(__max + __i) % _Dim];
+	    if (__mudot != _RealType(0))
+	      for (size_t __j = 0; __j < _Dim; ++__j)
+		__lambda[__i][__j] -= __mudot * __mu[__j];
+		for (size_t __k = 0; __k < __i; ++__k)
+		  {
+		    auto __lambdot = __lambda[__k][(__max + __i) % _Dim];
+		    if (__lambdot != _RealType(0))
+		      for (size_t __j = 0; __j < _Dim; ++__j)
+			__lambda[__i][__j] -= __lambdot * __lambda[__k][__j];
+		  }
+	    __make_normal(__lambda[__i]);
+	  }
+      }
+  }
+
   template<std::size_t _Dim, typename _RealType>
     template<typename _UniformRandomNumberGenerator>
       typename von_mises_fisher_distribution<_Dim, _RealType>::result_type
@@ -41,9 +83,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	auto __V = _M_uosd(__urng);
 
 	result_type __res;
-	for (int __i = 0; __i < __res.size() - 1; ++__i)
-	  __res[__i] = __rt * __V[__i];
-	__res[__res.size() - 1] = __W;
+	for (int __i = 0; __i < __res.size(); ++__i)
+	  __res[__i] = __W * __p._M_mu[__i];
+	for (int __k = 0; __k < __res.size() - 1; ++__k)
+	  for (int __i = 0; __i < __res.size(); ++__i)
+	    __res[__i] += __rt * __V[__k] * __p._M_lambda[__k][__i];
 
 	return __res;
       }
@@ -116,9 +160,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	auto __V = _M_uosd(__urng);
 
 	result_type __res;
-	__res[0] = __rt * __V[0];
-	__res[1] = __rt * __V[1];
-	__res[2] = __W;
+	for (int __i = 0; __i < 3; ++__i)
+	  __res[__i] = __W * __p._M_mu[__i]
+		     + __rt * __V[0] * __p._M_lambda[0][__i]
+		     + __rt * __V[1] * __p._M_lambda[1][__i];
 
 	return __res;
       }
