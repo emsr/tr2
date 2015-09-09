@@ -35,9 +35,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		   std::array<std::array<_RealType, _Dim>, _Dim - 1>& __lambda)
       {
 	size_t __max = 0;
+	//  Find the mu pivot element as the largest abs element.
 	for (size_t __i = 1; __i < _Dim; ++__i)
 	  if (std::abs(__mu[__i]) > std::abs(__mu[__max]))
 	    __max = __i;
+	//  The orthogonal lambdas are built with 1 in all te slots other than
+	//  the pivot and are orthonormalized wrt pu and teh previous lambdas.
 	for (size_t __i = 0; __i < _Dim - 1; ++__i)
 	  {
 	    __lambda[__i][(__max + __i) % _Dim] = _RealType(1);
