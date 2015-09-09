@@ -186,6 +186,12 @@ test_von_mises_fisher_distribution
 fold_expression
 operator_auto
 deathmatch
+dijkstra
+test_centered_string
+test_fold_expr_less
+test_fold_expr_less_2
+
+integration/factoid
 
 gmon.out
 gprof.out
