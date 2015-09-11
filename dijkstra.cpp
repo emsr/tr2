@@ -13,7 +13,7 @@ int
 minDistance(const std::vector<int> & dist,
 	    const std::vector<bool> & sptSet)
 {
-    int min = INT_MAX, min_index;
+    int min = INT_MAX, min_index = -1;
 
     for (int v = 0; v < Num; ++v)
     {
@@ -57,6 +57,8 @@ dijkstra(int graph[Num][Num], int src)
     for (int count = 0; count < Num - 1; ++count)
     {
         int u = minDistance(dist, sptSet);
+	if (u == -1)
+	    break;
 
         sptSet[u] = true;
 
