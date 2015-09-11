@@ -2,95 +2,114 @@
 
 //  g++ -std=c++14 -o dijkstra dijkstra.cpp
 
-#include <bits/stdc++.h>
 #include <iostream>
 #include <vector>
+#include <climits>
+#include <iterator>
+#include <limits>
 
-#define Num 4
-#define Num 4
+template<typename _DistTp>
+  _DistTp /* Should be _IdxTp */
+  minDistanceIdx(const std::vector<_DistTp> & dist,
+                 const std::vector<bool> & sptSet)
+  {
+    _DistTp min = std::numeric_limits<_DistTp>::max();
+    int min_index;
 
-int
-minDistance(const std::vector<int> & dist,
-	    const std::vector<bool> & sptSet)
-{
-    int min = INT_MAX, min_index = -1;
-
-    for (int v = 0; v < Num; ++v)
+    for (int v = 0; v < dist.size(); ++v)
     {
-        if (sptSet[v] == false
-	 && dist[v] <= min)
-	{
-	    min = dist[v];
-	    min_index = v;
-	}
+      if (sptSet[v] == false
+       && dist[v] <= min)
+      {
+	min = dist[v];
+	min_index = v;
+      }
     }
 
     return min_index;
-}
+  }
 
-void
-printPath(const std::vector<int> & prev)
-{
-    std::vector<int> S;
-    int u = Num;
-    for (int i = 0; i < Num; ++i)
+template<typename _IdxTp>
+  void
+  printPath(const std::vector<_IdxTp> & prev)
+  {
+    std::vector<_IdxTp> S;
+    _IdxTp u = prev.size() - 1;
+    for (_IdxTp i = 0; i < prev.size() && u != std::numeric_limits<_IdxTp>::max(); ++i)
     {
-        S.push_back(u);
-        u = prev[u];
+      S.push_back(u);
+      u = prev[u];
     }
 
-    std::vector<int> v2(S.rbegin(), S.rend());
-    std::copy(v2.begin(), v2.end(), std::ostream_iterator<int>(std::cout, ", "));
-}
+    std::vector<_IdxTp> v2(S.rbegin(), S.rend());
+    std::copy(v2.begin(), v2.end(), std::ostream_iterator<_IdxTp>(std::cout, ", "));
+    std::cout << '\n';
+  }
 
-void
-dijkstra(int graph[Num][Num], int src)
-{
-    std::vector<int> prev(Num);
-    std::vector<int> dist(Num, INT_MAX);
+template<typename _IdxTp, typename _DistTp, _IdxTp _Num>
+  void
+  dijkstra(const _DistTp (&graph)[_Num][_Num], _IdxTp src)
+  {
+    std::vector<_IdxTp> prev(_Num);
+    std::vector<_DistTp> dist(_Num, std::numeric_limits<_DistTp>::max());
 
-    std::vector<bool> sptSet(Num, false);
+    std::vector<bool> sptSet(_Num, false);
 
     dist[src] = 0;
-    prev[src] = -1;
+    prev[src] = std::numeric_limits<_IdxTp>::max();
 
-    for (int count = 0; count < Num - 1; ++count)
+    for (int count = 0; count < _Num; ++count)
     {
-        int u = minDistance(dist, sptSet);
-	if (u == -1)
-	    break;
+      _IdxTp u = minDistanceIdx(dist, sptSet);
+      //if (u == -1)
+	//break;
 
-        sptSet[u] = true;
+      sptSet[u] = true;
 
-        for (int v = 0; v < Num; ++v)
+      for (_IdxTp v = 0; v < _Num; ++v)//_Num - 1
+      {
+	if (!sptSet[v]
+	 && graph[u][v]
+	 && dist[u] != std::numeric_limits<_DistTp>::max()
+	 && dist[u] + graph[u][v] < dist[v])
 	{
-            if (!sptSet[v]
-	     && graph[u][v]
-	     && dist[u] != INT_MAX
-             && dist[u] + graph[u][v] < dist[v])
-	    {
-                dist[v] = dist[u] + graph[u][v];
-                prev[v] = u;
-            }
-        }
+          dist[v] = dist[u] + graph[u][v];
+          prev[v] = u;
+	}
+      }
     }
 
     printPath(prev);
-}
+  }
 
 int
 main()
 {
-    int
-    graph[Num][Num]
-    {
-        {0, 1, 4, 5},
-        {1, 0, 2, 2},
-        {4, 2, 0, 3},
-        {4, 2, 2, 0}
-    };
+  int
+  graph1[4][4]
+  {
+    {0, 1, 4, 5},
+    {1, 0, 2, 2},
+    {4, 2, 0, 3},
+    {4, 2, 2, 0}
+  };
 
-    dijkstra(graph, 1);
+  int
+  graph2[8][8]
+  {
+    {0, 1, 4, 5, 1, 2, 1, 3},
+    {1, 0, 2, 2, 6, 2, 3, 1},
+    {4, 2, 0, 3, 2, 1, 7, 2},
+    {4, 2, 2, 0, 1, 3, 1, 3},
+    {1, 6, 2, 1, 0, 1, 4, 5},
+    {2, 2, 1, 4, 1, 0, 2, 2},
+    {1, 3, 9, 2, 4, 2, 0, 3},
+    {3, 1, 2, 3, 4, 2, 2, 0}
+  };
 
-    return 0;
+  dijkstra(graph1, 1);
+
+  dijkstra(graph2, 4);
+
+  return 0;
 }
