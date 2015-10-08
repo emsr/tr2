@@ -11,8 +11,30 @@
 namespace matrix
 {
 
+/**
+ *  This class represents an LU decomposition.
+ */
+template<typename Type, typename Matrix>
+  class qr_decomposition
+  {
+
+  public:
+
+    qr_decomposition(std::size_t m_n_rows, std::size_t n_cols,
+                     Matrix & a)
+  private:
+
+    std::size_t m_n_rows,
+    std::size_t m_n_cols,
+    SquareMatrix m_a,
+    std::vector<std::size_t> m_c;
+    std::vector<std::size_t> m_d;
+    bool m_singular;
+  };
+
+
 //
-//  Constructs the QR decomposition of a[0..m-1][0..n-1].  The upper triangular matrix R
+//  Constructs the QR decomposition of a[0..n_rows-1][0..n-1].  The upper triangular matrix R
 //  is returned in the upper triange of a except the diagonal elements of R which are returned
 //  in d[0..n-1].  The orthogonal matrix Q is represented as a product of n-1 Householder
 //  matrices Q0...Qn-2 where Qj = 1 - uj x uj/cj.  The ith component of uj is zero for
@@ -20,7 +42,7 @@ namespace matrix
 //
 template<typename Matrix, typename Vector>
   void
-  qr_decomp(std::size_t m, std::size_t n,
+  qr_decomp(std::size_t n_rows, std::size_t n_cols,
             Matrix & a,
             Vector & c, Vector & d, bool & singular)
   {
@@ -34,7 +56,7 @@ template<typename Matrix, typename Vector>
     //d.resize(n);
 
     singular = false;
-    for (std::size_t k = 0; k < n - 1; ++k)
+    for (std::size_t k = 0; k < n_cols - 1; ++k)
       {
 	//  See if the matrix is singular in this column.
 	Type scale = Type(0);
@@ -50,7 +72,7 @@ template<typename Matrix, typename Vector>
 	else
           {
             sum = Type(0);
-            for (std::size_t i = k; i < m; ++i)
+            for (std::size_t i = k; i < n_rows; ++i)
               {
         	a[i][k] /= scale;
         	sum += a[i][k] * a[i][k];
@@ -61,21 +83,21 @@ template<typename Matrix, typename Vector>
             a[k][k] += sigma;
             c[k] = sigma * a[k][k];
             d[k] = -scale * sigma;
-            for (std::size_t j = k + 1; j < n; ++j)
+            for (std::size_t j = k + 1; j < n_cols; ++j)
               {
         	sum = Type(0);
-        	for (std::size_t i = k; i < m; ++i)
+        	for (std::size_t i = k; i < n_rows; ++i)
                   sum += a[i][k] * a[i][j];
         	tau = sum/c[k];
-        	for (std::size_t i = k; i < m; ++i)
+        	for (std::size_t i = k; i < n_rows; ++i)
                   a[i][j] -= tau * a[i][k];
               }
           }
       }
-    c[n-1] = Type(0);
-    d[n-1] = a[n-1][n-1];
+    c[n_cols-1] = Type(0);
+    d[n_cols-1] = a[n_cols-1][n_cols-1];
 
-    if (d[n-1] == Type(0))
+    if (d[n_cols-1] == Type(0))
       singular = true;
 
     return;
@@ -89,7 +111,7 @@ template<typename Matrix, typename Vector>
 //
 template<typename Matrix, typename Vector>
   void
-  qr_backsub(const std::size_t m, const std::size_t n,
+  qr_backsub(const std::size_t n_rows, const std::size_t n_cols,
              const Matrix & a,
              const Vector & c, const Vector & d,
              Vector & b)
@@ -97,13 +119,13 @@ template<typename Matrix, typename Vector>
     using Type = std::remove_reference_t<decltype(a[0][0])>;
 
     //  Form Qt.b.
-    for (std::size_t j = 0; j < n - 1; ++j)
+    for (std::size_t j = 0; j < n_cols - 1; ++j)
       {
 	Type sum = Type(0);
-	for (std::size_t i = j; i < m; ++i)
+	for (std::size_t i = j; i < n_rows; ++i)
           sum += a[i][j] * b[i];
 	Type tau = sum/c[j];
-	for (std::size_t i = j; i < m; ++i)
+	for (std::size_t i = j; i < n_rows; ++i)
           b[i] -= tau * a[i][j];
       }
 
@@ -120,18 +142,18 @@ template<typename Matrix, typename Vector>
 //
 template<typename Matrix, typename Vector>
   void
-  r_backsub(std::size_t m, std::size_t n,
+  r_backsub(std::size_t n_rows, std::size_t n_cols,
             const Matrix & a,
             const Vector & d,
             Vector & b)
   {
     using Type = std::remove_reference_t<decltype(a[0][0])>;
 
-    b[n - 1] /= d[n - 1];
-    for (int i = n - 2; i >= 0; --i)
+    b[n - 1] /= d[n_cols - 1];
+    for (int i = n_cols - 2; i >= 0; --i)
       {
         Type sum = Type(0);
-        for (std::size_t j = i + 1; j < m; ++j)
+        for (std::size_t j = i + 1; j < n_rows; ++j)
           sum += a[i][j] * b[j];
         b[i] = (b[i] - sum) / d[i];
       }
@@ -148,24 +170,24 @@ template<typename Matrix, typename Vector>
 //
 template<typename Matrix, typename Vector>
   void
-  qr_invert(std::size_t m, std::size_t n,
+  qr_invert(std::size_t n_rows, std::size_t n_cols,
             const Matrix & a_qr,
             const Vector & c, const Vector & d,
             Matrix & a_inv)
   {
     using Type = decltype(a_qr[0][0]);
 
-    std::vector<Type> col(m);
+    std::vector<Type> col(n_rows);
 
-    for (std::size_t j = 0; j < m; ++j)
+    for (std::size_t j = 0; j < n_rows; ++j)
       {
-        for (std::size_t i = 0; i < m; ++i)
+        for (std::size_t i = 0; i < n_rows; ++i)
           col[i] = Type(0);
         col[j] = Type(1);
 
-        qr_backsub(m, n, a_qr, c, d, col);
+        qr_backsub(n_rows, n_cols, a_qr, c, d, col);
 
-        for (std::size_t i = 0; i < n; ++i)
+        for (std::size_t i = 0; i < n_cols; ++i)
           a_inv[i][j] = col[i];
       }
 
@@ -179,7 +201,7 @@ template<typename Matrix, typename Vector>
 //
 template<typename Matrix, typename Vector>
   void
-  qr_update(std::size_t m, std::size_t n,
+  qr_update(std::size_t n_rows, std::size_t n,
             Matrix & r, Matrix & qt,
             Vector & u, Vector & v)
   {
@@ -187,14 +209,14 @@ template<typename Matrix, typename Vector>
 
     //  Find largest k such that uk != 0.
     std::ptrdiff_t k;
-    for (std::ptrdiff_t k = n - 1; k >= 0; --k)
+    for (std::ptrdiff_t k = n_cols - 1; k >= 0; --k)
       if (u[k] != Type(0))
         break;
 
     //  Transform R + u x v to upper triangular.
     for (std::ptrdiff_t i = k - 1; i >= 0; --i)
       {
-        jacobi_rotate(i, m, n, r, qt, u[i], -u[i + 1]);
+        jacobi_rotate(i, n_rows, n_cols, r, qt, u[i], -u[i + 1]);
         if (u[i] == 0)
           u[i] = std::abs(u[i + 1]);
         else if (std::abs(u[i]) > std::abs(u[i + 1]))
@@ -202,12 +224,12 @@ template<typename Matrix, typename Vector>
         else
           u[i] = std::abs(u[i + 1]) * std::sqrt(Type(1) + (u[i] / u[i+1]) * (u[i] / u[i + 1]));
       }
-    for (std::size_t j = 0; j < n; ++j)
+    for (std::size_t j = 0; j < n_cols; ++j)
       r[0][j] += u[0] * v[j];
 
     //  Transform upper Hessenberg matrix to upper triangular.
     for (std::size_t i = 0; i < k; ++i)
-      jacobi_rotate(i, m, n, r, qt, r[i][i], -r[i + 1][i]);
+      jacobi_rotate(i, m, n_cols, r, qt, r[i][i], -r[i + 1][i]);
 
     return;
   }
@@ -220,7 +242,7 @@ template<typename Matrix, typename Vector>
 //
 template<typename Type, typename Matrix, typename Vector>
   void
-  jacobi_rotate(const int i, const int m, const int n,
+  jacobi_rotate(const int i, const int n_rows, const int n_cols,
         	Matrix & r, Matrix & qt,
         	Type a, Type b)
   {
@@ -241,7 +263,7 @@ template<typename Type, typename Matrix, typename Vector>
       }
 
     //  Multiply r by the Jacobi rotation.
-    for (std::size_t j = i; j < n; ++j)
+    for (std::size_t j = i; j < n_cols; ++j)
       {
         Type y = r[  i  ][j];
         Type w = r[i + 1][j];
@@ -250,7 +272,7 @@ template<typename Type, typename Matrix, typename Vector>
       }
 
     //  Multiply qt by the Jacobi rotation.
-    for (std::size_t j = 0; j < m; ++j)
+    for (std::size_t j = 0; j < n_rows; ++j)
       {
         Type y = qt[  i  ][j];
         Type w = qt[i + 1][j];

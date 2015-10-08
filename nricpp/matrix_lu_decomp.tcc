@@ -13,6 +13,41 @@
 namespace matrix
 {
 
+
+/**
+ *  This class represents an LU decomposition.
+ */
+template<typename Type, typename SquareMatrix>
+  class lu_decomposition
+  {
+  public:
+
+    template<typename SquareMatrix>
+      lu_decomposition(std::size_t n, const SquareMatrix & a);
+
+    void backsubstitute(VectorOut & b) const;
+
+    template<typename SquareMatrix, typename Vector>
+      void improve(std::size_t n, const SquareMatrix & a,
+                   const Vector & b, Vector & x) const;
+
+    template<typename SquareMatrix, typename Vector>
+      void
+      inverse(SquareMatrix & a_inv) const;
+
+    Type lu_determinant() const;
+
+    Type trace() const;
+
+  private:
+
+    std::size_t m_n,
+    SquareMatrix m_a,
+    std::vector<std::size_t> m_index;
+    int m_parity;
+  };
+
+
 //
 //  Given an n*n matrix a[0..n-1][0..n-1], this routine replaces it by the LU (Lower-triangular Upper-triangular) 
 //  decomposition of a rowwise permutation of itself.  n and a[][] are input.  a[][] is output, index[] is an 
