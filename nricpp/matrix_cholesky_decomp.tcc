@@ -11,6 +11,27 @@ namespace matrix
 {
 
 template<typename SquareMatrix, typename Vector>
+  class cholesky_decomposition
+  {
+
+  public:
+
+    template<typename SquareMatrix2, typename Vector2>
+      cholesky_decomposition(std::size_t n, const SquareMatrix2 & a, Vector2 & d);
+
+    void backsubstitute(const Vector & b, Vector & x) const;
+
+    template<typename SquareMatrix2>
+      void inverse(SquareMatrix2 & a_inv) const;
+
+  private:
+
+    std::size_t m_n;
+    SquareMatrix & m_a;
+    std::vector<> m_d;
+  };
+
+template<typename SquareMatrix, typename Vector>
   void
   cholesky_decomp(std::size_t n, SquareMatrix & a, Vector & d)
   {

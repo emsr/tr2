@@ -20,8 +20,18 @@ template<typename Type, typename Matrix>
 
   public:
 
-    qr_decomposition(std::size_t m_n_rows, std::size_t n_cols,
-                     Matrix & a)
+    template<typename Matrix2>
+      qr_decomposition(std::size_t m_n_rows, std::size_t n_cols,
+                       Matrix2 & a)
+
+    template<typename Vector2>
+      void backsub(Vector2 & b);
+
+    template<typename Matrix2>
+      void inverse(Matrix2 & a_inv);
+
+    void update(Matrix2 & r, Matrix2 & qt,
+                Vector2 & u, Vector2 & v)
   private:
 
     std::size_t m_n_rows,
@@ -237,8 +247,9 @@ template<typename Matrix, typename Vector>
 
 //
 //  Do a Jacobi rotation on rows i and i+1 of the matrices r[0..n-1][0..n-1] and qt[0..n-1][0..m-1].
-//  The angle is specified with a and b such that cos(theta) = a/sqrt(a^2 + b^2)
-//  and sin(theta) = b/sqrt(a^2 + b^2).
+//  The angle is specified with a and b such that
+//    cos(theta) = a/sqrt(a^2 + b^2)
+//    sin(theta) = b/sqrt(a^2 + b^2).
 //
 template<typename Type, typename Matrix, typename Vector>
   void

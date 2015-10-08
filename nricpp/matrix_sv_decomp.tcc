@@ -14,7 +14,7 @@ namespace matrix
 
 template<typename Type>
   inline Type
-  pythag( Type a, Type b )
+  pythag(Type a, Type b)
   {
     Type at, bt, ct;
     return ((at = std::abs(a)) > (bt = std::abs(b)) ? (ct = bt / at, at * std::sqrt(Type(1) + ct * ct))

@@ -20,20 +20,21 @@ namespace matrix
 template<typename Type, typename SquareMatrix>
   class lu_decomposition
   {
+
   public:
 
-    template<typename SquareMatrix>
-      lu_decomposition(std::size_t n, const SquareMatrix & a);
+    template<typename SquareMatrix2>
+      lu_decomposition(std::size_t n, const SquareMatrix2 & a);
 
     void backsubstitute(VectorOut & b) const;
 
-    template<typename SquareMatrix, typename Vector>
-      void improve(std::size_t n, const SquareMatrix & a,
-                   const Vector & b, Vector & x) const;
+    template<typename SquareMatrix2, typename Vector2>
+      void improve(std::size_t n, const SquareMatrix2 & a,
+                   const Vector2 & b, Vector2 & x) const;
 
-    template<typename SquareMatrix, typename Vector>
+    template<typename SquareMatrix2>
       void
-      inverse(SquareMatrix & a_inv) const;
+      inverse(SquareMatrix2 & a_inv) const;
 
     Type lu_determinant() const;
 
