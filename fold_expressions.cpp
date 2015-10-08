@@ -1,5 +1,9 @@
 //  https://github.com/wichtounet/articles/blob/master/src/fold_expressions.cpp
 
+//  $HOME/bin/bin/g++ -std=c++1z -pedantic -DVOMIT -o fold_expressions fold_expressions.cpp
+
+//  ./fold_expressions
+
 #include <iostream>
 
 auto

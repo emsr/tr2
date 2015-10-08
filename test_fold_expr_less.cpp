@@ -1,6 +1,6 @@
 //  clang++ -std=c++1z -o test_fold_expr_less test_fold_expr_less.cpp
 
-//  /home/ed/bin_git/bin/g++ -std=c++1z -o test_fold_expr_less test_fold_expr_less.cpp
+//  $HOME/bin/bin/g++ -std=c++1z -o test_fold_expr_less test_fold_expr_less.cpp
 
 //  ./test_fold_expr_less
 

@@ -1,4 +1,7 @@
-// $HOME/bin_concepts/bin/g++ -std=c++1z -o concept1-neg concept1-neg.cpp
+
+//  $HOME/bin/bin/g++ -std=c++1z -o concept1-neg concept1-neg.cpp
+
+//  ./concept1-neg
 
 //  Concept specifier.
 //  dcl.spec.concept

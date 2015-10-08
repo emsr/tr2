@@ -1,4 +1,7 @@
-// $HOME/bin_concepts/bin/g++ -std=c++1z -o concept1 concept1.cpp
+
+//  $HOME/bin/bin/g++ -std=c++1z -o concept1 concept1.cpp
+
+//  ./concept1
 
 //  Constrained type specifiers.
 //  dcl.spec.auto.constr
