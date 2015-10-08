@@ -446,7 +446,7 @@ namespace std
 	  {
 	    _Tp __xt = __x;
 	    __x = (__x + __y) / _Tp(2);
-	    __y = std::sqrt(__xt * __y);
+	    __y = std::sqrt(__xt) * std::sqrt(__y);
 	    if (std::abs(__x - __y) < __tolfact * std::abs(__x))
 	      return _Val(__numeric_constants<_Val>::__pi()) / (__x + __y);
 	  }
@@ -514,7 +514,7 @@ namespace std
 	else
 	  return (__z * __ellint_rf(__x, __y, __z)
 		- (__x - __z) * (__y - __z) * __ellint_rd(__x, __y, __z) / _Val(3)
-		+ std::sqrt(__x * __y / __z)) / _Val(2);
+		+ (std::sqrt(__x) * std::sqrt(__y) / std::sqrt(__z))) / _Val(2);
       }
 
     template<typename _Tp>
@@ -533,7 +533,7 @@ namespace std
 	  {
 	    _Tp __xtt = __xt;
 	    __xt = (__xt + __yt) / _Tp(2);
-	    __yt = std::sqrt(__xtt * __yt);
+	    __yt = std::sqrt(__xtt) * std::sqrt(__yt);
 	    _Tp __del = __xt - __yt;
 	    if (std::abs(__del) < __tolfact * std::abs(__xt))
 	      return (__a * __a - __sum) * _Val(__numeric_constants<_Val>::__pi()) / (__xt + __yt) / _Val(2);
@@ -934,7 +934,9 @@ main()
   std::cout << std::endl;
 
   double __pi_2 = std::__detail::__numeric_constants<double>::__pi_2();
-  std::cout << "K(pi/2) = " << std::__detail::__comp_ellint_1(std::complex<double>(__pi_2, 0.0)) << std::endl;  //  1.5887715763658593607082818553065 - 1.3986463677643598308560440635658*i
+  std::cout << "K(pi/2) = " << std::__detail::__comp_ellint_1(std::complex<double>(__pi_2, 0.0)) << std::endl;  //  1.5887715763658593607082818553065 - i 1.3986463677643598308560440635658
+  std::cout << "K(-1) = " << std::__detail::__comp_ellint_1(std::complex<double>(-1.0, 0.0)) << std::endl;  //  1.31102877714605990523242
+  std::cout << "K(2) = " << std::__detail::__comp_ellint_1(std::complex<double>(2.0, 0.0)) << std::endl;  //  1.31102877714605990523242 - i 1.31102877714605990523242
 
   return 0;
 }
