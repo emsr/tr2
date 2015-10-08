@@ -1,4 +1,6 @@
 
+// $HOME/bin/bin/g++ -o integrate integrate.cpp 
+
 
 #include <cstdio>
 #include <cmath>
@@ -218,7 +220,19 @@ main()
   ans = clenshaw_curtis_quad(a, b, c, m, eps);
   err = ans - exact;
   printf("\n %-40s    %16.12f    %16.12f", "Clenshaw - Curtis quadrature", ans, err);
-
+mite\u2019 was not declared in this scope
+   gauss_hermite(x_herm, w_herm, n_herm);
+                                       ^
+integrate.cpp:93:3: error: \u2018n_lag\u2019 was not declared in this scope
+   n_lag = 12;
+   ^
+integrate.cpp:96:42: error: \u2018gauss_laguerre\u2019 was not declared in this scope
+   gauss_laguerre(x_lag, w_lag, n_lag, 1.0);
+                                          ^
+integrate.cpp:124:43: error: \u2018quad_trapezoid\u2019 was not declared in this scope
+   ans = quad_trapezoid(std::cos, a, b, eps);
+                                           ^
+integrate.cpp:128:41: error: \u2018quad_simpson\u2019 was not declared in this 
 
 
   a = 0.0;
@@ -304,7 +318,19 @@ main()
   err = ans - exact;
   printf("\n %-40s    %16.12f    %16.12f", "Trapezoid rule", ans, err);
 
-  ans = quad_simpson(foo, a, b, eps);
+  ans = quad_simpson(foo, a,mite\u2019 was not declared in this scope
+   gauss_hermite(x_herm, w_herm, n_herm);
+                                       ^
+integrate.cpp:93:3: error: \u2018n_lag\u2019 was not declared in this scope
+   n_lag = 12;
+   ^
+integrate.cpp:96:42: error: \u2018gauss_laguerre\u2019 was not declared in this scope
+   gauss_laguerre(x_lag, w_lag, n_lag, 1.0);
+                                          ^
+integrate.cpp:124:43: error: \u2018quad_trapezoid\u2019 was not declared in this scope
+   ans = quad_trapezoid(std::cos, a, b, eps);
+                                           ^
+integrate.cpp:128:41: error: \u2018quad_simpson\u2019 was not declared in this  b, eps);
   err = ans - exact;
   printf("\n %-40s    %16.12f    %16.12f", "Simpson's rule", ans, err);
 
