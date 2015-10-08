@@ -5,6 +5,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <vector>
+#include <limits>
 
 
 /**
@@ -388,7 +389,7 @@
     if (eps <= 0.0)
       throw std::logic_error("Error tolerance eps must be greater than 0 in quad_trapezoid.");
 
-    auto olds = -std::numeric_limis<double>::max();
+    auto olds = -std::numeric_limits<double>::max();
     for (int j = 1; j <= JMAX; ++j)
       {
 	auto s = trapezoid(func, a, b, j);

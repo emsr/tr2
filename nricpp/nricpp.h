@@ -3,7 +3,6 @@
 
 #include "cmath_variable_template"
 
-#include "gauss_quad.tcc"
-#include "integration.tcc"
+#include "integration.h"
 
-#endif
+#endif // NRICPP_H
