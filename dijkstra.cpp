@@ -61,6 +61,8 @@ template<typename _IdxTp, typename _DistTp, _IdxTp _Num>
     for (int count = 0; count < _Num; ++count)
     {
       _IdxTp u = minDistanceIdx(dist, sptSet);
+      //if (u == -1)
+	//break;
 
       sptSet[u] = true;
 
