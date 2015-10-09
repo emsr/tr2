@@ -23,6 +23,8 @@ template<typename Type, typename SquareMatrix>
 
   public:
 
+    using value_type = decltype(SquareMatrix{}[0][0]);
+
     template<typename SquareMatrix2>
       lu_decomposition(std::size_t n, const SquareMatrix2 & a);
 
@@ -36,7 +38,7 @@ template<typename Type, typename SquareMatrix>
       void
       inverse(SquareMatrix2 & a_inv) const;
 
-    Type lu_determinant() const;
+    Type determinant() const;
 
     Type trace() const;
 

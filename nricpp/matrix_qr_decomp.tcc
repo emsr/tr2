@@ -20,6 +20,8 @@ template<typename Type, typename Matrix>
 
   public:
 
+    using value_type = decltype(Matrix{}[0][0]);
+
     template<typename Matrix2>
       qr_decomposition(std::size_t m_n_rows, std::size_t n_cols,
                        Matrix2 & a)
@@ -31,7 +33,8 @@ template<typename Type, typename Matrix>
       void inverse(Matrix2 & a_inv);
 
     void update(Matrix2 & r, Matrix2 & qt,
-                Vector2 & u, Vector2 & v)
+                Vector2 & u, Vector2 & v);
+
   private:
 
     std::size_t m_n_rows,
@@ -104,10 +107,10 @@ template<typename Matrix, typename Vector>
               }
           }
       }
-    c[n_cols-1] = Type(0);
-    d[n_cols-1] = a[n_cols-1][n_cols-1];
+    c[n_cols - 1] = Type(0);
+    d[n_cols - 1] = a[n_cols - 1][n_cols - 1];
 
-    if (d[n_cols-1] == Type(0))
+    if (d[n_cols - 1] == Type(0))
       singular = true;
 
     return;

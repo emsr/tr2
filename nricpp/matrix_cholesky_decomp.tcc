@@ -16,6 +16,8 @@ template<typename SquareMatrix, typename Vector>
 
   public:
 
+    using value_type = decltype(SquareMatrix{}[0][0]);
+
     template<typename SquareMatrix2, typename Vector2>
       cholesky_decomposition(std::size_t n, const SquareMatrix2 & a, Vector2 & d);
 
@@ -28,7 +30,7 @@ template<typename SquareMatrix, typename Vector>
 
     std::size_t m_n;
     SquareMatrix & m_a;
-    std::vector<> m_d;
+    std::vector<value_type> m_d;
   };
 
 template<typename SquareMatrix, typename Vector>

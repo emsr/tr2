@@ -12,6 +12,39 @@
 namespace matrix
 {
 
+/**
+ *  This class represents an LU decomposition.
+ */
+template<typename Type, typename Matrix>
+  class sv_decomposition
+  {
+
+  public:
+
+    using value_type = decltype(Matrix{}[0][0]);
+
+    template<typename Matrix2>
+      sv_decomposition(std::size_t m_n_rows, std::size_t n_cols,
+                       Matrix2 & a)
+
+    template<typename Vector2>
+      void backsubstitution(const Vector & b, Vector & x) const;
+
+    template<typename Matrix, typename Vector>
+      void
+      improve(std::size_t n_rows, std::size_t n,
+              const Matrix & a, const Matrix & u, const Vector & w,
+              const Matrix & v, const Vector & b, Vector & x) const;
+
+  private:
+
+    std::size_t m_n_rows,
+    std::size_t m_n_cols,
+    SquareMatrix m_a,
+    std::vector<std::size_t> m_w;
+    std::vector<std::size_t> m_v;
+  };
+
 template<typename Type>
   inline Type
   pythag(Type a, Type b)
@@ -23,7 +56,7 @@ template<typename Type>
 
 template<typename Matrix, typename Vector>
   void
-  sv_decomp(const std::size_t m, const std::size_t n,
+  sv_decomp(const std::size_t n_rows, const std::size_t n,
             Matrix& a, Vector& w, Matrix& v)
   {
     using Type = std::remove_reference_t<decltype(a[0][0])>;
@@ -33,25 +66,25 @@ template<typename Matrix, typename Vector>
 
     const int ITS = 30;
 
-    std::vector<Type> rv1(n);
+    std::vector<Type> rv1(n_cols);
 
     Type g = Type(0);
     Type scale = Type(0);
     Type anorm = Type(0);
 
     //  Householder reduction to bidiagonal form.
-    for (std::size_t i = 0; i < n; ++i)
+    for (std::size_t i = 0; i < n_cols; ++i)
       {
         auto l = i + 1;
         rv1[i] = scale * g;
         g = s = scale = Type(0);
-        if (i <= m - 1)
+        if (i <= n_rows - 1)
           {
-            for (std::size_t k = i; k < m; ++k)
+            for (std::size_t k = i; k < n_rows; ++k)
               scale += std::abs(a[k][i]);
             if (scale)
               {
-                for (std::size_t k = i; k < m; ++k)
+                for (std::size_t k = i; k < n_rows; ++k)
                   {
                     a[k][i] /= scale;
                     s += a[k][i] * a[k][i];
@@ -60,28 +93,28 @@ template<typename Matrix, typename Vector>
                 g = -copysign(std::sqrt(s),f);
                 h = f * g - s;
                 a[i][i] = f - g;
-                for (std::size_t j = l; j < n; ++j)
+                for (std::size_t j = l; j < n_cols; ++j)
                   {
                     s = Type(0);
-                    for (std::size_t k = i; k < m; ++k)
+                    for (std::size_t k = i; k < n_rows; ++k)
                       s += a[k][i] * a[k][j];
                     f = s/h;
-                    for (std::size_t k = i; k < m; ++k)
+                    for (std::size_t k = i; k < n_rows; ++k)
                       a[k][j] += f * a[k][i];
                   }
-                for (int k = i; k < m; ++k)
+                for (int k = i; k < n_rows; ++k)
                   a[k][i] *= scale;
               }
           }
         w[i] = scale * g;
         g = s = scale = Type(0);
-        if (i <= m - 1 && i != n - 1)
+        if (i <= n_rows - 1 && i != n_cols - 1)
           {
-            for (std::size_t k = l; k < n; ++k)
+            for (std::size_t k = l; k < n_cols; ++k)
               scale += std::abs(a[i][k]);
             if (scale)
               {
-                for (std::size_t k = l; k < n; ++k)
+                for (std::size_t k = l; k < n_cols; ++k)
                   {
                     a[i][k] /= scale;
                     s += a[i][k] * a[i][k];
@@ -90,17 +123,17 @@ template<typename Matrix, typename Vector>
                 g = -copysign(std::sqrt(s),f);
                 h = f * g - s;
                 a[i][l] = f - g;
-                for (std::size_t k = l; k < n; ++k)
-                  rv1[k] = a[i][k]/h;
-                for (std::size_t j = l; j < m; ++j)
+                for (std::size_t k = l; k < n_cols; ++k)
+                  rv1[k] = a[i][k] / h;
+                for (std::size_t j = l; j < n_rows; ++j)
                   {
                     s = Type(0);
-                    for (std::size_t k = l; k < n; ++k)
+                    for (std::size_t k = l; k < n_cols; ++k)
                       s += a[j][k] * a[i][k];
-                    for (std::size_t k = l; k < n; ++k)
+                    for (std::size_t k = l; k < n_cols; ++k)
                       a[j][k] += s * rv1[k];
                   }
-                for (std::size_t k = l; k < n; ++k)
+                for (std::size_t k = l; k < n_cols; ++k)
                   a[i][k] *= scale;
               }
           }
@@ -108,24 +141,24 @@ template<typename Matrix, typename Vector>
       }
 
     //  Accumulation of right-hand decomposition V.
-    for (std::ptrdiff_t i = n - 1; i >= 0; --i)
+    for (std::ptrdiff_t i = n_cols - 1; i >= 0; --i)
       {
-        if (i < n - 1)
+        if (i < n_cols - 1)
           {
             if (g)
               {
-                for (std::size_t j = l; j < n; ++j)
+                for (std::size_t j = l; j < n_cols; ++j)
                   v[j][i] = (a[i][j]/a[i][l])/g;
-                for (std::size_t j = l; j < n; ++j)
+                for (std::size_t j = l; j < n_cols; ++j)
                   {
                     s = Type(0);
-                    for (std::size_t k = l; k < n; ++k)
+                    for (std::size_t k = l; k < n_cols; ++k)
                       s += a[i][k] * v[k][j];
-                    for (std::size_t k = l; k < n; ++k)
+                    for (std::size_t k = l; k < n_cols; ++k)
                       v[k][j] += s * v[k][i];
                   }
               }
-            for (std::size_t j = l; j < n; ++j)
+            for (std::size_t j = l; j < n_cols; ++j)
               v[i][j] = v[j][i] = Type(0);
           }
         v[i][i] = Type(1);
@@ -134,46 +167,46 @@ template<typename Matrix, typename Vector>
       }
 
     //  Accumulation of left-hand decompositions.
-    for (std::ptrdiff_t i = std::min(m, n) - 1; i >= 0; --i)
+    for (std::ptrdiff_t i = std::min(n_rows, n_cols) - 1; i >= 0; --i)
       {
         l = i + 1;
         g = w[i];
-        for (std::size_t j = l; j < n; ++j)
+        for (std::size_t j = l; j < n_cols; ++j)
           a[i][j] = Type(0);
         if (g)
           {
             g = Type(1) / g;
-            for (std::size_t j = l; j < n; ++j)
+            for (std::size_t j = l; j < n_cols; ++j)
               {
                 s = Type(0);
-                for (std::size_t k = l; k < m; ++k)
+                for (std::size_t k = l; k < n_rows; ++k)
                   s += a[k][i] * a[k][j];
-                f = (s/a[i][i]) * g;
-                for (std::size_t k = i; k < m; ++k)
+                f = (s / a[i][i]) * g;
+                for (std::size_t k = i; k < n_rows; ++k)
                   a[k][j] += f * a[k][i];
               }
-            for (std::size_t j = i; j < m; ++j)
+            for (std::size_t j = i; j < n_rows; ++j)
               a[j][i] *= g;
           }
         else
-          for (std::size_t j = i; j < m; ++j)
+          for (std::size_t j = i; j < n_rows; ++j)
             a[j][i] = Type(0);
         ++a[i][i];
       }
 
     //  Diagonalization of the bidiagonal form;
-    for (std::ptrdiff_t k = n - 1; k >= 0; --k)
+    for (std::ptrdiff_t k = n_cols - 1; k >= 0; --k)
       {
         for (std::size_t its = 1; its <= ITS; ++its)
           {
-            bool flag = 1;
+            bool flag = true;
             std::ptrdiff_t l;
             for (l = k; l >= 0; --l)
               {
                 nm = l - 1;
                 if (std::abs(rv1[l]) + anorm == anorm)
                   {
-                    flag = 0;
+                    flag = false;
                     break;
                   }
                 if (std::abs(w[nm]) + anorm == anorm)
@@ -195,7 +228,7 @@ template<typename Matrix, typename Vector>
                     h = Type(1) / h;
                     c = g * h;
                     s = -f * h;
-                    for (std::size_t j = 0; j < m; ++j)
+                    for (std::size_t j = 0; j < n_rows; ++j)
                       {
                         auto y = a[j][nm];
                         auto z = a[j][i];
@@ -212,7 +245,7 @@ template<typename Matrix, typename Vector>
                   {
                     //  Make singular value non negative.
                     w[k] = -z;
-                    for (std::size_t j = 0; j < n; ++j)
+                    for (std::size_t j = 0; j < n_cols; ++j)
                       v[j][k] = -v[j][k];
                   }
                 break;
@@ -238,7 +271,7 @@ template<typename Matrix, typename Vector>
             c = s = Type(1);
             for (std::size_t j = l; j <= nm; ++j)
               {
-                std::size_t i = j + 1;
+                auto i = j + 1;
                 g = rv1[i];
                 y = w[i];
                 h = s * g;
@@ -251,7 +284,7 @@ template<typename Matrix, typename Vector>
                 g = g * c - x * s;
                 h = y * s;
                 y *= c;
-                for (std::size_t jj = 0; jj < n; ++jj)
+                for (std::size_t jj = 0; jj < n_cols; ++jj)
                   {
                     x = v[jj][j];
                     z = v[jj][i];
@@ -269,7 +302,7 @@ template<typename Matrix, typename Vector>
                   }
                 f = c * g + s * y;
                 x = c * y - s * g;
-                for (std::size_t jj = 0; jj < m; ++jj)
+                for (std::size_t jj = 0; jj < n_rows; ++jj)
                   {
                     auto y = a[jj][j];
                     auto z = a[jj][i];
@@ -291,7 +324,7 @@ template<typename Matrix, typename Vector>
 
 template<typename Matrix, typename Vector>
   void
-  sv_backsub(std::size_t m, std::size_t n,
+  sv_backsub(std::size_t n_rows, std::size_t n_cols,
              const Matrix & u, const Vector & w,
              const Matrix & v, const Vector & b, Vector & x)
   {
@@ -299,21 +332,21 @@ template<typename Matrix, typename Vector>
 
     std::vector<Type> tmp(n);
 
-    for (std::size_t j = 0; j < n; ++j)
+    for (std::size_t j = 0; j < n_cols; ++j)
       {
         Type s = Type(0);
         if (w[j] != Type(0))
           {
-            for (std::size_t i = 0; i < m; ++i)
+            for (std::size_t i = 0; i < n_rows; ++i)
               s += u[i][j] * b[i];
             s /= w[j];
           }
         tmp[j] = s;
       }
-    for (std::size_t j = 0; j < n; ++j)
+    for (std::size_t j = 0; j < n_cols; ++j)
       {
         Type s = Type(0);
-        for (std::size_t jj = 0; jj < n; ++jj)
+        for (std::size_t jj = 0; jj < n_cols; ++jj)
           s += v[j][jj] * tmp[jj];
         x[j] = s;
       }
@@ -331,25 +364,25 @@ template<typename Matrix, typename Vector>
 //
 template<typename Matrix, typename Vector>
   void
-  sv_improve(std::size_t m, std::size_t n,
+  sv_improve(std::size_t n_rows, std::size_t n_cols,
              const Matrix & a, const Matrix & u, const Vector & w,
              const Matrix & v, const Vector & b, Vector & x)
   {
     using Type = std::remove_reference_t<decltype(a[0][0])>;
 
-    std::vector<Type> r(m);
+    std::vector<Type> r(n_rows);
     std::vector<Type> dx(n);
 
-    for (std::size_t i = 0; i < m; ++i)
+    for (std::size_t i = 0; i < n_rows; ++i)
       {
         r[i] = -b[i];
-        for (std::size_t j = 0; j < n; ++j)
+        for (std::size_t j = 0; j < n_cols; ++j)
           r[i] += a[i][j] * x[j];
       }
 
-    sv_backsub(m, n, u, w, v, r, dx);
+    sv_backsub(n_rows, n_cols, u, w, v, r, dx);
 
-    for (std::size_t i = 0; i < n; ++i)
+    for (std::size_t i = 0; i < n_cols; ++i)
       x[i] -= dx[i];
 
     return;
