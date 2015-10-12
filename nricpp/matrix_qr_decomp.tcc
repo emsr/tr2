@@ -11,6 +11,7 @@
 namespace matrix
 {
 
+
 /**
  *  This class represents an QR decomposition.
  */
@@ -52,13 +53,13 @@ template<typename NumTp, typename Matrix>
   };
 
 
-//
-//  Constructs the QR decomposition of a[0..n_rows - 1][0..n_cols - 1].  The upper triangular matrix R
-//  is returned in the upper triangle of a except the diagonal elements of R which are returned
-//  in d[0..n_cols - 1].  The orthogonal matrix Q is represented as a product of n - 1 Householder
-//  matrices Q_0...Q_n-2 where Q_j = 1 - u_j x u_j/c_j.  The ith component of u_j is zero for
-//  i = 
-//
+/**
+ *  Constructs the QR decomposition of a[0..n_rows - 1][0..n_cols - 1].  The upper triangular matrix R
+ *  is returned in the upper triangle of a except the diagonal elements of R which are returned
+ *  in d[0..n_cols - 1].  The orthogonal matrix Q is represented as a product of n - 1 Householder
+ *  matrices Q_0...Q_n-2 where Q_j = 1 - u_j x u_j/c_j.  The ith component of u_j is zero for
+ *  i = 
+ */
 template<typename Matrix, typename Vector>
   void
   qr_decomp(std::size_t n_rows, std::size_t n_cols,
@@ -122,13 +123,13 @@ template<typename Matrix, typename Vector>
   }
 
 
-//
-//  This routine solves the set of equations Ax = b.
-//  The inputs are the QR decomposition of the matrix in a[0..n_rows - 1][0..n_cols - 1],
-//  c[0..n_cols - 1], and d[0..n_cols - 1].
-//  The vector b[0..n_rows - 1] is input as the "RHS" and output and the solution.
-//  Here n_rows >= n_cols.
-//
+/**
+ *  This routine solves the set of equations Ax = b.
+ *  The inputs are the QR decomposition of the matrix in a[0..n_rows - 1][0..n_cols - 1],
+ *  c[0..n_cols - 1], and d[0..n_cols - 1].
+ *  The vector b[0..n_rows - 1] is input as the "RHS" and output and the solution.
+ *  Here n_rows >= n_cols.
+ */
 template<typename Matrix, typename Vector>
   void
   qr_backsub(const std::size_t n_rows, const std::size_t n_cols,
@@ -156,11 +157,11 @@ template<typename Matrix, typename Vector>
   }
 
 
-//
-//  This routine solves the set of equations Rx = b where R is the upper triangular
-//  matrix stored in a[0..n_rows - 1][0..n_cols - 1] and d[0..n_cols - 1].
-//  Here n_rows >= n_cols.
-//
+/**
+ *  This routine solves the set of equations Rx = b where R is the upper triangular
+ *  matrix stored in a[0..n_rows - 1][0..n_cols - 1] and d[0..n_cols - 1].
+ *  Here n_rows >= n_cols.
+ */
 template<typename Matrix, typename Vector>
   void
   r_backsub(std::size_t n_rows, std::size_t n_cols,
@@ -183,12 +184,12 @@ template<typename Matrix, typename Vector>
   }
 
 
-//
-//  Inverts a matrix given the QR decomposed matrix.
-//  The inverse matrix is allocated in this routine so make sure the pointer is freed first.
-//
-//  The inverse matrix is NOT in QR form.
-//
+/**
+ *  Inverts a matrix given the QR decomposed matrix.
+ *  The inverse matrix is allocated in this routine so make sure the pointer is freed first.
+ *
+ *  The inverse matrix is NOT in QR form.
+ */
 template<typename Matrix, typename Vector>
   void
   qr_invert(std::size_t n_rows, std::size_t n_cols,
@@ -217,9 +218,9 @@ template<typename Matrix, typename Vector>
 
 
 
-//
-//  Update the QR decomposition.
-//
+/**
+ *  Update the QR decomposition.
+ */
 template<typename Matrix, typename Vector>
   void
   qr_update(std::size_t n_rows, std::size_t n_cols,
@@ -256,13 +257,13 @@ template<typename Matrix, typename Vector>
   }
 
 
-//
-//  Do a Jacobi rotation on rows i and i+1 of the matrices r[0..n_cols - 1][0..n_cols - 1]
-//  and qt[0..n_cols - 1][0..n_rows - 1].
-//  The angle is specified with a and b such that
-//    cos(theta) = a/sqrt(a^2 + b^2)
-//    sin(theta) = b/sqrt(a^2 + b^2).
-//
+/**
+ *  Do a Jacobi rotation on rows i and i+1 of the matrices r[0..n_cols - 1][0..n_cols - 1]
+ *  and qt[0..n_cols - 1][0..n_rows - 1].
+ *  The angle is specified with a and b such that
+ *    cos(theta) = a/sqrt(a^2 + b^2)
+ *    sin(theta) = b/sqrt(a^2 + b^2).
+ */
 template<typename NumTp, typename Matrix, typename Vector>
   void
   jacobi_rotate(const int i, const int n_rows, const int n_cols,

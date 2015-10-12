@@ -12,6 +12,7 @@
 namespace matrix
 {
 
+
 /**
  *  This class represents an singular value decomposition of a matrix.
  */
@@ -49,6 +50,9 @@ template<typename NumTp, typename Matrix>
   };
 
 
+/**
+ *
+ */
 template<typename NumTp>
   inline NumTp
   pythag(NumTp a, NumTp b)
@@ -59,6 +63,9 @@ template<typename NumTp>
   }
 
 
+/**
+ *  
+ */
 template<typename Matrix, typename Vector>
   void
   sv_decomp(const std::size_t n_rows, const std::size_t n_cols,
@@ -325,8 +332,9 @@ template<typename Matrix, typename Vector>
   }
 
 
-
-
+/**
+ *  
+ */
 template<typename Matrix, typename Vector>
   void
   sv_backsub(std::size_t n_rows, std::size_t n_cols,
@@ -362,12 +370,12 @@ template<typename Matrix, typename Vector>
 
 
 
-//
-//  Improves a solution vector x of the linear set A.x = b.
-//  The matrix a and the SV decomposition of a -- u, w, v and the
-//  right-hand side vector are input along with the solution vector x.
-//  The solution vector x is improved and modified on output.
-//
+/**
+ *  Improves a solution vector x of the linear set A.x = b.
+ *  The matrix a and the SV decomposition of a -- u, w, v and the
+ *  right-hand side vector are input along with the solution vector x.
+ *  The solution vector x is improved and modified on output.
+ */
 template<typename Matrix, typename Vector>
   void
   sv_improve(std::size_t n_rows, std::size_t n_cols,

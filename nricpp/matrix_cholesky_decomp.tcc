@@ -11,6 +11,7 @@
 namespace matrix
 {
 
+
 /**
  *  This class represents a Cholesky decomposition of a square matrix.
  */
@@ -39,6 +40,10 @@ template<typename SquareMatrix, typename Vector>
     std::vector<value_type> m_d;
   };
 
+
+/**
+ *  
+ */
 template<typename SquareMatrix, typename Vector>
   void
   cholesky_decomp(std::size_t n, SquareMatrix & a, Vector & d)
@@ -53,7 +58,7 @@ template<typename SquareMatrix, typename Vector>
             if (i == j)
               {
         	if (sum <= 0)
-                  throw std::logic_error("Failure in matrix::cholesky_decomp.");
+                  throw std::logic_error("cholesky_decomp: Failure in matrix");
         	d[i] = std::sqrt(sum);
               }
             else
@@ -63,6 +68,9 @@ template<typename SquareMatrix, typename Vector>
   }
 
 
+/**
+ *  
+ */
 template<typename SquareMatrix, typename Vector>
   void
   cholesky_backsub(std::size_t n, const SquareMatrix & a, const Vector & d, const Vector & b, Vector & x)
@@ -84,6 +92,9 @@ template<typename SquareMatrix, typename Vector>
   }
 
 
+/**
+ *  
+ */
 template<typename SquareMatrix, typename Vector>
   void
   cholesky_invert(std::size_t n, SquareMatrix & a, const Vector & d)

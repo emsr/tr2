@@ -56,12 +56,12 @@ template<typename NumTp, typename SquareMatrix>
   };
 
 
-//
-//  Given an n*n matrix a[0..n-1][0..n-1], this routine replaces it by the LU (Lower-triangular Upper-triangular) 
-//  decomposition of a rowwise permutation of itself.  n and a[][] are input.  a[][] is output, index[] is an 
-//  output vector which row permutation effected by the partial pivoting; d is output as the parity of the row 
-//  permutation
-//
+/**
+ *  Given an n*n matrix a[0..n-1][0..n-1], this routine replaces it by the LU (Lower-triangular Upper-triangular) 
+ *  decomposition of a rowwise permutation of itself.  n and a[][] are input.  a[][] is output, index[] is an 
+ *  output vector which row permutation effected by the partial pivoting; d is output as the parity of the row 
+ *  permutation
+ */
 template<typename NumTp, typename SquareMatrix, typename Vector>
   bool
   lu_decomp(const std::size_t n, SquareMatrix & a,
@@ -85,7 +85,7 @@ template<typename NumTp, typename SquareMatrix, typename Vector>
           }
         if (big == NumTp(0))
           {
-            throw std::logic_error("matrix::lu_decomp: Singular matrix in routine lu_decomp.");
+            throw std::logic_error("lu_decomp: singular matrix");
             return false;
           }
 
@@ -120,27 +120,18 @@ template<typename NumTp, typename SquareMatrix, typename Vector>
                 imax = i;
               }
           }
-        if (imax == std::numeric_limits<std::size_t>::max())
-          {
-            throw std::logic_error("matrix::lu_decomp: Singular matrix in routine lu_decomp.");
-            return false;
-          }
 
         //  Interchange rows if required.
         if (j != imax)
           {
             for (std::size_t k = 0; k < n; ++k)
-              {
-                NumTp dummy = a[imax][k];
-                a[imax][k] = a[j][k];
-                a[j][k] = dummy;
-              }
+              std::swap(a[imax][k], a[j][k]);
 
             //  Change parity.
             parity = -parity;
 
             //  Interchange the scale factor.
-            scale[imax] = scale[j];
+            std::swap(scale[imax], scale[j]);
           }
         index[j] = imax;
         if (a[j][j] == NumTp(0))
@@ -161,14 +152,13 @@ template<typename NumTp, typename SquareMatrix, typename Vector>
   }
 
 
-
-//
-//  Solve the set of n linear equations a.x = b.  Here a[0..n-1][0..n-1] is input, not as the original matrix a but as 
-//  its LU decomposition, determined by the routine lu_decomp().  b[0..n-1] is input as the right hand side vector b 
-//  and returns with the left-hand solution vector x.  a, n, and index are not modified by this routine and can be left 
-//  in place for successive calls with different right hand sides b[0..n-1].  This routine takes into account the 
-//  possibility that b will begin with a lot of zeros so that it is efficient for use in matrix inversion.
-//
+/**
+ *  Solve the set of n linear equations a.x = b.  Here a[0..n-1][0..n-1] is input, not as the original matrix a but as 
+ *  its LU decomposition, determined by the routine lu_decomp().  b[0..n-1] is input as the right hand side vector b 
+ *  and returns with the left-hand solution vector x.  a, n, and index are not modified by this routine and can be left 
+ *  in place for successive calls with different right hand sides b[0..n-1].  This routine takes into account the 
+ *  possibility that b will begin with a lot of zeros so that it is efficient for use in matrix inversion.
+ */
 template<typename SquareMatrix, typename VectorInt, typename Vector>
   void
   lu_backsub(const std::size_t n,
@@ -208,13 +198,12 @@ template<typename SquareMatrix, typename VectorInt, typename Vector>
   }
 
 
-
-//
-//  Improves a solution vector x of the linear set A.x = b.  The matrix a and the
-//  LU decomposition of a a_lu (with its row permutation vector index) and the
-//  right-hand side vector are input along with the solution vector x.  
-//  The solution vector x is improved and modified on output.
-//
+/**
+ *  Improves a solution vector x of the linear set A.x = b.  The matrix a and the
+ *  LU decomposition of a a_lu (with its row permutation vector index) and the
+ *  right-hand side vector are input along with the solution vector x.  
+ *  The solution vector x is improved and modified on output.
+ */
 template<typename SquareMatrix, typename VectorInt, typename Vector>
   void
   lu_improve(const std::size_t n, const SquareMatrix & a,
@@ -241,11 +230,11 @@ template<typename SquareMatrix, typename VectorInt, typename Vector>
   }
 
 
-//
-//  Inverts a matrix given the LU decomposed matrix.
-//
-//  The inverse matrix is NOT in LU form.
-//
+/**
+ *  Inverts a matrix given the LU decomposed matrix.
+ *
+ *  The inverse matrix is NOT in LU form.
+ */
 template<typename SquareMatrix, typename VectorInt>
   void
   lu_invert(const std::size_t n, const SquareMatrix & a_lu,
@@ -268,9 +257,9 @@ template<typename SquareMatrix, typename VectorInt>
   }
 
 
-//
-//  Compute determinant of LU decomposed matrix.
-//
+/**
+ *  Compute determinant of LU decomposed matrix.
+ */
 template<typename NumTp, typename SquareMatrix>
   NumTp
   lu_determinant(const std::size_t n, const SquareMatrix& a_lu, const NumTp parity)
@@ -284,9 +273,9 @@ template<typename NumTp, typename SquareMatrix>
   }
 
 
-//
-//  Compute trace of LU decomposed matrix.
-//
+/**
+ *  Compute trace of LU decomposed matrix.
+ */
 template<typename SquareMatrix>
   auto
   lu_trace(const std::size_t n, const SquareMatrix& a_lu)
