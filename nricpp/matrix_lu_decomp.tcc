@@ -15,9 +15,9 @@ namespace matrix
 
 
 /**
- *  This class represents an LU decomposition.
+ *  This class represents an lower-upper decomposition of a square matrix.
  */
-template<typename Type, typename SquareMatrix>
+template<typename NumTp, typename SquareMatrix>
   class lu_decomposition
   {
 
@@ -28,25 +28,30 @@ template<typename Type, typename SquareMatrix>
     template<typename SquareMatrix2>
       lu_decomposition(std::size_t n, const SquareMatrix2 & a);
 
-    void backsubstitute(VectorOut & b) const;
+    template<typename Vector, typename VectorOut>
+      void backsubstitute(const Vector & b, VectorOut & x) const;
 
-    template<typename SquareMatrix2, typename Vector2>
-      void improve(std::size_t n, const SquareMatrix2 & a,
-                   const Vector2 & b, Vector2 & x) const;
+    template<typename SquareMatrix2, typename Vector, typename VectorOut>
+      void
+      improve(const SquareMatrix2 & a_orig,
+              const Vector & b, VectorOut & x) const;
 
     template<typename SquareMatrix2>
       void
       inverse(SquareMatrix2 & a_inv) const;
 
-    Type determinant() const;
+    NumTp determinant() const;
 
-    Type trace() const;
+    NumTp trace() const;
 
   private:
 
-    std::size_t m_n,
-    SquareMatrix m_a,
+    std::size_t m_n;
+
+    SquareMatrix m_a;
+
     std::vector<std::size_t> m_index;
+
     int m_parity;
   };
 
@@ -57,35 +62,35 @@ template<typename Type, typename SquareMatrix>
 //  output vector which row permutation effected by the partial pivoting; d is output as the parity of the row 
 //  permutation
 //
-template<typename Type, typename SquareMatrix, typename Vector>
+template<typename NumTp, typename SquareMatrix, typename Vector>
   bool
   lu_decomp(const std::size_t n, SquareMatrix & a,
-            Vector & index, Type & parity)
+            Vector & index, NumTp & parity)
   {
-    const Type TINY = Type(1.0e-20L);
+    const NumTp TINY = NumTp(1.0e-20L);
 
-    std::vector<Type> scale(n);
+    std::vector<NumTp> scale(n);
 
-    parity = Type(1);
+    parity = NumTp(1);
 
     //  Loop over rows to get the implicit scaling information.    
     for (std::size_t i = 0; i < n; ++i)
       {
-        promote_t<Type> big(0), temp;
+        promote_t<NumTp> big(0), temp;
         for (std::size_t j = 0; j < n; ++j)
           {
             temp = std::abs(a[i][j]);
             if (temp > big)
               big = temp;
           }
-        if (big == Type(0))
+        if (big == NumTp(0))
           {
             throw std::logic_error("matrix::lu_decomp: Singular matrix in routine lu_decomp.");
             return false;
           }
 
         //  Save the scaling for the row.
-        scale[i] = Type(1) / big;
+        scale[i] = NumTp(1) / big;
       }
 
     //  This is the loop over columns of Crout's method.
@@ -93,7 +98,7 @@ template<typename Type, typename SquareMatrix, typename Vector>
       {
         for (std::size_t i = 0; i < j; ++i)
           {
-            Type sum = a[i][j];
+            NumTp sum = a[i][j];
             for (std::size_t k = 0; k < i; ++k)
               sum -= a[i][k] * a[k][j];
             a[i][j] = sum;
@@ -101,14 +106,14 @@ template<typename Type, typename SquareMatrix, typename Vector>
 
         //  Initialize for the search for the largest pivot point.
         auto imax = std::numeric_limits<std::size_t>::max();
-        Type big = Type(0);
+        NumTp big = NumTp(0);
         for (std::size_t i = j; i < n; ++i)
           {
             auto sum = a[i][j];
             for (std::size_t k = 0; k < j; ++k)
               sum -= a[i][k] * a[k][j];
             a[i][j] = sum;
-            Type dummy = scale[i] * std::abs(sum);
+            NumTp dummy = scale[i] * std::abs(sum);
             if (dummy >= big)
               {
                 big = dummy;
@@ -126,7 +131,7 @@ template<typename Type, typename SquareMatrix, typename Vector>
           {
             for (std::size_t k = 0; k < n; ++k)
               {
-                Type dummy = a[imax][k];
+                NumTp dummy = a[imax][k];
                 a[imax][k] = a[j][k];
                 a[j][k] = dummy;
               }
@@ -138,7 +143,7 @@ template<typename Type, typename SquareMatrix, typename Vector>
             scale[imax] = scale[j];
           }
         index[j] = imax;
-        if (a[j][j] == Type(0))
+        if (a[j][j] == NumTp(0))
           a[j][j] = TINY;
 
         //
@@ -146,7 +151,7 @@ template<typename Type, typename SquareMatrix, typename Vector>
         //
         if (j != n - 1)
           {
-            auto scale = Type(1) / std::abs(a[j][j]);  //  Changed this to 1/abs(a) from simple 1/a.
+            auto scale = NumTp(1) / std::abs(a[j][j]);  //  Changed this to 1/abs(a) from simple 1/a.
             for (std::size_t i = j + 1; i < n; ++i)
               a[i][j] *= scale;
           }
@@ -164,14 +169,14 @@ template<typename Type, typename SquareMatrix, typename Vector>
 //  in place for successive calls with different right hand sides b[0..n-1].  This routine takes into account the 
 //  possibility that b will begin with a lot of zeros so that it is efficient for use in matrix inversion.
 //
-template<typename SquareMatrix, typename Vector, typename VectorOut>
+template<typename SquareMatrix, typename VectorInt, typename Vector>
   void
   lu_backsub(const std::size_t n,
              const SquareMatrix & a,
-             const Vector & index,
-             VectorOut & b)
+             const VectorInt & index,
+             Vector & b)
   {
-    using Type = std::remove_reference_t<decltype(a[0][0])>;
+    using NumTp = std::remove_reference_t<decltype(a[0][0])>;
 
     //  When i_start is set to a non-negative value, it will become the index
     //  of the first nonvanishing element of b[0..n-1].
@@ -185,7 +190,7 @@ template<typename SquareMatrix, typename Vector, typename VectorOut>
         if (i_start > -1)
           for (std::size_t j = i_start; j <= i - 1; ++j)
             sum -= a[i][j] * b[j];
-        else if (sum != Type(0))
+        else if (sum != NumTp(0))
           i_start = i;
         b[i] = sum;
       }
@@ -210,15 +215,15 @@ template<typename SquareMatrix, typename Vector, typename VectorOut>
 //  right-hand side vector are input along with the solution vector x.  
 //  The solution vector x is improved and modified on output.
 //
-template<typename SquareMatrix, typename Vector>
+template<typename SquareMatrix, typename VectorInt, typename Vector>
   void
   lu_improve(const std::size_t n, const SquareMatrix & a,
              const SquareMatrix & a_lu,
-             const Vector & index, const Vector & b, Vector & x)
+             const VectorInt & index, const Vector & b, Vector & x)
   {
-    using Type = std::remove_reference_t<decltype(a[0][0])>;
+    using NumTp = std::remove_reference_t<decltype(a[0][0])>;
 
-    std::vector<Type> r(n);
+    std::vector<NumTp> r(n);
 
     for (std::size_t i = 0; i < n; ++i)
       {
@@ -241,17 +246,17 @@ template<typename SquareMatrix, typename Vector>
 //
 //  The inverse matrix is NOT in LU form.
 //
-template<typename SquareMatrix, typename Vector>
+template<typename SquareMatrix, typename VectorInt>
   void
   lu_invert(const std::size_t n, const SquareMatrix & a_lu,
-            const Vector & index, SquareMatrix & a_inv)
+            const VectorInt & index, SquareMatrix & a_inv)
   {
-    using Type = std::remove_reference_t<decltype(a_inv[0][0])>;
+    using NumTp = std::remove_reference_t<decltype(a_inv[0][0])>;
 
     for (std::size_t j = 0; j < n; ++j)
       {
-        std::vector<Type> col(n);
-        col[j] = Type(1);
+        std::vector<NumTp> col(n);
+        col[j] = NumTp(1);
 
         lu_backsub(n, a_lu, index, col);
 
@@ -266,9 +271,9 @@ template<typename SquareMatrix, typename Vector>
 //
 //  Compute determinant of LU decomposed matrix.
 //
-template<typename Type, typename SquareMatrix>
-  Type
-  lu_determinant(const std::size_t n, const SquareMatrix& a_lu, const Type parity)
+template<typename NumTp, typename SquareMatrix>
+  NumTp
+  lu_determinant(const std::size_t n, const SquareMatrix& a_lu, const NumTp parity)
   {
     auto det = parity;
 
@@ -286,9 +291,9 @@ template<typename SquareMatrix>
   auto
   lu_trace(const std::size_t n, const SquareMatrix& a_lu)
   {
-    using Type = std::remove_reference_t<decltype(a_lu[0][0])>;
+    using NumTp = std::remove_reference_t<decltype(a_lu[0][0])>;
 
-    auto trace = Type(0);
+    auto trace = NumTp(0);
 
     for (std::size_t i = 0; i < n; ++i)
       {

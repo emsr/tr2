@@ -13,9 +13,9 @@ namespace matrix
 {
 
 /**
- *  This class represents an LU decomposition.
+ *  This class represents an singular value decomposition of a matrix.
  */
-template<typename Type, typename Matrix>
+template<typename NumTp, typename Matrix>
   class sv_decomposition
   {
 
@@ -25,59 +25,64 @@ template<typename Type, typename Matrix>
 
     template<typename Matrix2>
       sv_decomposition(std::size_t m_n_rows, std::size_t n_cols,
-                       Matrix2 & a)
+                       Matrix2 & a);
 
-    template<typename Vector2>
-      void backsubstitution(const Vector & b, Vector & x) const;
-
-    template<typename Matrix, typename Vector>
+    template<typename Vector2, typename VectorOut>
       void
-      improve(std::size_t n_rows, std::size_t n,
-              const Matrix & a, const Matrix & u, const Vector & w,
-              const Matrix & v, const Vector & b, Vector & x) const;
+      backsubstitution(const Vector2 & b, VectorOut & x) const;
+
+    template<typename Vector2, typename VectorOut>
+      void
+      improve(const Vector2 & b, VectorOut & x) const;
 
   private:
 
-    std::size_t m_n_rows,
-    std::size_t m_n_cols,
-    SquareMatrix m_a,
+    std::size_t m_n_rows;
+
+    std::size_t m_n_cols;
+
+    Matrix m_a;
+
     std::vector<std::size_t> m_w;
+
     std::vector<std::size_t> m_v;
   };
 
-template<typename Type>
-  inline Type
-  pythag(Type a, Type b)
+
+template<typename NumTp>
+  inline NumTp
+  pythag(NumTp a, NumTp b)
   {
-    Type at, bt, ct;
-    return ((at = std::abs(a)) > (bt = std::abs(b)) ? (ct = bt / at, at * std::sqrt(Type(1) + ct * ct))
-                                              : (bt ? (ct = at / bt, bt * std::sqrt(Type(1) + ct * ct)) : 0));
+    NumTp at, bt, ct;
+    return ((at = std::abs(a)) > (bt = std::abs(b)) ? (ct = bt / at, at * std::sqrt(NumTp(1) + ct * ct))
+                                              : (bt ? (ct = at / bt, bt * std::sqrt(NumTp(1) + ct * ct)) : 0));
   }
+
 
 template<typename Matrix, typename Vector>
   void
-  sv_decomp(const std::size_t n_rows, const std::size_t n,
-            Matrix& a, Vector& w, Matrix& v)
+  sv_decomp(const std::size_t n_rows, const std::size_t n_cols,
+            Matrix & a, Vector & w, Matrix & v)
   {
-    using Type = std::remove_reference_t<decltype(a[0][0])>;
+    using NumTp = std::remove_reference_t<decltype(a[0][0])>;
 
     int flag, its, j, jj, k, l, nm;
-    Type c, f, h, s, x, y, z;
+    NumTp c, f, h, s, x, y, z;
 
     const int ITS = 30;
 
-    std::vector<Type> rv1(n_cols);
+    std::vector<NumTp> rv1(n_cols);
 
-    Type g = Type(0);
-    Type scale = Type(0);
-    Type anorm = Type(0);
+    NumTp g = NumTp(0);
+    NumTp scale = NumTp(0);
+    NumTp anorm = NumTp(0);
 
     //  Householder reduction to bidiagonal form.
     for (std::size_t i = 0; i < n_cols; ++i)
       {
         auto l = i + 1;
         rv1[i] = scale * g;
-        g = s = scale = Type(0);
+        g = s = scale = NumTp(0);
         if (i <= n_rows - 1)
           {
             for (std::size_t k = i; k < n_rows; ++k)
@@ -95,10 +100,10 @@ template<typename Matrix, typename Vector>
                 a[i][i] = f - g;
                 for (std::size_t j = l; j < n_cols; ++j)
                   {
-                    s = Type(0);
+                    s = NumTp(0);
                     for (std::size_t k = i; k < n_rows; ++k)
                       s += a[k][i] * a[k][j];
-                    f = s/h;
+                    f = s / h;
                     for (std::size_t k = i; k < n_rows; ++k)
                       a[k][j] += f * a[k][i];
                   }
@@ -107,7 +112,7 @@ template<typename Matrix, typename Vector>
               }
           }
         w[i] = scale * g;
-        g = s = scale = Type(0);
+        g = s = scale = NumTp(0);
         if (i <= n_rows - 1 && i != n_cols - 1)
           {
             for (std::size_t k = l; k < n_cols; ++k)
@@ -127,7 +132,7 @@ template<typename Matrix, typename Vector>
                   rv1[k] = a[i][k] / h;
                 for (std::size_t j = l; j < n_rows; ++j)
                   {
-                    s = Type(0);
+                    s = NumTp(0);
                     for (std::size_t k = l; k < n_cols; ++k)
                       s += a[j][k] * a[i][k];
                     for (std::size_t k = l; k < n_cols; ++k)
@@ -151,7 +156,7 @@ template<typename Matrix, typename Vector>
                   v[j][i] = (a[i][j]/a[i][l])/g;
                 for (std::size_t j = l; j < n_cols; ++j)
                   {
-                    s = Type(0);
+                    s = NumTp(0);
                     for (std::size_t k = l; k < n_cols; ++k)
                       s += a[i][k] * v[k][j];
                     for (std::size_t k = l; k < n_cols; ++k)
@@ -159,9 +164,9 @@ template<typename Matrix, typename Vector>
                   }
               }
             for (std::size_t j = l; j < n_cols; ++j)
-              v[i][j] = v[j][i] = Type(0);
+              v[i][j] = v[j][i] = NumTp(0);
           }
-        v[i][i] = Type(1);
+        v[i][i] = NumTp(1);
         g = rv1[i];
         l = i;
       }
@@ -172,13 +177,13 @@ template<typename Matrix, typename Vector>
         l = i + 1;
         g = w[i];
         for (std::size_t j = l; j < n_cols; ++j)
-          a[i][j] = Type(0);
+          a[i][j] = NumTp(0);
         if (g)
           {
-            g = Type(1) / g;
+            g = NumTp(1) / g;
             for (std::size_t j = l; j < n_cols; ++j)
               {
-                s = Type(0);
+                s = NumTp(0);
                 for (std::size_t k = l; k < n_rows; ++k)
                   s += a[k][i] * a[k][j];
                 f = (s / a[i][i]) * g;
@@ -190,7 +195,7 @@ template<typename Matrix, typename Vector>
           }
         else
           for (std::size_t j = i; j < n_rows; ++j)
-            a[j][i] = Type(0);
+            a[j][i] = NumTp(0);
         ++a[i][i];
       }
 
@@ -214,8 +219,8 @@ template<typename Matrix, typename Vector>
               }
             if (flag)
               {
-                auto c = Type(0);
-                auto s = Type(1);
+                auto c = NumTp(0);
+                auto s = NumTp(1);
                 for (std::size_t i = l; i < k; ++i)
                   {
                     auto f = s * rv1[i];
@@ -225,7 +230,7 @@ template<typename Matrix, typename Vector>
                     auto g = w[i];
                     auto h = pythag(f, g);
                     w[i] = h;
-                    h = Type(1) / h;
+                    h = NumTp(1) / h;
                     c = g * h;
                     s = -f * h;
                     for (std::size_t j = 0; j < n_rows; ++j)
@@ -241,7 +246,7 @@ template<typename Matrix, typename Vector>
             if (l == k)
               {
                 //  Convergence!!!
-                if (z < Type(0))
+                if (z < NumTp(0))
                   {
                     //  Make singular value non negative.
                     w[k] = -z;
@@ -264,11 +269,11 @@ template<typename Matrix, typename Vector>
             g = rv1[nm];
             h = rv1[k];
             f = ((y - z) * (y + z) + (g - h) * (g + h)) / (2 * h * y);
-            g = pythag(f, Type(1));
+            g = pythag(f, NumTp(1));
             f = ((x - z) * (x + z) + h * ((y / (f + copysign(g, f))) - h)) / x;
 
             //  Next QR transformation.
-            c = s = Type(1);
+            c = s = NumTp(1);
             for (std::size_t j = l; j <= nm; ++j)
               {
                 auto i = j + 1;
@@ -296,7 +301,7 @@ template<typename Matrix, typename Vector>
                 //  Rotation can be arbitrary if z = 0.
                 if (z)
                   {
-                    z = Type(1) / z;
+                    z = NumTp(1) / z;
                     c = f * z;
                     s = h * z;
                   }
@@ -310,7 +315,7 @@ template<typename Matrix, typename Vector>
                     a[jj][i] = z * c - y * s;
                   }
               }
-            rv1[l] = Type(0);
+            rv1[l] = NumTp(0);
             rv1[k] = f;
             w[k] = x;
           }
@@ -325,17 +330,18 @@ template<typename Matrix, typename Vector>
 template<typename Matrix, typename Vector>
   void
   sv_backsub(std::size_t n_rows, std::size_t n_cols,
-             const Matrix & u, const Vector & w,
-             const Matrix & v, const Vector & b, Vector & x)
+             const Matrix & u,
+             const Vector & w, const Matrix & v,
+             const Vector & b, Vector & x)
   {
-    using Type = std::remove_reference_t<decltype(u[0][0])>;
+    using NumTp = std::remove_reference_t<decltype(u[0][0])>;
 
-    std::vector<Type> tmp(n);
+    std::vector<NumTp> tmp(n_cols);
 
     for (std::size_t j = 0; j < n_cols; ++j)
       {
-        Type s = Type(0);
-        if (w[j] != Type(0))
+        NumTp s = NumTp(0);
+        if (w[j] != NumTp(0))
           {
             for (std::size_t i = 0; i < n_rows; ++i)
               s += u[i][j] * b[i];
@@ -345,7 +351,7 @@ template<typename Matrix, typename Vector>
       }
     for (std::size_t j = 0; j < n_cols; ++j)
       {
-        Type s = Type(0);
+        NumTp s = NumTp(0);
         for (std::size_t jj = 0; jj < n_cols; ++jj)
           s += v[j][jj] * tmp[jj];
         x[j] = s;
@@ -357,21 +363,22 @@ template<typename Matrix, typename Vector>
 
 
 //
-//  Improves a solution vector x of the linear set A.x = b.  The matrix a and the
-//  SV decomposition of a -- u, w, v and the
+//  Improves a solution vector x of the linear set A.x = b.
+//  The matrix a and the SV decomposition of a -- u, w, v and the
 //  right-hand side vector are input along with the solution vector x.
 //  The solution vector x is improved and modified on output.
 //
 template<typename Matrix, typename Vector>
   void
   sv_improve(std::size_t n_rows, std::size_t n_cols,
-             const Matrix & a, const Matrix & u, const Vector & w,
-             const Matrix & v, const Vector & b, Vector & x)
+             const Matrix & a, const Matrix & u,
+             const Vector & w, const Matrix & v,
+             const Vector & b, Vector & x)
   {
-    using Type = std::remove_reference_t<decltype(a[0][0])>;
+    using NumTp = std::remove_reference_t<decltype(a[0][0])>;
 
-    std::vector<Type> r(n_rows);
-    std::vector<Type> dx(n);
+    std::vector<NumTp> r(n_rows);
+    std::vector<NumTp> dx(n_cols);
 
     for (std::size_t i = 0; i < n_rows; ++i)
       {

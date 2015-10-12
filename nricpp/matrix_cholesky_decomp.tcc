@@ -3,13 +3,17 @@
 
 
 #include <cstdlib>
-#include <stdexcept>
 #include <cmath>
+#include <stdexcept>
+#include <vector>
 
 
 namespace matrix
 {
 
+/**
+ *  This class represents a Cholesky decomposition of a square matrix.
+ */
 template<typename SquareMatrix, typename Vector>
   class cholesky_decomposition
   {
@@ -29,7 +33,9 @@ template<typename SquareMatrix, typename Vector>
   private:
 
     std::size_t m_n;
-    SquareMatrix & m_a;
+
+    SquareMatrix m_a;
+
     std::vector<value_type> m_d;
   };
 
@@ -82,12 +88,14 @@ template<typename SquareMatrix, typename Vector>
   void
   cholesky_invert(std::size_t n, SquareMatrix & a, const Vector & d)
   {
+    using NumTp = decltype(SquareMatrix{}[0][0]);
+
     for (std::size_t i = 0; i < n; ++i)
       {
-	a[i][i] = RealTp(1) / d[i];
+	a[i][i] = NumTp(1) / d[i];
 	for (std::size_t j = i + 1; j < n; ++j)
           {
-            auto sum = RealTp(0);
+            auto sum = NumTp(0);
             for (std::size_t k = i; k < j; ++k)
               sum -= a[j][k] * a[k][i];
             a[j][i] = sum / d[j];
