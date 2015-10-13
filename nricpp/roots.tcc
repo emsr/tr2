@@ -23,12 +23,12 @@ template<typename RealTp>
     const RealTp FACTOR = GOLD;
 
     if (x1 >= x2)
-      throw std::logic_error("bad initial range in bracket.");
+      throw std::logic_error("bad initial range in bracket");
     f1 = func(x1);
     f2 = func(x2);
     for (i = 1; i <= NTRY; ++i)
       {
-	if (f1 * f2 < 0.0)
+	if (f1 * f2 < 0)
           return true;
 	if (std::fabs(f1) < std::fabs(f2))
           f1 = func(x1 += FACTOR * (x1 - x2));
@@ -88,18 +88,18 @@ template<typename RealTp>
     auto f = func(x1);
     auto fmid = func(x2);
     if (f * fmid >= 0)
-      throw std::logic_error("Root must be bracketed for bisection in root_bisect.");
+      throw std::logic_error("root must be bracketed for bisection in root_bisect");
     //  Orient search so that f > 0.0 lies at x + dx.
     auto x = f < 0 ? (dx = x2 - x1, x1) : (dx = x1 - x2, x2);
     for (int i = 1; i <= IMAX; ++i)
       {
         fmid = func(xmid = x + (dx *= 0.5));
-        if (fmid < 0.0)
+        if (fmid < 0)
           x = xmid;
         if (std::fabs(dx) < eps || fmid == 0)
           return x;
       }
-    throw std::logic_error("too many bisections in root_bisect.");
+    throw std::logic_error("too many bisections in root_bisect");
 
     return 0;
   }
@@ -141,7 +141,7 @@ template<typename RealTp>
           return x;
       }
 
-    throw std::logic_error("maximum number of iterations exceeded in root_secant.");
+    throw std::logic_error("maximum number of iterations exceeded in root_secant");
 
     return  0;
   }
@@ -159,7 +159,7 @@ template<typename RealTp>
     auto fl = func(x1);
     auto fh = func(x2);
     if (fl * fh > 0)
-      throw std::logic_error("root must be bracketed in root_false_position.");
+      throw std::logic_error("root must be bracketed in root_false_position");
 
     RealTp xl, xh;
     if (fl < 0)
@@ -197,7 +197,7 @@ template<typename RealTp>
           return x;
       }
 
-    throw std::logic_error("maximum number of iterations exceeded in root_false_position.");
+    throw std::logic_error("maximum number of iterations exceeded in root_false_position");
 
     return 0;
   }
@@ -229,7 +229,7 @@ template<typename RealTp>
             auto s = std::sqrt(fm * fm - fl * fh);
             if (s == 0)
               return ans;
-            auto xnew = xm + (xm - xl) * (fl >= fh ? 1.0 : -1.0) * fm / s;
+            auto xnew = xm + (xm - xl) * (fl >= fh ? 1 : -1) * fm / s;
             if (std::fabs(xnew - ans) < eps)
               return ans;
             auto fnew = func(ans = xnew);
@@ -253,13 +253,13 @@ template<typename RealTp>
                 fl = fnew;
               }
             else
-              throw std::logic_error("some major malfunction in root_ridder.");
+              throw std::logic_error("some major malfunction in root_ridder");
 
             if (std::fabs(xh - xl) < eps)
               return ans;
           }
 
-        throw std::logic_error("maximum number of iterations exceeded in root_ridder.");
+        throw std::logic_error("maximum number of iterations exceeded in root_ridder");
       }
     else
       {
@@ -268,7 +268,7 @@ template<typename RealTp>
         if (fh == 0)
           return x2;
 
-        throw std::logic_error("root must be bracketed in root_ridder.");
+        throw std::logic_error("root must be bracketed in root_ridder");
       }
 
     return 0;
@@ -291,7 +291,7 @@ template<typename RealTp>
     auto fb = func(b);
 
     if (fb * fa > 0)
-      throw std::logic_error("Root must be bracketed in root_brent.");
+      throw std::logic_error("root must be bracketed in root_brent");
     auto fc = fb;
     for (int iter = 1; iter <= ITMAX; ++iter)
       {
@@ -335,7 +335,7 @@ template<typename RealTp>
               q = -q;
             p = std::fabs(p);
             auto min1 = 3 * xm * q - std::fabs(tol1 * q);
-            auto min2 = std::fabs(e*q);
+            auto min2 = std::fabs(e * q);
             if (2 * p < dmin(min1, min2))
               {
                 e = d;
@@ -360,7 +360,7 @@ template<typename RealTp>
           b += dsign(tol1, xm);
         fb = func(b);
       }
-    throw std::logic_error("maximum number of iterations exceeded in root_brent.");
+    throw std::logic_error("maximum number of iterations exceeded in root_brent");
 
     return 0;
   }
@@ -386,11 +386,11 @@ template<typename RealTp>
         auto dx = f / df;
         x -= dx;
         if ((x1 - x) * (x - x2) < 0)
-          throw std::logic_error("jumped out of brackets in root_newton.");
+          throw std::logic_error("jumped out of brackets in root_newton");
         if (std::fabs(dx) < eps)
           return x;
       }
-    throw std::logic_error("maximum number of iterations in root_newton.");
+    throw std::logic_error("maximum number of iterations in root_newton");
 
     return 0;
   }
@@ -413,7 +413,7 @@ root_safe(void (*func)(RealTp, RealTp *, RealTp *), RealTp x1, RealTp x2, RealTp
     func(x2, &fh, &df);
 
     if (fl * fh < 0)
-      throw std::logic_error("root must be bracketed in root_safe.");
+      throw std::logic_error"root must be bracketed in root_safe");
 
     if (fl == 0)
       return x1;
@@ -466,7 +466,7 @@ root_safe(void (*func)(RealTp, RealTp *, RealTp *), RealTp x1, RealTp x2, RealTp
           xh = x;
       }
 
-    throw std::logic_error("maximum number of iterations in root_safe.");
+    throw std::logic_error("maximum number of iterations in root_safe");
 
     return 0;
 }

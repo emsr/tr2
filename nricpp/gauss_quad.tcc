@@ -137,7 +137,7 @@ template<typename RealTp>
           }
 
           if (its >= MAXIT)
-            throw std::logic_error("too many iterations in gauss_laguerre.");
+            throw std::logic_error("too many iterations in gauss_laguerre");
 
           x[i] = z;
           w[i] = -std::exp(std::lgamma(alpha + n) - std::lgamma(1.0 * n)) / (pp * n * p2);
@@ -188,7 +188,7 @@ template<typename RealTp>
           }
 
 	if (its >= MAXIT)
-          throw std::logic_error("too many iterations in gauss_hermite.");
+          throw std::logic_error("too many iterations in gauss_hermite");
 
 	x[i] = z;
 	x[n - 1 - i] = -z;
@@ -275,7 +275,7 @@ template<typename RealTp>
           }
 
 	if (its >= MAXIT)
-          throw std::logic_error("too many iterations in gauss_jacobi.");
+          throw std::logic_error("too many iterations in gauss_jacobi");
 
 	x[i] = z;
 	w[i] = std::exp(std::lgamma(alpha + n)
@@ -317,9 +317,9 @@ template<typename RealTp>
     static thread_local RealTp bpa, bma, oldsum = 0.0;
 
     if (n <= 0)
-      throw std::logic_error("non-positive order in gauss_crap.");
+      throw std::logic_error("non-positive order in gauss_crap");
     if (n != 1 && n != oldn + 1)
-      throw std::logic_error("order out of sequence in gauss_crap.");
+      throw std::logic_error("order out of sequence in gauss_crap");
 
     if (n == 1)
      {
@@ -360,9 +360,9 @@ template<typename RealTp>
     const int JMAX = 12;
 
     if (n <= 0)
-      throw std::logic_error("non-positive order in dumb_gauss_crap.");
+      throw std::logic_error("non-positive order in dumb_gauss_crap");
     if (n > JMAX)
-      throw std::logic_error("order too large in dumb_gauss_crap.");
+      throw std::logic_error("order too large in dumb_gauss_crap");
 
     for (int j = 1; j <= n; ++j)
       s = gauss_crap(func, a, b, j);
@@ -379,7 +379,7 @@ template<typename RealTp>
   quad_gauss_crap(RealTp (*func)(RealTp), RealTp a, RealTp b, RealTp eps)
   {
     if (eps <= RealTp(0))
-      throw std::logic_error("error tolerance eps must be greater than 0 in quad_gauss_crap.");
+      throw std::logic_error("error tolerance eps must be greater than 0 in quad_gauss_crap");
 
     const int JMAX = 12;
     auto olds = -std::numeric_limits<RealTp>::max();
@@ -393,7 +393,7 @@ template<typename RealTp>
 	olds = s;
       }
 
-    throw std::logic_error("too many steps in routine quad_gauss_crap.");
+    throw std::logic_error("too many steps in quad_gauss_crap");
 
     return RealTp(0);
   }

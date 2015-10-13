@@ -49,7 +49,7 @@ template<typename RealTp>
             //  This error can occur if two input xa's are identical within roundoff error.
             auto den = ho - hp;
             if (den == 0)
-              throw std::logic_error("error in routine polynomial_interp.");
+              throw std::logic_error("error in polynomial_interp");
             den = w / den;
             //  Here, the c's and d's are updated.
             d[i] = hp * den;
@@ -111,7 +111,7 @@ template<typename RealTp>
             //  This error condition indicated that the interpolating function has a pole 
             //  at the requested value of x.
             if (dd == 0)
-              throw std::logic_error("error in routine rational_interp.");
+              throw std::logic_error("error in rational_interp");
             dd = w / dd;
             d[i] = c[i + 1] * dd;
             c[i] = t * dd;
@@ -220,7 +220,7 @@ template<typename RealTp>
 
     auto h = xa[khi] - xa[klo];
     if (h == 0)
-      throw std::logic_error("bad xa input to routine cubic_spline_interp");
+      throw std::logic_error("bad xa input to cubic_spline_interp");
     auto a = (xa[khi] - x) / h;
     auto b = (x - xa[klo]) / h;
     return a * ya[klo]
@@ -278,7 +278,7 @@ template<typename RealTp>
     h = xa[khi] - xa[klo];
 
     if (h == 0)
-      throw std::logic_error("bad xa input to routine linear_interp.");
+      throw std::logic_error("bad xa input to linear_interp");
 
     a = (xa[khi] - x) / h;
     b = (x - xa[klo]) / h;
