@@ -41,7 +41,7 @@
                       }
                   }
                 else if (ipiv[k] > 1)
-                  throw std::logic_error( "Singular matrix in gauss_jordan." );
+                  throw std::logic_error( "Singular matrix in gauss_jordan" );
               }
         ++ipiv[icol];
 
@@ -60,7 +60,7 @@
         indxr[i] = irow;
         indxc[i] = icol;
         if (a[icol][icol] == 0.0)
-          throw std::logic_error( "Singular matrix error 2 in gauss_jordan." );
+          throw std::logic_error( "Singular matrix error 2 in gauss_jordan" );
 
         auto pivinv = 1 / a[icol][icol];
         a[icol][icol] = 1.0;

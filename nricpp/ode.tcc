@@ -65,7 +65,7 @@ template<typename StateVec, typename RealTp>
       {
 	yout = runge_kutta_4(y, y.deriv(x), x, h);
 	if (x + h == x)
-          throw std::logic_error("Step size too small in dumb_runge_kutta.");
+          throw std::logic_error("step size too small in dumb_runge_kutta");
 	x += h;
 	//  Store intermediate results.
 	x_tab[k] = x;
@@ -113,7 +113,7 @@ void
 	y = runge_kutta_4(ytemp, dydx, x, h2);
 	x = xsav + h;
 	if (x == xsav)
-          throw std::logic_error("Step size too small in quad_runge_kutta.");
+          throw std::logic_error("step size too small in quad_runge_kutta");
 
 	//  Take the large step.
 	ytemp = runge_kutta_4(ysav, dysav, xsav, h);
@@ -212,7 +212,7 @@ void
 	h = (h > 0 ? std::max(h_temp, 0.1 * h) : std::min(h_temp, 0.1 * h));
 	auto x_new= x + h;
 	if (x_new == x)
-          throw std::logic_error("Stepsize underflow in quad_cash_karp_rk.");
+          throw std::logic_error("Stepsize underflow in quad_cash_karp_rk");
       }
 
     if (errmax > ERR_COND)
@@ -297,10 +297,10 @@ template<typename StateVec, typename RealTp>
             return;
           }
 	if (std::fabs(h_next) <= hmin)
-          throw std::logic_error("Step size to small in ode_integrate.");
+          throw std::logic_error("Step size to small in ode_integrate");
 	h = h_next;
     }
-    throw std::logic_error("Too many steps in routine ode_integrate.");
+    throw std::logic_error("Too many steps in ode_integrate");
   }
 
 
@@ -466,7 +466,7 @@ template<typename StateVec, typename RealTp>
           {
             m_xnew = xx + h;
             if (m_xnew == xx)
-              throw std::logic_error("Step size underflow in bulirsch_stoer.");
+              throw std::logic_error("step size underflow in bulirsch_stoer");
             yseq = modified_midpoint(ysav, dydx, xx, h, m_nseq[k]);
             xest = dsqr(h / m_nseq[k]);
             bs_poly_extrap(k, xest, yseq, y, yerr);

@@ -12,39 +12,39 @@
 
 
 /*
- *    This sums up the the wights times function evaluations for gauss quadrature formulas.
+ *  This sums up the the wights times function evaluations for gauss quadrature formulas.
  *
- *    Warning: This assumes that the abscissas have already been scaled from -1 < y < +1
- *    to a < x < b and that the weights have been scaled by (b - a)/2r.
- *    This cannot be used with the other quadratures that use standard unscaled
- *    abscissas and weights.
+ *  Warning: This assumes that the abscissas have already been scaled from -1 < y < +1
+ *  to a < x < b and that the weights have been scaled by (b - a)/2r.
+ *  This cannot be used with the other quadratures that use standard unscaled
+ *  abscissas and weights.
  */
 template<typename RealTp>
   RealTp
-  quad_gauss_legendre(RealTp (*funk)(RealTp), RealTp *x, RealTp *w, int n)
+  quad_gauss_legendre(RealTp (*func)(RealTp), RealTp *x, RealTp *w, int n)
   {
     RealTp sum{};
     for (int i = 0; i < n; ++i)
-      sum += w[i] * funk(x[i]);
+      sum += w[i] * func(x[i]);
     return sum;
   }
 
 
 /**
- *    This will do the shifting of abscissas and weights
- *    from  -1 < y < +1  to  a < x < b  and
- *    from       w       to  (b - a)w/2.
+ *  This will do the shifting of abscissas and weights
+ *  from  -1 < y < +1 to a < x < b  and
+ *  from w to (b - a)w/2.
  */
 template<typename RealTp>
   RealTp
-  quad_gauss(RealTp (*funk)(RealTp), RealTp a, RealTp b, RealTp *x, RealTp *w, int n)
+  quad_gauss(RealTp (*func)(RealTp), RealTp a, RealTp b, RealTp *x, RealTp *w, int n)
   {
     auto bpa = (b + a) / 2;
     auto bma = (b - a) / 2;
 
     RealTp sum{};
     for (int i = 0; i < n; ++i)
-      sum += w[i] * funk(bpa + bma * x[i]);
+      sum += w[i] * func(bpa + bma * x[i]);
     return bma * sum;
   }
 
@@ -96,7 +96,7 @@ template<typename RealTp>
 
 
 /**
- *
+ *  
  */
 template<typename RealTp>
   void
@@ -137,7 +137,7 @@ template<typename RealTp>
           }
 
           if (its >= MAXIT)
-            throw std::logic_error("Too many iterations in gauss_laguerre.");
+            throw std::logic_error("too many iterations in gauss_laguerre");
 
           x[i] = z;
           w[i] = -std::exp(std::lgamma(alpha + n) - std::lgamma(1.0 * n)) / (pp * n * p2);
@@ -146,7 +146,7 @@ template<typename RealTp>
 
 
 /**
- *
+ *  
  */
 template<typename RealTp>
   void
@@ -188,7 +188,7 @@ template<typename RealTp>
           }
 
 	if (its >= MAXIT)
-          throw std::logic_error("Too many iterations in gauss_hermite.");
+          throw std::logic_error("too many iterations in gauss_hermite");
 
 	x[i] = z;
 	x[n - 1 - i] = -z;
@@ -199,7 +199,7 @@ template<typename RealTp>
 
 
 /**
- *
+ *  
  */
 template<typename RealTp>
   void
@@ -275,7 +275,7 @@ template<typename RealTp>
           }
 
 	if (its >= MAXIT)
-          throw std::logic_error("Too many iterations in gauss_jacobi.");
+          throw std::logic_error("too many iterations in gauss_jacobi");
 
 	x[i] = z;
 	w[i] = std::exp(std::lgamma(alpha + n)
@@ -288,8 +288,8 @@ template<typename RealTp>
 
 
 /**
- *    Generates the Gauss-Chebyshev abscissas and the weight (a constant).
- *    This gives the same results as gauss_jacobi for alpha = beta = -0.5.
+ *  Generates the Gauss-Chebyshev abscissas and the weight (a constant).
+ *  This gives the same results as gauss_jacobi for alpha = beta = -0.5.
  */
 template<typename RealTp>
   void
@@ -306,20 +306,20 @@ template<typename RealTp>
 
 
 /**
- *
+ *  
  */
 template<typename RealTp>
   RealTp
-  gauss_crap(RealTp (*funk)(RealTp), RealTp a, RealTp b, int n)
+  gauss_crap(RealTp (*func)(RealTp), RealTp a, RealTp b, int n)
   {
     using namespace std::constants::math_constants;
     static thread_local int nn = 1, oldn;
     static thread_local RealTp bpa, bma, oldsum = 0.0;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in gauss_crap.");
+      throw std::logic_error("non-positive order in gauss_crap");
     if (n != 1 && n != oldn + 1)
-      throw std::logic_error("Order out of sequence in gauss_crap.");
+      throw std::logic_error("order out of sequence in gauss_crap");
 
     if (n == 1)
      {
@@ -328,20 +328,20 @@ template<typename RealTp>
 	nn = 3;
 	auto y = std::cos(m_pi<RealTp> / 6);
 	oldn = n;
-	return oldsum = m_pi<RealTp> * bma * ((*funk)(bpa + y * bma) + (*funk)(bpa) + (*funk)(bpa - y * bma)) / nn;
+	return oldsum = m_pi<RealTp> * bma * ((*func)(bpa + y * bma) + (*func)(bpa) + (*func)(bpa - y * bma)) / nn;
       }
     else
       {
 	nn *= 3;
 	auto y = std::cos(m_pi<RealTp> * 0.5 / nn);
-	auto sum = (*funk)(bpa + y * bma) + (*funk)(bpa - y * bma);
+	auto sum = (*func)(bpa + y * bma) + (*func)(bpa - y * bma);
 	auto jmax = 1 + (nn - 4 - n) / 6;
 	for (int j = 1; j <= jmax; ++j)
           {
             y = std::cos(m_pi<RealTp> * (3 * j - 0.5) / nn);
-            sum = (*funk)(bpa + y * bma) + (*funk)(bpa - y * bma);
+            sum = (*func)(bpa + y * bma) + (*func)(bpa - y * bma);
             y = std::cos(m_pi<RealTp> * (3 * j + 0.5) / nn);
-            sum = (*funk)(bpa + y * bma) + (*funk)(bpa - y * bma);
+            sum = (*func)(bpa + y * bma) + (*func)(bpa - y * bma);
           }
 	oldn = n;
 	return oldsum = oldsum / 3 + m_pi<RealTp> * bma * sum / nn;
@@ -350,42 +350,42 @@ template<typename RealTp>
 
 
 /**
- *
+ *  
  */
 template<typename RealTp>
   RealTp
-  dumb_gauss_crap(RealTp (*funk)(RealTp), RealTp a, RealTp b, int n)
+  dumb_gauss_crap(RealTp (*func)(RealTp), RealTp a, RealTp b, int n)
   {
     RealTp s, olds;
     const int JMAX = 12;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in dumb_gauss_crap.");
+      throw std::logic_error("non-positive order in dumb_gauss_crap");
     if (n > JMAX)
-      throw std::logic_error("Order too large in dumb_gauss_crap.");
+      throw std::logic_error("order too large in dumb_gauss_crap");
 
     for (int j = 1; j <= n; ++j)
-      s = gauss_crap(funk, a, b, j);
+      s = gauss_crap(func, a, b, j);
 
     return s;
   }
 
 
 /**
- *
+ *  
  */
 template<typename RealTp>
   RealTp
-  quad_gauss_crap(RealTp (*funk)(RealTp), RealTp a, RealTp b, RealTp eps)
+  quad_gauss_crap(RealTp (*func)(RealTp), RealTp a, RealTp b, RealTp eps)
   {
     if (eps <= RealTp(0))
-      throw std::logic_error("Error tolerance eps must be greater than 0 in quad_gauss_crap.");
+      throw std::logic_error("error tolerance eps must be greater than 0 in quad_gauss_crap");
 
     const int JMAX = 12;
     auto olds = -std::numeric_limits<RealTp>::max();
     for (int j = 1; j <= JMAX; ++j)
       {
-	auto s = gauss_crap(funk, a, b, j);
+	auto s = gauss_crap(func, a, b, j);
 	if (std::abs(s - olds) < eps * std::abs(olds))
           return s;
 	if (std::abs(s) < eps && std::abs(olds) < eps && j > 6)
@@ -393,7 +393,7 @@ template<typename RealTp>
 	olds = s;
       }
 
-    throw std::logic_error("Too many steps in routine quad_gauss_crap.");
+    throw std::logic_error("too many steps in quad_gauss_crap");
 
     return RealTp(0);
   }

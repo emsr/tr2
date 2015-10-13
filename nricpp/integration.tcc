@@ -23,9 +23,9 @@
     static thread_local int lastn, it;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in trapezoid.");
+      throw std::logic_error("non-positive order in trapezoid");
     if (n != 1 && n != lastn + 1)
-      throw std::logic_error("Order out of sequence in trapezoid.");
+      throw std::logic_error("order out of sequence in trapezoid");
     lastn = n;
 
     if (n == 1)
@@ -63,9 +63,9 @@
     static thread_local double s;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in midpoint.");
+      throw std::logic_error("non-positive order in midpoint");
     if (n != 1 && n != lastn + 1)
-      throw std::logic_error("Order out of sequence in midpoint.");
+      throw std::logic_error("order out of sequence in midpoint");
     lastn = n;
 
     if (n == 1)
@@ -114,9 +114,9 @@
     static thread_local double s;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in midpoint.");
+      throw std::logic_error("non-positive order in midpoint");
     if (n != 1 && n != lastn + 1)
-      throw std::logic_error("Order out of sequence in midpoint.");
+      throw std::logic_error("order out of sequence in midpoint");
     lastn = n;
 
     auto a = 1 / aa;
@@ -165,9 +165,9 @@
     static thread_local double s;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in midpoint.");
+      throw std::logic_error("non-positive order in midpoint");
     if (n != 1 && n != lastn + 1)
-      throw std::logic_error("Order out of sequence in midpoint.");
+      throw std::logic_error("order out of sequence in midpoint");
     lastn = n;
 
     auto a = 0.0;
@@ -215,9 +215,9 @@
     static thread_local double s;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in midpoint.");
+      throw std::logic_error("non-positive order in midpoint");
     if (n != 1 && n != lastn + 1)
-      throw std::logic_error("Order out of sequence in midpoint.");
+      throw std::logic_error("order out of sequence in midpoint");
     lastn = n;
 
     auto a = 0.0;
@@ -266,9 +266,9 @@
     static thread_local double s;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in midpoint.");
+      throw std::logic_error("non-positive order in midpoint");
     if (n != 1 && n != lastn + 1)
-      throw std::logic_error("Order out of sequence in midpoint.");
+      throw std::logic_error("order out of sequence in midpoint");
     lastn = n;
 
     auto a = 0.0;
@@ -318,9 +318,9 @@
     static thread_local double s;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in midpoint.");
+      throw std::logic_error("non-positive order in midpoint");
     if (n != 1 && n != lastn + 1)
-      throw std::logic_error("Order out of sequence in midpoint.");
+      throw std::logic_error("order out of sequence in midpoint");
     lastn = n;
 
     auto a = -std::log(bb);
@@ -366,9 +366,9 @@
   dumb_trapezoid(double (*func)(double), double a, double b, int n, int JMAX = 20)
   {
     if (n <= 0)
-      throw std::logic_error("Non-positive order in dumb_trapezoid.");
+      throw std::logic_error("non-positive order in dumb_trapezoid");
     if (n > JMAX)
-      throw std::logic_error("Order too large in dumb_trapezoid.");
+      throw std::logic_error("order too large in dumb_trapezoid");
 
     double s;
     for (int j = 1; j <= n; ++j)
@@ -387,7 +387,7 @@
   quad_trapezoid(double (*func)(double), double a, double b, double eps, int JMAX = 20)
   {
     if (eps <= 0.0)
-      throw std::logic_error("Error tolerance eps must be greater than 0 in quad_trapezoid.");
+      throw std::logic_error("error tolerance eps must be greater than 0 in quad_trapezoid");
 
     auto olds = -std::numeric_limits<double>::max();
     for (int j = 1; j <= JMAX; ++j)
@@ -400,7 +400,7 @@
 	olds = s;
       }
 
-    throw std::logic_error("Too many steps in routine quad_trapezoid.");
+    throw std::logic_error("too many steps in quad_trapezoid");
 
     return 0.0;
   }
@@ -414,9 +414,9 @@
   dumb_simpson(double (*func)(double), double a, double b, int n, int JMAX = 20)
   {
     if (n <= 0)
-      throw std::logic_error("Non-positive order in dumb_simpson.");
+      throw std::logic_error("non-positive order in dumb_simpson");
     if (n > JMAX)
-      throw std::logic_error("Order too large in dumb_simpson.");
+      throw std::logic_error("order too large in dumb_simpson");
 
     auto s = 0.0;
     auto ost = trapezoid(func, a, b, 1);
@@ -442,7 +442,7 @@
     const int JMAX = 20;
 
     if (eps <= 0.0)
-      throw std::logic_error("Error tolerance eps must be greater than 0 in quad_simpson.");
+      throw std::logic_error("error tolerance eps must be greater than 0 in quad_simpson");
 
     auto oldst = -1.0e30;
     auto olds = -1.0e30;
@@ -458,7 +458,7 @@
 	oldst = st;
       }
 
-    throw std::logic_error("Too many steps in routine quad_simpson.");
+    throw std::logic_error("too many steps in quad_simpson");
 
     return 0.0;
   }
@@ -475,9 +475,9 @@
     const int JMAX = 20;
 
     if (n <= 0)
-      throw std::logic_error("Non-positive order in dumb_romberg.");
+      throw std::logic_error("non-positive order in dumb_romberg");
     if (n > JMAX)
-      throw std::logic_error("Order too large in dumb_romberg.");
+      throw std::logic_error("order too large in dumb_romberg");
 
     std::vector<double> s(JMAX);
     std::vector<double> h(JMAX + 1);
@@ -509,7 +509,7 @@
     const int K = 5;
 
     if (eps <= 0.0)
-      throw std::logic_error("Error tolerance eps must be greater than 0 in quad_romberg.");
+      throw std::logic_error("error tolerance eps must be greater than 0 in quad_romberg");
 
     std::vector<double> s(JMAX);
     std::vector<double> h(JMAX + 1);
@@ -530,7 +530,7 @@
 	h[j + 1] = h[j] / 4;
       }
 
-    throw std::logic_error("Too many steps in routine quad_romberg.");
+    throw std::logic_error("too many steps in quad_romberg");
 
     return 0.0;
   }
@@ -552,7 +552,7 @@
     const int K = 5;
 
     if (eps <= 0.0)
-      throw std::logic_error("Error tolerance eps must be greater than 0 in quad_romberg_open.");
+      throw std::logic_error("error tolerance eps must be greater than 0 in quad_romberg_open");
 
     std::vector<double> s(JMAX);
     std::vector<double> h(JMAX + 1);
@@ -573,7 +573,7 @@
 	h[j + 1] = h[j] / 9;
       }
 
-    throw std::logic_error("Too many steps in routine quad_romberg_open.");
+    throw std::logic_error("too many steps in quad_romberg_open");
 
     return 0.0;
   }
