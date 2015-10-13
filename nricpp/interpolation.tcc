@@ -11,13 +11,14 @@
 /**
  *  
  */
+template<typename RealTp>
   void
-  poly_interp(double *xa, double *ya, int n, double x, double & y, double & dy)
+  polynomial_interp(RealTp *xa, RealTp *ya, int n, RealTp x, RealTp & y, RealTp & dy)
   {
     int ns = 1;
 
-    std::vector<double> c(n);
-    std::vector<double> d(n);
+    std::vector<RealTp> c(n);
+    std::vector<RealTp> d(n);
 
     auto dif = std::fabs(x - xa[0]);
 
@@ -47,8 +48,8 @@
             auto w = c[i + 1] - d[i];
             //  This error can occur if two input xa's are identical within roundoff error.
             auto den = ho - hp;
-            if (den == 0.0)
-              throw std::logic_error("Error in routine poly_interp.");
+            if (den == 0)
+              throw std::logic_error("error in routine polynomial_interp.");
             den = w / den;
             //  Here, the c's and d's are updated.
             d[i] = hp * den;
@@ -68,24 +69,25 @@
  *    diagonal rational function, evaluated at x, which passes through the
  *    n points (xa[i], ya[i]), i = 1..n.
  */
+template<typename RealTp>
   void
-  rat_interp(double *xa, double *ya, int n, double x, double & y, double & dy)
+  rational_interp(RealTp *xa, RealTp *ya, int n, RealTp x, RealTp & y, RealTp & dy)
   {
 
     int ns = 1;
-    const double TINY = 1.0e-25;
+    const RealTp TINY = 1.0e-25;
 
-    std::vector<double> c(n);
-    std::vector<double> d(n);
+    std::vector<RealTp> c(n);
+    std::vector<RealTp> d(n);
 
     auto hh = std::fabs(x - xa[1]);
     for (i = 1; i <= n; ++i)
       {
         h = std::fabs(x - xa[i]);
-        if (h == 0.0)
+        if (h == 0)
           {
             y = ya[i];
-            dy = 0.0;
+            dy = 0;
             return;
           }
         else if (h < hh)
@@ -108,8 +110,8 @@
             auto dd = t - c[i + 1];
             //  This error condition indicated that the interpolating function has a pole 
             //  at the requested value of x.
-            if (dd == 0.0)
-              throw std::logic_error("Error in routine rat_interp.");
+            if (dd == 0)
+              throw std::logic_error("error in routine rational_interp.");
             dd = w / dd;
             d[i] = c[i + 1] * dd;
             c[i] = t * dd;
@@ -128,17 +130,18 @@
  *  function at the tabulated points x[i].  If yp1 and/or ypn are equal to 1.0e30 or larger, the routine is signalled to 
  *  set the corresponding boundary condition for a natural spline, with zero second derivative at that boundary.
  */
+template<typename RealTp>
   void
-  spline(double *x, double *y, int n,
-         std::experimental::optional<double> yp1,
-         std::experimental::optional<double> ypn, double *ypp)
+  cubic_spline(RealTp *x, RealTp *y, int n,
+         std::experimental::optional<RealTp> yp1,
+         std::experimental::optional<RealTp> ypn, RealTp *ypp)
   {
-    std::vector<double> u(n - 2);
+    std::vector<RealTp> u(n - 2);
 
     //  The lower boundary condition is set to either the natural one or
     //  to match a specified first derivative.
     if (yp1)
-      ypp[0] = u[0] = 0.0;
+      ypp[0] = u[0] = 0;
     else
       {
         ypp[0] = -0.5;
@@ -157,9 +160,9 @@
 
     //  The upper boundary condition is set to either the natural one or
     //  to match a specified first derivative.
-    double qn, un;
+    RealTp qn, un;
     if (ypn)
-      ypp[n - 1] = 0.0;
+      ypp[n - 1] = 0;
     else
       {
         auto qn = 0.5;
@@ -176,11 +179,12 @@
 
 /**
  *  Given the arrays xa[1..na], ya[1..na] which tabulate a function (with the x[i]'s in order), and given the array 
- *  yapp[1..na] which is the output from spline() above, and given a value of x, this routine returns a cubic-spline 
+ *  yapp[1..na] which is the output from cubic_spline above, and given a value of x, this routine returns a cubic-spline 
  *  interpolated value y.
  */
-  double
-  spline_interp(double *xa, double *ya, double *yapp, int na, double x)
+template<typename RealTp>
+  RealTp
+  cubic_spline_interp(RealTp *xa, RealTp *ya, RealTp *yapp, int na, RealTp x)
   {
     //  Store the last values of klo and khi to see if they still work on subsequent calls.
     //  Also store the last number of points to watch out for new spline data.
@@ -215,8 +219,8 @@
     khiold = khi;
 
     auto h = xa[khi] - xa[klo];
-    if (h == 0.0)
-      throw std::logic_error("Bad xa input to routine spline_interp().");
+    if (h == 0)
+      throw std::logic_error("bad xa input to routine cubic_spline_interp");
     auto a = (xa[khi] - x) / h;
     auto b = (x - xa[klo]) / h;
     return a * ya[klo]
@@ -232,11 +236,12 @@
  *  Given the arrays xa[1..na], ya[1..na] which tabulate a function (with the xa's in order), 
  *  and given a value of x, this routine returns a simple linear interpolated value y.
  */
-  double
-  linear_interp(double *xa, double *ya, int na, double x)
+template<typename RealTp>
+  RealTp
+  linear_interp(RealTp *xa, RealTp *ya, int na, RealTp x)
   {
     int k, klo, khi;
-    double h, b, a;
+    RealTp h, b, a;
 
     //  Store the last values of klo and khi to see if they still work.
     //  Also store the last number of points to watch out for new spline data.
@@ -272,8 +277,8 @@
 
     h = xa[khi] - xa[klo];
 
-    if (h == 0.0)
-      throw std::logic_error("Bad xa input to routine linear_interp().");
+    if (h == 0)
+      throw std::logic_error("bad xa input to routine linear_interp.");
 
     a = (xa[khi] - x) / h;
     b = (x - xa[klo]) / h;
