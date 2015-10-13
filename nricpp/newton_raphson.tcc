@@ -103,8 +103,34 @@ template<typename Matrix, typename VectorX, VectorF>
  */
 template<typename Matrix, typename VectorX, VectorF>
   bool
-  newton(VectorX x)
+  newton(VectorX x, bool & check)
   {
     auto fmin = [](const VectorX & x) { return x * x / 2; }
+    Matrix jacobian(n, n);
+    std::vector<RealTp> gradient(n);
+    std::vector<RealTp> direction(n);
+    std::vector<RealTp> x_old(n);
+    std::vector<RealTp> f_vec(n);
+    auto nn = n;
+    auto f = fmin(x);
+    auto test = std::maxvalue(std::begin(fvec), std::end(fvec), std::abs());
+    if (test < 0.01 * TOLF)
+      {
+	check = false;
+	return;
+      }
+    auto sum = scalar_product(x, x);
+    auto step_max = STEP_MAX * std::max(std::sqrt(sum), RealTp(n));
+    for (auto its = 1; its <= ITS_MAX; ++its)
+      {
+        forward_jacobian(x, f_old, jacobian,
+		         VectorF (*func)(const Vector &));
+	for (auto i = 0; i < n; ++i)
+	  gradient[i] sum = scalar_product(jacobian[i], f_vec);
+	x_old = x;
+	f_old = f;
+	lu_decomposition lu(jacobian, n);
+	lu.backsubstitution();
+      }
     
   }
