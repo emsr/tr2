@@ -126,11 +126,26 @@ template<typename Matrix, typename VectorX, VectorF>
         forward_jacobian(x, f_old, jacobian,
 		         VectorF (*func)(const Vector &));
 	for (auto i = 0; i < n; ++i)
-	  gradient[i] sum = scalar_product(jacobian[i], f_vec);
+	  gradient[i] = scalar_product(jacobian[i], f_vec);
 	x_old = x;
 	f_old = f;
 	lu_decomposition lu(jacobian, n);
 	lu.backsubstitution();
+        line_search(x_old, f_old, direction, gradient, step_max, fmax, x, f);
+        test = max(std::begin(fvec), std::end(fvec), std::abs);
+        if ( test < TOLF)
+          {
+            check = false;
+            return;
+          }
+        if (check)
+          {
+            RealTp test = 0;
+            auto den = std::max(f, 0.5 * n);
+            auto temp = std::max(abs(gradient[i]) * std::max()
+            check = (test < TOLMIN);
+            return;
+          }
       }
     
   }
