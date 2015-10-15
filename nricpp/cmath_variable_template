@@ -47,9 +47,9 @@
 
 namespace std
 {
-inline namespace constants
+namespace constants
 {
-inline namespace math_constants
+namespace math_constants
 {
 inline namespace v1
 {
@@ -214,6 +214,6 @@ inline namespace v1
     m_catalan       = 9.1596'55941'77219'01505'46035'14932'38411'07741e-1L;
 
 } // inline namespace v1
-} // inline namespace math_constants
-} // inline namespace constants
+} // namespace math_constants
+} // namespace constants
 } // namespace std
