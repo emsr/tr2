@@ -1,5 +1,10 @@
 
-all: test_integration test_matrix test_nricpp
+all: test_ode test_integration test_matrix test_nricpp
+
+test_ode: \
+    test_ode.cpp \
+    ode.tcc
+	$$HOME/bin/bin/g++ -o test_ode test_ode.cpp
 
 test_integration: \
     test_integration.cpp \

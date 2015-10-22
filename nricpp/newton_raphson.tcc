@@ -63,12 +63,12 @@ template<typename Vector, typename RealTp>
 		  lambda = std::min(lambda, lambda1 / 2);
 	      }
 	  }
-	  lambda2 = lambda;
-	  f2 = f;
-	  f_old2 = f_old
-	  lambda1 = std::max(lambda, lambda1 / 10);
+	lambda2 = lambda;
+	f2 = f;
+	f_old2 = f_old
+	lambda1 = std::max(lambda, lambda1 / 10);
       }
-      return false;
+    return false;
   }
 
 
@@ -101,9 +101,9 @@ template<typename Matrix, typename VectorX, VectorF>
 /**
  *
  */
-template<typename Matrix, typename VectorX, VectorF>
+template<typename Matrix, typename VectorX, typename VectorF>
   bool
-  newton(VectorX x, bool & check)
+  newton(VectorX x)
   {
     auto fmin = [](const VectorX & x) { return x * x / 2; }
     Matrix jacobian(n, n);
@@ -115,37 +115,28 @@ template<typename Matrix, typename VectorX, VectorF>
     auto f = fmin(x);
     auto test = std::maxvalue(std::begin(fvec), std::end(fvec), std::abs());
     if (test < 0.01 * TOLF)
-      {
-	check = false;
-	return;
-      }
+      return false;
     auto sum = scalar_product(x, x);
     auto step_max = STEP_MAX * std::max(std::sqrt(sum), RealTp(n));
     for (auto its = 1; its <= ITS_MAX; ++its)
       {
         forward_jacobian(x, f_old, jacobian,
-		         VectorF (*func)(const Vector &));
+			 VectorF (*func)(const Vector &));
 	for (auto i = 0; i < n; ++i)
-	  gradient[i] = scalar_product(jacobian[i], f_vec);
+	  gradient[i] = scalar_product(f_vec, jacobian[i]);
 	x_old = x;
 	f_old = f;
 	lu_decomposition lu(jacobian, n);
 	lu.backsubstitution();
         line_search(x_old, f_old, direction, gradient, step_max, fmax, x, f);
         test = max(std::begin(fvec), std::end(fvec), std::abs);
-        if ( test < TOLF)
-          {
-            check = false;
-            return;
-          }
-        if (check)
-          {
-            RealTp test = 0;
-            auto den = std::max(f, 0.5 * n);
-            auto temp = std::max(abs(gradient[i]) * std::max()
-            check = (test < TOLMIN);
-            return;
-          }
+        if (test < TOLF)
+	  return false;
+
+	RealTp test = 0;
+	auto den = std::max(f, 0.5 * n);
+	auto temp = std::max(std::abs(gradient[i]) * std::max()
+	return (test < TOLMIN);
       }
     
   }

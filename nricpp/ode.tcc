@@ -4,6 +4,7 @@
 
 #include <cmath>
 #include <vector>
+#include <iterator>
 
 
 /**
@@ -16,25 +17,25 @@ template<typename StateVec, typename RealTp>
   runge_kutta_4(const StateVec & y, const StateVec & dydx,
         	RealTp x, RealTp h)
   {
-    auto n = std:distance(y_beg, y_end);
+    auto n = std::distance(std::begin(y), std::end(y));
     std::vector<RealTp> dym(n);
     std::vector<RealTp> dyt(n);
     std::vector<RealTp> yt(n);
 
-    RealTp h2 = h / 2;
-    RealTp h6 = h / 6;
-    RealTp xh = x + h2;
+    auto h2 = h / 2;
+    auto h6 = h / 6;
+    auto xh = x + h2;
 
     yt = y + h2 * dydx;
-    dyt = yt.deriv(xh);
+    dyt = deriv(yt, xh);
 
     yt = y + h2 * dyt;
-    dym = yt.deriv(xh);
+    dym = deriv(yt, xh);
 
     yt = y + h * dym;
     dym += dyt;
 
-    dyt = yt.deriv(x + h);
+    dyt = deriv(yt, x + h);
 
     return y + h6 * (dydx + dyt + 2 * dym);
   }
@@ -48,9 +49,10 @@ template<typename StateVec, typename RealTp>
  *  which must either be perallocated for nstep + 1 values or be accessed
  *  through a back inserter.
  */
-template<typename StateVec, typename RealTp>
+template<typename StateVec, typename RealTpOutIter,
+         typename RealTp, typename StateVecOutIter>
   void
-  dumb_runge_kutta(const StateVec & y1, RealTp x1, RealTp x2, int nstep,
+  dumb_runge_kutta(const StateVec & y1, RealTp x1, RealTp x2, int n_step,
                    RealTpOutIter x_tab, StateVecOutIter y_tab)
   {
     //  Load starting values of dependant variables.
@@ -58,18 +60,18 @@ template<typename StateVec, typename RealTp>
     y_tab[0] = y;
     x_tab[0] = x1;
     auto x = x1;
-    auto h = (x2 - x1) / nstep;
+    auto h = (x2 - x1) / n_step;
 
     //  Take nstep steps in the independant variable x.
-    for (int k = 1; k <= nstep; ++k)
+    for (int k = 1; k <= n_step; ++k)
       {
-	yout = runge_kutta_4(y, y.deriv(x), x, h);
+	auto y_out = runge_kutta_4(y, deriv(y, x), x, h);
 	if (x + h == x)
           throw std::logic_error("step size too small in dumb_runge_kutta");
 	x += h;
 	//  Store intermediate results.
 	x_tab[k] = x;
-	y = yout;
+	y = y_out;
 	y_tab[k] = y;
       }
   }
@@ -109,7 +111,7 @@ void
 	auto h2 = h / 2;
 	auto ytemp = runge_kutta_4(ysav, dysav, xsav, h2);
 	x = xsav + h2;
-	dydx = ytemp.deriv(x);
+	dydx = deriv(ytemp, x);
 	y = runge_kutta_4(ytemp, dydx, x, h2);
 	x = xsav + h;
 	if (x == xsav)
@@ -145,8 +147,8 @@ void
  */
 template<typename StateVec, typename RealTp>
   void
-  cash_karp_rk(StateVec & y, StateVec & dydx,
-               RealTp x, RealTp h, StateVec & yout, StateVec & yerr)
+  cash_karp_rk(const StateVec & y, const StateVec & dydx,
+               RealTp x, RealTp h, StateVec & y_out, StateVec & y_err)
   {
     static constexpr RealTp
       a2 = 0.2, a3 = 0.3, a4 = 0.6, a5 = 1.0, a6 = 0.875,
@@ -160,24 +162,24 @@ template<typename StateVec, typename RealTp>
     static constexpr RealTp dc1 = c1 - 2825.0/27648.0, dc3 = c3 - 18575.0/48384.0,
                             dc4 = c4 - 13525.0/55296.0, dc6 = c6 - 0.25;
 
-    ytemp = y + h * b21 * dydx;
+    y_temp = y + h * b21 * dydx;
 
-    ak2 = ytemp.deriv(x + a2 * h);
-    ytemp = y + h * (b31 * dydx + b32 * ak2);
+    ak2 = deriv(y_temp, x + a2 * h);
+    y_temp = y + h * (b31 * dydx + b32 * ak2);
 
-    ak3 = ytemp.deriv(x + a3 * h);
-    ytemp = y + h * (b41 * dydx + b42 * ak2 + b43 * ak3);
+    ak3 = deriv(y_temp, x + a3 * h);
+    y_temp = y + h * (b41 * dydx + b42 * ak2 + b43 * ak3);
 
-    ak4 = ytemp.deriv(x + a4 * h);
-    ytemp = y + h * (b51 * dydx + b52 * ak2 + b53 * ak3 + b54 * ak4);
+    ak4 = deriv(y_temp, x + a4 * h);
+    y_temp = y + h * (b51 * dydx + b52 * ak2 + b53 * ak3 + b54 * ak4);
 
-    ak5 = ytemp.deriv(x + a5 * h);
+    ak5 = deriv(y_temp, x + a5 * h);
     ytemp = y + h * (b61 * dydx + b62 * ak2 + b63 * ak3 + b64 * ak4 + b65 * ak5);
 
-    ak6 = ytemp.deriv(x + a6 * h);
-    fyout = y + h * (c1 * dydx + c3 * ak3 + c4 * ak4 + c6 * ak6);
+    ak6 = deriv(ytemp, x + a6 * h);
+    f_yout = y + h * (c1 * dydx + c3 * ak3 + c4 * ak4 + c6 * ak6);
 
-    yerr = h * (dc1 * dydx + dc3 * ak3 + dc4 * ak4 + dc5 * ak5 + dc6 * ak6);
+    y_err = h * (dc1 * dydx + dc3 * ak3 + dc4 * ak4 + dc5 * ak5 + dc6 * ak6);
   }
 
 
@@ -269,7 +271,7 @@ template<typename StateVec, typename RealTp>
       xsave = x - 2 * ode_dxsave;
     for (int nstep = 0; nstep < MAXSTEP; ++nstep)
      {
-	dydx = y.deriv(x);
+	dydx = deriv(y, x);
 	yscale = std::abs(y) + std::abs(dydx) + TINY;
 	if (ode_max)
           if (std::abs(x - xsave) > std::abs(ode_dxsave))
@@ -321,7 +323,7 @@ template<typename StateVec, typename RealTp>
     auto ym = y;
     auto yn = y + h * dydx;
     auto x = xs + h;
-    auto yout = yn.deriv(x);
+    auto yout = deriv(yn, x);
     auto h2 = 2.0 * h;
     for (int n = 1; n < nstep; ++n)
       {
@@ -329,7 +331,7 @@ template<typename StateVec, typename RealTp>
 	ym = yn;
 	yn = swap;
 	x += h;
-	yout = yn.deriv(x);
+	yout = deriv(yn, x);
       }
     yout = (ym + yn + h * yout) / 2;
 
@@ -349,35 +351,37 @@ template<typename StateVec, typename RealTp>
  *
  *   This routine can replace modified_midpoint above.
  */
+template<typename StateVec, typename RealTp>
 void
-stoermer(double *y, double *d2y, int nv, double xs,
-         double htot, int nstep, double *yout)
+stoermer(const StateVec & y, const StateVec & d2y, RealTp xs,
+         RealTp h_tot, int n_step, StateVec & y_out)
 {
-  std::vector<double> ytemp(nv);
+  auto nv = std::size(y);
+  std::vector<RealTp> y_temp(nv);
 
-  auto h = htot / nstep;
+  auto h = h_tot / n_step;
   auto hh = h / 2;
-  auto neqns = nv / 2;
-  for (int i = 0; i < neqns; ++i)
+  auto n_eqns = nv / 2;
+  for (int i = 0; i < n_eqns; ++i)
     {
-      n = neqns + i;
-      ytemp[i] = y[i] + (ytemp[n] = h * (y[n] + hh * d2y[i]));
+      n = n_eqns + i;
+      ytemp[i] = y[i] + (y_temp[n] = h * (y[n] + hh * d2y[i]));
     }
   auto x = xs + h;
-  yout = ytemp.deriv(x);
+  yout = deriv(y_temp, x);
   auto h2 = 2 * h;
-  for (int nn = 1; nn < nstep; ++nn)
+  for (int nn = 1; nn < n_step; ++nn)
     {
-      for (int i = 0; i < neqns; ++i)
-        ytemp[i] += (ytemp[(n = neqns + i)] += h2 * yout[i]);
+      for (int i = 0; i < n_eqns; ++i)
+        y_temp[i] += (ytemp[(n = n_eqns + i)] += h2 * y_out[i]);
       x += h;
-      yout = ytemp.deriv(x);
+      y_out = deriv(y_temp, x);
     }
-  for (int i = 0; i < neqns; ++i)
+  for (int i = 0; i < n_eqns; ++i)
     { 
-      auto n = neqns + i;
-      yout[n] = ytemp[n] / h + hh * yout[i];
-      yout[i] = ytemp[i];
+      auto n = n_eqns + i;
+      y_out[n] = y_temp[n] / h + hh * y_out[i];
+      y_out[i] = y_temp[i];
     }
 }
 
