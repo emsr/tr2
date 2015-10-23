@@ -31,10 +31,21 @@ template<typename NumTp, typename SquareMatrix>
     template<typename Vector, typename VectorOut>
       void backsubstitute(const Vector & b, VectorOut & x) const;
 
+    template<typename InVecIter, typename OutVecIter>
+      void
+      backsubstitution(InVecIter b_begin, InVecIter b_end,
+                       OutVecIter x_begin) const;
+
     template<typename SquareMatrix2, typename Vector, typename VectorOut>
       void
       improve(const SquareMatrix2 & a_orig,
               const Vector & b, VectorOut & x) const;
+
+    template<typename SquareMatrix2, typename InVecIter, typename OutVecIter>
+      void
+      improve(const SquareMatrix2 & a_orig,
+              InVecIter b_begin, InVecIter b_end,
+              OutVecIter x_begin) const;
 
     template<typename SquareMatrix2>
       void

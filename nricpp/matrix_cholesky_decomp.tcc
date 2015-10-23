@@ -26,7 +26,13 @@ template<typename SquareMatrix, typename Vector>
     template<typename SquareMatrix2, typename Vector2>
       cholesky_decomposition(std::size_t n, const SquareMatrix2 & a, Vector2 & d);
 
-    void backsubstitute(const Vector & b, Vector & x) const;
+    template<typename Vector2, typename VectorOut>
+      void backsubstitute(const Vector2 & b, VectorOut & x) const;
+
+    template<typename InVecIter, typename OutVecIter>
+      void
+      backsubstitution(InVecIter b_begin, InVecIter b_end,
+                       OutVecIter x_begin) const;
 
     template<typename SquareMatrix2>
       void inverse(SquareMatrix2 & a_inv) const;

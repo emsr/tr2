@@ -32,9 +32,21 @@ template<typename NumTp, typename Matrix>
       void
       backsubstitution(const Vector2 & b, VectorOut & x) const;
 
-    template<typename Vector2, typename VectorOut>
+    template<typename InVecIter, typename OutVecIter>
       void
-      improve(const Vector2 & b, VectorOut & x) const;
+      backsubstitution(InVecIter b_begin, InVecIter b_end,
+                       OutVecIter x_begin) const;
+
+    template<typename Matrix2, typename Vector2, typename VectorOut>
+      void
+      improve(const Matrix2 a_orig,
+              const Vector2 & b, VectorOut & x) const;
+
+    template<typename Matrix2, typename InVecIter, typename OutVecIter>
+      void
+      improve(const Matrix2 a_orig,
+              InVecIter b_begin, InVecIter b_end,
+              OutVecIter x_begin) const;
 
   private:
 

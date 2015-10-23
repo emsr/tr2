@@ -27,8 +27,13 @@ template<typename NumTp, typename Matrix>
       qr_decomposition(std::size_t m_n_rows, std::size_t n_cols,
                        Matrix2 & a);
 
-    template<typename Vector2>
-      void backsub(Vector2 & b);
+    template<typename Vector2, typename VectorOut>
+      void backsubstitution(Vector2 & b, VectorOut & x);
+
+    template<typename InVecIter, typename OutVecIter>
+      void
+      backsubstitution(InVecIter b_begin, InVecIter b_end,
+                       OutVecIter x_begin) const;
 
     template<typename Matrix2>
       void inverse(Matrix2 & a_inv);
