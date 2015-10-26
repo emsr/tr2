@@ -1,3 +1,6 @@
+#ifndef HANKEL_TCC
+#define HANKEL_TCC 1
+
 #include <complex>
 #include <iostream>
 #include <limits>
@@ -50,7 +53,7 @@ template<typename _Tp>
   void
   dparms(std::complex<_Tp> zhat, std::complex<_Tp> znu,
          std::complex<_Tp> & zt, std::complex<_Tp> & ztsq,
-         std::complex<_Tp> & znusq,std::complex<_Tp> & z1dnsq,
+         std::complex<_Tp> & znusq, std::complex<_Tp> & z1dnsq,
          std::complex<_Tp> & znm1d3, std::complex<_Tp> & znm2d3,
          std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
          std::complex<_Tp> & zetphf, std::complex<_Tp> & zetmhf,
@@ -111,7 +114,6 @@ template<typename _Tp>
 
     return;
   }
-
 
 
 /**
@@ -300,37 +302,37 @@ template<typename _Tp>
   {
     //  Note that dxhinf is a machine floating-point dependent constant
     //  set equal to half the largest available floating-point number.
-    static constexpr auto dxhinf = 0.5L * std::numeric_limits<_Tp>::max();
+    static constexpr auto xhinf = 0.5L * std::numeric_limits<_Tp>::max();
 
     //  Separate real and imaginary parts of arguments
-    auto dz1r = std::real(z1);
-    auto dz1i = std::imag(z1);
-    auto dz2r = std::real(z2);
-    auto dz2i = std::imag(z2);
+    auto z1r = std::real(z1);
+    auto z1i = std::imag(z1);
+    auto z2r = std::real(z2);
+    auto z2i = std::imag(z2);
 
     //  Set up largest and smallest magnitudes needed
-    auto dz1b = std::max(std::abs(dz1r), std::abs(dz1i));
-    auto dz2b = std::abs(dz2r);
-    auto dz2ub = std::abs(dz2i);
+    auto z1b = std::max(std::abs(z1r), std::abs(z1i));
+    auto z2b = std::abs(z2r);
+    auto z2ub = std::abs(z2i);
 
-    if (dz2b < dz2ub)
-      std::swap(dz2b, dz2ub);
+    if (z2b < z2ub)
+      std::swap(z2b, z2ub);
 
     //  If overflow will occur, then abort
-    if (dz2b < _Tp(1) && dz1b > dz2b * dxhinf)
+    if (z2b < _Tp(1) && z1b > z2b * xhinf)
       return false;
 
     //  Compute the quotient
-    dz1r /= dz1b;
-    dz1i /= dz1b;
-    dz2r /= dz2b;
-    dz2i /= dz2b;
-    auto term = dz2ub / dz2b;
+    z1r /= z1b;
+    z1i /= z1b;
+    z2r /= z2b;
+    z2i /= z2b;
+    auto term = z2ub / z2b;
     auto denom = _Tp(1) + term * term;
-    auto dscale = dz1b / dz2b / denom;
-    auto dqr = (dz1r * dz2r + dz1i * dz2i) * dscale;
-    auto dqi = (dz2r * dz1i - dz1r * dz2i) * dscale;
-    z1dz2 = std::complex<_Tp>{dqr, dqi};
+    auto scale = z1b / z2b / denom;
+    auto qr = (z1r * z2r + z1i * z2i) * scale;
+    auto qi = (z2r * z1i - z1r * z2i) * scale;
+    z1dz2 = std::complex<_Tp>{qr, qi};
 
     return true;
   }
@@ -374,7 +376,6 @@ template<typename _Tp>
         i2kp1, i2km1, ndxv, ndxvpl, i2kl;
 
     bool lcvgnc;
-
 
     auto zone = dcmplx(1.0L, 0.0L);
     auto dtwo = _Tp(2.0L);
@@ -871,7 +872,6 @@ template<typename _Tp>
   }
 
 
-
 /**
  *    Compute parameters depending on z and nu that appear in the
  *    uniform asymptotic expansions of the Hankel functions and
@@ -923,10 +923,10 @@ template<typename _Tp>
     //  if 1 - zhat**2 can be computed without overflow
     if (dxabs <= dinfsr && dyabs <= (dinfsr - done))
       {
-        //  find max and min of abs(dx) and abs(dy)
-        du = dxabs;
-        dv = dyabs;
-        if (du < dv)
+	//  find max and min of abs(dx) and abs(dy)
+	du = dxabs;
+	dv = dyabs;
+	if (du < dv)
           std::swap(du, dv);
         if (du >= dhalf)
           {
@@ -954,19 +954,19 @@ template<typename _Tp>
     //  if nu**2 can be computed without overflow
     if (std::abs(znu) <= dinfsr)
       {
-        znusq = znu * znu;
-        z1dnsq = done / znusq;
-        //  compute nu**(-2/3), nu**(-4/3), nu**(-1/3)
-        znm4d3 = -std::log(znu);
-        znm1d3 = std::exp(d1d3 * znm4d3);
-        znm2d3 = std::exp(d2d3 * znm4d3);
-        znm4d3 = std::exp(d4d3 * znm4d3);
+	znusq = znu * znu;
+	z1dnsq = done / znusq;
+	//  compute nu**(-2/3), nu**(-4/3), nu**(-1/3)
+	znm4d3 = -std::log(znu);
+	znm1d3 = std::exp(d1d3 * znm4d3);
+	znm2d3 = std::exp(d2d3 * znm4d3);
+	znm4d3 = std::exp(d4d3 * znm4d3);
       }
     else
       {
-        //  set completion code - unable to compute nu**2
-        ier = 132;
-        return;
+	//  set completion code - unable to compute nu**2
+	ier = 132;
+	return;
       }
 
     //  compute xi = ln(1+(1-zhat**2)**(1/2)) - ln(zhat) - (1-zhat**2)**(1/2)
@@ -977,28 +977,28 @@ template<typename _Tp>
     //  compute principal value of ln(xi) and then adjust imaginary part
     zlnxi = std::log(zxi);
 
-    //  prepare to adjust logarithm of xi to appropriate riemann sheet
+    //  prepare to adjust logarithm of xi to appropriate Riemann sheet
     auto dtemp = dzero;
 
-    //  find adjustment necessary to get on proper riemann sheet
+    //  find adjustment necessary to get on proper Riemann sheet
 
     if (dy == dzero)  //  zhat is real
       {
 	if (dx > done)
-          dtemp = d2pi;
+	  dtemp = d2pi;
       }
     else  //  zhat is not real
-    {
-      //  if zhat is in upper half-plane
-      if (dy > dzero)
-	{
-          //  if xi lies in upper half-plane
-          if (std::imag(zxi) > dzero)
-            dtemp = -d2pi;
-          else
-            dtemp = d2pi;
-	}
-    }
+      {
+	//  if zhat is in upper half-plane
+	if (dy > dzero)
+	  {
+	    //  if xi lies in upper half-plane
+	    if (std::imag(zxi) > dzero)
+	      dtemp = -d2pi;
+	    else
+	      dtemp = d2pi;
+	  }
+      }
 
     //  Adjust logarithm of xi.
     zlnxi += dtemp;
@@ -1015,7 +1015,6 @@ template<typename _Tp>
 
     return;
   }
-
 
 
 /**
@@ -1043,8 +1042,8 @@ template<typename _Tp>
          std::complex<_Tp> & zargp, std::complex<_Tp> & zargm, int & ier)
   {
     //  zexpp and zexpm are exp(2*dpi*i/3) and its reciprocal, respectively.
-    auto zexpp = std::complex<_Tp>{-0.5L,  0.8660254037844386L};
-    auto zexpm = std::complex<_Tp>{-0.5L, -0.8660254037844386L};
+    constexpr auto zexpp = std::complex<_Tp>{-0.5L,  0.8660254037844386L};
+    constexpr auto zexpm = std::complex<_Tp>{-0.5L, -0.8660254037844386L};
 
     ier = 0;
 
@@ -1057,3 +1056,5 @@ template<typename _Tp>
       ier = 133;
 
   }
+  
+#endif // HANKEL_TCC

@@ -1,8 +1,8 @@
-
+#ifndef AIRY_TCC
+#define AIRY_TCC 1
 
 
 /**
-
     @brief
       This subroutine computes the Airy function Ai(z) and its first
       derivative in the complex z-plane.
@@ -136,39 +136,36 @@
       Rick A. Whitaker
 
  */
+template<typename _Tp>
   void
-  airy(z, deps, zai, zaipr, ier)
+  airy(const std::complex<_Tp> & z, _Tp deps,
+       std::complex<_Tp> & zai, std::complex<_Tp> & zaipr, int & ier)
   {
-      double complex z, zai, zaipr
-      double precision     deps
-      integer    ier
+      std::complex<_Tp> z2xi, zp1d4c, zi1d3, zim1d3, zi2d3,
+                 zim2d3, z1d3f,
+                 zm1d3f, z2d3f, zm2d3f, zpwh;
 
-      double complex zxi, z2xi, zp1d4c, zi1d3, zim1d3, zi2d3,
-                 zim2d3, zepd6, zempd6, zepd3, zempd3, z1d3f,
-                 zm1d3f, z2d3f, zm2d3f, zpwh
-      double precision     dabsz, dzbig, dzxir, dzxii, dzero, dziacc,
-                 drsqpi, dzsmal, d1d3, d2d3,
-                 dgm2d3, dgm1d3, d2g2d3, dsqrt3
-
-      data zepd6 /( 8.660254037844386e-01, 5.0e-01)/,
-           zempd6/( 8.660254037844386e-01,-5.0e-01)/,
-           zepd3 /( 5.0e-01, 8.660254037844386e-01)/,
-           zempd3/( 5.0e-01,-8.660254037844386e-01)/
-      data dzero /0/,
-           d1d3  /3.333333333333333e-01/,
-           d2d3  /6.666666666666667e-01/,
-           dsqrt3/1.732050807568877e+00/,
-           dgm1d3/2.588194037928068e-01/,
-           dgm2d3/3.550280538878172e-01/,
-           d2g2d3/1.775140269439086e-01/,
-           drsqpi/2.820947917738781e-01/
-      data dzsmal/2.5e-01/,dziacc/2/,dzbig/15/
+      constexpr std::complex<_Tp>
+           zepd6{8.660254037844386e-01, 5.0e-01},
+           zempd6{8.660254037844386e-01, -5.0e-01},
+           zepd3 {5.0e-01,  8.660254037844386e-01},
+           zempd3{5.0e-01, -8.660254037844386e-01};
+      constexpr _Tp
+           dzero{0},
+           d1d3  {3.33333333333333333e-01},
+           d2d3  {6.66666666666666667e-01},
+           dsqrt3{1.732050807568877e+00},
+           dgm1d3{2.588194037928068e-01},
+           dgm2d3{3.550280538878172e-01},
+           d2g2d3{1.775140269439086e-01},
+           drsqpi{2.820947917738781e-01};
+      constexpr _Tp dzsmal{2.5e-01}, dziacc{2}, dzbig{15};
 
       ier = 0;
 
 
       //  Compute modulus of z for later use
-      dabsz = std::abs(z);
+      auto dabsz = std::abs(z);
       //  Check size of abs(z) and select appropriate methods
       if (dabsz < dzbig)
 	{
@@ -178,16 +175,16 @@
             {
               //  Argument in closed right half plane
               //  Compute xi as defined in the representations in terms of Bessel functions
-              zpwh = std::sqrt(z);
-              zxi = z * zpwh;
-              dzxir = d2d3 * std::real(zxi);
-              dzxii = d2d3 * std::imag(zxi);
-              zxi = dcmplx(dzxir,dzxii);
+              auto zpwh = std::sqrt(z);
+              auto zxi = z * zpwh;
+              auto dzxir = d2d3 * std::real(zxi);
+              auto dzxii = d2d3 * std::imag(zxi);
+              zxi = dcmplx(dzxir, dzxii);
               //  Check for abs(z) too large for accuracy of representations (1) and (4)
               if (dabsz >= dziacc)
         	{
         	  //  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
-        	  kairy(zxi, deps, zai, zaipr, ier)
+        	  kairy(zxi, deps, zai, zaipr, ier);
         	  //  Recover Ai(z) and Ai'(z)
         	  zp1d4c = std::sqrt(zpwh);
         	  zxi = std::exp(-zxi);
@@ -202,19 +199,19 @@
         	  if (dabsz <= dzsmal)
         	    {
         	      //  Use rational approximation along with (1) and (4)
-        	      zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3)
+        	      zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
         	      //  Recover Ai(z) and Ai'(z)
         	      zim1d3 = dgm2d3 * zim1d3;
         	      zi1d3 = dgm1d3 * zi1d3;
-        	      zai = zim1d3 - z * zi1d3
+        	      zai = zim1d3 - z * zi1d3;
         	      zim2d3 = dgm1d3 * zim2d3;
         	      zi2d3 = d2g2d3 * zi2d3;
-        	      zaipr = z * z * zi2d3 - zim2d3
+        	      zaipr = z * z * zi2d3 - zim2d3;
         	    }
         	  else
         	    {
                       //  Use backward recurrence along with (1) and (4)
-                      iairy(zxi, deps, zi1d3, zim1d3, zi2d3, zim2d3)
+                      iairy(zxi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
                       //  Recover Ai(z) and Ai'(z)
                       zai = d1d3 * zpwh * (zim1d3 - zi1d3);
                       zaipr = d1d3 * z * (zi2d3 - zim2d3);
@@ -225,26 +222,25 @@
             {
               //  z lies in left half plane
               //  Compute xi as defined in the representations in terms of bessel functions
-              zpwh = std::sqrt(-z);
-              zxi = -z * zpwh;
-              dzxir = d2d3 * std::real(zxi);
-              dzxii = d2d3 * std::imag(zxi);
+              auto zpwh = std::sqrt(-z);
+              auto zxi = -z * zpwh;
+              auto dzxir = d2d3 * std::real(zxi);
+              auto dzxii = d2d3 * std::imag(zxi);
               zxi = dcmplx(dzxir, dzxii);
               //  Set up arguments to recover bessel functions of the first kind in (3) and (6)
               if (dzxii >= dzero)
         	{
         	  //  Argument lies in upper half plane, so use appropriate identity
-        	   z2xi(dzxii, -dzxir);
+        	  z2xi = std::complex<_Tp>(dzxii, -dzxir);
         	  z1d3f = zepd6;
         	  zm1d3f = zempd6;
         	  z2d3f = zepd3;
         	  zm2d3f = zempd3;
-
         	}
               else
         	{
         	  //  argument lies in lower half plane, so use appropriate identity
-        	  std::complex<double> z2xi(-dzxii, dzxir);
+        	  z2xi = std::complex<_Tp>(-dzxii, dzxir);
         	  z1d3f = zempd6;
         	  zm1d3f = zepd6;
         	  z2d3f = zempd3;
@@ -255,27 +251,26 @@
               if (dabsz <= dzsmal)
         	{
         	  //  use rational approximation
-        	  zxi = -z
-        	  zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3)
+        	  zxi = -z;
+        	  zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
         	  //  Recover Ai(z) and Ai'(z)
         	  zim1d3 = dgm2d3 * zim1d3;
         	  zi1d3 = dgm1d3 * zi1d3;
-        	  zai = zim1d3 - z * zi1d3
+        	  zai = zim1d3 - z * zi1d3;
         	  //zai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
 
         	  zim2d3 = dgm1d3 * zim2d3;
         	  zi2d3 = d2g2d3 * zi2d3;
-        	  zaipr = z * z * zi2d3 - zim2d3
+        	  zaipr = z * z * zi2d3 - zim2d3;
         	  //zaipr = z * z * z2d3f * zi2d3 - zm2d3f * zim2d3
-
         	}
               else
         	{
         	  //  Use backward recurrence
-        	  iairy(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3)
+        	  iairy(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
         	  //  Recover Ai(z) and Ai'(z)
         	  zai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
-        	  zaipr = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3)
+        	  zaipr = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
         	}
             }
 	}
@@ -293,14 +288,12 @@
             //  abs(arg(-z)) < dpi/3  -  use asymptotic expansion for this region
             zasaly(z, zai, zaipr);
           }
-
 	}
       return;
 }
 
 
 /**
-
     Compute the modified Bessel functions of the first kind orders 
     + or - 1/3 and + or - 2/3 needed to compute the Airy functions
     and their derivatives from their representation in terms of the
@@ -329,18 +322,18 @@
 
     This modification of the algorithm is given in part in
 
-    Olver, F.W.J. and Sookne, D.J., Note on Backward Recurrence
+    Olver, F. W. J. and Sookne, D. J., Note on Backward Recurrence
       Algorithms, Math. of Comp., Vol. 26, no. 120, Oct. 1972.
 
     And further elaborated for the Bessel functions in
   
-    Sookne, D.J., Bessel Functions I and J of Complex Argument 
+    Sookne, D. J., Bessel Functions I and J of Complex Argument 
       and Integer Order, J. Res. NBS - Series B, Vol 77B, Nos.
       3 & 4, July-December, 1973.
 
     Insight was also gained from
 
-    Cody, W.J., Preliminary Report on Software for the Modified
+    Cody, W. J., Preliminary Report on Software for the Modified
       Bessel Functions of the First Kind, Argonne National
       Laboratory, Applied Mathematics Division, Tech. Memo. 
       No. 357, August, 1980.
@@ -356,7 +349,7 @@
     made for the sake of speed.  First, the strong convergence
     criteria is computed in single precision since magnitude is
     the most important thing here.  Second, the tests are
-    performed in the 1-norm instead of the usual euclidean
+    performed in the 1-norm instead of the usual Euclidean
     norm used in the complex plane.  To insure the validity
     of the results, the inequality
         				 2    2 
@@ -385,33 +378,31 @@
     Author
       Rick A. Whitaker
  */
+template<typename _Tp>
   void
-  iairy(const std::complex<_Tp> & z, double deps,
+  iairy(const std::complex<_Tp> & z, _Tp deps,
         std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
         std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3)
   {
     using dcmplx = std::complex<_Tp>;
 
-    dcmplx z1dz, zplst2, zp2, zpold2, zplst1, zp1, zpold1, 
-                 zsum1, zsum2, zd2pow, zero, zone;
-    Tp dtest, dn, d2n, dzp2r, d2d3,
-                 dzp2i, dnpn1, dnpn2, dnp2n1, dnp2n2, dfac1, dfac2,
-                 done, dtwo, d2sqr2, dhalf, dgm4d3, dgm5d3, d1d3,
-                 d4d3, d5d3, d8d3, d10d3, d14d3, d16d3;
-    double spr, spi, splstr, splsti, slamn, skn, sone, stwo;
-    bool lstcnv;
+    dcmplx zplst2, zp2, zpold2, zplst1, zp1, zpold1, 
+           zsum1, zsum2, zd2pow;
+    _Tp dn, dzp2r, dzp2i,
+        dnpn1, dnpn2, dnp2n1, dnp2n2, dfac1, dfac2;
+    _Tp spr, spi, splstr, splsti, skn;
 
-    int l, nend
+    int l, nend;
 
-    data sone/1/, stwo/2/
-    data zero{0}, zone{1}
-    data done/1.0e+00/, dtwo/2.0e+00/, dhalf/5.0e-01/,
-    	 d1d3  /3.333333333333333e-01/, d2d3  /6.666666666666667e-01/,
-    	 d4d3  /1.333333333333333e+00/, d5d3  /1.666666666666667e+00/,
-    	 d8d3  /2.666666666666667e+00/, d10d3 /3.333333333333333e+00/,
-    	 d14d3 /4.666666666666667e+00/, d16d3 /5.333333333333333e+00/,
-    	 dgm4d3/8.929795115692492e-01/, dgm5d3/9.027452929509336e-01/,
-    	 d2sqr2/2.828427124746190e+01/
+    constexpr _Tp sone{1}, stwo{2};
+    constexpr dcmplx zero{0}, zone{1};
+    constexpr _Tp done{1.0e+00}, dtwo{2.0e+00}, dhalf{5.0e-01},
+    	 d1d3  {3.333333333333333e-01}, d2d3  {6.666666666666667e-01},
+    	 d4d3  {1.333333333333333e+00}, d5d3  {1.666666666666667e+00},
+    	 d8d3  {2.666666666666667e+00}, d10d3 {3.333333333333333e+00},
+    	 d14d3 {4.666666666666667e+00}, d16d3 {5.333333333333333e+00},
+    	 dgm4d3{8.929795115692492e-01}, dgm5d3{9.027452929509336e-01},
+    	 d2sqr2{2.828427124746190e+01};
 
     //  compute 1/z for use in recurrence for speed and abs(z)
     auto dzr = std::real(z);
@@ -425,13 +416,13 @@
     d1dzi = du * d1dzi;
     auto d1dzr = (dzr / du) / d1dzi;
     d1dzi = -(dzi / du) / d1dzi;
-    std::complex<double> z1dz(d1dzr, d1dzi);
+    std::complex<_Tp> z1dz(d1dzr, d1dzi);
 
     //  initialize for forward recursion based on order 2/3
     int n = 0;
-    auto d2n = double(n + n) + d4d3;
+    auto d2n = _Tp(n + n) + d4d3;
     zplst2 = zone;
-    zp2 = d2n * std::complex<double>(d1dzr, d1dzi);
+    zp2 = d2n * std::complex<_Tp>(d1dzr, d1dzi);
 
     //  calculate weak convergence test and set flag for weak convergence loop
     auto dtest = d2sqr2 / deps;
@@ -474,7 +465,7 @@
     			   / ((splstr / slamn) * (splstr / slamn)
     			    + (splsti / slamn) * (splsti / slamn)));
 	//  Compute quantity needed for lambda-sub-n of strong convergence lemma
-	auto slamn = double(n + 1) / dmodz;
+	slamn = _Tp(n + 1) / dmodz;
 	//  Determine appropriate value for rho-sub-n of lemma
 	if (skn + sone / skn > stwo * slamn)
     	  skn = slamn + std::sqrt(slamn * slamn - sone);
@@ -485,9 +476,9 @@
     }
 
     //  Prepare for backward recurrence for both orders 1/3 and 2/3
-    dn = double(n);
+    dn = _Tp(n);
     ++n;
-    d2n = double(n + n);
+    d2n = _Tp(n + n);
     zplst1 = zero;
     zplst2 = zero;
     //  Carefully compute 1/zp2 to avoid overflow in complex divide
@@ -531,7 +522,7 @@
     	    zpold1 = zplst1;
     	    zplst1 = zp1;
     	    //  Recur back one step for order 1/3
-    	    zp1 = z1dz * dfac1 * zplst1 + zpold1
+    	    zp1 = z1dz * dfac1 * zplst1 + zpold1;
     	    //  Interchanges for order 2/3 recurrence
     	    zpold2 = zplst2;
     	    zplst2 = zp2;
@@ -577,8 +568,8 @@
     zsum2 += d5d3 * zp2;
     zpold2 = zplst2;
     zplst2 = zp2;
-    zp2 = d10d3 * zplst2 * z1dz + zpold2
-    zsum2 = (zsum2 + zsum2) + zp2
+    zp2 = d10d3 * zplst2 * z1dz + zpold2;
+    zsum2 = (zsum2 + zsum2) + zp2;
 
     //  Compute scale factor and scale results for order 2/3 case
     zsum2 *= zd2pow * zpold1 * dgm5d3;
@@ -595,9 +586,7 @@
   }
 
 
-
 /**
-
     @brief
       Compute approximations to the modified Bessel functions of the
       second kind of orders 1/3 and 2/3 for moderate arguments.  More
@@ -650,8 +639,8 @@
 
     Author
       Rick A. Whitaker
-
  */
+template<typename _Tp>
   void
   kairy(const std::complex<_Tp> & z, _Tp deps,
         std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
@@ -669,12 +658,21 @@
 
     dcmplx zrat1;
 
-    constexpr _Tp dtwo{2}, deight{8}, d16{16}, d24{24},
-                  dthree[3}, dfive{5}, delti{32},
-        	  dan1i{4.855555555555555e+01}, dan2i{4.722222222222222e+01},
-        	  dp12i{3.144444444444444e+01}, dp22i{3.277777777777777e+01},
-        	  dp13i{-9.259259259259259e-01}, dp23i{1.296296296296296e+00},
-        	  dp11i{-7.907407407407407e+01}, dp21i{-8.129629629629629e+01};
+    constexpr _Tp dtwo{2},
+                  deight{8},
+		  d16{16},
+		  d24{24},
+                  dthree{3},
+		  dfive{5},
+		  delti{32},
+        	  dan1i{4.855555555555555e+01},
+		  dan2i{4.722222222222222e+01},
+        	  dp12i{3.144444444444444e+01},
+		  dp22i{3.277777777777777e+01},
+        	  dp13i{-9.259259259259259e-01},
+		  dp23i{1.296296296296296e+00},
+        	  dp11i{-7.907407407407407e+01},
+		  dp21i{-8.129629629629629e+01};
     constexpr std::complex<_Tp> zone{1};
 
     constexpr _Tp dfco[8]{144, 77, 62208, 95472, 17017, 65, 90288, 13585};
@@ -790,7 +788,6 @@
 
 
 /**
-
     @brief
       This subroutine computes rational approximations to the
       hypergeometric functions related to the modified Bessel
@@ -851,7 +848,6 @@
 
     Author
       Rick A. Whitaker
-
  */
 template<typename _Tp>
   void
@@ -910,84 +906,84 @@ template<typename _Tp>
 	//  Evaluate numerator polynomial for nu=1/3 approximant
 	_Tp dt, dtwo, dal, dbe;
 
-	dal = da1d3[0]
-	dt  = ds * dal
-	dal = da1d3[1] + dr * dal
-	dbe = da1d3[2] - dt
-	dt  = ds * dal
-	dal = dbe + dr * dal
-	dbe = da1d3[3] - dt
-	zf1d3 = dal * dcmplx(dx, dy) + dbe
+	dal = da1d3[0];
+	dt  = ds * dal;
+	dal = da1d3[1] + dr * dal;
+	dbe = da1d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = da1d3[3] - dt;
+	zf1d3 = dal * dcmplx(dx, dy) + dbe;
 	//  Evaluate denominator polynomial for nu=1/3 approximant and
 	//  compute ratio of numerator and denominator
-	dal = db1d3[0]
-	dt  = ds * dal
-	dal = db1d3[1] + dr * dal
-	dbe = db1d3[2] - dt
-	dt  = ds * dal
-	dal = dbe + dr * dal
-	dbe = db1d3[3] - dt  
-	zf1d3 /= dal * dcmplx(dx, dy) + dbe
+	dal = db1d3[0];
+	dt  = ds * dal;
+	dal = db1d3[1] + dr * dal;
+	dbe = db1d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = db1d3[3] - dt;
+	zf1d3 /= dal * dcmplx(dx, dy) + dbe;
 
 	//  Evaluate numerator polynomial for nu=-1/3 approximant
-	dal = dam1d3[0]
-	dt  = ds * dal
-	dal = dam1d3[1] + dr * dal
-	dbe = dam1d3[2] - dt
-	dt  = ds * dal
-	dal = dbe + dr * dal  
-	dbe = dam1d3[3] - dt
-	zfm1d3 = dal * dcmplx(dx, dy) + dbe
+	dal = dam1d3[0];
+	dt  = ds * dal;
+	dal = dam1d3[1] + dr * dal;
+	dbe = dam1d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = dam1d3[3] - dt;
+	zfm1d3 = dal * dcmplx(dx, dy) + dbe;
 	//  Evaluate denominator polynomial for nu=-1/3 approximant and
 	//  compute ratio of numerator and denominator
-	dal = dbm1d3[0]
-	dt  = ds * dal
-	dal = dbm1d3[1] + dr * dal
-	dbe = dbm1d3[2] - dt
-	dt  = ds * dal
-	dal = dbe + dr * dal
-	dbe = dbm1d3[3] - dt
-	zfm1d3 /= dal * dcmplx(dx, dy) + dbe
+	dal = dbm1d3[0];
+	dt  = ds * dal;
+	dal = dbm1d3[1] + dr * dal;
+	dbe = dbm1d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = dbm1d3[3] - dt;
+	zfm1d3 /= dal * dcmplx(dx, dy) + dbe;
 
 	//  Evaluate numerator polynomial for nu=2/3 approximant
-	dal = da2d3[0]
-	dt  = ds * dal
-	dal = da2d3[1] + dr * dal
-	dbe = da2d3[2] - dt
-	dt  = ds * dal
-	dal = dbe + dr * dal  
-	dbe = da2d3[3] - dt
-	zf2d3 = dcmplx(dal * dx + dbe, dal * dy)
+	dal = da2d3[0];
+	dt  = ds * dal;
+	dal = da2d3[1] + dr * dal;
+	dbe = da2d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = da2d3[3] - dt;
+	zf2d3 = dcmplx(dal * dx + dbe, dal * dy);
 	//  Evaluate denominator polynomial for nu=2/3 approximant and
 	//  compute ratio of numerator and denominator
-	dal = db2d3[0]
-	dt  = ds * dal
-	dal = db2d3[1] + dr * dal
-	dbe = db2d3[2] - dt
-	dt  = ds * dal
-	dal = dbe + dr * dal  
-	dbe = db2d3[3] - dt
-	zf2d3 /= dal * dcmplx(dx, dy) + dbe
+	dal = db2d3[0];
+	dt  = ds * dal;
+	dal = db2d3[1] + dr * dal;
+	dbe = db2d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = db2d3[3] - dt;
+	zf2d3 /= dal * dcmplx(dx, dy) + dbe;
 
 	//  Evaluate numerator polynomial for nu=-2/3 approximant
-	dal = dam2d3[0]
-	dt  = ds * dal
-	dal = dam2d3[1] + dr * dal
-	dbe = dam2d3[2] - dt  
-	dt  = ds * dal
-	dal = dbe + dr * dal
-	dbe = dam2d3[3] - dt
-	zfm2d3 = dal * dcmplx(dx, dy) + dbe
+	dal = dam2d3[0];
+	dt  = ds * dal;
+	dal = dam2d3[1] + dr * dal;
+	dbe = dam2d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = dam2d3[3] - dt;
+	zfm2d3 = dal * dcmplx(dx, dy) + dbe;
 	//  Evaluate denominator polynomial for nu=-2/3 approximant and
 	//  compute ratio of numerator and denominator
-	dal = dbm2d3[0]
-	dt  = ds * dal
-	dal = dbm2d3[1] + dr * dal
-	dbe = dbm2d3[2] - dt
-	dt  = ds * dal
-	dal = dbe + dr * dal
-	dbe = dbm2d3[3] - dt
-	zfm2d3 /= dcmplx(dal * dx + dbe, dal * dy)
+	dal = dbm2d3[0];
+	dt  = ds * dal;
+	dal = dbm2d3[1] + dr * dal;
+	dbe = dbm2d3[2] - dt;
+	dt  = ds * dal;
+	dal = dbe + dr * dal;
+	dbe = dbm2d3[3] - dt;
+	zfm2d3 /= dcmplx(dal * dx + dbe, dal * dy);
       }
 
     return;
@@ -995,7 +991,6 @@ template<typename _Tp>
 
 
 /**
-
     Purpose
       This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
       expansions for abs(arg(z)) < 2*pi/3.  For speed, the number
@@ -1021,7 +1016,6 @@ template<typename _Tp>
 
     Author
       Rick A. Whitaker
-
  */
 template<typename _Tp>
   void
@@ -1129,7 +1123,6 @@ template<typename _Tp>
 
 
 /**
-
     Purpose
       This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
       expansions for abs(arg(-z)) < pi/3.  For speed, the number
@@ -1155,7 +1148,6 @@ template<typename _Tp>
 
     Author
       Rick A. Whitaker
-
  */
 template<typename _Tp>
   void
@@ -1170,10 +1162,10 @@ template<typename _Tp>
         dbec, dbeprs, dbeprc, dsdata, dpid4;
     int nterm, ntermx, ndx, k, nterms[5];
 
-    constexpr _Tp d2d3 = 6.666666666666667e-01;
-    constexpr _Tp d9e4/2.25e+00/;
-    constexpr _Tp dpimh/5.641895835477563e-01/;
-    constexpr _Tp dpid4/7.853981633974483e-01/;
+    constexpr _Tp d2d3{6.666666666666667e-01};
+    constexpr _Tp d9e4{2.25e+00};
+    constexpr _Tp dpimh{5.641895835477563e-01};
+    constexpr _Tp dpid4{7.853981633974483e-01};
     constexpr std::complex<_Tp> zone{1};
     constexpr int ntermx = 9;
     constexpr int nterms[5]{ 9, 7, 6, 6, 5 };
@@ -1296,3 +1288,5 @@ template<typename _Tp>
 
     return;
   }
+  
+#endif // AIRY_TCC
