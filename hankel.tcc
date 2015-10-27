@@ -5,6 +5,8 @@
 #include <iostream>
 #include <limits>
 
+#include "airy.tcc"
+
 template<typename _Tp>
   void
   uniform_hankel_olver(std::complex<_Tp> & h1, std::complex<_Tp> & h2,
@@ -136,7 +138,7 @@ template<typename _Tp>
   {
     using namespace std::literals::complex_literals;
 
-    constexpr int nwksp = 50; // > some function of nterms
+    constexpr int nwksp = 100; // > some function of nterms
     std::complex<_Tp> t, tsq,
                       _1dnsq, etm3h, aip, o4dp, aim, o4dm,
                       od2p, od0dp, od0dm, tmp, zhat, nm1d3,
@@ -191,15 +193,15 @@ template<typename _Tp>
 	  {
             std::cerr << " *** WARNING ***\n"
                       << " ier = " << ier << " from summation subroutine uniform_hankel_sum.\n"
-                      << " z  = " << z << "\n"
-                      << " nu = " << nu << "\n";
+                      << " z   = " << z << '\n'
+                      << " nu  = " << nu << '\n';
 	  }
       }
     else
       std::cerr << " *** WARNING ***\n"
                 << " ier = " << ier << " from outer factors subroutine uniform_hankel_outer.\n"
-                << " z  = " << z << "\n"
-                << " nu = " << nu << "\n";
+                << " z   = " << z << '\n'
+                << " nu  = " << nu << '\n';
 
     if (nuswitch)
       {
