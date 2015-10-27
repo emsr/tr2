@@ -9,14 +9,13 @@
 
 template<typename _Tp>
   void
-  uniform_hankel_olver(std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-                       std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-                       std::complex<_Tp> z, std::complex<_Tp> nu);
+  uniform_hankel_olver(std::complex<_Tp> nu, std::complex<_Tp> z,
+                       std::complex<_Tp> & h1, std::complex<_Tp> & h2,
+                       std::complex<_Tp> & h1p, std::complex<_Tp> & h2p);
 
 template<typename _Tp>
   void
-  uniform_hankel_outer(std::complex<_Tp> nu, std::complex<_Tp> z,
-                       _Tp eps,
+  uniform_hankel_outer(std::complex<_Tp> nu, std::complex<_Tp> z, _Tp eps,
                        std::complex<_Tp> & zhat, std::complex<_Tp> & _1dnsq,
                        std::complex<_Tp> & nm1d3, std::complex<_Tp> & nm2d3,
                        std::complex<_Tp> & t, std::complex<_Tp> & tsq,
@@ -35,15 +34,15 @@ template<typename _Tp>
         	     std::complex<_Tp> zaim, std::complex<_Tp> zo4dm,
 		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
         	     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
-        	     _Tp deps,
+        	     _Tp eps,
 		     int nterms, std::complex<_Tp> zwksp[50], int nzwksp,
-        	     std::complex<_Tp> & zh1sm, std::complex<_Tp> & zh1dsm,
-        	     std::complex<_Tp> & zh2sm, std::complex<_Tp> & zh2dsm,
+        	     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
+        	     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
         	     int & ier);
 
 template<typename _Tp>
   bool
-  lzdiv(std::complex<_Tp> z1, std::complex<_Tp> z2,
+  zdiv(std::complex<_Tp> z1, std::complex<_Tp> z2,
         std::complex<_Tp> & z1dz2);
 
 template<typename _Tp>
@@ -53,9 +52,9 @@ template<typename _Tp>
 
 template<typename _Tp>
   void
-  dparms(std::complex<_Tp> zhat, std::complex<_Tp> znu,
+  dparms(std::complex<_Tp> nu, std::complex<_Tp> zhat,
          std::complex<_Tp> & zt, std::complex<_Tp> & ztsq,
-         std::complex<_Tp> & znusq, std::complex<_Tp> & z1dnsq,
+         std::complex<_Tp> & nusq, std::complex<_Tp> & z1dnsq,
          std::complex<_Tp> & znm1d3, std::complex<_Tp> & znm2d3,
          std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
          std::complex<_Tp> & zetphf, std::complex<_Tp> & zetmhf,
@@ -83,14 +82,14 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  uniform_hankel(std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-                 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-                 std::complex<_Tp> z, std::complex<_Tp> nu)
+  uniform_hankel(std::complex<_Tp> nu, std::complex<_Tp> z,
+                 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
+                 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p)
   {
     _Tp test = std::pow(std::abs(nu), 1.0L/3.0L) / 5.0L;
 
     if (std::abs(z - nu) > test)
-      uniform_hankel_olver(h1, h2, h1p, h2p, z, nu);
+      uniform_hankel_olver(nu, z, h1, h2, h1p, h2p);
     else
       {
 	_Tp r = 2 * test;
@@ -102,7 +101,7 @@ template<typename _Tp>
 	for (auto tnu : anu)
 	  {
             std::complex<_Tp> th1, th2, th1p, th2p;
-            uniform_hankel_olver(th1, th2, th1p, th2p, z, tnu);
+            uniform_hankel_olver(tnu, z, th1, th2, th1p, th2p);
             h1  += th1;
             h2  += th2;
             h1p += th1p;
@@ -132,9 +131,9 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  uniform_hankel_olver(std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-                       std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-                       std::complex<_Tp> z, std::complex<_Tp> nu)
+  uniform_hankel_olver(std::complex<_Tp> nu, std::complex<_Tp> z,
+                       std::complex<_Tp> & h1, std::complex<_Tp> & h2,
+                       std::complex<_Tp> & h1p, std::complex<_Tp> & h2p)
   {
     using namespace std::literals::complex_literals;
 
@@ -191,17 +190,17 @@ template<typename _Tp>
 	// Check for successful completion
 	if (ier != 0)
 	  {
-            std::cerr << " *** WARNING ***\n"
-                      << " ier = " << ier << " from summation subroutine uniform_hankel_sum.\n"
-                      << " z   = " << z << '\n'
-                      << " nu  = " << nu << '\n';
+            std::cerr << "  uniform_hankel_sum: "
+                      << "  ier = " << ier << '\n'
+                      << "  nu  = " << nu << '\n'
+                      << "  z   = " << z << '\n';
 	  }
       }
     else
-      std::cerr << " *** WARNING ***\n"
-                << " ier = " << ier << " from outer factors subroutine uniform_hankel_outer.\n"
-                << " z   = " << z << '\n'
-                << " nu  = " << nu << '\n';
+      std::cerr << "  uniform_hankel_outer: "
+                << "  ier = " << ier << '\n'
+                << "  nu  = " << nu << '\n'
+                << "  z   = " << z << '\n';
 
     if (nuswitch)
       {
@@ -248,11 +247,11 @@ template<typename _Tp>
     static const std::complex<_Tp> e2pd3{-0.5L,  0.8660254037844386L};
     static const std::complex<_Tp> d2pd3{-0.5L, -0.8660254037844386L};
 
-    if (lzdiv(z, nu, zhat))
+    if (zdiv(z, nu, zhat))
       {
 	//  Try to compute other nu and z dependent parameters except args to airy functions
 	std::complex<_Tp> nm4d3;
-	dparms(zhat, nu, t, tsq, nusq, _1dnsq, nm1d3, nm2d3, nm4d3,
+	dparms(nu, zhat, t, tsq, nusq, _1dnsq, nm1d3, nm2d3, nm4d3,
                eta, etphf, etmhf, etm3h, etrat, ier);
 
 	if (ier == 0)
@@ -290,6 +289,13 @@ template<typename _Tp>
     return;
   }
 
+/**
+ *  Return the norm-1 modulus or the Manhattan metric distance of a complex number.
+ */
+template<typename _Tp>
+  _Tp
+  norm1(const std::complex<_Tp> & z)
+  { return std::abs(std::real(z)) + std::abs(std::imag(z)); }
 
 /**
  *  Carefully compute @c z1/z2 avoiding overflow and destructive underflow.
@@ -299,10 +305,10 @@ template<typename _Tp>
  */
 template<typename _Tp>
   bool
-  lzdiv(std::complex<_Tp> z1, std::complex<_Tp> z2,
-        std::complex<_Tp> & z1dz2)
+  zdiv(std::complex<_Tp> z1, std::complex<_Tp> z2,
+       std::complex<_Tp> & z1dz2)
   {
-    //  Note that dxhinf is a machine floating-point dependent constant
+    //  Note that xhinf is a machine floating-point dependent constant
     //  set equal to half the largest available floating-point number.
     static constexpr auto xhinf = 0.5L * std::numeric_limits<_Tp>::max();
 
@@ -345,7 +351,7 @@ template<typename _Tp>
       Compute the sums in appropriate linear combinations appearing in
       Olver's uniform asymptotic expansions for the Hankel functions
       of the first and second kinds and their derivatives, using up to
-      nterms (less than 5) to achieve relative error deps.
+      nterms (less than 5) to achieve relative error eps.
  */
 template<typename _Tp>
   void
@@ -355,10 +361,10 @@ template<typename _Tp>
         	     std::complex<_Tp> zaim, std::complex<_Tp> zo4dm,
 		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
         	     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
-        	     _Tp deps,
+        	     _Tp eps,
 		     int nterms, std::complex<_Tp> zwksp[50], int nzwksp,
-        	     std::complex<_Tp> & zh1sm, std::complex<_Tp> & zh1dsm,
-        	     std::complex<_Tp> & zh2sm, std::complex<_Tp> & zh2dsm,
+        	     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
+        	     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
         	     int & ier)
   {
     using dcmplx = std::complex<_Tp>;
@@ -366,7 +372,7 @@ template<typename _Tp>
     dcmplx za1, zb0, zb1, zc0, zc1, zd1, ztpowk,
      	   zatrm, zbtrm, zctrm, zdtrm, zsuma, zsumb, zsumc,
      	   zsumd, ztmpa, ztmpb, ztmpc, ztmpd, z1dif,
-     	   z1ddif, z2dif, z2ddif, zh1s, zh1ds, zh2s, zh2ds,
+     	   z1pdif, z2dif, z2pdif, h1save, h1psave, h2save, h2psave,
      	   z1dn2k;
 
     _Tp dxzt3h,
@@ -374,201 +380,212 @@ template<typename _Tp>
      	dyzv1, dukta, dvkta, duktb, dvktb, dukpta,
      	dvkpta, dukptb, dvkptb, dsdata;
 
-    int ndx, ndxp, nduv, ndxend, k, l, i2k,
-        i2kp1, i2km1, ndxv, ndxvpl, i2kl;
+    int index, indexp, nduv, indexend, k, l, i2k,
+        i2kp1, i2km1, indexv, indexvpl, i2kl;
 
-    bool lcvgnc;
+    bool coverged;
 
-    auto zone = dcmplx(1.0L, 0.0L);
-    auto dtwo = _Tp(2.0L);
-    auto dthree = _Tp(3.0L);
+    constexpr auto zone = dcmplx(1, 0);
+    constexpr auto dtwo = _Tp(2);
+    constexpr auto dthree = _Tp(3);
 
     //  Coefficients for u and v polynomials appearing in Olver's
-    //  uniform asymptotic expansions for the hankel functions
+    //  uniform asymptotic expansions for the Hankel functions
     //  and their derivatives
 
     static constexpr _Tp
-    a[66]{  0.1000000000000000e+01,
-           -0.2083333333333333e+00,
-            0.1250000000000000e+00,
-            0.3342013888888889e+00,
-           -0.4010416666666667e+00,
-            0.7031250000000000e-01,
-           -0.1025812596450617e+01,
-            0.1846462673611111e+01,
-           -0.8912109136581421e+00,
-            0.7324218750000000e-01,
-            0.4669584423426247e+01,
-           -0.1120700261622299e+02,
-            0.8789123535156250e+01,
-           -0.2364086866378784e+01,
-            0.1121520996093750e+00,
-           -0.2821207255820024e+02,
-            0.8463621767460073e+02,
-           -0.9181824154324002e+02,
-            0.4253499984741211e+02,
-           -0.7368794441223145e+01,
-            0.2271080017089844e+00,
-            0.2125701300392171e+03,
-           -0.7652524681411816e+03,
-            0.1059990452528000e+04,
-           -0.6995796273761325e+03,
-            0.2181905059814453e+03,
-           -0.2649143028259277e+02,
-            0.5725014209747314e+00,
-           -0.1919457662318407e+04,
-            0.8061722181737309e+04,
-           -0.1358655000643414e+05,
-            0.1165539333686453e+05,
-           -0.5305646972656250e+04,
-            0.1200902954101563e+04,
-           -0.1080909194946289e+03,
-            0.1727727532386780e+01,
-            0.2020429133096615e+05,
-           -0.9698059838863751e+05,
-            0.1925470012325315e+06,
-           -0.2034001772804155e+06,
-            0.1222004649830175e+06,
-           -0.4119265625000000e+05,
-            0.7109514160156250e+04,
-           -0.4939153137207031e+03,
-            0.6074041843414307e+01,
-           -0.2429191879005513e+06,
-            0.1311763614662977e+07,
-           -0.2998015918538107e+07,
-            0.3763271297656404e+07,
-           -0.2813563226586534e+07,
-            0.1268365250000000e+07,
-           -0.3316451875000000e+06,
-            0.4521876953125000e+05,
-           -0.2499830566406250e+04,
-            0.2438052940368652e+02,
-            0.3284469853072038e+07,
-           -0.1970681911843223e+08,
-            0.5095260249266464e+08,
-           -0.7410514821153266e+08,
-            0.6634451227472903e+08,
-           -0.3756717666076335e+08,
-            0.1328876700000000e+08,
-           -0.2785618250000000e+07,
-            0.3081864062500000e+06,
-           -0.1388608984375000e+05,
-            0.1100171432495117e+03 };
+    a[66]
+    {
+       0.1000000000000000e+01,
+      -0.2083333333333333e+00,
+       0.1250000000000000e+00,
+       0.3342013888888889e+00,
+      -0.4010416666666667e+00,
+       0.7031250000000000e-01,
+      -0.1025812596450617e+01,
+       0.1846462673611111e+01,
+      -0.8912109136581421e+00,
+       0.7324218750000000e-01,
+       0.4669584423426247e+01,
+      -0.1120700261622299e+02,
+       0.8789123535156250e+01,
+      -0.2364086866378784e+01,
+       0.1121520996093750e+00,
+      -0.2821207255820024e+02,
+       0.8463621767460073e+02,
+      -0.9181824154324002e+02,
+       0.4253499984741211e+02,
+      -0.7368794441223145e+01,
+       0.2271080017089844e+00,
+       0.2125701300392171e+03,
+      -0.7652524681411816e+03,
+       0.1059990452528000e+04,
+      -0.6995796273761325e+03,
+       0.2181905059814453e+03,
+      -0.2649143028259277e+02,
+       0.5725014209747314e+00,
+      -0.1919457662318407e+04,
+       0.8061722181737309e+04,
+      -0.1358655000643414e+05,
+       0.1165539333686453e+05,
+      -0.5305646972656250e+04,
+       0.1200902954101563e+04,
+      -0.1080909194946289e+03,
+       0.1727727532386780e+01,
+       0.2020429133096615e+05,
+      -0.9698059838863751e+05,
+       0.1925470012325315e+06,
+      -0.2034001772804155e+06,
+       0.1222004649830175e+06,
+      -0.4119265625000000e+05,
+       0.7109514160156250e+04,
+      -0.4939153137207031e+03,
+       0.6074041843414307e+01,
+      -0.2429191879005513e+06,
+       0.1311763614662977e+07,
+      -0.2998015918538107e+07,
+       0.3763271297656404e+07,
+      -0.2813563226586534e+07,
+       0.1268365250000000e+07,
+      -0.3316451875000000e+06,
+       0.4521876953125000e+05,
+      -0.2499830566406250e+04,
+       0.2438052940368652e+02,
+       0.3284469853072038e+07,
+      -0.1970681911843223e+08,
+       0.5095260249266464e+08,
+      -0.7410514821153266e+08,
+       0.6634451227472903e+08,
+      -0.3756717666076335e+08,
+       0.1328876700000000e+08,
+      -0.2785618250000000e+07,
+       0.3081864062500000e+06,
+      -0.1388608984375000e+05,
+       0.1100171432495117e+03
+    };
 
     static constexpr _Tp
-    b[66]{  0.1000000000000000e+01,
-            0.2916666666666667e+00,
-           -0.3750000000000000e+00,
-           -0.3949652777777778e+00,
-            0.5156250000000000e+00,
-           -0.1171875000000000e+00,
-            0.1146496431327160e+01,
-           -0.2130533854166667e+01,
-            0.1089257836341858e+01,
-           -0.1025390625000000e+00,
-           -0.5075635242854617e+01,
-            0.1238668710214120e+02,
-           -0.9961006673177083e+01,
-            0.2793920993804932e+01,
-           -0.1441955566406250e+00,
-            0.3015773273462785e+02,
-           -0.9140711508856879e+02,
-            0.1005628359759295e+03,
-           -0.4753911590576172e+02,
-            0.8502454757690430e+01,
-           -0.2775764465332031e+00,
-           -0.2247169946128867e+03,
-            0.8146235951180321e+03,
-           -0.1138508263826370e+04,
-            0.7604126384523180e+03,
-           -0.2411579284667969e+03,
-            0.3002362060546875e+02,
-           -0.6765925884246826e+00,
-            0.2013089743407110e+04,
-           -0.8497490948317704e+04,
-            0.1440997727955136e+05,
-           -0.1245921356699312e+05,
-            0.5730098632812500e+04,
-           -0.1315274658203125e+04,
-            0.1208074951171875e+03,
-           -0.1993531703948975e+01,
-           -0.2106404840887960e+05,
-            0.1014913238950858e+06,
-           -0.2024212064239434e+06,
-            0.2150230445535821e+06,
-           -0.1300843659496637e+06,
-            0.4424396093750000e+05,
-           -0.7727732910156250e+04,
-            0.5459063720703125e+03,
-           -0.6883914470672607e+01,
-            0.2520859497081193e+06,
-           -0.1365304986690037e+07,
-            0.3131261070473134e+07,
-           -0.3946845507298180e+07,
-            0.2965647725320941e+07,
-           -0.1345235875000000e+07,
-            0.3545172500000000e+06,
-           -0.4883626953125000e+05,
-            0.2737909667968750e+04,
-           -0.2724882698059082e+02,
-           -0.3395807814193124e+07,
-            0.2042343072273885e+08,
-           -0.5295074376688679e+08,
-            0.7725855877372554e+08,
-           -0.6943030354332107e+08,
-            0.3949369854080250e+08,
-           -0.1404812500000000e+08,
-            0.2965335500000000e+07,
-           -0.3310150312500000e+06,
-            0.1509357617187500e+05,
-           -0.1215978927612305e+03 };
+    b[66]
+    {  0.1000000000000000e+01,
+       0.2916666666666667e+00,
+      -0.3750000000000000e+00,
+      -0.3949652777777778e+00,
+       0.5156250000000000e+00,
+      -0.1171875000000000e+00,
+       0.1146496431327160e+01,
+      -0.2130533854166667e+01,
+       0.1089257836341858e+01,
+      -0.1025390625000000e+00,
+      -0.5075635242854617e+01,
+       0.1238668710214120e+02,
+      -0.9961006673177083e+01,
+       0.2793920993804932e+01,
+      -0.1441955566406250e+00,
+       0.3015773273462785e+02,
+      -0.9140711508856879e+02,
+       0.1005628359759295e+03,
+      -0.4753911590576172e+02,
+       0.8502454757690430e+01,
+      -0.2775764465332031e+00,
+      -0.2247169946128867e+03,
+       0.8146235951180321e+03,
+      -0.1138508263826370e+04,
+       0.7604126384523180e+03,
+      -0.2411579284667969e+03,
+       0.3002362060546875e+02,
+      -0.6765925884246826e+00,
+       0.2013089743407110e+04,
+      -0.8497490948317704e+04,
+       0.1440997727955136e+05,
+      -0.1245921356699312e+05,
+       0.5730098632812500e+04,
+      -0.1315274658203125e+04,
+       0.1208074951171875e+03,
+      -0.1993531703948975e+01,
+      -0.2106404840887960e+05,
+       0.1014913238950858e+06,
+      -0.2024212064239434e+06,
+       0.2150230445535821e+06,
+      -0.1300843659496637e+06,
+       0.4424396093750000e+05,
+      -0.7727732910156250e+04,
+       0.5459063720703125e+03,
+      -0.6883914470672607e+01,
+       0.2520859497081193e+06,
+      -0.1365304986690037e+07,
+       0.3131261070473134e+07,
+      -0.3946845507298180e+07,
+       0.2965647725320941e+07,
+      -0.1345235875000000e+07,
+       0.3545172500000000e+06,
+      -0.4883626953125000e+05,
+       0.2737909667968750e+04,
+      -0.2724882698059082e+02,
+      -0.3395807814193124e+07,
+       0.2042343072273885e+08,
+      -0.5295074376688679e+08,
+       0.7725855877372554e+08,
+      -0.6943030354332107e+08,
+       0.3949369854080250e+08,
+      -0.1404812500000000e+08,
+       0.2965335500000000e+07,
+      -0.3310150312500000e+06,
+       0.1509357617187500e+05,
+      -0.1215978927612305e+03
+    };
 
     //  lambda and mu coefficients appearing in the expansions
     static constexpr _Tp
-    dlamda[21]{ 0.1041666666666667e+00,
-		0.8355034722222222e-01,
-		0.1282265745563272e+00,
-		0.2918490264641405e+00,
-		0.8816272674437577e+00,
-		0.3321408281862768e+01,
-		0.1499576298686255e+02,
-		0.7892301301158652e+02,
-		0.4744515388682643e+03,
-		0.3207490090890662e+04,
-		0.2408654964087401e+05,
-		0.1989231191695098e+06,
-		0.1791902007775344e+07,
-		0.1748437718003412e+08,
-		0.1837073796763307e+09,
-		0.2067904032945155e+10,
-		0.2482751937593589e+11,
-		0.3166945498173489e+12,
-		0.4277112686513472e+13,
-		0.6097113241139256e+14,
-		0.9148694223435640e+15 };
+    lambda[21]
+    {
+       0.1041666666666667e+00,
+       0.8355034722222222e-01,
+       0.1282265745563272e+00,
+       0.2918490264641405e+00,
+       0.8816272674437577e+00,
+       0.3321408281862768e+01,
+       0.1499576298686255e+02,
+       0.7892301301158652e+02,
+       0.4744515388682643e+03,
+       0.3207490090890662e+04,
+       0.2408654964087401e+05,
+       0.1989231191695098e+06,
+       0.1791902007775344e+07,
+       0.1748437718003412e+08,
+       0.1837073796763307e+09,
+       0.2067904032945155e+10,
+       0.2482751937593589e+11,
+       0.3166945498173489e+12,
+       0.4277112686513472e+13,
+       0.6097113241139256e+14,
+       0.9148694223435640e+15
+    };
 
     static constexpr _Tp
-    dmu[21]{ -0.1458333333333333e+00,
-	     -0.9874131944444445e-01,
-	     -0.1433120539158951e+00,
-	     -0.3172272026784136e+00,
-	     -0.9424291479571203e+00,
-	     -0.3511203040826354e+01,
-	     -0.1572726362036805e+02,
-	     -0.8228143909718595e+02,
-	     -0.4923553705236705e+03,
-	     -0.3316218568547973e+04
-	     -0.2482767424520859e+05,
-	     -0.2045265873151298e+06,
-	     -0.1838444917068210e+07,
-	     -0.1790568747352892e+08,
-	     -0.1878356353993943e+09,
-	     -0.2111438854691369e+10,
-	     -0.2531915342298413e+11,
-	     -0.3226140741130003e+12,
-	     -0.4352813796009286e+13,
-	     -0.6199585732586975e+14,
-	     -0.9295073331010611e+15 };
+    mu[21]
+    {
+      -0.1458333333333333e+00,
+      -0.9874131944444445e-01,
+      -0.1433120539158951e+00,
+      -0.3172272026784136e+00,
+      -0.9424291479571203e+00,
+      -0.3511203040826354e+01,
+      -0.1572726362036805e+02,
+      -0.8228143909718595e+02,
+      -0.4923553705236705e+03,
+      -0.3316218568547973e+04
+      -0.2482767424520859e+05,
+      -0.2045265873151298e+06,
+      -0.1838444917068210e+07,
+      -0.1790568747352892e+08,
+      -0.1878356353993943e+09,
+      -0.2111438854691369e+10,
+      -0.2531915342298413e+11,
+      -0.3226140741130003e+12,
+      -0.4352813796009286e+13,
+      -0.6199585732586975e+14,
+      -0.9295073331010611e+15
+    };
 
     ier = 0;
     //  Initialize for modified Horner's rule evaluation of u_k and v_k polynomials
@@ -578,62 +595,59 @@ template<typename _Tp>
 
     //  Compute square of magnituds
     auto ds = dxtsq * dxtsq + dytsq * dytsq;
-    //  Compute u-sub-1,2,3 and v-sub-1,2,3 and store for later use
-    ndxv = 2 * nterms + 1;
+    //  Compute u_0,1,2 and v_0,1,2 and store for later use
+    indexv = 2 * nterms + 1;
     ztpowk = zt;
-    zwksp[0] = ztpowk * dcmplx(a[1] * dxtsq + a[2], a[1] * dytsq);
-    zwksp[ndxv] = ztpowk * dcmplx(b[1] * dxtsq + b[2], b[1] * dytsq);
+    zwksp[0] = ztpowk * a[1] * (dcmplx(dxtsq, dytsq) + a[2]);
+    zwksp[indexv] = ztpowk * b[1] * (dcmplx(dxtsq, dytsq) + b[2]);
     dytsq2 = dytsq * dytsq;
-    ztpowk = zt * ztpowk;
+    ztpowk *= zt;
     zwksp[1] = ztpowk * dcmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
                                (dtwo * a[3] * dxtsq + a[4]) * dytsq);
-    zwksp[ndxv + 1] = ztpowk
+    zwksp[indexv + 1] = ztpowk
                     * dcmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
                              (dtwo * b[3] * dxtsq + b[4]) * dytsq);
-    ztpowk = zt * ztpowk;
+    ztpowk *= zt;
     zwksp[2] = ztpowk
              * dcmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
      		      + a[9] - (dthree * a[6] * dxtsq + a[7]) * dytsq2,
      		      ((dthree * a[6] * dxtsq + dtwo * a[7]) * dxtsq + a[8]
      		      - a[6] * dytsq2) * dytsq);
-    zwksp[ndxv + 2] = ztpowk
+    zwksp[indexv + 2] = ztpowk
                     * dcmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8])
      		      * dxtsq + b[9] - (dthree * b[6] * dxtsq + b[7]) * dytsq2,
      		      ((dthree * b[6] * dxtsq + dtwo * b[7]) * dxtsq + b[8]
      		      - b[6] * dytsq2) * dytsq);
 
-    //  Compute a-sub-1, b-sub-0,1, c-sub-0,1, d-sub-1 ... note that
-    //  uhnksm exploits that fact that a-sub-0 = d-sub-0 = 1
-    //  also, b-sub-k and c-sub-k are computed up to -zeta**(-1/2)
+    //  Compute a_1, b_0,1, c_0,1, d_1 ... note that
+    //  uhnksm exploits that fact that a_0 = d_0 = 1
+    //  also, b_k and c_k are computed up to -zeta**(-1/2)
     //  -zeta**(1/2) factors, respectively.  These recurring factors
     //  are included as appropriate in the outer factors, thus saving
     //  repeated multiplications by them.
     dxzu1 = std::real(zwksp[0]);
     dyzu1 = std::imag(zwksp[0]);
-    dxzv1 = std::real(zwksp[ndxv]);
-    dyzv1 = std::imag(zwksp[ndxv]);
+    dxzv1 = std::real(zwksp[indexv]);
+    dyzv1 = std::imag(zwksp[indexv]);
     dxzt3h = std::real(zetm3h);
     dyzt3h = std::imag(zetm3h);
     za1 = zwksp[1]
-        + (dcmplx(dmu[1] * dxzt3h, dmu[1] * dyzt3h)
-        +  dcmplx(dmu[0] * dxzu1, dmu[0] * dyzu1)) * zetm3h;
-    zb0 = zwksp[0]
-        + dcmplx(dlamda[0] * dxzt3h, dlamda[0] * dyzt3h);
+        + zetm3h * (mu[1] * dcmplx(dxzt3h, dyzt3h)
+		 +  mu[0] * dcmplx(dxzu1, dyzu1));
+    zb0 = zwksp[0] + lambda[0] * dcmplx(dxzt3h, dyzt3h);
     zb1 = zwksp[2]
-        + zetm3h * (dcmplx(dlamda[2] * dxzt3h + dlamda[1] * dxzu1,
-                           dlamda[2] * dyzt3h + dlamda[1] * dyzu1)
-                  + zetm3h * dcmplx(dlamda[0] * std::real(zwksp[1]),
-                                    dlamda[0] * std::imag(zwksp[1])));
-    zc0 = zwksp[ndxv]
-        + dcmplx(dmu[0] * dxzt3h, dmu[0] * dyzt3h);
-    zc1 = zwksp[ndxv + 2]
-        + zetm3h * (dcmplx(dmu[2] * dxzt3h + dmu[1] * dxzv1,
-                           dmu[2] * dyzt3h + dmu[1] * dyzv1)
-                  + zetm3h * dcmplx(dmu[0] * std::real(zwksp[ndxv + 2]),
-                                    dmu[0] * std::imag(zwksp[ndxv + 2])));
-    zd1 = zwksp[ndxv + 1]
-        + zetm3h * dcmplx(dlamda[1] * dxzt3h + dlamda[0] * dxzv1,
-                          dlamda[1] * dyzt3h + dlamda[0] * dyzv1);
+        + zetm3h * (lambda[2] * dcmplx(dxzt3h, dyzt3h)
+		  + lambda[1] * dcmplx(dxzu1, dyzu1)
+		  + lambda[0] * zwksp[1]);
+    zc0 = zwksp[indexv]
+        + mu[0] * dcmplx(dxzt3h, dyzt3h);
+    zc1 = zwksp[indexv + 2]
+        + zetm3h * (mu[2] * dcmplx(dxzt3h, dyzt3h)
+		  + mu[1] * dcmplx(dxzv1, dyzv1)
+                  + mu[0] * zwksp[indexv + 2]);
+    zd1 = zwksp[indexv + 1]
+        + zetm3h * (lambda[1] * dcmplx(dxzt3h, dyzt3h)
+		  + lambda[0] * dcmplx(dxzv1, dyzv1));
 
     //  Compute terms
     zatrm = za1 * z1dnsq;
@@ -651,44 +665,40 @@ template<typename _Tp>
     ztmpd = zdtrm - (zsumd - zone);
 
     //  Set convergence flag to no convergence indication
-    lcvgnc = false;
+    coverged = false;
 
     //  Combine sums in form appearing in expansions
-    zh1sm = zaip * zsuma + zo4dp * zsumb;
-    zh2sm = zaim * zsuma + zo4dm * zsumb;
-    zh1dsm = zod2p * zsumc + zod0dp * zsumd;
-    zh2dsm = zod2m * zsumc + zod0dm * zsumd;
-    zh1s = zaip + zo4dp * zb0;
-    zh2s = zaim + zo4dm * zb0;
-    zh1ds = zod2p * zc0 + zod0dp;
-    zh2ds = zod2m * zc0 + zod0dm;
+    h1sum = zaip * zsuma + zo4dp * zsumb;
+    h2sum = zaim * zsuma + zo4dm * zsumb;
+    h1psum = zod2p * zsumc + zod0dp * zsumd;
+    h2psum = zod2m * zsumc + zod0dm * zsumd;
+    h1save = zaip + zo4dp * zb0;
+    h2save = zaim + zo4dm * zb0;
+    h1psave = zod2p * zc0 + zod0dp;
+    h2psave = zod2m * zc0 + zod0dm;
 
     //  Prepare to check convergence criteria for terms included thus far
-    z1dif = zh1sm - zh1s;
-    z2dif = zh2sm - zh2s;
-    z1ddif = zh1dsm - zh1ds;
-    z2ddif = zh2dsm - zh2ds;
+    z1dif = h1sum - h1save;
+    z2dif = h2sum - h2save;
+    z1pdif = h1psum - h1psave;
+    z2pdif = h2psum - h2psave;
 
     //  If convergence criteria now satisfied
-    if (std::abs(std::real(z1dif)) + std::abs(std::imag(z1dif))
-     	 < deps * (std::abs(std::real(zh1sm)) + std::abs(std::imag(zh1sm)))
-     && std::abs(std::real(z2dif)) + std::abs(std::imag(z2dif))
-     	 < deps * (std::abs(std::real(zh2sm)) + std::abs(std::imag(zh2sm)))
-     && std::abs(std::real(z1ddif)) + std::abs(std::imag(z1ddif))
-     	 < deps * (std::abs(std::real(zh1dsm)) + std::abs(std::imag(zh1dsm)))
-     && std::abs(std::real(z2ddif)) + std::abs(std::imag(z2ddif))
-     	 < deps * (std::abs(std::real(zh2dsm)) + std::abs(std::imag(zh2dsm)))) 
-      lcvgnc = true;
+    if (norm1(z1dif) < eps * norm1(h1sum)
+     && norm1(z2dif) < eps * norm1(h2sum)
+     && norm1(z1pdif) < eps * norm1(h1psum)
+     && norm1(z2pdif) < eps * norm1(h2psum))
+      coverged = true;
 
     //  Save current sums combined as in expansion for next convergence test
-    zh1s = zh1sm;
-    zh2s = zh2sm;
-    zh1ds = zh1dsm;
-    zh2ds = zh2dsm;
+    h1save = h1sum;
+    h2save = h2sum;
+    h1psave = h1psum;
+    h2psave = h2psum;
 
     //  Update index into u_k and v_k coefficients
-    ndx = 10;
-    ndxp = 15;
+    index = 10;
+    indexp = 15;
     //  Update index into storage for u and v polynomials
     nduv = 4;
     //  Update power of nu**(-2)
@@ -699,27 +709,27 @@ template<typename _Tp>
     {
       //  Initialize for evaluation of two new u and v polynomials
       //  via Horner's rule modified for complex arguments and real coefficients
-      ndxend = ndxp;
-      ++ndx;
-      dukta = a[ndx];
-      dvkta = b[ndx];
-      ++ndx;
-      duktb = a[ndx];
-      dvktb = b[ndx];
-      ++ndxp;
-      dukpta = a[ndxp];
-      dvkpta = b[ndxp];
-      ++ndxp;
-      dukptb = a[ndxp];
-      dvkptb = b[ndxp];
+      indexend = indexp;
+      ++index;
+      dukta = a[index];
+      dvkta = b[index];
+      ++index;
+      duktb = a[index];
+      dvktb = b[index];
+      ++indexp;
+      dukpta = a[indexp];
+      dvkpta = b[indexp];
+      ++indexp;
+      dukptb = a[indexp];
+      dvkptb = b[indexp];
       //  update indices into coefficients to reflect initialization
-      ++ndx;
-      ++ndxp;
+      ++index;
+      ++indexp;
 
       //  Loop until quantities to evaluate lowest order u and v 
       //  polynomials and partial quantities to evaluate
       //  next highest order polynomials computed
-      for (auto l = ndx; l < ndxend; ++l)
+      for (auto l = index; l < indexend; ++l)
       {
         dsdata = ds * dukta;
         dukta = duktb + dr * dukta;
@@ -729,85 +739,71 @@ template<typename _Tp>
         dvktb = b[l] - dsdata;
         dsdata = ds * dukpta;
         dukpta = dukptb + dr * dukpta;
-        dukptb = a[ndxp] - dsdata;
+        dukptb = a[indexp] - dsdata;
         dsdata = ds * dvkpta;
         dvkpta = dvkptb + dr * dvkpta;
-        dvkptb = b[ndxp] - dsdata;
-        ++ndxp;
+        dvkptb = b[indexp] - dsdata;
+        ++indexp;
       }
 
       //  One more iteration for highest order polynomials
       dsdata = ds * dukpta;
       dukpta = dukptb + dr * dukpta;
-      dukptb = a[ndxp] - dsdata;
+      dukptb = a[indexp] - dsdata;
       dsdata = ds * dvkpta;
       dvkpta = dvkptb + dr * dvkpta;
-      dvkptb = b[ndxp] - dsdata;
+      dvkptb = b[indexp] - dsdata;
 
       //  Update power appearing outside polynomials
       ztpowk *= zt;
 
       //  Post multiply and form new polynomials
-      zwksp[nduv] = ztpowk
-                  * dcmplx(dukta * dxtsq + duktb, dukta * dytsq);
-      zwksp[ndxv + nduv] = ztpowk
-                         * dcmplx(dvkta * dxtsq + dvktb, dvkta * dytsq);
+      zwksp[nduv] = ztpowk * (dukta * dcmplx(dxtsq, dytsq) + duktb);
+      zwksp[indexv + nduv] = ztpowk * (dvkta * dcmplx(dxtsq, dytsq) + dvktb);
       ztpowk *= zt;
       ++nduv = nduv;
-      zwksp[nduv] = ztpowk
-                  * dcmplx(dukpta * dxtsq + dukptb, dukpta * dytsq);
-      zwksp[ndxv + nduv] = ztpowk
-                         * dcmplx(dvkpta * dxtsq + dvkptb, dvkpta * dytsq);
+      zwksp[nduv] = ztpowk * (dukpta * dcmplx(dxtsq, dytsq) + dukptb);
+      zwksp[indexv + nduv] = ztpowk * (dvkpta * dcmplx(dxtsq, dytsq) + dvkptb);
 
       //  Update indices in preparation for next iteration
       ++nduv = nduv;
-      ndx = ndxp;
+      index = indexp;
       i2k = 2 * k;
       i2km1 = i2k - 1;
       i2kp1 = i2k + 1;
-      ndxp = ndxp + i2kp1 + 2;
+      indexp = indexp + i2kp1 + 2;
 
       //  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
-      za1 = dcmplx(dmu[i2k] * dxzt3h + dmu[i2km1] * dxzu1,
-                   dmu[i2k] * dyzt3h + dmu[i2km1] * dyzu1);
-      zb1 = dcmplx(dlamda[i2kp1] * dxzt3h + dlamda[i2k] * dxzu1,
-                   dlamda[i2kp1] * dyzt3h + dlamda[i2k] * dyzu1);
-      zc1 = dcmplx(dmu[i2kp1] * dxzt3h + dmu[i2k]*dxzv1,
-                   dmu[i2kp1] * dyzt3h + dmu[i2k]*dyzv1);
-      zd1 = dcmplx(dlamda[i2k] * dxzt3h + dlamda[i2km1] * dxzv1,
-                   dlamda[i2k] * dyzt3h + dlamda[i2km1] * dyzv1);
+      za1 = mu[i2k] * dcmplx(dxzt3h, dyzt3h)
+          + mu[i2km1] * dcmplx(dxzu1, dyzu1);
+      zb1 = lambda[i2kp1] * dcmplx(dxzt3h, dyzt3h)
+          + lambda[i2k] * dcmplx(dxzu1, dyzu1);
+      zc1 = mu[i2kp1] * dcmplx(dxzt3h, dyzt3h)
+          + mu[i2k] * dcmplx(dxzv1, dyzv1);
+      zd1 = lambda[i2k] * dcmplx(dxzt3h, dyzt3h)
+          + lambda[i2km1] * dcmplx(dxzv1, dyzv1);
 
-      //  loop until partial a, b, c, and d evaluations done via horner's rule
+      //  loop until partial a, b, c, and d evaluations done via Horner's rule
       for(auto l = 2; l <= i2km1; ++l)
       {
-        ndxvpl = ndxv + l;
+        indexvpl = indexv + l;
         i2kl = i2k - l;
-        za1 = za1 * zetm3h
-            + dcmplx(dmu[i2kl] * std::real(zwksp[l]),
-                     dmu[i2kl] * std::imag(zwksp[l]));
-        zd1 = zd1 * zetm3h
-            + dcmplx(dlamda[i2kl] * std::real(zwksp[ndxvpl]),
-                     dlamda[i2kl] * std::imag(zwksp[ndxvpl]));
+        za1 = za1 * zetm3h + mu[i2kl] * zwksp[l];
+        zd1 = zd1 * zetm3h + lambda[i2kl] * zwksp[indexvpl];
         i2kl = i2kp1 - l;
-        zb1 = zb1 * zetm3h
-            + dcmplx(dlamda[i2kl] * std::real(zwksp[l]),
-                     dlamda[i2kl] * std::imag(zwksp[l]));
-        zc1 = zc1 * zetm3h
-            + dcmplx(dmu[i2kl] * std::real(zwksp[ndxvpl]),
-                     dmu[i2kl] * std::imag(zwksp[ndxvpl]));
+        zb1 = zb1 * zetm3h + lambda[i2kl] * zwksp[l];
+        zc1 = zc1 * zetm3h + mu[i2kl] * zwksp[indexvpl];
       }
 
       //  complete the evaluations
       za1 = za1 * zetm3h + zwksp[i2k];
-      zd1 = zd1 * zetm3h + zwksp[ndxv + i2k];
-      zb1 = zetm3h * (zb1 * zetm3h
-     	  + dcmplx(dlamda[0] * std::real(zwksp[i2k]),
-     		   dlamda[0] * std::imag(zwksp[i2k])))
+      zd1 = zd1 * zetm3h + zwksp[indexv + i2k];
+      zb1 = zetm3h
+     	  * (zb1 * zetm3h + lambda[0] * zwksp[i2k])
           + zwksp[i2kp1];
-      zc1 = zetm3h * (zc1 * zetm3h
-     	  + dcmplx(dmu[0] * std::real(zwksp[ndxv + i2k]),
-     		   dmu[0] * std::imag(zwksp[ndxv + i2k])))
-     	  + zwksp[ndxv + i2kp1];
+      zc1 = zetm3h
+     	  * (zc1 * zetm3h + mu[0] * zwksp[indexv + i2k])
+     	  + zwksp[indexv + i2kp1];
 
       //  Evaluate new terms for sums
       z1dn2k *= z1dnsq;
@@ -831,41 +827,37 @@ template<typename _Tp>
       ztmpd = zdtrm - (zsumd - ztmpd);
 
       //  Combine sume in form appearing in expansions
-      zh1sm  = zaip  * zsuma  + zo4dp * zsumb;
-      zh2sm  = zaim  * zsuma  + zo4dm * zsumb;
-      zh1dsm = zod2p * zsumc + zod0dp * zsumd;
-      zh2dsm = zod2m * zsumc + zod0dm * zsumd;
+      h1sum  = zaip  * zsuma  + zo4dp * zsumb;
+      h2sum  = zaim  * zsuma  + zo4dm * zsumb;
+      h1psum = zod2p * zsumc + zod0dp * zsumd;
+      h2psum = zod2m * zsumc + zod0dm * zsumd;
 
       //  Prepare for convergence tests
-      z1dif = zh1sm - zh1s;
-      z2dif = zh2sm - zh2s;
-      z1ddif = zh1dsm - zh1ds;
-      z2ddif = zh2dsm - zh2ds;
+      z1dif = h1sum - h1save;
+      z2dif = h2sum - h2save;
+      z1pdif = h1psum - h1psave;
+      z2pdif = h2psum - h2psave;
 
       //  If convergence criteria met this term, see if it was before
-      if (std::abs(std::real(z1dif))  + std::abs(std::imag(z1dif))
-     	   < deps*(std::abs(std::real(zh1sm)) + std::abs(std::imag(zh1sm)))
-       && std::abs(std::real(z2dif))  + std::abs(std::imag(z2dif))
-     	   < deps*(std::abs(std::real(zh2sm)) + std::abs(std::imag(zh2sm)))
-       && std::abs(std::real(z1ddif)) + std::abs(std::imag(z1ddif))
-     	   < deps*(std::abs(std::real(zh1dsm)) + std::abs(std::imag(zh1dsm)))
-       && std::abs(std::real(z2ddif)) + std::abs(std::imag(z2ddif))
-     	   < deps*(std::abs(std::real(zh2dsm))+std::abs(std::imag(zh2dsm)))) 
+      if (norm1(z1dif) < eps * norm1(h1sum)
+       && norm1(z2dif) < eps * norm1(h2sum)
+       && norm1(z1pdif) < eps * norm1(h1psum)
+       && norm1(z2pdif) < eps * norm1(h2psum)) 
         {
-          if (lcvgnc) // Convergence - rel. error criteria met twice in a row
+          if (coverged) // Convergence - relative error criteria met twice in a row
             return;
           else  //  Converged
-            lcvgnc = true;
+            coverged = true;
         }
-      else // Reset rel. error criteria flag
-        lcvgnc = false;
+      else  //  Reset relative error criteria flag
+        coverged = false;
 
       //  Save combined sums for comparison next iteration
-      zh1s = zh1sm;
-      zh2s = zh2sm;
-      zh1ds = zh1dsm;
-      zh2ds = zh2dsm;
-    } // 30
+      h1save = h1sum;
+      h2save = h2sum;
+      h1psave = h1psum;
+      h2psave = h2psum;
+    }
 
     //  All allowable terms used - set completion code
     ier = 177;
@@ -881,16 +873,16 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  dparms(std::complex<_Tp> zhat, std::complex<_Tp> znu,
+  dparms(std::complex<_Tp> nu, std::complex<_Tp> zhat,
          std::complex<_Tp> & zt, std::complex<_Tp> & ztsq,
-         std::complex<_Tp> & znusq,std::complex<_Tp> & z1dnsq,
+         std::complex<_Tp> & nusq, std::complex<_Tp> & z1dnsq,
          std::complex<_Tp> & znm1d3, std::complex<_Tp> & znm2d3,
          std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
          std::complex<_Tp> & zetphf, std::complex<_Tp> & zetmhf,
          std::complex<_Tp> & zetm3h, std::complex<_Tp> & zetrat,
          int & ier)
   {
-    std::complex<_Tp> ztemp, zxi, zlnxi, zlnzet;
+    std::complex<_Tp> ztemp, zlnzet;
     _Tp du, dv,
         dxir, dxii;
 
@@ -904,25 +896,25 @@ template<typename _Tp>
 
     constexpr auto dzero  = _Tp(0.0L);
     constexpr auto d1d4   = _Tp(0.25L);
-    constexpr auto d1d3   = _Tp(0.3333333333333333L);
+    constexpr auto d1d3   = _Tp(0.33333333333333333333L);
     constexpr auto dhalf  = _Tp(0.5L);
-    constexpr auto d2d3   = _Tp(0.6666666666666667L);
+    constexpr auto d2d3   = _Tp(0.66666666666666633337L);
     constexpr auto done   = _Tp(1.0L);
     constexpr auto dtwo   = _Tp(2.0L);
     constexpr auto d2pi   = _Tp(6.283185307179586L);
     constexpr auto dlncon = _Tp(0.2703100720721096L);
     constexpr auto dsqr2  = _Tp(1.4142135623730950L);
-    constexpr auto d4d3   = _Tp(1.333333333333333L);
+    constexpr auto d4d3   = _Tp(1.33333333333333333333L);
 
     constexpr std::complex<_Tp> zone{1.0L, 0.0L};
 
-    //  separate real and imaginary parts of zhat
+    //  Separate real and imaginary parts of zhat
     auto dx = std::real(zhat);
     auto dy = std::imag(zhat);
     auto dxabs = std::abs(dx);
     auto dyabs = std::abs(dy);
 
-    //  if 1 - zhat**2 can be computed without overflow
+    //  If 1 - zhat**2 can be computed without overflow
     if (dxabs <= dinfsr && dyabs <= (dinfsr - done))
       {
 	//  find max and min of abs(dx) and abs(dy)
@@ -930,14 +922,11 @@ template<typename _Tp>
 	dv = dyabs;
 	if (du < dv)
           std::swap(du, dv);
-        if (du >= dhalf)
-          {
-            if (dv > dinf / (dtwo * du))
-	      {
-		//  set completion code - unable to compute 1-zhat**2 and exit
-		ier = 131;
-		return;
-	      }
+        if (du >= dhalf && dv > dinf / (dtwo * du))
+	  {
+	    //  set completion code - unable to compute 1-zhat**2 and exit
+	    ier = 131;
+	    return;
           }
       }
     else
@@ -954,12 +943,12 @@ template<typename _Tp>
     ztsq = zt * zt;
 
     //  if nu**2 can be computed without overflow
-    if (std::abs(znu) <= dinfsr)
+    if (std::abs(nu) <= dinfsr)
       {
-	znusq = znu * znu;
-	z1dnsq = done / znusq;
+	nusq = nu * nu;
+	z1dnsq = done / nusq;
 	//  compute nu**(-2/3), nu**(-4/3), nu**(-1/3)
-	znm4d3 = -std::log(znu);
+	znm4d3 = -std::log(nu);
 	znm1d3 = std::exp(d1d3 * znm4d3);
 	znm2d3 = std::exp(d2d3 * znm4d3);
 	znm4d3 = std::exp(d4d3 * znm4d3);
@@ -973,16 +962,16 @@ template<typename _Tp>
 
     //  compute xi = ln(1+(1-zhat**2)**(1/2)) - ln(zhat) - (1-zhat**2)**(1/2)
     //  using default branch of logarithm and square root
-    zxi = std::log(zone + ztemp) - std::log(zhat) - ztemp;
-    zetm3h = d2d3 / zxi;
+    auto xi = std::log(zone + ztemp) - std::log(zhat) - ztemp;
+    zetm3h = d2d3 / xi;
 
-    //  compute principal value of ln(xi) and then adjust imaginary part
-    zlnxi = std::log(zxi);
+    //  Compute principal value of ln(xi) and then adjust imaginary part
+    auto lnxi = std::log(xi);
 
-    //  prepare to adjust logarithm of xi to appropriate Riemann sheet
+    //  Prepare to adjust logarithm of xi to appropriate Riemann sheet
     auto dtemp = dzero;
 
-    //  find adjustment necessary to get on proper Riemann sheet
+    //  Find adjustment necessary to get on proper Riemann sheet
 
     if (dy == dzero)  //  zhat is real
       {
@@ -995,7 +984,7 @@ template<typename _Tp>
 	if (dy > dzero)
 	  {
 	    //  if xi lies in upper half-plane
-	    if (std::imag(zxi) > dzero)
+	    if (std::imag(xi) > dzero)
 	      dtemp = -d2pi;
 	    else
 	      dtemp = d2pi;
@@ -1003,10 +992,10 @@ template<typename _Tp>
       }
 
     //  Adjust logarithm of xi.
-    zlnxi += dtemp;
+    lnxi += dtemp;
 
     //  compute ln(zeta), zeta, zeta^(1/2), zeta^(-1/2)
-    zlnzet = zlnxi + dlncon;
+    zlnzet = lnxi + dlncon;
     zeta = std::exp(zlnzet);
     zetphf = std::sqrt(zeta);
     zetmhf = done / zetphf;
@@ -1023,8 +1012,8 @@ template<typename _Tp>
     Purpose
       Compute the arguments for the Airy function evaluations
       carefully to prevent premature overflow.  Note that the
-      major work here is in lzdiv.  A faster, but less safe
-      implementation can be obtained without use of lzdiv.
+      major work here is in zdiv.  A faster, but less safe
+      implementation can be obtained without use of zdiv.
 
     Arguments
     @param[in]  znm2d3  nu**(-2/3).  in our implementation, zmn2d3 is
@@ -1043,20 +1032,19 @@ template<typename _Tp>
   aryarg(std::complex<_Tp> znm2d3, std::complex<_Tp> zeta,
          std::complex<_Tp> & zargp, std::complex<_Tp> & zargm, int & ier)
   {
-    //  zexpp and zexpm are exp(2*dpi*i/3) and its reciprocal, respectively.
+    //  zexpp and zexpm are exp(2*pi*i/3) and its reciprocal, respectively.
     constexpr auto zexpp = std::complex<_Tp>{-0.5L,  0.8660254037844386L};
     constexpr auto zexpm = std::complex<_Tp>{-0.5L, -0.8660254037844386L};
 
     ier = 0;
 
-    if (lzdiv(zeta, znm2d3, zargm))
+    if (zdiv(zeta, znm2d3, zargm))
       {
-        zargp = zexpp * zargm; // Correct?
-        zargm = zexpm * zargm;
+        zargp *= zexpp;
+        zargm *= zexpm;
       }
     else
       ier = 133;
-
   }
-  
+
 #endif // HANKEL_TCC
