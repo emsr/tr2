@@ -3,6 +3,11 @@
 
 template<typename _Tp>
   void
+  airy(const std::complex<_Tp> & z, _Tp deps,
+       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & ier);
+
+template<typename _Tp>
+  void
   iairy(const std::complex<_Tp> & z, _Tp deps,
         std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
         std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3);
@@ -22,12 +27,12 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zasary(const std::complex<_Tp> & z,
-         std::complex<_Tp> & zai, std::complex<_Tp> & zaipr);
+         std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 template<typename _Tp>
   void
   zasaly(const std::complex<_Tp> & z,
-         std::complex<_Tp> & zai, std::complex<_Tp> & zaipr);
+         std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 /**
     @brief
@@ -150,13 +155,13 @@ template<typename _Tp>
     @param[in]  z	The argument at which the Airy function and its derivative are to be computed.
     @param[in]  deps	Relative error required.  At present, deps is used only in the 
     			backward recursion algorithms.
-    @param[out]  zai	The value computed for Ai(z).
-    @param[out]  zaipr  The value computed for Ai'(z).
+    @param[out]  ai	The value computed for Ai(z).
+    @param[out]  aip    The value computed for Ai'(z).
  */
 template<typename _Tp>
   void
   airy(const std::complex<_Tp> & z, _Tp deps,
-       std::complex<_Tp> & zai, std::complex<_Tp> & zaipr, int & ier)
+       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & ier)
   {
     using dcmplx = std::complex<_Tp>;
 
@@ -202,13 +207,13 @@ template<typename _Tp>
             if (absz >= dziacc)
               {
         	//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
-        	kairy(zxi, deps, zai, zaipr, ier);
+        	kairy(zxi, deps, ai, aip, ier);
         	//  Recover Ai(z) and Ai'(z)
         	auto zp1d4c = std::sqrt(zpwh);
         	zxi = std::exp(-zxi);
         	zxi = drsqpi * zxi;
-        	zai = zxi * (zai / zp1d4c);
-        	zaipr = -zxi * zp1d4c * zaipr;
+        	ai = zxi * (ai / zp1d4c);
+        	aip = -zxi * zp1d4c * aip;
 
               }
             else
@@ -221,18 +226,18 @@ template<typename _Tp>
         	    //  Recover Ai(z) and Ai'(z)
         	    zim1d3 = dgm2d3 * zim1d3;
         	    zi1d3 = dgm1d3 * zi1d3;
-        	    zai = zim1d3 - z * zi1d3;
+        	    ai = zim1d3 - z * zi1d3;
         	    zim2d3 = dgm1d3 * zim2d3;
         	    zi2d3 = d2g2d3 * zi2d3;
-        	    zaipr = z * z * zi2d3 - zim2d3;
+        	    aip = z * z * zi2d3 - zim2d3;
         	  }
         	else
         	  {
                     //  Use backward recurrence along with (1) and (4)
                     iairy(zxi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
                     //  Recover Ai(z) and Ai'(z)
-                    zai = d1d3 * zpwh * (zim1d3 - zi1d3);
-                    zaipr = d1d3 * z * (zi2d3 - zim2d3);
+                    ai = d1d3 * zpwh * (zim1d3 - zi1d3);
+                    aip = d1d3 * z * (zi2d3 - zim2d3);
         	  }
               }
           }
@@ -275,21 +280,21 @@ template<typename _Tp>
         	//  Recover Ai(z) and Ai'(z)
         	zim1d3 = dgm2d3 * zim1d3;
         	zi1d3 = dgm1d3 * zi1d3;
-        	zai = zim1d3 - z * zi1d3;
-        	//zai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
+        	ai = zim1d3 - z * zi1d3;
+        	//ai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
 
         	zim2d3 = dgm1d3 * zim2d3;
         	zi2d3 = d2g2d3 * zi2d3;
-        	zaipr = z * z * zi2d3 - zim2d3;
-        	//zaipr = z * z * z2d3f * zi2d3 - zm2d3f * zim2d3
+        	aip = z * z * zi2d3 - zim2d3;
+        	//aip = z * z * z2d3f * zi2d3 - zm2d3f * zim2d3
               }
             else
               {
         	//  Use backward recurrence
         	iairy(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
         	//  Recover Ai(z) and Ai'(z)
-        	zai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
-        	zaipr = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
+        	ai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
+        	aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
               }
           }
       }
@@ -300,12 +305,12 @@ template<typename _Tp>
             || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
         {
           //  abs(arg(z)) <= 2*dpi/3  -  use asymptotic expansion for this region
-          zasary(z, zai, zaipr);
+          zasary(z, ai, aip);
         }
         else
         {
           //  abs(arg(-z)) < dpi/3  -  use asymptotic expansion for this region
-          zasaly(z, zai, zaipr);
+          zasaly(z, ai, aip);
         }
       }
     return;
@@ -785,16 +790,15 @@ template<typename _Tp>
 
 
 /**
-    @brief
-      This subroutine computes rational approximations to the
-      hypergeometric functions related to the modified Bessel
+    @brief This subroutine computes rational approximations
+      to the hypergeometric functions related to the modified Bessel
       functions of orders nu = + or - 1/3 and + or - 2/3.  That is,
       A(z)/B(z), Where A(z) and B(z) are cubic polynomials with
       real coefficients, approximates
 
-	Gamma(nu+1)		       2 
-	----------- I (Z) =  F (;nu+1;z /4) ,
-	 (z/2)**nu   nu     0 1
+	Gamma(nu+1)
+	----------- I_nu(z) = 0_F_1 (;nu+1;z^2/4) ,
+	 (z/2)**nu         
      
       Where the function on the right is a generalized Gaussian
       hypergeometric function.  For abs(z) <= 1/4  and
@@ -817,25 +821,24 @@ template<typename _Tp>
       absolutely necessary are not made.  Under these assumptions
       an error return is not needed.
 
-      ARGUMENTS
-	z      Double precision complex input variable set equal
+	z      Complex input variable set equal
 	       to the argument at which the hypergeometric given
 	       above is to be evaluated.  Since the approximation
 	       is of fixed order, abs(z) must be small to insure
 	       sufficient accuracy of the computed results.
-	zf1d3  Double precision complex output variable containing
+	zf1d3  Complex output variable containing
 	       the approximate value of the hypergeometric
 	       function related to the modified Bessel function
 	       of order 1/3.
-	zfm1d3 Double precision complex output variable containing
+	zfm1d3 Complex output variable containing
 	       the approximate value of the hypergeometric
 	       function related to the modified Bessel function
 	       of order -1/3.
-	zf2d3  Double precision complex output variable containing
+	zf2d3  Complex output variable containing
 	       the approximate value of the hypergeometric
 	       function related to the modified Bessel function
 	       of order 2/3.
-	zfm2d3 Double precision complex output variable containing
+	zfm2d3 Complex output variable containing
 	       the approximate value of the hypergeometric
 	       function related to the modified Bessel function
 	       of order -2/3.
@@ -1002,13 +1005,13 @@ template<typename _Tp>
       made.  Hence, an error return is not needed.
 
     Arguments
-      z      Double precision complex input variable set equal to the
+      z      Complex input variable set equal to the
 	     value at which Ai(z) and its derivative are to be eval-
 	     uated.  this subroutine assumes abs(z) > 15 and
 	     abs(arg(z)) < 2*pi/3.
-      zai    Double precision complex output variable containing the
+      ai     Complex output variable containing the
 	     value computed for Ai(z).
-      zaipr  Double precision complex output variable containing the
+      aip    Complex output variable containing the
 	     value computed for Ai'(z).
 
     Date of last revision
@@ -1020,7 +1023,7 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zasary(const std::complex<_Tp> & z,
-         std::complex<_Tp> & zai, std::complex<_Tp> & zaipr)
+         std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
     using dcmplx = std::complex<_Tp>;
 
@@ -1114,8 +1117,8 @@ template<typename _Tp>
     }
 
     //  Complete evaluation of the airy functions
-    zai = zout * dal * dcmplx(dx, dy) + dbe;
-    zaipr = zoutpr * dalpr * dcmplx(dx, dy) + dbepr;
+    ai = zout * dal * dcmplx(dx, dy) + dbe;
+    aip = zoutpr * dalpr * dcmplx(dx, dy) + dbepr;
 
     return;
   }
@@ -1134,13 +1137,13 @@ template<typename _Tp>
       made.  Hence, an error return is not needed.
 
     Arguments
-      z      Double precision complex input variable set equal to the
+      z      Complex input variable set equal to the
 	     value at which Ai(z) and its derivative are to be eval-
 	     uated.  This subroutine assumes abs(z) > 15 and
 	     abs(arg(-z)) < pi/3.
-      zai    Double precision complex output variable containing the
+      ai     Complex output variable containing the
 	     value computed for Ai(z).
-      zaipr  Double precision complex output variable containing the
+      aip    Complex output variable containing the
 	     value computed for Ai'(z).
 
     Date of last revision
@@ -1152,7 +1155,7 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zasaly(const std::complex<_Tp> & z,
-         std::complex<_Tp> & zai, std::complex<_Tp> & zaipr)
+         std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
     using dcmplx = std::complex<_Tp>;
 
@@ -1273,12 +1276,12 @@ template<typename _Tp>
 
     //  Complete evaluation of the Airy functions
     zxi = zone / zxi;
-    zai =       zsinxi * dals * dcmplx(dx, dy) + dbes
+    ai =       zsinxi * dals * dcmplx(dx, dy) + dbes
         - zxi * zcosxi * dalc * dcmplx(dx, dy) + dbec;
-    zai = dpimh * zai / zpw1d4;
-    zaipr =       zcosxi * dalprc * dcmplx(dx, dy) + dbeprc
+    ai = dpimh * ai / zpw1d4;
+    aip =       zcosxi * dalprc * dcmplx(dx, dy) + dbeprc
           + zxi * zsinxi * dalprs * dcmplx(dx, dy) + dbeprs;
-    zaipr = -dpimh * zaipr * zpw1d4;
+    aip = -dpimh * aip * zpw1d4;
 
     return;
   }
