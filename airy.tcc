@@ -1,6 +1,10 @@
 #ifndef AIRY_TCC
 #define AIRY_TCC 1
 
+
+#include "complex_util.h"
+
+
 template<typename _Tp>
   void
   airy(const std::complex<_Tp> & z, _Tp deps,
@@ -31,7 +35,7 @@ template<typename _Tp>
 
 template<typename _Tp>
   void
-  zasaly(const std::complex<_Tp> & z,
+  zasaly(std::complex<_Tp> z,
          std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 /**
@@ -163,7 +167,7 @@ template<typename _Tp>
   airy(const std::complex<_Tp> & z, _Tp deps,
        std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & ier)
   {
-    using dcmplx = std::complex<_Tp>;
+    using cmplx = std::complex<_Tp>;
 
     constexpr std::complex<_Tp>
          zepd6{8.660254037844386e-01, 5.0e-01},
@@ -188,7 +192,7 @@ template<typename _Tp>
     //  Check size of abs(z) and select appropriate methods
     if (absz < big)
       {
-        dcmplx zi1d3, zim1d3, zi2d3, zim2d3,
+        cmplx zi1d3, zim1d3, zi2d3, zim2d3,
                z1d3f, zm1d3f, z2d3f, zm2d3f;
 
         //  Moderate or small abs(z)
@@ -198,22 +202,22 @@ template<typename _Tp>
             //  Argument in closed right half plane
             //  Compute xi as defined in the representations in terms of Bessel functions
             auto zpwh = std::sqrt(z);
-            auto zxi = z * zpwh;
-            auto dzxir = d2d3 * std::real(zxi);
-            auto dzxii = d2d3 * std::imag(zxi);
-            zxi = dcmplx(dzxir, dzxii);
+            auto xi = z * zpwh;
+            auto xir = d2d3 * std::real(xi);
+            auto xii = d2d3 * std::imag(xi);
+            xi = cmplx(xir, xii);
 
             //  Check for abs(z) too large for accuracy of representations (1) and (4)
             if (absz >= dziacc)
               {
         	//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
-        	kairy(zxi, deps, ai, aip, ier);
+        	kairy(xi, deps, ai, aip, ier);
         	//  Recover Ai(z) and Ai'(z)
         	auto zp1d4c = std::sqrt(zpwh);
-        	zxi = std::exp(-zxi);
-        	zxi = drsqpi * zxi;
-        	ai = zxi * (ai / zp1d4c);
-        	aip = -zxi * zp1d4c * aip;
+        	xi = std::exp(-xi);
+        	xi = drsqpi * xi;
+        	ai = xi * (ai / zp1d4c);
+        	aip = -xi * zp1d4c * aip;
 
               }
             else
@@ -234,7 +238,7 @@ template<typename _Tp>
         	else
         	  {
                     //  Use backward recurrence along with (1) and (4)
-                    iairy(zxi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
+                    iairy(xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
                     //  Recover Ai(z) and Ai'(z)
                     ai = d1d3 * zpwh * (zim1d3 - zi1d3);
                     aip = d1d3 * z * (zi2d3 - zim2d3);
@@ -246,16 +250,16 @@ template<typename _Tp>
             //  z lies in left half plane
             //  Compute xi as defined in the representations in terms of bessel functions
             auto zpwh = std::sqrt(-z);
-            auto zxi = -z * zpwh;
-            auto dzxir = d2d3 * std::real(zxi);
-            auto dzxii = d2d3 * std::imag(zxi);
-            zxi = dcmplx(dzxir, dzxii);
-            dcmplx z2xi;
+            auto xi = -z * zpwh;
+            auto xir = d2d3 * std::real(xi);
+            auto xii = d2d3 * std::imag(xi);
+            xi = cmplx(xir, xii);
+            cmplx z2xi;
             //  Set up arguments to recover bessel functions of the first kind in (3) and (6)
-            if (dzxii >= dzero)
+            if (xii >= dzero)
               {
         	//  Argument lies in upper half plane, so use appropriate identity
-        	z2xi = std::complex<_Tp>(dzxii, -dzxir);
+        	z2xi = std::complex<_Tp>(xii, -xir);
         	z1d3f = zepd6;
         	zm1d3f = zempd6;
         	z2d3f = zepd3;
@@ -264,7 +268,7 @@ template<typename _Tp>
             else
               {
         	//  Argument lies in lower half plane, so use appropriate identity
-        	z2xi = std::complex<_Tp>(-dzxii, dzxir);
+        	z2xi = std::complex<_Tp>(-xii, xir);
         	z1d3f = zempd6;
         	zm1d3f = zepd6;
         	z2d3f = zempd3;
@@ -275,7 +279,7 @@ template<typename _Tp>
             if (absz <= small)
               {
         	//  Use rational approximation
-        	zxi = -z;
+        	xi = -z;
         	zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
         	//  Recover Ai(z) and Ai'(z)
         	zim1d3 = dgm2d3 * zim1d3;
@@ -402,11 +406,10 @@ template<typename _Tp>
         std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
         std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3)
   {
-    using dcmplx = std::complex<_Tp>;
+    using cmplx = std::complex<_Tp>;
 
-    constexpr _Tp sone{1}, stwo{2};
-    constexpr dcmplx zero{0}, zone{1};
-    constexpr _Tp done{1.0e+00}, dtwo{2.0e+00}, dhalf{5.0e-01},
+    constexpr cmplx zero{0}, zone{1};
+    constexpr _Tp done{1.0e+00}, dhalf{5.0e-01},
     	 d1d3  {3.333333333333333e-01}, d2d3  {6.666666666666667e-01},
     	 d4d3  {1.333333333333333e+00}, d5d3  {1.666666666666667e+00},
     	 d8d3  {2.666666666666667e+00}, d10d3 {3.333333333333333e+00},
@@ -414,30 +417,19 @@ template<typename _Tp>
     	 dgm4d3{8.929795115692492e-01}, dgm5d3{9.027452929509336e-01},
     	 d2sqr2{2.828427124746190e+01};
 
-    //  compute 1/z for use in recurrence for speed and abs(z)
-    auto dzr = std::real(z);
-    auto dzi = std::imag(z);
-    auto dzrabs = std::abs(dzr);
-    auto dziabs = std::abs(dzi);
-    auto du = std::max(dzrabs, dziabs);
-    auto dv = std::min(dzrabs, dziabs);
-    auto d1dzi = (done + (dv / du) * (dv / du));
-    auto dmodz = du * std::sqrt(d1dzi);
-    d1dzi = du * d1dzi;
-    auto d1dzr = (dzr / du) / d1dzi;
-    d1dzi = -(dzi / du) / d1dzi;
-    dcmplx z1dz(d1dzr, d1dzi);
+    //  Compute 1/z for use in recurrence for speed and abs(z)
+    cmplx z1dz;
+    zdiv(1, z, z1dz);
 
-    //  initialize for forward recursion based on order 2/3
+    //  Initialize for forward recursion based on order 2/3
     int n = 0;
-    auto d2n = _Tp(n + n) + d4d3;
+    auto d2n = _Tp(2 * n) + d4d3;
     auto zplst2 = zone;
-    auto zp2 = d2n * std::complex<_Tp>(d1dzr, d1dzi);
+    auto zp2 = d2n * z1dz;
 
-    //  calculate weak convergence test and set flag for weak convergence loop
+    //  Calculate weak convergence test and set flag for weak convergence loop
     auto dtest = d2sqr2 / deps;
     bool lstcnv = false;
-
 
     //  loop until weak and strong convergence tests satisfied when recurring forward
     while (true)
@@ -446,16 +438,14 @@ template<typename _Tp>
 	  {
     	    //  Update n dependent quantities
     	    ++n;
-    	    d2n += dtwo;
+    	    d2n += 2;
     	    //  Interchange values
     	    auto zpold2 = zplst2;
     	    zplst2 = zp2;
     	    //  Recur forward one step
     	    zp2 = z1dz * d2n * zplst2 + zpold2;
-
-    	    //  Check if convergence test (in 1-norm) satisfied
 	  }
-	while (std::abs(std::real(zp2)) + std::abs(std::imag(zp2)) < dtest);
+	while (norm1(zp2) < dtest);  //  Check if convergence test (in 1-norm) satisfied
 
 	//  if strong convergence, then weak and strong convergence
 	if (lstcnv)
@@ -475,12 +465,12 @@ template<typename _Tp>
     			   / ((splstr / slamn) * (splstr / slamn)
     			    + (splsti / slamn) * (splsti / slamn)));
 	//  Compute quantity needed for lambda-sub-n of strong convergence lemma
-	slamn = _Tp(n + 1) / dmodz;
+	slamn = _Tp(n + 1) / std::abs(z);
 	//  Determine appropriate value for rho-sub-n of lemma
-	if (skn + sone / skn > stwo * slamn)
-    	  skn = slamn + std::sqrt(slamn * slamn - sone);
+	if (skn + 1 / skn > 2 * slamn)
+    	  skn = slamn + std::sqrt(slamn * slamn - 1);
 	//  Compute test value - sqrt(2) multiple already included
-	dtest *= std::sqrt(skn - sone / skn);
+	dtest *= std::sqrt(skn - 1 / skn);
 	//  Set strong convergence test flag
 	lstcnv = true;
     }
@@ -488,20 +478,12 @@ template<typename _Tp>
     //  Prepare for backward recurrence for both orders 1/3 and 2/3
     auto dn = _Tp(n);
     ++n;
-    d2n = _Tp(n + n);
+    d2n = _Tp(2 * n);
     auto zplst1 = zero;
     zplst2 = zero;
     //  Carefully compute 1/zp2 to avoid overflow in complex divide
-    auto dzp2r = std::real(zp2);
-    auto dzp2i = std::imag(zp2);
-    dzrabs = std::abs(dzp2r);
-    dziabs = std::abs(dzp2i);
-    du = std::max(dzrabs, dziabs);
-    dv = std::min(dzrabs, dziabs);
-    d1dzi = du * (done + (dv / du) * (dv / du));
-    d1dzr = (dzp2r / du) / d1dzi;
-    d1dzi = -(dzp2i / du) / d1dzi;
-    auto zp1 = dcmplx(d1dzr, d1dzi);
+    cmplx zp1;
+    zdiv(1, zp2, zp1);
     zp2 = zp1;
     //  Set up n dependent parameters used in normalization sum
     auto dnpn1 = dn + d1d3;
@@ -525,7 +507,7 @@ template<typename _Tp>
 	  {
     	    //  Update n dependent quantities
     	    --n;
-    	    d2n = d2n - dtwo;
+    	    d2n -= 2;
     	    dfac1 = d2n + d2d3;
     	    dfac2 = d2n + d4d3;
     	    //  Interchanges for order 1/3 recurrence
@@ -565,7 +547,7 @@ template<typename _Tp>
     zsum1 = (zsum1 + zsum1) + zp1;
 
     //  Compute scale factor and scale results for order 1/3 case
-    auto zd2pow = std::pow(dhalf * dcmplx(dzr, dzi), -d1d3);
+    auto zd2pow = std::pow(dhalf * z1dz, -d1d3);
     zpold1 = zd2pow * std::exp(-z);
     zsum1 *= zpold1 * dgm4d3;
     zplst1 /= zsum1;
@@ -647,19 +629,12 @@ template<typename _Tp>
         std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
         int & ier)
   {
-    using dcmplx = std::complex<_Tp>;
+    using cmplx = std::complex<_Tp>;
 
     _Tp an1,
         danm1, danm2, dqzr, dqzi;
 
-    constexpr _Tp dtwo{2},
-                  deight{8},
-		  d16{16},
-		  d24{24},
-                  dthree{3},
-		  dfive{5},
-		  delti{32},
-        	  dan1i{ 4.8555555555555555555e+01L},
+    constexpr _Tp dan1i{ 4.8555555555555555555e+01L},
 		  dan2i{ 4.7222222222222222222e+01L},
         	  dp12i{ 3.1444444444444444444e+01L},
 		  dp22i{ 3.2777777777777777777e+01L},
@@ -692,11 +667,11 @@ template<typename _Tp>
 
     auto zphi10 = zone;
     auto zphi20 = zone;
-    auto zphi11 = dcmplx((dfco[0] * std::real(z) + dphico[0]) / dfco[1],
+    auto zphi11 = cmplx((dfco[0] * std::real(z) + dphico[0]) / dfco[1],
                      std::imag(zf11));
     auto zphi12 = z * (dfco[2] * z + dphico[1]);
     zphi12 = (zphi12 + dphico[2]) / dfco[4];
-    auto zphi21 = dcmplx((dfco[0] * std::real(z) + dphico[3]) / dfco[5],
+    auto zphi21 = cmplx((dfco[0] * std::real(z) + dphico[3]) / dfco[5],
                      std::imag(zf21));
     auto zphi22 = z * (dfco[2] * z + dphico[4]);
     zphi22 = zone + (zphi22 + dphico[5]) / dfco[7];
@@ -704,7 +679,7 @@ template<typename _Tp>
     //  Initialize for recursion
     auto zratol = zphi22 / zf22;
     auto zrat1 = zphi12 / zf12;
-    auto delt = delti;
+    auto delt = _Tp(32);
     auto dan1 = dan1i;
     auto dan2 = dan2i;
     auto dp11 = dp11i;
@@ -713,10 +688,10 @@ template<typename _Tp>
     auto dp21 = dp21i;
     auto dp22 = dp22i;
     auto dp23 = dp23i;
-    auto deta = d24;
-    auto dgamm = dthree;
-    auto dgam = dfive;
-    auto dq = d16 * dgam;
+    auto deta = _Tp(24);
+    auto dgamm = _Tp(3);
+    auto dgam = _Tp(5);
+    auto dq = 16 * dgam;
 
     //  Loop until maximum iterations used or convergence
     for (int i = 1; i < 100; ++i)
@@ -734,9 +709,9 @@ template<typename _Tp>
 	zfact1 = dqz - dp21;
 	zfact2 = dqz - dp22;
 	auto zf23 = zfact1 * zf22 + zfact2 * zf21 - dp23 * zf20;
-	zf23 = zf23 / dan2;
+	zf23 /= dan2;
 	auto zphi23 = zfact1 * zphi22 + zfact2 * zphi21 - dp23 * zphi20;
-	zphi23 = zphi23 / dan2;
+	zphi23 /= dan2;
 
 	//  check for convergence
 	auto zratnw = zphi23 / zf23;
@@ -764,22 +739,22 @@ template<typename _Tp>
 	zphi10 = zphi11;
 	zphi11 = zphi12;
 	zphi12 = zphi13;
-	delt = delt + d24;
+	delt = delt + 24;
 	dp12 = dp12 + delt;
 	dp22 = dp22 + delt;
-	deta = deta + deight;
-	dan1 = dan1 + deta;
-	dan2 = dan2 + deta;
-	danm1 = dan1 - delt - d16;
-	danm2 = dan2 - delt - d16;
+	deta += 8;
+	dan1 += deta;
+	dan2 += deta;
+	danm1 = dan1 - delt - 16;
+	danm2 = dan2 - delt - 16;
 	dgamm = dgam;
-	dgam = dgam + dtwo;
+	dgam += 2;
 	dp23 = -dgam / dgamm;
 	dp13 = dp23 * danm1;
 	dp23 = dp23 * danm2;
 	dp11 = -dan1 - dp12 - dp13;
 	dp21 = -dan2 - dp22 - dp23;
-	dq = d16 * dgam;
+	dq = 16 * dgam;
       }
 
     //  Maximum iterations exceeded
@@ -855,10 +830,9 @@ template<typename _Tp>
          std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
          std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3)
   {
-    using dcmplx = std::complex<_Tp>;
+    using cmplx = std::complex<_Tp>;
 
-    constexpr _Tp dtwo{2};
-    constexpr dcmplx zone{1};
+    constexpr cmplx zone{1};
 
     //  dsmall is the 1/3 root of the smallest magnitude
     //  floating-point number representable on the machine
@@ -886,24 +860,19 @@ template<typename _Tp>
     else
       {
 	//  Initialize argument dependent quantities used throughout
-	dcmplx zzz = z * z * z;
-	_Tp dx = std::real(zzz);
-	_Tp dy = std::imag(zzz);
-	_Tp dr = dtwo * dx;
-	_Tp ds = dx * dx + dy * dy;
+	cmplx zzz = z * z * z;
+	_Tp dr = 2 * std::real(zzz);
+	_Tp ds = std::norm(zzz);
 
 	//  All of the following polynomial evaluations are done using
 	//  a modified of Horner's rule which exploits the fact that
 	//  the polynomial coefficients are all real.  the algorithm is
-	//  discussed in detail in
-
+	//  discussed in detail in:
 	//  Knuth, D. E., The Art of Computer Programming: Seminumerical
 	//  Algorithms (Vol. 2), Addison-Wesley, pp 423-424, 1969.
 
 	//  If n is the degree of the polynomial, n - 3 multiplies are
 	//  saved and 4 * n - 6 additions are saved.
-
-	_Tp dtwo;
 
 	//  Evaluate numerator polynomial for nu=1/3 approximant
 	auto dal = da1d3[0];
@@ -913,7 +882,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = da1d3[3] - dt;
-	zf1d3 = dal * dcmplx(dx, dy) + dbe;
+	zf1d3 = dal * zzz + dbe;
 
 	//  Evaluate denominator polynomial for nu=1/3 approximant
 	//  and compute ratio of numerator and denominator
@@ -924,7 +893,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = db1d3[3] - dt;
-	zf1d3 /= dal * dcmplx(dx, dy) + dbe;
+	zf1d3 /= dal * zzz + dbe;
 
 	//  Evaluate numerator polynomial for nu=-1/3 approximant
 	dal = dam1d3[0];
@@ -934,7 +903,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = dam1d3[3] - dt;
-	zfm1d3 = dal * dcmplx(dx, dy) + dbe;
+	zfm1d3 = dal * zzz + dbe;
 	//  Evaluate denominator polynomial for nu=-1/3 approximant
 	//  and compute ratio of numerator and denominator
 	dal = dbm1d3[0];
@@ -944,7 +913,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = dbm1d3[3] - dt;
-	zfm1d3 /= dal * dcmplx(dx, dy) + dbe;
+	zfm1d3 /= dal * zzz + dbe;
 
 	//  Evaluate numerator polynomial for nu=2/3 approximant
 	dal = da2d3[0];
@@ -954,7 +923,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = da2d3[3] - dt;
-	zf2d3 = dal * dcmplx(dx, dy) + dbe;
+	zf2d3 = dal * zzz + dbe;
 
 	//  Evaluate denominator polynomial for nu=2/3 approximant
 	//  and compute ratio of numerator and denominator
@@ -965,7 +934,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = db2d3[3] - dt;
-	zf2d3 /= dal * dcmplx(dx, dy) + dbe;
+	zf2d3 /= dal * zzz + dbe;
 
 	//  Evaluate numerator polynomial for nu=-2/3 approximant
 	dal = dam2d3[0];
@@ -975,7 +944,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = dam2d3[3] - dt;
-	zfm2d3 = dal * dcmplx(dx, dy) + dbe;
+	zfm2d3 = dal * zzz + dbe;
 
 	//  Evaluate denominator polynomial for nu=-2/3 approximant
 	//  and compute ratio of numerator and denominator
@@ -986,7 +955,7 @@ template<typename _Tp>
 	dt  = ds * dal;
 	dal = dbe + dr * dal;
 	dbe = dbm2d3[3] - dt;
-	zfm2d3 /= dal * dcmplx(dx, dy) + dbe;
+	zfm2d3 /= dal * zzz + dbe;
       }
 
     return;
@@ -1025,19 +994,20 @@ template<typename _Tp>
   zasary(const std::complex<_Tp> & z,
          std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
-    using dcmplx = std::complex<_Tp>;
+    using cmplx = std::complex<_Tp>;
 
     _Tp dsdata;
 
-    constexpr _Tp d2d3 = 6.666666666666667e-01;
+    constexpr _Tp d2d3   = 6.666666666666667e-01;
     constexpr _Tp dpmhd2 = 2.820947917738781e-01;
     constexpr std::complex<_Tp> zmone{-1};
     constexpr int ntermx = 15;
-    constexpr int nterms[5]{ 15, 12, 11, 11, 9 };
+    constexpr int numnterms = 5;
+    constexpr int nterms[5]{ ntermx, 12, 11, 11, 9 };
 
     //  coefficients for the expansion
     constexpr _Tp
-    dck[15]
+    dck[ntermx]
     {
       0.5989251356587907e+05,
       0.9207206599726415e+04,
@@ -1057,7 +1027,7 @@ template<typename _Tp>
     };
 
     constexpr _Tp
-    ddk[15]
+    ddk[ntermx]
     {
       -0.6133570666385206e+05,
       -0.9446354823095932e+04,
@@ -1076,28 +1046,26 @@ template<typename _Tp>
        0.1000000000000000e+01
     };
 
-    //  compute -xi and z**(1/4)
+    //  Compute -xi and z**(1/4)
     auto zpw1d4 = std::sqrt(z);
-    auto zxim = z * zpw1d4;
-    zxim *= d2d3;
+    auto xim = z * zpw1d4;
+    xim *= d2d3;
     zpw1d4 = std::sqrt(zpw1d4);
 
     //  Compute outer factors in the expansions
-    auto zoutpr = std::exp(-zxim);
+    auto zoutpr = std::exp(-xim);
     zoutpr *= dpmhd2;
     auto zout = zoutpr / zpw1d4;
     zoutpr *= -zpw1d4;
 
     //  Determine number of terms to use
-    auto nterm = nterms[std::min(5, (int(std::abs(z)) - 10) / 5)];
+    auto nterm = nterms[std::min(numnterms - 1, (int(std::abs(z)) - 10) / 5)];
     //  Initialize for modified horner's rule evaluation of sums
     //  it is assumed that at least three terms are used
-    zxim = zmone / zxim;
-    auto dx = std::real(zxim);
-    auto dy = std::imag(zxim);
-    auto dr = dx + dx;
-    auto ds = dx * dx + dy * dy;
-    auto ndx = ntermx - nterm + 1;
+    xim = zmone / xim;
+    auto dr = 2 * std::real(xim);
+    auto ds = std::norm(xim);
+    auto ndx = ntermx - nterm;// + 1;
     auto dal = dck[ndx];
     auto dalpr = ddk[ndx];
     ++ndx;
@@ -1106,7 +1074,7 @@ template<typename _Tp>
     ++ndx;
 
     //  Loop until components contributing to sums are computed
-    for (int k = ndx; k <= ntermx; ++k)
+    for (int k = ndx; k < ntermx; ++k)
     {
       auto dsdata = ds * dal;
       dal = dbe + dr * dal;
@@ -1117,8 +1085,8 @@ template<typename _Tp>
     }
 
     //  Complete evaluation of the airy functions
-    ai = zout * dal * dcmplx(dx, dy) + dbe;
-    aip = zoutpr * dalpr * dcmplx(dx, dy) + dbepr;
+    ai = zout * dal * xim + dbe;
+    aip = zoutpr * dalpr * xim + dbepr;
 
     return;
   }
@@ -1154,22 +1122,24 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  zasaly(const std::complex<_Tp> & z,
+  zasaly(std::complex<_Tp> z,
          std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
-    using dcmplx = std::complex<_Tp>;
+    using cmplx = std::complex<_Tp>;
 
-    constexpr _Tp d2d3{6.666666666666667e-01};
-    constexpr _Tp d9d4{2.25e+00};
+    constexpr _Tp d2d3 {6.666666666666667e-01};
+    constexpr _Tp d9d4 {2.25e+00};
     constexpr _Tp dpimh{5.641895835477563e-01};
     constexpr _Tp dpid4{7.853981633974483e-01};
     constexpr std::complex<_Tp> zone{1};
     constexpr int ntermx = 9;
-    constexpr int nterms[5]{ 9, 7, 6, 6, 5 };
+    constexpr int numnterms = 5;
+    constexpr int nterms[numnterms]{ ntermx, 7, 6, 6, 5 };
+
 
     //  coefficients for the expansion
     constexpr _Tp
-    dckc[9]
+    dckc[ntermx]
     {
       0.2519891987160237e+08,
       0.4195248751165511e+06,
@@ -1182,7 +1152,7 @@ template<typename _Tp>
       0.6944444444444444e-01
     };
     constexpr _Tp
-    dcks[9]
+    dcks[ntermx]
     {
       0.3148257417866826e+07,
       0.5989251356587907e+05,
@@ -1196,7 +1166,7 @@ template<typename _Tp>
     };
 
     constexpr _Tp
-    ddks[9]
+    ddks[ntermx]
     {
       -0.2569790838391133e+08,
       -0.4289524004000691e+06,
@@ -1209,7 +1179,7 @@ template<typename _Tp>
       -0.9722222222222222e-01
     };
     constexpr _Tp
-    ddkc[9]
+    ddkc[ntermx]
     {
       -0.3214536521400865e+07,
       -0.6133570666385206e+05,
@@ -1223,34 +1193,34 @@ template<typename _Tp>
     };
 
     //  Set up working value of z
-    auto zwk = -z;
+    z = -z;
     //  Compute xi and z**(1/4)
-    auto zpw1d4 = std::sqrt(zwk);
-    auto zxi = zwk * zpw1d4;
-    zxi = d2d3 * zxi;
+    auto zpw1d4 = std::sqrt(z);
+    auto xi = z * zpw1d4;
+    xi *= d2d3;
     zpw1d4 = std::sqrt(zpw1d4);
 
     //  Compute sine and cosine factors in the expansions.
-    auto zxiarg = zxi + dpid4;
-    auto zsinxi = std::sin(zxiarg);
-    auto zcosxi = std::cos(zxiarg);
+    auto xiarg = xi + dpid4;
+    auto zsinxi = std::sin(xiarg);
+    auto zcosxi = std::cos(xiarg);
 
     //  Determine number of terms to use.
-    auto nterm = nterms[std::min(5, (int(std::abs(z)) - 10) / 5)];
+    auto nterm = nterms[std::min(numnterms - 1, (int(std::abs(z)) - 10) / 5)];
     //  Initialize for modified Horner's rule evaluation of sums
     //  it is assumed that at least three terms are used
-    zwk = std::pow(zone / zwk, 3);
-    zwk = d9d4 * zwk;
-    auto dx = -std::real(zwk);
-    auto dy = -std::imag(zwk);
-    auto dr = dx + dx;
-    auto ds = dx * dx + dy * dy;
-    auto ndx = ntermx - nterm + 1;
+    z = std::pow(zone / z, 3);
+    z = d9d4 * z;
+    auto dr = -2 * std::real(z);
+    auto ds = std::norm(z);
+    auto ndx = ntermx - nterm;// + 1;
+
     auto dals = dcks[ndx];
     auto dalc = dckc[ndx];
     auto dalprs = ddks[ndx];
     auto dalprc = ddkc[ndx];
     ++ndx;
+
     auto dbes = dcks[ndx];
     auto dbec = dckc[ndx];
     auto dbeprs = ddks[ndx];
@@ -1258,10 +1228,10 @@ template<typename _Tp>
     ++ndx;
 
     //  Loop until components contributing to sums are computed
-    for (int k = ndx; k <= ntermx; ++k) // TODO Loop term!!
+    for (int k = ndx; k < ntermx; ++k)
     {
       auto dsdata = ds * dals;
-      dals = dbes + dr*dals;
+      dals = dbes + dr * dals;
       dbes = dcks[k] - dsdata;
       dsdata = ds * dalc;
       dalc = dbec + dr * dalc;
@@ -1275,12 +1245,12 @@ template<typename _Tp>
     }
 
     //  Complete evaluation of the Airy functions
-    zxi = zone / zxi;
-    ai =       zsinxi * dals * dcmplx(dx, dy) + dbes
-        - zxi * zcosxi * dalc * dcmplx(dx, dy) + dbec;
+    xi = zone / xi;
+    ai = zsinxi * dals * z + dbes
+       - xi * zcosxi * dalc * z + dbec;
     ai = dpimh * ai / zpw1d4;
-    aip =       zcosxi * dalprc * dcmplx(dx, dy) + dbeprc
-          + zxi * zsinxi * dalprs * dcmplx(dx, dy) + dbeprs;
+    aip = zcosxi * dalprc * z + dbeprc
+	+ xi * zsinxi * dalprs * z + dbeprs;
     aip = -dpimh * aip * zpw1d4;
 
     return;

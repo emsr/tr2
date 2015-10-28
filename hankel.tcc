@@ -5,6 +5,7 @@
 #include <iostream>
 #include <limits>
 
+#include "complex_util.h"
 #include "airy.tcc"
 
 template<typename _Tp>
@@ -289,62 +290,6 @@ template<typename _Tp>
     return;
   }
 
-/**
- *  Return the norm-1 modulus or the Manhattan metric distance of a complex number.
- */
-template<typename _Tp>
-  _Tp
-  norm1(const std::complex<_Tp> & z)
-  { return std::abs(std::real(z)) + std::abs(std::imag(z)); }
-
-/**
- *  Carefully compute @c z1/z2 avoiding overflow and destructive underflow.
- *  If the quotient is successfully computed, then the logical value @c true
- *  is returned and the quotient is returned in @c z1dz2.
- *  Otherwise, @c false is returned and the quotient is not.
- */
-template<typename _Tp>
-  bool
-  zdiv(std::complex<_Tp> z1, std::complex<_Tp> z2,
-       std::complex<_Tp> & z1dz2)
-  {
-    //  Note that xhinf is a machine floating-point dependent constant
-    //  set equal to half the largest available floating-point number.
-    static constexpr auto xhinf = 0.5L * std::numeric_limits<_Tp>::max();
-
-    //  Separate real and imaginary parts of arguments
-    auto z1r = std::real(z1);
-    auto z1i = std::imag(z1);
-    auto z2r = std::real(z2);
-    auto z2i = std::imag(z2);
-
-    //  Set up largest and smallest magnitudes needed
-    auto z1b = std::max(std::abs(z1r), std::abs(z1i));
-    auto z2b = std::abs(z2r);
-    auto z2ub = std::abs(z2i);
-
-    if (z2b < z2ub)
-      std::swap(z2b, z2ub);
-
-    //  If overflow will occur, then abort
-    if (z2b < _Tp(1) && z1b > z2b * xhinf)
-      return false;
-
-    //  Compute the quotient
-    z1r /= z1b;
-    z1i /= z1b;
-    z2r /= z2b;
-    z2i /= z2b;
-    auto term = z2ub / z2b;
-    auto denom = _Tp(1) + term * term;
-    auto scale = z1b / z2b / denom;
-    auto qr = (z1r * z2r + z1i * z2i) * scale;
-    auto qi = (z2r * z1i - z1r * z2i) * scale;
-    z1dz2 = std::complex<_Tp>{qr, qi};
-
-    return true;
-  }
-
 
 /**
     PURPOSE
@@ -367,9 +312,9 @@ template<typename _Tp>
         	     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
         	     int & ier)
   {
-    using dcmplx = std::complex<_Tp>;
+    using cmplx = std::complex<_Tp>;
 
-    dcmplx za1, zb0, zb1, zc0, zc1, zd1, ztpowk,
+    cmplx za1, zb0, zb1, zc0, zc1, zd1, ztpowk,
      	   zatrm, zbtrm, zctrm, zdtrm, zsuma, zsumb, zsumc,
      	   zsumd, ztmpa, ztmpb, ztmpc, ztmpd, z1dif,
      	   z1pdif, z2dif, z2pdif, h1save, h1psave, h2save, h2psave,
@@ -385,7 +330,7 @@ template<typename _Tp>
 
     bool coverged;
 
-    constexpr auto zone = dcmplx(1, 0);
+    constexpr auto zone = cmplx(1, 0);
     constexpr auto dtwo = _Tp(2);
     constexpr auto dthree = _Tp(3);
 
@@ -592,29 +537,29 @@ template<typename _Tp>
     auto dxtsq = std::real(ztsq);
     auto dytsq = std::imag(ztsq);
     auto dr = dtwo * dxtsq;
-
     //  Compute square of magnituds
-    auto ds = dxtsq * dxtsq + dytsq * dytsq;
+    auto ds = std::norm(ztsq);
+
     //  Compute u_0,1,2 and v_0,1,2 and store for later use
     indexv = 2 * nterms + 1;
     ztpowk = zt;
-    zwksp[0] = ztpowk * a[1] * (dcmplx(dxtsq, dytsq) + a[2]);
-    zwksp[indexv] = ztpowk * b[1] * (dcmplx(dxtsq, dytsq) + b[2]);
+    zwksp[0] = ztpowk * a[1] * (ztsq + a[2]);
+    zwksp[indexv] = ztpowk * b[1] * (ztsq + b[2]);
     dytsq2 = dytsq * dytsq;
     ztpowk *= zt;
-    zwksp[1] = ztpowk * dcmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
+    zwksp[1] = ztpowk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
                                (dtwo * a[3] * dxtsq + a[4]) * dytsq);
     zwksp[indexv + 1] = ztpowk
-                    * dcmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
+                    * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
                              (dtwo * b[3] * dxtsq + b[4]) * dytsq);
     ztpowk *= zt;
     zwksp[2] = ztpowk
-             * dcmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
+             * cmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
      		      + a[9] - (dthree * a[6] * dxtsq + a[7]) * dytsq2,
      		      ((dthree * a[6] * dxtsq + dtwo * a[7]) * dxtsq + a[8]
      		      - a[6] * dytsq2) * dytsq);
     zwksp[indexv + 2] = ztpowk
-                    * dcmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8])
+                    * cmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8])
      		      * dxtsq + b[9] - (dthree * b[6] * dxtsq + b[7]) * dytsq2,
      		      ((dthree * b[6] * dxtsq + dtwo * b[7]) * dxtsq + b[8]
      		      - b[6] * dytsq2) * dytsq);
@@ -632,22 +577,22 @@ template<typename _Tp>
     dxzt3h = std::real(zetm3h);
     dyzt3h = std::imag(zetm3h);
     za1 = zwksp[1]
-        + zetm3h * (mu[1] * dcmplx(dxzt3h, dyzt3h)
-		 +  mu[0] * dcmplx(dxzu1, dyzu1));
-    zb0 = zwksp[0] + lambda[0] * dcmplx(dxzt3h, dyzt3h);
+        + zetm3h * (mu[1] * cmplx(dxzt3h, dyzt3h)
+		 +  mu[0] * cmplx(dxzu1, dyzu1));
+    zb0 = zwksp[0] + lambda[0] * cmplx(dxzt3h, dyzt3h);
     zb1 = zwksp[2]
-        + zetm3h * (lambda[2] * dcmplx(dxzt3h, dyzt3h)
-		  + lambda[1] * dcmplx(dxzu1, dyzu1)
+        + zetm3h * (lambda[2] * cmplx(dxzt3h, dyzt3h)
+		  + lambda[1] * cmplx(dxzu1, dyzu1)
 		  + lambda[0] * zwksp[1]);
     zc0 = zwksp[indexv]
-        + mu[0] * dcmplx(dxzt3h, dyzt3h);
+        + mu[0] * cmplx(dxzt3h, dyzt3h);
     zc1 = zwksp[indexv + 2]
-        + zetm3h * (mu[2] * dcmplx(dxzt3h, dyzt3h)
-		  + mu[1] * dcmplx(dxzv1, dyzv1)
+        + zetm3h * (mu[2] * cmplx(dxzt3h, dyzt3h)
+		  + mu[1] * cmplx(dxzv1, dyzv1)
                   + mu[0] * zwksp[indexv + 2]);
     zd1 = zwksp[indexv + 1]
-        + zetm3h * (lambda[1] * dcmplx(dxzt3h, dyzt3h)
-		  + lambda[0] * dcmplx(dxzv1, dyzv1));
+        + zetm3h * (lambda[1] * cmplx(dxzt3h, dyzt3h)
+		  + lambda[0] * cmplx(dxzv1, dyzv1));
 
     //  Compute terms
     zatrm = za1 * z1dnsq;
@@ -758,12 +703,12 @@ template<typename _Tp>
       ztpowk *= zt;
 
       //  Post multiply and form new polynomials
-      zwksp[nduv] = ztpowk * (dukta * dcmplx(dxtsq, dytsq) + duktb);
-      zwksp[indexv + nduv] = ztpowk * (dvkta * dcmplx(dxtsq, dytsq) + dvktb);
+      zwksp[nduv] = ztpowk * (dukta * cmplx(dxtsq, dytsq) + duktb);
+      zwksp[indexv + nduv] = ztpowk * (dvkta * cmplx(dxtsq, dytsq) + dvktb);
       ztpowk *= zt;
       ++nduv = nduv;
-      zwksp[nduv] = ztpowk * (dukpta * dcmplx(dxtsq, dytsq) + dukptb);
-      zwksp[indexv + nduv] = ztpowk * (dvkpta * dcmplx(dxtsq, dytsq) + dvkptb);
+      zwksp[nduv] = ztpowk * (dukpta * cmplx(dxtsq, dytsq) + dukptb);
+      zwksp[indexv + nduv] = ztpowk * (dvkpta * cmplx(dxtsq, dytsq) + dvkptb);
 
       //  Update indices in preparation for next iteration
       ++nduv = nduv;
@@ -774,14 +719,14 @@ template<typename _Tp>
       indexp = indexp + i2kp1 + 2;
 
       //  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
-      za1 = mu[i2k] * dcmplx(dxzt3h, dyzt3h)
-          + mu[i2km1] * dcmplx(dxzu1, dyzu1);
-      zb1 = lambda[i2kp1] * dcmplx(dxzt3h, dyzt3h)
-          + lambda[i2k] * dcmplx(dxzu1, dyzu1);
-      zc1 = mu[i2kp1] * dcmplx(dxzt3h, dyzt3h)
-          + mu[i2k] * dcmplx(dxzv1, dyzv1);
-      zd1 = lambda[i2k] * dcmplx(dxzt3h, dyzt3h)
-          + lambda[i2km1] * dcmplx(dxzv1, dyzv1);
+      za1 = mu[i2k] * cmplx(dxzt3h, dyzt3h)
+          + mu[i2km1] * cmplx(dxzu1, dyzu1);
+      zb1 = lambda[i2kp1] * cmplx(dxzt3h, dyzt3h)
+          + lambda[i2k] * cmplx(dxzu1, dyzu1);
+      zc1 = mu[i2kp1] * cmplx(dxzt3h, dyzt3h)
+          + mu[i2k] * cmplx(dxzv1, dyzv1);
+      zd1 = lambda[i2k] * cmplx(dxzt3h, dyzt3h)
+          + lambda[i2km1] * cmplx(dxzv1, dyzv1);
 
       //  loop until partial a, b, c, and d evaluations done via Horner's rule
       for(auto l = 2; l <= i2km1; ++l)
