@@ -13,7 +13,7 @@ main()
   nu = 5.0;
   z = 1.0 - 3.0i;
 
-  uniform_hankel(nu, z, h1, h2, h1p, h2p);
+  hankel_uniform(nu, z, h1, h2, h1p, h2p);
 
   std::cout.precision(std::numeric_limits<double>::digits10);
   std::cout << '\n';
@@ -30,7 +30,7 @@ main()
 
   std::complex<double> ai, aip;
   int ier;
-  airy(z, 1.0e-9, ai, aip, ier);
+  airy(z, 1.0e-16, ai, aip, ier);
   std::cout << '\n';
   std::cout << "z      = " << z << '\n';
   std::cout << "Ai(z)  = " << ai << '\n';

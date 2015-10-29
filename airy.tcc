@@ -12,15 +12,15 @@ template<typename _Tp>
 
 template<typename _Tp>
   void
-  iairy(const std::complex<_Tp> & z, _Tp deps,
-        std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
-        std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3);
+  airy_bessel_i(const std::complex<_Tp> & z, _Tp deps,
+		std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
+		std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3);
 
 template<typename _Tp>
   void
-  kairy(const std::complex<_Tp> & z, _Tp deps,
-        std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
-        int & ier);
+  airy_bessel_k(const std::complex<_Tp> & z, _Tp deps,
+		std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
+		int & ier);
 
 template<typename _Tp>
   void
@@ -169,21 +169,22 @@ template<typename _Tp>
   {
     using cmplx = std::complex<_Tp>;
 
-    constexpr std::complex<_Tp>
-         zepd6{8.660254037844386e-01, 5.0e-01},
-         zempd6{8.660254037844386e-01, -5.0e-01},
-         zepd3 {5.0e-01,  8.660254037844386e-01},
-         zempd3{5.0e-01, -8.660254037844386e-01};
-    constexpr _Tp
-         dzero{0},
-         d1d3  {3.33333333333333333e-01},
-         d2d3  {6.66666666666666667e-01},
-         dsqrt3{1.732050807568877e+00},
-         dgm1d3{2.588194037928068e-01},
-         dgm2d3{3.550280538878172e-01},
-         d2g2d3{1.775140269439086e-01},
-         drsqpi{2.820947917738781e-01};
-    constexpr _Tp small{0.25}, dziacc{2}, big{15};
+    static constexpr std::complex<_Tp>
+      zepd6{8.660254037844386e-01, 5.0e-01},
+      zempd6{8.660254037844386e-01, -5.0e-01},
+      zepd3 {5.0e-01,  8.660254037844386e-01},
+      zempd3{5.0e-01, -8.660254037844386e-01},
+      j{0, 1};
+    static constexpr _Tp
+      dzero{0},
+      d1d3  {3.33333333333333333e-01},
+      d2d3  {6.66666666666666667e-01},
+      dsqrt3{1.732050807568877e+00},
+      dgm1d3{2.588194037928068e-01},
+      dgm2d3{3.550280538878172e-01},
+      d2g2d3{1.775140269439086e-01},
+      drsqpi{2.820947917738781e-01};
+    static constexpr _Tp small{0.25}, dziacc{2}, big{15};
 
     ier = 0;
 
@@ -211,14 +212,13 @@ template<typename _Tp>
             if (absz >= dziacc)
               {
         	//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
-        	kairy(xi, deps, ai, aip, ier);
+        	airy_bessel_k(xi, deps, ai, aip, ier);
         	//  Recover Ai(z) and Ai'(z)
         	auto zp1d4c = std::sqrt(zpwh);
         	xi = std::exp(-xi);
         	xi = drsqpi * xi;
         	ai = xi * (ai / zp1d4c);
         	aip = -xi * zp1d4c * aip;
-
               }
             else
               {
@@ -238,7 +238,7 @@ template<typename _Tp>
         	else
         	  {
                     //  Use backward recurrence along with (1) and (4)
-                    iairy(xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
+                    airy_bessel_i(xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
                     //  Recover Ai(z) and Ai'(z)
                     ai = d1d3 * zpwh * (zim1d3 - zi1d3);
                     aip = d1d3 * z * (zi2d3 - zim2d3);
@@ -251,15 +251,13 @@ template<typename _Tp>
             //  Compute xi as defined in the representations in terms of bessel functions
             auto zpwh = std::sqrt(-z);
             auto xi = -z * zpwh;
-            auto xir = d2d3 * std::real(xi);
-            auto xii = d2d3 * std::imag(xi);
-            xi = cmplx(xir, xii);
+            xi *= d2d3;
             cmplx z2xi;
             //  Set up arguments to recover bessel functions of the first kind in (3) and (6)
-            if (xii >= dzero)
+            if (std::imag(xi) >= dzero)
               {
         	//  Argument lies in upper half plane, so use appropriate identity
-        	z2xi = std::complex<_Tp>(xii, -xir);
+        	z2xi = -j * xi;//std::complex<_Tp>(xii, -xir);
         	z1d3f = zepd6;
         	zm1d3f = zempd6;
         	z2d3f = zepd3;
@@ -268,7 +266,7 @@ template<typename _Tp>
             else
               {
         	//  Argument lies in lower half plane, so use appropriate identity
-        	z2xi = std::complex<_Tp>(-xii, xir);
+        	z2xi = j * xi;//std::complex<_Tp>(-xii, xir);
         	z1d3f = zempd6;
         	zm1d3f = zepd6;
         	z2d3f = zempd3;
@@ -295,7 +293,7 @@ template<typename _Tp>
             else
               {
         	//  Use backward recurrence
-        	iairy(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
+        	airy_bessel_i(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
         	//  Recover Ai(z) and Ai'(z)
         	ai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
         	aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
@@ -402,9 +400,9 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  iairy(const std::complex<_Tp> & z, _Tp deps,
-        std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
-        std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3)
+  airy_bessel_i(const std::complex<_Tp> & z, _Tp deps,
+		std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
+		std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -625,9 +623,9 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  kairy(const std::complex<_Tp> & z, _Tp deps,
-        std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
-        int & ier)
+  airy_bessel_k(const std::complex<_Tp> & z, _Tp deps,
+		std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
+		int & ier)
   {
     using cmplx = std::complex<_Tp>;
 
