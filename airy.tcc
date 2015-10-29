@@ -25,18 +25,18 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zcrary(const std::complex<_Tp> & z,
-         std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
-         std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3);
+	 std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
+	 std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3);
 
 template<typename _Tp>
   void
   zasary(const std::complex<_Tp> & z,
-         std::complex<_Tp> & ai, std::complex<_Tp> & aip);
+	 std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 template<typename _Tp>
   void
   zasaly(std::complex<_Tp> z,
-         std::complex<_Tp> & ai, std::complex<_Tp> & aip);
+	 std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 /**
     @brief
@@ -47,43 +47,43 @@ template<typename _Tp>
     Airy function and its derivative.  We record the representations
     here for reference
 
-        	  sqrt(z)
+		  sqrt(z)
     (1) Ai(z)	= ------- (I (xi) - I (xi))
-        	     3      -1/3     1/3
+		     3      -1/3     1/3
 
-        	  sqrt(z/3)
+		  sqrt(z/3)
     (2) Ai(z)	= --------- K (xi)
-        	     pi      1/3
+		     pi      1/3
 
-        	    2/3  -5/6
-        	   2	3
-        	=  --------  z exp(-xi) U(5/6; 5/3; 2 xi)
-        	   sqrt(pi)
+		    2/3  -5/6
+		   2	3
+		=  --------  z exp(-xi) U(5/6; 5/3; 2 xi)
+		   sqrt(pi)
 
-        	  sqrt(z)
+		  sqrt(z)
     (3) Ai(-z)  = ------- (J  (xi) + J (xi))
-        	     3      -1/3      1/3
+		     3      -1/3      1/3
 
-        	  z
+		  z
     (4) Ai'(z)  = - (I (xi) - I  (xi))
-        	  3   2/3      -2/3
+		  3   2/3      -2/3
 
-        		 z
+			 z
     (5) Ai'(z)  = - ---------- K (xi)
-        	    pi*sqrt(3)  2/3
+		    pi*sqrt(3)  2/3
 
-        	      2/3  -7/6
-        	     4    3    2
-        	=  - -------- Z  exp(-xi) U(7/6; 7/3; 2 xi)
-        	     sqrt(pi)
+		      2/3  -7/6
+		     4    3    2
+		=  - -------- Z  exp(-xi) U(7/6; 7/3; 2 xi)
+		     sqrt(pi)
 
-        	   z
+		   z
     (6) Ai'(-z) =  - (J (xi) - J  (xi)) ,
-        	   3   2/3	-2/3
+		   3   2/3	-2/3
 
-               2  3/2
+	       2  3/2
     Where xi = - z    and U( ; ; ) is the confluent hypergeometric
-               3
+	       3
     Function as defined in
 
     @see Stegun, I. A. and Abramowitz, M., Handbook of Mathematical Functions,
@@ -123,11 +123,11 @@ template<typename _Tp>
     the corresponding Bessel functions of the first kind are recovered
     via the identities
 
-          J_nu(z) = exp(nu pi i/2) I_nu(z exp(-pi i/2)),
-        	0 <= arg(z) <= pi/2
+	  J_nu(z) = exp(nu pi i/2) I_nu(z exp(-pi i/2)),
+		0 <= arg(z) <= pi/2
     and
-          J_nu(z) = exp(-nu pi i/2) I_nu(z exp(pi i/2)),
-               -pi/2 <= arg(z) < 0 .
+	  J_nu(z) = exp(-nu pi i/2) I_nu(z exp(pi i/2)),
+	       -pi/2 <= arg(z) < 0 .
 
     The particular backward recursion algorithm used is discussed in 
 
@@ -193,127 +193,127 @@ template<typename _Tp>
     //  Check size of abs(z) and select appropriate methods
     if (absz < big)
       {
-        cmplx zi1d3, zim1d3, zi2d3, zim2d3,
-               z1d3f, zm1d3f, z2d3f, zm2d3f;
+	cmplx zi1d3, zim1d3, zi2d3, zim2d3,
+	       z1d3f, zm1d3f, z2d3f, zm2d3f;
 
-        //  Moderate or small abs(z)
-        //  Check for right or left half plane argument
-        if (std::real(z) >= dzero)
-          {
-            //  Argument in closed right half plane
-            //  Compute xi as defined in the representations in terms of Bessel functions
-            auto zpwh = std::sqrt(z);
-            auto xi = z * zpwh;
-            auto xir = d2d3 * std::real(xi);
-            auto xii = d2d3 * std::imag(xi);
-            xi = cmplx(xir, xii);
+	//  Moderate or small abs(z)
+	//  Check for right or left half plane argument
+	if (std::real(z) >= dzero)
+	  {
+	    //  Argument in closed right half plane
+	    //  Compute xi as defined in the representations in terms of Bessel functions
+	    auto zpwh = std::sqrt(z);
+	    auto xi = z * zpwh;
+	    auto xir = d2d3 * std::real(xi);
+	    auto xii = d2d3 * std::imag(xi);
+	    xi = cmplx(xir, xii);
 
-            //  Check for abs(z) too large for accuracy of representations (1) and (4)
-            if (absz >= dziacc)
-              {
-        	//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
-        	airy_bessel_k(xi, deps, ai, aip, ier);
-        	//  Recover Ai(z) and Ai'(z)
-        	auto zp1d4c = std::sqrt(zpwh);
-        	xi = std::exp(-xi);
-        	xi = drsqpi * xi;
-        	ai = xi * (ai / zp1d4c);
-        	aip = -xi * zp1d4c * aip;
-              }
-            else
-              {
-        	//  Check for abs(z) small enough for rational approximation
-        	if (absz <= small)
-        	  {
-        	    //  Use rational approximation along with (1) and (4)
-        	    zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
-        	    //  Recover Ai(z) and Ai'(z)
-        	    zim1d3 = dgm2d3 * zim1d3;
-        	    zi1d3 = dgm1d3 * zi1d3;
-        	    ai = zim1d3 - z * zi1d3;
-        	    zim2d3 = dgm1d3 * zim2d3;
-        	    zi2d3 = d2g2d3 * zi2d3;
-        	    aip = z * z * zi2d3 - zim2d3;
-        	  }
-        	else
-        	  {
-                    //  Use backward recurrence along with (1) and (4)
-                    airy_bessel_i(xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
-                    //  Recover Ai(z) and Ai'(z)
-                    ai = d1d3 * zpwh * (zim1d3 - zi1d3);
-                    aip = d1d3 * z * (zi2d3 - zim2d3);
-        	  }
-              }
-          }
-        else
-          {
-            //  z lies in left half plane
-            //  Compute xi as defined in the representations in terms of bessel functions
-            auto zpwh = std::sqrt(-z);
-            auto xi = -z * zpwh;
-            xi *= d2d3;
-            cmplx z2xi;
-            //  Set up arguments to recover bessel functions of the first kind in (3) and (6)
-            if (std::imag(xi) >= dzero)
-              {
-        	//  Argument lies in upper half plane, so use appropriate identity
-        	z2xi = -j * xi;//std::complex<_Tp>(xii, -xir);
-        	z1d3f = zepd6;
-        	zm1d3f = zempd6;
-        	z2d3f = zepd3;
-        	zm2d3f = zempd3;
-              }
-            else
-              {
-        	//  Argument lies in lower half plane, so use appropriate identity
-        	z2xi = j * xi;//std::complex<_Tp>(-xii, xir);
-        	z1d3f = zempd6;
-        	zm1d3f = zepd6;
-        	z2d3f = zempd3;
-        	zm2d3f = zepd3;
-              }
+	    //  Check for abs(z) too large for accuracy of representations (1) and (4)
+	    if (absz >= dziacc)
+	      {
+		//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
+		airy_bessel_k(xi, deps, ai, aip, ier);
+		//  Recover Ai(z) and Ai'(z)
+		auto zp1d4c = std::sqrt(zpwh);
+		xi = std::exp(-xi);
+		xi = drsqpi * xi;
+		ai = xi * (ai / zp1d4c);
+		aip = -xi * zp1d4c * aip;
+	      }
+	    else
+	      {
+		//  Check for abs(z) small enough for rational approximation
+		if (absz <= small)
+		  {
+		    //  Use rational approximation along with (1) and (4)
+		    zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
+		    //  Recover Ai(z) and Ai'(z)
+		    zim1d3 = dgm2d3 * zim1d3;
+		    zi1d3 = dgm1d3 * zi1d3;
+		    ai = zim1d3 - z * zi1d3;
+		    zim2d3 = dgm1d3 * zim2d3;
+		    zi2d3 = d2g2d3 * zi2d3;
+		    aip = z * z * zi2d3 - zim2d3;
+		  }
+		else
+		  {
+		    //  Use backward recurrence along with (1) and (4)
+		    airy_bessel_i(xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
+		    //  Recover Ai(z) and Ai'(z)
+		    ai = d1d3 * zpwh * (zim1d3 - zi1d3);
+		    aip = d1d3 * z * (zi2d3 - zim2d3);
+		  }
+	      }
+	  }
+	else
+	  {
+	    //  z lies in left half plane
+	    //  Compute xi as defined in the representations in terms of bessel functions
+	    auto zpwh = std::sqrt(-z);
+	    auto xi = -z * zpwh;
+	    xi *= d2d3;
+	    cmplx z2xi;
+	    //  Set up arguments to recover bessel functions of the first kind in (3) and (6)
+	    if (std::imag(xi) >= dzero)
+	      {
+		//  Argument lies in upper half plane, so use appropriate identity
+		z2xi = -j * xi;//std::complex<_Tp>(xii, -xir);
+		z1d3f = zepd6;
+		zm1d3f = zempd6;
+		z2d3f = zepd3;
+		zm2d3f = zempd3;
+	      }
+	    else
+	      {
+		//  Argument lies in lower half plane, so use appropriate identity
+		z2xi = j * xi;//std::complex<_Tp>(-xii, xir);
+		z1d3f = zempd6;
+		zm1d3f = zepd6;
+		z2d3f = zempd3;
+		zm2d3f = zepd3;
+	      }
 
-            //  Use approximation depending on size of z
-            if (absz <= small)
-              {
-        	//  Use rational approximation
-        	xi = -z;
-        	zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
-        	//  Recover Ai(z) and Ai'(z)
-        	zim1d3 = dgm2d3 * zim1d3;
-        	zi1d3 = dgm1d3 * zi1d3;
-        	ai = zim1d3 - z * zi1d3;
-        	//ai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
+	    //  Use approximation depending on size of z
+	    if (absz <= small)
+	      {
+		//  Use rational approximation
+		xi = -z;
+		zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
+		//  Recover Ai(z) and Ai'(z)
+		zim1d3 = dgm2d3 * zim1d3;
+		zi1d3 = dgm1d3 * zi1d3;
+		ai = zim1d3 - z * zi1d3;
+		//ai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
 
-        	zim2d3 = dgm1d3 * zim2d3;
-        	zi2d3 = d2g2d3 * zi2d3;
-        	aip = z * z * zi2d3 - zim2d3;
-        	//aip = z * z * z2d3f * zi2d3 - zm2d3f * zim2d3
-              }
-            else
-              {
-        	//  Use backward recurrence
-        	airy_bessel_i(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
-        	//  Recover Ai(z) and Ai'(z)
-        	ai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
-        	aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
-              }
-          }
+		zim2d3 = dgm1d3 * zim2d3;
+		zi2d3 = d2g2d3 * zi2d3;
+		aip = z * z * zi2d3 - zim2d3;
+		//aip = z * z * z2d3f * zi2d3 - zm2d3f * zim2d3
+	      }
+	    else
+	      {
+		//  Use backward recurrence
+		airy_bessel_i(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
+		//  Recover Ai(z) and Ai'(z)
+		ai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
+		aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
+	      }
+	  }
       }
     else
       {
-        //  abs(z) is large; check arg(z) to see which asymptotic form is appropriate
-        if (std::real(z) >= dzero
-            || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
-        {
-          //  abs(arg(z)) <= 2*dpi/3  -  use asymptotic expansion for this region
-          zasary(z, ai, aip);
-        }
-        else
-        {
-          //  abs(arg(-z)) < dpi/3  -  use asymptotic expansion for this region
-          zasaly(z, ai, aip);
-        }
+	//  abs(z) is large; check arg(z) to see which asymptotic form is appropriate
+	if (std::real(z) >= dzero
+	    || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
+	{
+	  //  abs(arg(z)) <= 2*dpi/3  -  use asymptotic expansion for this region
+	  zasary(z, ai, aip);
+	}
+	else
+	{
+	  //  abs(arg(-z)) < dpi/3  -  use asymptotic expansion for this region
+	  zasaly(z, ai, aip);
+	}
       }
     return;
 }
@@ -341,8 +341,8 @@ template<typename _Tp>
 
     satisfied by the modified Bessel functions of the first kind.
     the normalization relationship used is
-           nu z 
-      (z/2)  e  	         INF  (k+nu)*Gamma(2 nu+k)
+	   nu z 
+      (z/2)  e                   inf  (k+nu)*Gamma(2 nu+k)
       -----------  = I_nu(z) + 2 SUM  -------------------- I_(nu+k)(z) .
       Gamma(nu+1)                k=1   k! Gamma(1 + 2 nu)   
 
@@ -390,12 +390,12 @@ template<typename _Tp>
 
     Arguments
     @param[in]   z      The argument at which the modified Bessel
-                        functions computed by this program are to be
-                        evaluated.
+			functions computed by this program are to be
+			evaluated.
     @param[in]   deps   The maximum relative error required in the results.
-    @param[out]  zi1d3   The value of I_1/3 (z).
+    @param[out]  zi1d3   The value of I_(1/3) (z).
     @param[out]  zim1d3  The value of I_(-1/3) (z).
-    @param[out]  zi2d3   The value of I_2/3 (z).
+    @param[out]  zi2d3   The value of I_(2/3) (z).
     @param[out]  zim2d3  The value of I_(-2/3) (z).
  */
 template<typename _Tp>
@@ -604,22 +604,22 @@ template<typename _Tp>
 
     Arguments
       z      The value for which the quantity e-sub-nu is to
-             be computed.  it is recommended that abs(z) not be
-             too small and that abs(arg(z)) <= 3*pi/4.
+	     be computed.  it is recommended that abs(z) not be
+	     too small and that abs(arg(z)) <= 3*pi/4.
       deps   The maximum relative error allowable in the computed
-             results.  the relative error test is based on the
-             comparison of successive iterates.
+	     results.  the relative error test is based on the
+	     comparison of successive iterates.
       zk1d3  The value computed for E-sub-(1/3) of z.
       zk2d3  The value computed for E-sub-(2/3) of z.
       ier    A completion code.
-             ier = 0 indicates normal completion
-             ier = 129, convergence failed in 100 iterations
-            
+	     ier = 0 indicates normal completion
+	     ier = 129, convergence failed in 100 iterations
+	    
 
     @note According to published information about the behaviour of the error for orders
-          1/3 and 2/3, ier = 129 should never occur for the domain of z that we recommend.
-          indeed, in the worst case, say, z=2 and arg(z) = 3*pi/4, we expect 20 iterations
-          to give 7 or 8 decimals of accuracy.
+	  1/3 and 2/3, ier = 129 should never occur for the domain of z that we recommend.
+	  indeed, in the worst case, say, z=2 and arg(z) = 3*pi/4, we expect 20 iterations
+	  to give 7 or 8 decimals of accuracy.
  */
 template<typename _Tp>
   void
@@ -629,16 +629,15 @@ template<typename _Tp>
   {
     using cmplx = std::complex<_Tp>;
 
-    _Tp an1,
-        danm1, danm2, dqzr, dqzi;
+    _Tp danm1, danm2;
 
     constexpr _Tp dan1i{ 4.8555555555555555555e+01L},
 		  dan2i{ 4.7222222222222222222e+01L},
-        	  dp12i{ 3.1444444444444444444e+01L},
+		  dp12i{ 3.1444444444444444444e+01L},
 		  dp22i{ 3.2777777777777777777e+01L},
-        	  dp13i{-9.2592592592592592592e-01L},
+		  dp13i{-9.2592592592592592592e-01L},
 		  dp23i{ 1.2962962962962962962e+00L},
-        	  dp11i{-7.9074074074074074074e+01L},
+		  dp11i{-7.9074074074074074074e+01L},
 		  dp21i{-8.1296296296296296296e+01L};
 
     constexpr std::complex<_Tp> zone{1};
@@ -666,11 +665,11 @@ template<typename _Tp>
     auto zphi10 = zone;
     auto zphi20 = zone;
     auto zphi11 = cmplx((dfco[0] * std::real(z) + dphico[0]) / dfco[1],
-                     std::imag(zf11));
+		     std::imag(zf11));
     auto zphi12 = z * (dfco[2] * z + dphico[1]);
     zphi12 = (zphi12 + dphico[2]) / dfco[4];
     auto zphi21 = cmplx((dfco[0] * std::real(z) + dphico[3]) / dfco[5],
-                     std::imag(zf21));
+		     std::imag(zf21));
     auto zphi22 = z * (dfco[2] * z + dphico[4]);
     zphi22 = zone + (zphi22 + dphico[5]) / dfco[7];
 
@@ -825,8 +824,8 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zcrary(const std::complex<_Tp> & z,
-         std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
-         std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3)
+	 std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
+	 std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -990,12 +989,8 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zasary(const std::complex<_Tp> & z,
-         std::complex<_Tp> & ai, std::complex<_Tp> & aip)
+	 std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
-    using cmplx = std::complex<_Tp>;
-
-    _Tp dsdata;
-
     constexpr _Tp d2d3   = 6.666666666666667e-01;
     constexpr _Tp dpmhd2 = 2.820947917738781e-01;
     constexpr std::complex<_Tp> zmone{-1};
@@ -1121,10 +1116,8 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zasaly(std::complex<_Tp> z,
-         std::complex<_Tp> & ai, std::complex<_Tp> & aip)
+	 std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
-    using cmplx = std::complex<_Tp>;
-
     constexpr _Tp d2d3 {6.666666666666667e-01};
     constexpr _Tp d9d4 {2.25e+00};
     constexpr _Tp dpimh{5.641895835477563e-01};
