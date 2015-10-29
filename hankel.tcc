@@ -14,7 +14,11 @@ template<typename _Tp>
   hankel(std::complex<_Tp> nu, std::complex<_Tp> arg,
 	 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
 	 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-	 int & ierror);
+	 int & error);
+
+template<typename _Tp>
+  void
+  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & error);
 
 template<typename _Tp>
   void
@@ -22,7 +26,7 @@ template<typename _Tp>
 	       _Tp alpha, int & indexr, char & aorb, int & morn,
 	       std::complex<_Tp> & h1dbye, std::complex<_Tp> & h2dbye,
 	       std::complex<_Tp> & h1pdby, std::complex<_Tp> & h2pdby,
-	       int & ierror);
+	       int & error);
 
 template<typename _Tp>
   void
@@ -86,13 +90,13 @@ template<typename _Tp>
   hankel(std::complex<_Tp> nu, std::complex<_Tp> arg,
 	 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
 	 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-	 int & ierror)
+	 int & error)
   {
     static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
 
     int indexr, ierr;
 
-    ierror = 0;
+    error = 0;
 
     auto test = std::abs((nu - arg) / std::pow(nu, 1.0/3.0));
     if (test < 4.0)
@@ -119,20 +123,71 @@ template<typename _Tp>
 	  {
 	    auto mfun = ((alphar * std::tanh(alphar) - 1) * std::tan(alphai) + alphai) / pi;
 	    morn = int(mfun);
-	    if (mfun < 0 && (dmod(mfun, 1.0) != 0))
+	    if (mfun < 0 && (std::fmod(mfun, 1) != 0))
 	    --morn;
 	  }
 	else if (aorb == 'B')
 	  {
 	    auto nfun = ((1 - alphar * std::tanh(alphar)) * std::tan(alphai) - alphai) / pi;
 	    morn = int(nfun) + 1;
-	    if (nfun < 0 && dmod(nfun, 1.0) != 0)
+	    if (nfun < 0 && std::fmod(nfun, 1) != 0)
 	      --morn;
 	  }
 	hankel_debye(nu, arg, alpha, indexr, aorb, morn,
-		     h1, h2, h1p, h2p, ierror);
+		     h1, h2, h1p, h2p, error);
       }
 
+    return;
+  }
+
+/**
+ *  
+ */
+template<typename _Tp>
+  void
+  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & error)
+  {
+    error = 0;
+    aorb = ' ';
+
+    auto alphar = std::real(alpha);
+    auto alphai = std::imag(alpha);
+
+    auto f1 = _Tp{1}
+	    - alphai * std::cos(alphai) / std::sin(alphai)
+	    - alphar * std::sinh(alphar) / std::cosh(alphar);
+
+    auto f2 = _Tp{1}
+	    + (pi - alphai) * std::cos(alphai) / std::sin(alphai)
+	    - alphar * std::sinh(alphar) / std::cosh(alphar);
+
+    if (f1 > _Tp{0} && f2 > _Tp{0})
+      indexr = 1;
+    else if (f2 > _Tp{0})
+      {
+	if (alphar > _Tp{0})
+	  indexr = 2;
+	else
+	  indexr = 3;
+      }
+    else if (f1 > _Tp{0})
+      {
+	if (alphar > _Tp{0})
+	  indexr = 4;
+	else
+	  indexr = 5;
+      }
+    else
+      {
+	if (alphar > _Tp{0})
+          indexr = 6;
+	else
+          indexr = 7;
+        if (alphai <= (pi / _Tp{2}))
+          aorb = 'A';
+        else
+          aorb = 'B';
+      }
     return;
   }
 
@@ -145,13 +200,14 @@ template<typename _Tp>
 	       int indexr, char & aorb, int & morn,
 	       std::complex<_Tp> & h1dbye, std::complex<_Tp> & h2dbye,
 	       std::complex<_Tp> & h1pdby, std::complex<_Tp> & h2pdby,
-	       int & ierror)
+	       int & error)
   {
     using namespace std::literals::complex_literals;
     using cmplx = std::complex<_Tp>;
 
     static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
     static constexpr cmplx j = 1.0il;
+    static constexpr _Tp toler = 1.0e-8;
 
     cmplx jdbye;
 
@@ -162,7 +218,7 @@ template<typename _Tp>
     auto denom = std::sqrt(pi * arg / 2) * std::sqrt(-j * std::sinh(alpha));
     if (std::abs(std::real(nu * (thalpa - alpha))) > 690.0)
       {
-	ierror = 1;
+	error = 1;
 	return;
       }
     auto s1 = std::exp(nu * (thalpa - alpha) - j * pi / 4) / denom;
@@ -214,8 +270,8 @@ template<typename _Tp>
     else if (aorb == 'A')
       {
 	cmplx sinrat;
-	if ((std::abs(std::imag(nu)) < 1.0e-8)
-	 && (std::abs(dmod(std::real(nu), 1.0)) < 1.0e-8))
+	if ((std::abs(std::imag(nu)) < toler)
+	 && (std::abs(std::fmod(std::real(nu), 1)) < toler))
 	  sinrat = morn;
 	else
 	  sinrat = std::sin(morn * nu * pi) / std::sin(nu * pi);
@@ -235,13 +291,13 @@ template<typename _Tp>
 		     ((1.0 + std::exp(-j * (morn + 1) * nu * pi) * sinrat) * s2 + s1);
 	  }
 	else
-	  ierror = 1;
+	  error = 1;
       }
     else
       {
 	cmplx sinrat;
-	if ((std::abs(std::imag(nu)) < 1.0e-8)
-	 && (std::abs(dmod(dreal(nu), 1.0)) < 1.0e-8))
+	if ((std::abs(std::imag(nu)) < toler)
+	 && (std::abs(std::fmod(dreal(nu), 1)) < toler))
 	  sinrat = -morn;
 	else
 	  sinrat = std::sin(morn * nu * pi) / std::sin(nu * pi);
@@ -262,7 +318,7 @@ template<typename _Tp>
 			     + std::exp(-2 * j * nu * pi) * s2);
 	  }
 	else
-	  ierror = 1;
+	  error = 1;
       }
 
     return;
@@ -294,7 +350,7 @@ template<typename _Tp>
 		 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p)
   {
     using cmplx = std::complex<_Tp>;
-    _Tp test = std::pow(std::abs(nu), 1.0L/3.0L) / 5.0L;
+    _Tp test = std::pow(std::abs(nu), _Tp(1) / _Tp(3)) / _Tp(5);
 
     if (std::abs(z - nu) > test)
       hankel_uniform_olver(nu, z, h1, h2, h1p, h2p);

@@ -7,20 +7,20 @@
 
 template<typename _Tp>
   void
-  airy(const std::complex<_Tp> & z, _Tp deps,
-       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & ier);
+  airy(const std::complex<_Tp> & z, _Tp eps,
+       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & error);
 
 template<typename _Tp>
   void
-  airy_bessel_i(const std::complex<_Tp> & z, _Tp deps,
+  airy_bessel_i(const std::complex<_Tp> & z, _Tp eps,
 		std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
 		std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3);
 
 template<typename _Tp>
   void
-  airy_bessel_k(const std::complex<_Tp> & z, _Tp deps,
+  airy_bessel_k(const std::complex<_Tp> & z, _Tp eps,
 		std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
-		int & ier);
+		int & error);
 
 template<typename _Tp>
   void
@@ -30,8 +30,8 @@ template<typename _Tp>
 
 template<typename _Tp>
   void
-  zasary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & ai, std::complex<_Tp> & aip);
+  airy_asymp(const std::complex<_Tp> & z,
+	     std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 template<typename _Tp>
   void
@@ -157,15 +157,15 @@ template<typename _Tp>
       Vol 13, pp 195-203, 1974.
  
     @param[in]  z	The argument at which the Airy function and its derivative are to be computed.
-    @param[in]  deps	Relative error required.  At present, deps is used only in the 
+    @param[in]  eps	Relative error required.  At present, eps is used only in the 
     			backward recursion algorithms.
     @param[out]  ai	The value computed for Ai(z).
     @param[out]  aip    The value computed for Ai'(z).
  */
 template<typename _Tp>
   void
-  airy(const std::complex<_Tp> & z, _Tp deps,
-       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & ier)
+  airy(const std::complex<_Tp> & z, _Tp eps,
+       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & error)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -186,7 +186,7 @@ template<typename _Tp>
       drsqpi{2.820947917738781e-01};
     static constexpr _Tp small{0.25}, dziacc{2}, big{15};
 
-    ier = 0;
+    error = 0;
 
     //  Compute modulus of z for later use
     auto absz = std::abs(z);
@@ -194,7 +194,7 @@ template<typename _Tp>
     if (absz < big)
       {
 	cmplx zi1d3, zim1d3, zi2d3, zim2d3,
-	       z1d3f, zm1d3f, z2d3f, zm2d3f;
+	      z1d3f, zm1d3f, z2d3f, zm2d3f;
 
 	//  Moderate or small abs(z)
 	//  Check for right or left half plane argument
@@ -212,13 +212,12 @@ template<typename _Tp>
 	    if (absz >= dziacc)
 	      {
 		//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
-		airy_bessel_k(xi, deps, ai, aip, ier);
+		airy_bessel_k(xi, eps, ai, aip, error);
 		//  Recover Ai(z) and Ai'(z)
 		auto zp1d4c = std::sqrt(zpwh);
-		xi = std::exp(-xi);
-		xi = drsqpi * xi;
-		ai = xi * (ai / zp1d4c);
-		aip = -xi * zp1d4c * aip;
+		xi = drsqpi * std::exp(-xi);
+		ai *= xi / zp1d4c;
+		aip *= -xi * zp1d4c;
 	      }
 	    else
 	      {
@@ -228,17 +227,17 @@ template<typename _Tp>
 		    //  Use rational approximation along with (1) and (4)
 		    zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
 		    //  Recover Ai(z) and Ai'(z)
-		    zim1d3 = dgm2d3 * zim1d3;
-		    zi1d3 = dgm1d3 * zi1d3;
+		    zim1d3 *= dgm2d3;
+		    zi1d3 *= dgm1d3;
 		    ai = zim1d3 - z * zi1d3;
-		    zim2d3 = dgm1d3 * zim2d3;
-		    zi2d3 = d2g2d3 * zi2d3;
+		    zim2d3 *= dgm1d3;
+		    zi2d3 *= d2g2d3;
 		    aip = z * z * zi2d3 - zim2d3;
 		  }
 		else
 		  {
 		    //  Use backward recurrence along with (1) and (4)
-		    airy_bessel_i(xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
+		    airy_bessel_i(xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
 		    //  Recover Ai(z) and Ai'(z)
 		    ai = d1d3 * zpwh * (zim1d3 - zi1d3);
 		    aip = d1d3 * z * (zi2d3 - zim2d3);
@@ -280,20 +279,20 @@ template<typename _Tp>
 		xi = -z;
 		zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
 		//  Recover Ai(z) and Ai'(z)
-		zim1d3 = dgm2d3 * zim1d3;
-		zi1d3 = dgm1d3 * zi1d3;
+		zim1d3 *= dgm2d3;
+		zi1d3 *= dgm1d3;
 		ai = zim1d3 - z * zi1d3;
 		//ai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
 
-		zim2d3 = dgm1d3 * zim2d3;
-		zi2d3 = d2g2d3 * zi2d3;
+		zim2d3 *= dgm1d3;
+		zi2d3 *= d2g2d3;
 		aip = z * z * zi2d3 - zim2d3;
 		//aip = z * z * z2d3f * zi2d3 - zm2d3f * zim2d3
 	      }
 	    else
 	      {
 		//  Use backward recurrence
-		airy_bessel_i(z2xi, deps, zi1d3, zim1d3, zi2d3, zim2d3);
+		airy_bessel_i(z2xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
 		//  Recover Ai(z) and Ai'(z)
 		ai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
 		aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
@@ -307,7 +306,7 @@ template<typename _Tp>
 	    || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
 	{
 	  //  abs(arg(z)) <= 2*dpi/3  -  use asymptotic expansion for this region
-	  zasary(z, ai, aip);
+	  airy_asymp(z, ai, aip);
 	}
 	else
 	{
@@ -392,7 +391,7 @@ template<typename _Tp>
     @param[in]   z      The argument at which the modified Bessel
 			functions computed by this program are to be
 			evaluated.
-    @param[in]   deps   The maximum relative error required in the results.
+    @param[in]   eps    The maximum relative error required in the results.
     @param[out]  zi1d3   The value of I_(1/3) (z).
     @param[out]  zim1d3  The value of I_(-1/3) (z).
     @param[out]  zi2d3   The value of I_(2/3) (z).
@@ -400,7 +399,7 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_bessel_i(const std::complex<_Tp> & z, _Tp deps,
+  airy_bessel_i(const std::complex<_Tp> & z, _Tp eps,
 		std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
 		std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3)
   {
@@ -426,7 +425,7 @@ template<typename _Tp>
     auto zp2 = d2n * z1dz;
 
     //  Calculate weak convergence test and set flag for weak convergence loop
-    auto dtest = d2sqr2 / deps;
+    auto dtest = d2sqr2 / eps;
     bool lstcnv = false;
 
     //  loop until weak and strong convergence tests satisfied when recurring forward
@@ -606,26 +605,26 @@ template<typename _Tp>
       z      The value for which the quantity e-sub-nu is to
 	     be computed.  it is recommended that abs(z) not be
 	     too small and that abs(arg(z)) <= 3*pi/4.
-      deps   The maximum relative error allowable in the computed
+      eps   The maximum relative error allowable in the computed
 	     results.  the relative error test is based on the
 	     comparison of successive iterates.
       zk1d3  The value computed for E-sub-(1/3) of z.
       zk2d3  The value computed for E-sub-(2/3) of z.
-      ier    A completion code.
-	     ier = 0 indicates normal completion
-	     ier = 129, convergence failed in 100 iterations
+      error    A completion code.
+	     error = 0 indicates normal completion
+	     error = 129, convergence failed in 100 iterations
 	    
 
     @note According to published information about the behaviour of the error for orders
-	  1/3 and 2/3, ier = 129 should never occur for the domain of z that we recommend.
+	  1/3 and 2/3, error = 129 should never occur for the domain of z that we recommend.
 	  indeed, in the worst case, say, z=2 and arg(z) = 3*pi/4, we expect 20 iterations
 	  to give 7 or 8 decimals of accuracy.
  */
 template<typename _Tp>
   void
-  airy_bessel_k(const std::complex<_Tp> & z, _Tp deps,
+  airy_bessel_k(const std::complex<_Tp> & z, _Tp eps,
 		std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
-		int & ier)
+		int & error)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -650,7 +649,7 @@ template<typename _Tp>
     dphico[6]
     {67, 91152, 12697, 79, 96336, 19633};
 
-    ier = 0;
+    error = 0;
 
     //  Initialize polynomials for recurrence
     auto zf10 = zone;
@@ -714,7 +713,7 @@ template<typename _Tp>
 	auto zratnw = zphi23 / zf23;
 	zrat1 = zphi13 / zf13;
 
-	if (std::abs(zratnw - zratol) < deps * std::abs(zratnw))
+	if (std::abs(zratnw - zratol) < eps * std::abs(zratnw))
 	  {
 	   //  Convergence.
 	    zk2d3 = zratnw;
@@ -755,7 +754,7 @@ template<typename _Tp>
       }
 
     //  Maximum iterations exceeded
-    ier = 129;
+    error = 129;
     return;
   }
 
@@ -814,12 +813,6 @@ template<typename _Tp>
 	       the approximate value of the hypergeometric
 	       function related to the modified Bessel function
 	       of order -2/3.
-
-    Date of last revision
-      May 2, 1986
-
-    Author
-      Rick A. Whitaker
  */
 template<typename _Tp>
   void
@@ -979,17 +972,11 @@ template<typename _Tp>
 	     value computed for Ai(z).
       aip    Complex output variable containing the
 	     value computed for Ai'(z).
-
-    Date of last revision
-      May 3, 1986
-
-    Author
-      Rick A. Whitaker
  */
 template<typename _Tp>
   void
-  zasary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & ai, std::complex<_Tp> & aip)
+  airy_asymp(const std::complex<_Tp> & z,
+	     std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
     constexpr _Tp d2d3   = 6.666666666666667e-01;
     constexpr _Tp dpmhd2 = 2.820947917738781e-01;
@@ -1106,12 +1093,6 @@ template<typename _Tp>
 	     value computed for Ai(z).
       aip    Complex output variable containing the
 	     value computed for Ai'(z).
-
-    Date of last revision
-      May 4, 1986
-
-    Author
-      Rick A. Whitaker
  */
 template<typename _Tp>
   void
