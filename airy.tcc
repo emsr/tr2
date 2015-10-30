@@ -283,7 +283,6 @@ template<typename _Tp>
 		zi1d3 *= dgm1d3;
 		ai = zim1d3 - z * zi1d3;
 		//ai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
-
 		zim2d3 *= dgm1d3;
 		zi2d3 *= d2g2d3;
 		aip = z * z * zi2d3 - zim2d3;
@@ -628,8 +627,6 @@ template<typename _Tp>
   {
     using cmplx = std::complex<_Tp>;
 
-    _Tp danm1, danm2;
-
     constexpr _Tp dan1i{ 4.8555555555555555555e+01L},
 		  dan2i{ 4.7222222222222222222e+01L},
 		  dp12i{ 3.1444444444444444444e+01L},
@@ -643,11 +640,11 @@ template<typename _Tp>
 
     constexpr _Tp
     dfco[8]
-    {144, 77, 62208, 95472, 17017, 65, 90288, 13585};
+    { 144, 77, 62208, 95472, 17017, 65, 90288, 13585 };
 
     constexpr _Tp
     dphico[6]
-    {67, 91152, 12697, 79, 96336, 19633};
+    { 67, 91152, 12697, 79, 96336, 19633 };
 
     error = 0;
 
@@ -687,7 +684,7 @@ template<typename _Tp>
     auto deta = _Tp(24);
     auto dgamm = _Tp(3);
     auto dgam = _Tp(5);
-    auto dq = 16 * dgam;
+    auto dq = _Tp(16) * dgam;
 
     //  Loop until maximum iterations used or convergence
     for (int i = 1; i < 100; ++i)
@@ -715,7 +712,7 @@ template<typename _Tp>
 
 	if (std::abs(zratnw - zratol) < eps * std::abs(zratnw))
 	  {
-	   //  Convergence.
+	    //  Convergence.
 	    zk2d3 = zratnw;
 	    zk1d3 = zphi13 / zf13;
 	    return;
@@ -741,8 +738,8 @@ template<typename _Tp>
 	deta += 8;
 	dan1 += deta;
 	dan2 += deta;
-	danm1 = dan1 - delt - 16;
-	danm2 = dan2 - delt - 16;
+	auto danm1 = dan1 - delt - _Tp(16);
+	auto danm2 = dan2 - delt - _Tp(16);
 	dgamm = dgam;
 	dgam += 2;
 	dp23 = -dgam / dgamm;
@@ -750,7 +747,7 @@ template<typename _Tp>
 	dp23 = dp23 * danm2;
 	dp11 = -dan1 - dp12 - dp13;
 	dp21 = -dan2 - dp22 - dp23;
-	dq = 16 * dgam;
+	dq = _Tp(16) * dgam;
       }
 
     //  Maximum iterations exceeded

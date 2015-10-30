@@ -147,6 +147,8 @@ template<typename _Tp>
   void
   region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & error)
   {
+    static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
+
     error = 0;
     aorb = ' ';
 

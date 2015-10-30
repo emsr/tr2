@@ -1,5 +1,5 @@
 
-c $HOME/bin/bin/gfortran -Wall -Wextra -I$HOME/ARAPP/diffraction -o test_hankel_old test_hankel_old.f $HOME/ARAPP/diffraction/hyper.f $HOME/ARAPP/diffraction/region.f $HOME/ARAPP/diffraction/cylsubs.f $HOME/ARAPP/diffraction/augment.f $HOME/ARAPP/diffraction/hfuns.f $HOME/ARAPP/diffraction/h_debye.f
+c $HOME/bin/bin/gfortran -Wall -Wextra -I$HOME/ARAPP/diffraction -o test_hankel_old test_hankel_old.f region.f cylsubs.f hankel.f hankel_debye.f
 
       program test_hankel_old
 
