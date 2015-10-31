@@ -170,10 +170,10 @@ template<typename _Tp>
     using cmplx = std::complex<_Tp>;
 
     static constexpr std::complex<_Tp>
-      zepd6{8.660254037844386e-01, 5.0e-01},
-      zempd6{8.660254037844386e-01, -5.0e-01},
-      zepd3 {5.0e-01,  8.660254037844386e-01},
-      zempd3{5.0e-01, -8.660254037844386e-01},
+      zepd6 { 8.660254037844386e-01,  5.0e-01},
+      zempd6{ 8.660254037844386e-01, -5.0e-01},
+      zepd3 { 5.0e-01,  8.660254037844386e-01},
+      zempd3{ 5.0e-01, -8.660254037844386e-01},
       j{0, 1};
     static constexpr _Tp
       dzero{0},
@@ -184,12 +184,15 @@ template<typename _Tp>
       dgm2d3{3.550280538878172e-01},
       d2g2d3{1.775140269439086e-01},
       drsqpi{2.820947917738781e-01};
-    static constexpr _Tp small{0.25}, dziacc{2}, big{15};
+    static constexpr _Tp small{0.25}, big{15};
 
     error = 0;
 
+    std::cout << " > airy: z = " << z << '\n';
+
     //  Compute modulus of z for later use
     auto absz = std::abs(z);
+    std::cout << " > > absz = " << absz << '\n';
     //  Check size of abs(z) and select appropriate methods
     if (absz < big)
       {
@@ -202,19 +205,17 @@ template<typename _Tp>
 	  {
 	    //  Argument in closed right half plane
 	    //  Compute xi as defined in the representations in terms of Bessel functions
-	    auto zpwh = std::sqrt(z);
-	    auto xi = z * zpwh;
-	    auto xir = d2d3 * std::real(xi);
-	    auto xii = d2d3 * std::imag(xi);
-	    xi = cmplx(xir, xii);
+	    auto sqrtz = std::sqrt(z);
+	    auto xi = z * sqrtz;
+	    xi *= d2d3;
 
 	    //  Check for abs(z) too large for accuracy of representations (1) and (4)
-	    if (absz >= dziacc)
+	    if (absz >= _Tp{2})
 	      {
 		//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
 		airy_bessel_k(xi, eps, ai, aip, error);
 		//  Recover Ai(z) and Ai'(z)
-		auto zp1d4c = std::sqrt(zpwh);
+		auto zp1d4c = std::sqrt(sqrtz);
 		xi = drsqpi * std::exp(-xi);
 		ai *= xi / zp1d4c;
 		aip *= -xi * zp1d4c;
@@ -239,7 +240,7 @@ template<typename _Tp>
 		    //  Use backward recurrence along with (1) and (4)
 		    airy_bessel_i(xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
 		    //  Recover Ai(z) and Ai'(z)
-		    ai = d1d3 * zpwh * (zim1d3 - zi1d3);
+		    ai = d1d3 * sqrtz * (zim1d3 - zi1d3);
 		    aip = d1d3 * z * (zi2d3 - zim2d3);
 		  }
 	      }
@@ -248,8 +249,8 @@ template<typename _Tp>
 	  {
 	    //  z lies in left half plane
 	    //  Compute xi as defined in the representations in terms of bessel functions
-	    auto zpwh = std::sqrt(-z);
-	    auto xi = -z * zpwh;
+	    auto sqrtz = std::sqrt(-z);
+	    auto xi = -z * sqrtz;
 	    xi *= d2d3;
 	    cmplx z2xi;
 	    //  Set up arguments to recover bessel functions of the first kind in (3) and (6)
@@ -293,7 +294,7 @@ template<typename _Tp>
 		//  Use backward recurrence
 		airy_bessel_i(z2xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
 		//  Recover Ai(z) and Ai'(z)
-		ai = d1d3 * zpwh * (zm1d3f * zim1d3 + z1d3f * zi1d3);
+		ai = d1d3 * sqrtz * (zm1d3f * zim1d3 + z1d3f * zi1d3);
 		aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
 	      }
 	  }
@@ -412,6 +413,8 @@ template<typename _Tp>
     	 d14d3 {4.666666666666667e+00}, d16d3 {5.333333333333333e+00},
     	 dgm4d3{8.929795115692492e-01}, dgm5d3{9.027452929509336e-01},
     	 d2sqr2{2.828427124746190e+01};
+
+    std::cout << " > airy_bessel_i: z = " << z << '\n';
 
     //  Compute 1/z for use in recurrence for speed and abs(z)
     cmplx z1dz;
@@ -646,6 +649,8 @@ template<typename _Tp>
     dphico[6]
     { 67, 91152, 12697, 79, 96336, 19633 };
 
+    std::cout << " > airy_bessel_k: z = " << z << '\n';
+
     error = 0;
 
     //  Initialize polynomials for recurrence
@@ -658,6 +663,13 @@ template<typename _Tp>
     auto zf22 = z * (dfco[2] * z + dfco[6]);
     zf22 = zone + zf22 / dfco[7];
 
+    std::cout << " > > zf10 = " << zf10 << '\n';
+    std::cout << " > > zf20 = " << zf20 << '\n';
+    std::cout << " > > zf11 = " << zf11 << '\n';
+    std::cout << " > > zf12 = " << zf12 << '\n';
+    std::cout << " > > zf21 = " << zf21 << '\n';
+    std::cout << " > > zf22 = " << zf22 << '\n';
+
     auto zphi10 = zone;
     auto zphi20 = zone;
     auto zphi11 = cmplx((dfco[0] * std::real(z) + dphico[0]) / dfco[1],
@@ -667,7 +679,14 @@ template<typename _Tp>
     auto zphi21 = cmplx((dfco[0] * std::real(z) + dphico[3]) / dfco[5],
 		     std::imag(zf21));
     auto zphi22 = z * (dfco[2] * z + dphico[4]);
-    zphi22 = zone + (zphi22 + dphico[5]) / dfco[7];
+    zphi22 = (zphi22 + dphico[5]) / dfco[7];
+
+    std::cout << " > > zphi10 = " << zphi10 << '\n';
+    std::cout << " > > zphi20 = " << zphi20 << '\n';
+    std::cout << " > > zphi11 = " << zphi11 << '\n';
+    std::cout << " > > zphi12 = " << zphi12 << '\n';
+    std::cout << " > > zphi21 = " << zphi21 << '\n';
+    std::cout << " > > zphi22 = " << zphi22 << '\n';
 
     //  Initialize for recursion
     auto zratol = zphi22 / zf22;
@@ -835,6 +854,8 @@ template<typename _Tp>
     constexpr _Tp dbm2d3[4]{ -7, 819, -78624, 4481568 };
 
     //  Check to see if z**3 will underflow and act accordingly
+
+    std::cout << " > zcrary: z = " << z << '\n';
 
     if (std::abs(z) < dsmall)
       {
@@ -1023,6 +1044,8 @@ template<typename _Tp>
        0.1000000000000000e+01
     };
 
+    std::cout << " > airy_asymp: z = " << z << '\n';
+
     //  Compute -xi and z**(1/4)
     auto zpw1d4 = std::sqrt(z);
     auto xim = z * zpw1d4;
@@ -1105,7 +1128,6 @@ template<typename _Tp>
     constexpr int numnterms = 5;
     constexpr int nterms[numnterms]{ ntermx, 7, 6, 6, 5 };
 
-
     //  coefficients for the expansion
     constexpr _Tp
     dckc[ntermx]
@@ -1160,6 +1182,8 @@ template<typename _Tp>
       -0.4388503086419753e-01,
        0.1000000000000000e+01
     };
+
+    std::cout << " > zasaly: z = " << z << '\n';
 
     //  Set up working value of z
     z = -z;

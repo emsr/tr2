@@ -230,9 +230,11 @@ c     data statements defining constants used herein
 c     initialize completion code
       ier = 0
 
+      write(6,*) '> airy: z = ', z
 
 cp    compute modulus of z for later use
       dabsz = zabs(z)
+      write(6,*) '> > absz = ', dabsz
 cp    check size of abs(z) and select appropriate methods
       if (dabsz .lt. dzbig)
      1then
@@ -505,6 +507,8 @@ cph
      4     d14d3 /4.666666666666667d+00/, d16d3 /5.333333333333333d+00/,
      5     dgm4d3/8.929795115692492d-01/, dgm5d3/9.027452929509336d-01/,
      6     d2sqr2/2.828427124746190d+01/
+
+      write(6,*) '> airy_bessel_i: z = ', z
 
 cp    compute 1/z for use in recurrence for speed and abs(z)
       dzr = dreal(z)
@@ -816,6 +820,8 @@ c     data statements defining coefficients for initial polynomials
       data dphico/67.0d+00,91152.0d+00,12697.0d+00,79.0d+00,
      1            96336.0d+00,19633.0d+00/
 
+      write(6,*) '> airy_bessel_k: z = ', z
+
       ier = 0
 
 cp    initialize polynomials for recurrence
@@ -855,6 +861,20 @@ c 6005 format(/' zf11   = (',d23.16,',',d23.16,')'
 c     1       /' zf12   = (',d23.16,',',d23.16,')'
 c     2       /' zphi11 = (',d23.16,',',d23.16,')'
 c     3       /' zphi12 = (',d23.16,',',d23.16,')')
+
+      write(6,*) '> > zf10 = ', zf10
+      write(6,*) '> > zf20 = ', zf20
+      write(6,*) '> > zf11 = ', zf11
+      write(6,*) '> > zf12 = ', zf12
+      write(6,*) '> > zf21 = ', zf21
+      write(6,*) '> > zf22 = ', zf22
+
+      write(6,*) '> > zphi10 = ', zphi10
+      write(6,*) '> > zphi20 = ', zphi20
+      write(6,*) '> > zphi11 = ', zphi11
+      write(6,*) '> > zphi12 = ', zphi12
+      write(6,*) '> > zphi21 = ', zphi21
+      write(6,*) '> > zphi22 = ', zphi22
 
 cp    initialize for recursion
       zratol = zphi22/zf22
@@ -1073,6 +1093,8 @@ c     data statements defining coefficients for cubic polynomials
 
 cp    check to see if z**3 will underflow and act accordingly
 
+      write(6,*) '> zcrary: z = ', z
+
       if (zabs(z) .lt. dsmall)
      1then
 cp      all ratios are 1 
@@ -1272,6 +1294,8 @@ c
      d     ddk(14)/-0.9722222222222222d-01/,
      e     ddk(15)/ 0.1000000000000000d+01/
 
+      write(6,*) '> airy_asymp: z = ', z
+
 cp    compute -xi and z**(1/4)
       zpw1d4 = zsqrt(z)
       zxim = z*zpw1d4
@@ -1418,6 +1442,8 @@ c     coefficients for the expansion
      7     ddkc( 8)/-0.4388503086419753d-01/,
      8     ddkc( 9)/ 0.1000000000000000d+01/
 
+      write(6,*) '> zasaly: z = ', z
+
 cp    set up working value of z
       zwk = -z
 cp    compute xi and z**(1/4)
@@ -1514,6 +1540,8 @@ cpogo///////////////////////////////////////////////////////////////////
      &                                   zh12,zh22,zh1p2,zh2p2,znu2,
      &                                   zh13,zh23,zh1p3,zh2p3,znu3,
      &                                   zh14,zh24,zh1p4,zh2p4,znu4
+
+      write(6,*) '> hankel_uniform: nu = ', znu, ' z = ', z
 
       ctest = zabs(znu)**(1./3.)/5.
 
@@ -1612,6 +1640,8 @@ c                 nzwksp .gt. some function of nterms
       data deps/1.0d-06/,depsai/1.0d-12/,nterms/4/
 
 
+
+      write(6,*) '> hankel_uniform_olver: nu = ', znu, ' z = ', z
 
 c////////////////////////////////////////////////////////////////////////
 cpogo
@@ -1729,6 +1759,7 @@ c     initialize zairy completion codes
       ier1 = 0
       ier2 = 0
 
+      write(6,*) '> hankel_uniform_outer: nu = ', znu, ' z = ', z
 
 cp    if z/nu successfully computed
         if (lzdiv(z,znu,zhat))
@@ -1737,6 +1768,20 @@ cp      try to compute other nu and z dependent parameters except args
 cp        to airy functions
         call dparms(zhat,znu,zt,ztsq,znusq,z1dnsq,znm1d3,znm2d3,znm4d3,
      1              zeta,zetphf,zetmhf,zetm3h,zetrat,ier)
+
+        write(6,*) '> > t      = ', zt
+        write(6,*) '> > tsq    = ', ztsq
+        write(6,*) '> > nusq   = ', znusq
+        write(6,*) '> > _1dnsq = ', z1dnsq
+        write(6,*) '> > nm1d3  = ', znm1d3
+        write(6,*) '> > nm2d3  = ', znm2d3
+        write(6,*) '> > nm4d3  = ', znm4d3
+        write(6,*) '> > zeta   = ', zeta
+        write(6,*) '> > etphf  = ', zetphf
+        write(6,*) '> > etmhf  = ', zetmhf
+        write(6,*) '> > etm3h  = ', zetm3h
+        write(6,*) '> > etrat  = ', zetrat
+        write(6,*) '> > ier    = ', ier
 
 cp      if parameters successfully computed
           if (ier .eq. 0)
@@ -2028,6 +2073,8 @@ c     lambda and mu coefficients appearing in the expansions
      8     dmu(19)/-0.4352813796009286d+13/,
      9     dmu(20)/-0.6199585732586975d+14/
       data dmu(21)/-0.9295073331010611d+15/
+
+      write(6,*) '> hankel_uniform_sum: zt = ', zt
 
 cp    Initialize completion code
       ier = 0
@@ -2551,11 +2598,13 @@ cp        if xi lies in lower half-plane
 cp        end if
         end if
       end if
+      write(6,*) ' > > > dtemp = ', dtemp
 
 cp    if logarithm of xi must be adjusted
         if (dtemp .ne. dzero) zlnxi =
      1      dcmplx(dreal(zlnxi),dimag(zlnxi)+dtemp)
 cp    end if    
+      write(6,*) ' > > > zlnxi = ', zlnxi
 
 cp    compute ln(zeta), zeta, zeta**(1/2), zeta**(-1/2)
       zlnzet = dcmplx(d2d3*dreal(zlnxi)+dlncon,
@@ -2586,9 +2635,9 @@ ci      major work here is in lzdiv.  A faster, but less safe
 ci      implementation can be obtained without use of lzdiv.
 ci
 ci    Arguments
-ci      znm2d3 DOUBLE PRECISION COMPLEX INPUT VARIABLE SET EQUAL
-ci             TO NU**(-2/3).  IN OUR IMPLEMENTATION, ZMN2D3 IS
-ci             OUTPUT FROM DPARMS.
+ci      znm2d3 Double precision complex input variable set equal
+ci             to nu**(-2/3).  In our implementation, zmn2d3 is
+ci             output from dparms.
 ci      zeta   Double precision complex input variable set equal
 ci             to zeta in the uniform asymptotic expansions.  In
 ci             our implementation, zeta is output from dparms.
@@ -2623,11 +2672,18 @@ cp    Initialize completion code
       ier = 0
 
 cp    if nu**(2/3)*zeta successfully computed
-        if (lzdiv(zeta,znm2d3,zargm))
+      if (lzdiv(zeta,znm2d3,zargm))
      1then
+
+        write(6,*) '> > > aryarg';
+        write(6,*) '> > > > znm2d3 = ', znm2d3
+        write(6,*) '> > > > zeta = ', zeta
+        write(6,*) '> > > > argm = ', zargm
 cp      compute zargp and zargm
         zargp = zexpp*zargm
         zargm = zexpm*zargm
+        write(6,*) '> > > > argp = ', zargp
+        write(6,*) '> > > > argm = ', zargm
 
       else
 cp      set completion code

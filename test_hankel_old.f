@@ -14,7 +14,7 @@ c $HOME/bin/bin/gfortran -Wall -Wextra -I$HOME/ARAPP/diffraction -o test_hankel_
 
       call uniform_hankel(h1, h2, h1p, h2p, z, nu)
 
-      write(6,*) '\n'
+      write(6,*) ''
       write(6,*) 'nu     = ', nu
       write(6,*) 'z      = ', z
       write(6,*) 'H1(z)  = ', h1

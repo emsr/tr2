@@ -78,7 +78,7 @@ template<typename _Tp>
 	 std::complex<_Tp> & nusq, std::complex<_Tp> & z1dnsq,
 	 std::complex<_Tp> & znm1d3, std::complex<_Tp> & znm2d3,
 	 std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
-	 std::complex<_Tp> & zetphf, std::complex<_Tp> & zetmhf,
+	 std::complex<_Tp> & zetaphf, std::complex<_Tp> & zetamhf,
 	 std::complex<_Tp> & zetm3h, std::complex<_Tp> & zetrat,
 	 int & ier);
 
@@ -87,7 +87,7 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel(std::complex<_Tp> nu, std::complex<_Tp> arg,
+  hankel(std::complex<_Tp> nu, std::complex<_Tp> z,
 	 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
 	 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
 	 int & error)
@@ -96,22 +96,24 @@ template<typename _Tp>
 
     int indexr, ierr;
 
+    std::cout << " > hankel: nu = " << nu << " z = " << z << '\n';
+
     error = 0;
 
-    auto test = std::abs((nu - arg) / std::pow(nu, 1.0/3.0));
+    auto test = std::abs((nu - z) / std::pow(nu, 1.0/3.0));
     if (test < 4.0)
-      hankel_uniform(h1, h2, h1p, h2p, arg, nu);
+      hankel_uniform(z, nu, h1, h2, h1p, h2p);
     else
       {
-	auto sqtrm = std::sqrt((nu / arg) * (nu / arg) - 1);
-	auto alpha = std::log((nu / arg) + sqtrm);
+	auto sqtrm = std::sqrt((nu / z) * (nu / z) - 1);
+	auto alpha = std::log((nu / z) + sqtrm);
 	if (std::imag(alpha) < 0)
 	  alpha = -alpha;
 	auto alphar = std::real(alpha);
 	auto alphai = std::imag(alpha);
 	char aorb;
-	if ((std::real(nu) > std::real(arg))
-	 && (std::abs(std::imag(nu/arg)) <= 0))
+	if ((std::real(nu) > std::real(z))
+	 && (std::abs(std::imag(nu/z)) <= 0))
 	  {
 	    indexr = 0;
 	    aorb = ' ';
@@ -133,7 +135,7 @@ template<typename _Tp>
 	    if (nfun < 0 && std::fmod(nfun, 1) != 0)
 	      --morn;
 	  }
-	hankel_debye(nu, arg, alpha, indexr, aorb, morn,
+	hankel_debye(nu, z, alpha, indexr, aorb, morn,
 		     h1, h2, h1p, h2p, error);
       }
 
@@ -198,7 +200,7 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel_debye(std::complex<_Tp> nu, std::complex<_Tp> arg, std::complex<_Tp> alpha,
+  hankel_debye(std::complex<_Tp> nu, std::complex<_Tp> z, std::complex<_Tp> alpha,
 	       int indexr, char & aorb, int & morn,
 	       std::complex<_Tp> & h1dbye, std::complex<_Tp> & h2dbye,
 	       std::complex<_Tp> & h1pdby, std::complex<_Tp> & h2pdby,
@@ -211,13 +213,15 @@ template<typename _Tp>
     static constexpr cmplx j = 1.0il;
     static constexpr _Tp toler = 1.0e-8;
 
+    std::cout << " > hankel_debye: nu = " << nu << " z = " << z << '\n';
+
     cmplx jdbye;
 
     auto alphar = std::real(alpha);
     auto alphai = std::imag(alpha);
     auto thalpa = std::sinh(alpha) / std::cosh(alpha);
     auto snhalp = std::sinh(alpha);
-    auto denom = std::sqrt(pi * arg / 2) * std::sqrt(-j * std::sinh(alpha));
+    auto denom = std::sqrt(pi * z / 2) * std::sqrt(-j * std::sinh(alpha));
     if (std::abs(std::real(nu * (thalpa - alpha))) > 690.0)
       {
 	error = 1;
@@ -354,6 +358,8 @@ template<typename _Tp>
     using cmplx = std::complex<_Tp>;
     _Tp test = std::pow(std::abs(nu), _Tp(1) / _Tp(3)) / _Tp(5);
 
+    std::cout << " > hankel_uniform: nu = " << nu << " z = " << z << '\n';
+
     if (std::abs(z - nu) > test)
       hankel_uniform_olver(nu, z, h1, h2, h1p, h2p);
     else
@@ -364,6 +370,10 @@ template<typename _Tp>
 				 nu - cmplx{r, 0.0L},
 				 nu - cmplx{0.0L, r}};
 
+	h1  = cmplx{};
+	h2  = cmplx{};
+	h1p = cmplx{};
+	h2p = cmplx{};
 	for (auto tnu : anu)
 	  {
 	    std::complex<_Tp> th1, th2, th1p, th2p;
@@ -411,6 +421,8 @@ template<typename _Tp>
 	  nm2d3, etrat, od2m, r_factor;
     std::vector<cmplx> wksp(nwksp);
     int ier;
+
+    std::cout << " > hankel_uniform_olver: nu = " << nu << " z = " << z << '\n';
 
     static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
     //static constexpr _Tp pi_3 = 1.0471'97551'19659'77461'54214'46109'31676'28063e+0L;
@@ -509,29 +521,44 @@ template<typename _Tp>
     static constexpr cmplx e2pd3{-0.5L,  0.8660254037844386L};
     static constexpr cmplx d2pd3{-0.5L, -0.8660254037844386L};
 
-    cmplx nusq, eta,
-	  etphf, etmhf,
-	  argp, argm,
-	  aidp, aidm;
+    std::cout << " > hankel_uniform_outer: nu = " << nu << " z = " << z << '\n';
+
     int ier1 = 0, ier2 = 0;
 
     ier = 0;
 
     if (zdiv(z, nu, zhat))
       {
-	//  Try to compute other nu and z dependent parameters except args to airy functions
-	std::complex<_Tp> nm4d3;
+	//  Try to compute other nu and z dependent parameters except args to Airy functions
+	cmplx nm4d3, nusq, zeta, etphf, etmhf;
 	dparms(nu, zhat, t, tsq, nusq, _1dnsq, nm1d3, nm2d3, nm4d3,
-	       eta, etphf, etmhf, etm3h, etrat, ier);
+	       zeta, etphf, etmhf, etm3h, etrat, ier);
+
+        std::cout.precision(std::numeric_limits<double>::max_digits10);
+        std::cout << " > > t      = " << t << '\n';
+        std::cout << " > > tsq    = " << tsq << '\n';
+        std::cout << " > > nusq   = " << nusq << '\n';
+        std::cout << " > > _1dnsq = " << _1dnsq << '\n';
+        std::cout << " > > nm1d3  = " << nm1d3 << '\n';
+        std::cout << " > > nm2d3  = " << nm2d3 << '\n';
+        std::cout << " > > nm4d3  = " << nm4d3 << '\n';
+        std::cout << " > > zeta   = " << zeta << '\n';
+        std::cout << " > > etphf  = " << etphf << '\n';
+        std::cout << " > > etmhf  = " << etmhf << '\n';
+        std::cout << " > > etm3h  = " << etm3h << '\n';
+        std::cout << " > > etrat  = " << etrat << '\n';
+        std::cout << " > > ier    = " << ier << '\n';
 
 	if (ier == 0)
 	{
-	  //  Try to compute airy function arguments
-	  aryarg(nm2d3, eta, argp, argm, ier);
+	  //  Try to compute Airy function arguments
+          cmplx argp, argm;
+	  aryarg(nm2d3, zeta, argp, argm, ier);
 
 	  if (ier == 0)
 	    {
-	      //  Compute Airy functions and derivatives             
+	      //  Compute Airy functions and derivatives
+	      cmplx aidp, aidm;
 	      airy(argp, eps, aip, aidp, ier1);
 	      airy(argm, eps, aim, aidm, ier2);
 	      if (ier1 == 0 && ier2 == 0)
@@ -550,7 +577,7 @@ template<typename _Tp>
 	  else  //  Airy function args not computable
 	    ier = 133;
 	}
-	else  //  factors not successfully computed
+	else  //  Factors not successfully computed
 	  ier = 135;
       }
     else //  z/nu not successfully computed
@@ -598,6 +625,8 @@ template<typename _Tp>
     bool coverged;
 
     static constexpr auto zone = cmplx{1, 0};
+
+    std::cout << " > hankel_uniform_sum: zt = " << zt << '\n';
 
     //  Coefficients for u and v polynomials appearing in Olver's
     //  uniform asymptotic expansions for the Hankel functions
@@ -1075,14 +1104,11 @@ template<typename _Tp>
 	 std::complex<_Tp> & nusq, std::complex<_Tp> & z1dnsq,
 	 std::complex<_Tp> & znm1d3, std::complex<_Tp> & znm2d3,
 	 std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
-	 std::complex<_Tp> & zetphf, std::complex<_Tp> & zetmhf,
+	 std::complex<_Tp> & zetaphf, std::complex<_Tp> & zetamhf,
 	 std::complex<_Tp> & zetm3h, std::complex<_Tp> & zetrat,
 	 int & ier)
   {
     using cmplx = std::complex<_Tp>;
-
-    cmplx ztemp, zlnzet;
-    _Tp du, dv;
 
     //  data statements defining constants used in this subroutine
     //  note that dinf and dinfsr are machine floating-point dependent
@@ -1103,6 +1129,7 @@ template<typename _Tp>
     static constexpr auto d4d3   = _Tp(1.33333333333333333333L);
 
     static constexpr cmplx zone{1.0L, 0.0L};
+    static constexpr cmplx j{0.0L, 1.0L};
 
     //  Separate real and imaginary parts of zhat
     auto dx = std::real(zhat);
@@ -1114,8 +1141,8 @@ template<typename _Tp>
     if (dxabs <= dinfsr && dyabs <= (dinfsr - 1))
       {
 	//  find max and min of abs(dx) and abs(dy)
-	du = dxabs;
-	dv = dyabs;
+	auto du = dxabs;
+	auto dv = dyabs;
 	if (du < dv)
 	  std::swap(du, dv);
 	if (du >= dhalf && dv > dinf / (2 * du))
@@ -1133,7 +1160,7 @@ template<typename _Tp>
       }
 
     //  compute 1 - zhat**2 and related constants
-    ztemp = std::complex<_Tp>{1 - (dx - dy) * (dx + dy), -2 * dx * dy};
+    cmplx ztemp = cmplx{1 - (dx - dy) * (dx + dy), -2 * dx * dy};
     ztemp = std::sqrt(ztemp);
     zt = _Tp(1) / ztemp;
     ztsq = zt * zt;
@@ -1168,7 +1195,6 @@ template<typename _Tp>
     auto dtemp = dzero;
 
     //  Find adjustment necessary to get on proper Riemann sheet
-
     if (dy == dzero)  //  zhat is real
       {
 	if (dx > 1)
@@ -1186,19 +1212,21 @@ template<typename _Tp>
 	      dtemp = d2pi;
 	  }
       }
+    std::cout << " > > > dtemp = " << dtemp << '\n';
 
     //  Adjust logarithm of xi.
-    lnxi += dtemp;
+    lnxi += dtemp * j;
+    std::cout << " > > > lnxi = " << lnxi << '\n';
 
     //  compute ln(zeta), zeta, zeta^(1/2), zeta^(-1/2)
-    zlnzet = lnxi + dlncon;
-    zeta = std::exp(zlnzet);
-    zetphf = std::sqrt(zeta);
-    zetmhf = _Tp(1) / zetphf;
+    auto lnzeta = d2d3 * lnxi + dlncon;
+    zeta = std::exp(lnzeta);
+    zetaphf = std::sqrt(zeta);
+    zetamhf = _Tp(1) / zetaphf;
 
     //  compute (4 * zeta / (1 - zhat**2))^(1/4)
     ztemp = std::log(ztemp);
-    zetrat = dsqr2 * std::exp(d1d4 * zlnzet - dhalf * ztemp);
+    zetrat = dsqr2 * std::exp(d1d4 * lnzeta - dhalf * ztemp);
 
     return;
   }
@@ -1226,23 +1254,30 @@ template<typename _Tp>
 template<typename _Tp>
   void
   aryarg(std::complex<_Tp> znm2d3, std::complex<_Tp> zeta,
-	 std::complex<_Tp> & zargp, std::complex<_Tp> & zargm, int & ier)
+	 std::complex<_Tp> & argp, std::complex<_Tp> & argm, int & ier)
   {
     using cmplx = std::complex<_Tp>;
 
     //  zexpp and zexpm are exp(2*pi*i/3) and its reciprocal, respectively.
-    static constexpr auto zexpp = cmplx{-0.5L,  0.8660254037844386L};
-    static constexpr auto zexpm = cmplx{-0.5L, -0.8660254037844386L};
+    static constexpr auto expp = cmplx{-0.5L,  0.8660254037844386L};
+    static constexpr auto expm = cmplx{-0.5L, -0.8660254037844386L};
+
+    std::cout << " > > > aryarg\n";
+    std::cout << " > > > > znm2d3 = " << znm2d3 << '\n';
+    std::cout << " > > > > zeta = " << zeta << '\n';
 
     ier = 0;
 
-    if (zdiv(zeta, znm2d3, zargm))
+    if (zdiv(zeta, znm2d3, argm))
       {
-	zargp *= zexpp;
-	zargm *= zexpm;
+	std::cout << " > > > > argm = " << argm << '\n';
+	argp = expp * argm;
+	argm = expm * argm;
       }
     else
       ier = 133;
+    std::cout << " > > > > argp = " << argp << '\n';
+    std::cout << " > > > > argm = " << argm << '\n';
   }
 
 #endif // HANKEL_TCC

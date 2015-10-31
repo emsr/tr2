@@ -20,6 +20,8 @@ C
       character*1  aorb
 
 
+      write(6,*) 'hankel_debye: nu = ', nu, ' z = ', arg
+
 c      write(3,*) ' region = ',indexr
 c      write(3,*) ' alpha = ',alpha
       alphar = dreal(alpha)
