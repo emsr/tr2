@@ -2088,22 +2088,24 @@ cp    Compute square of magnituds
       ds = dxtsq*dxtsq + dytsq*dytsq
 cp    Compute u-sub-1,2,3 and v-sub-1,2,3 and store for later use
       ndxv = 2*nterms + 1
+      write(6,*) '> > ndxv = ', ndxv
 c      write(6,6000) nterms,ndxv
 c 6000 format(' nterms = ',i4,'  ndxv = ',i4)
       ztpowk = zt
       zwksp(1) = ztpowk*dcmplx(a(2)*dxtsq+a(3),a(2)*dytsq)
       zwksp(ndxv+1) = ztpowk*dcmplx(b(2)*dxtsq+b(3),b(2)*dytsq)
-c      write(6,6010) ztpowk,zwksp(1),zwksp(ndxv+1)
-c 6010 format(/' ztpowk = (',d23.16,',',d23.16,')'
-c     1       /' zwksp = (',d23.16,',',d23.16,')'
-c     2       /' zwksp(+ ndxv) = (',d23.16,',',d23.16,')')
+      write(6,*) '> > tk = ', ztpowk
+      write(6,*) '> > zwksp[0] = ', zwksp(1)
+      write(6,*) '> > zwksp[indexv] = ', zwksp(ndxv+1)
       dytsq2 = dytsq*dytsq
       ztpowk = zt*ztpowk
       zwksp(2) = ztpowk*dcmplx((a(4)*dxtsq+a(5))*dxtsq+a(6)-
      1                   a(4)*dytsq2,(dtwo*a(4)*dxtsq+a(5))*dytsq)
       zwksp(ndxv+2) = ztpowk*dcmplx((b(4)*dxtsq+b(5))*dxtsq+b(6)-
      1                      b(4)*dytsq2,(dtwo*b(4)*dxtsq+b(5))*dytsq)
-c      write(6,6010) ztpowk,zwksp(2),zwksp(ndxv+2)
+      write(6,*) '> > tk = ', ztpowk
+      write(6,*) '> > zwksp[0] = ', zwksp(2)
+      write(6,*) '> > zwksp[indexv] = ', zwksp(ndxv+2)
       ztpowk = zt*ztpowk
       zwksp(3) = ztpowk*dcmplx(((a(7)*dxtsq+a(8))*dxtsq+a(9))*dxtsq+
      1                   a(10)-(dthree*a(7)*dxtsq+a(8))*dytsq2,
@@ -2113,7 +2115,9 @@ c      write(6,6010) ztpowk,zwksp(2),zwksp(ndxv+2)
      1                   dxtsq+b(10)-(dthree*b(7)*dxtsq+b(8))*dytsq2,
      2                   ((dthree*b(7)*dxtsq+dtwo*b(8))*dxtsq+b(9)-
      3                   b(7)*dytsq2)*dytsq)
-c      write(6,6010) ztpowk,zwksp(3),zwksp(ndxv+3)
+      write(6,*) '> > tk = ', ztpowk
+      write(6,*) '> > zwksp[0] = ', zwksp(3)
+      write(6,*) '> > zwksp[indexv] = ', zwksp(ndxv+3)
 
 cp    Compute a-sub-1, b-sub-0,1, c-sub-0,1, d-sub-1 ... note that
 cp      uhnksm exploits that fact that a-sub-0 = d-sub-0 = 1
@@ -2147,13 +2151,12 @@ c     2       /' dxzt3h = ',d23.16,' dyzt3h = ',d23.16)
       zd1 = zwksp(ndxv+2) + dcmplx(dlamda(2)*dxzt3h+dlamda(1)*dxzv1,
      1                             dlamda(2)*dyzt3h+dlamda(1)*dyzv1)*
      2                      zetm3h
-c      write(6,6030) za1,zb0,zb1,zc0,zc1,zd1
-c 6030 format(/' za1 = (',d23.16,',',d23.16,')'
-c     1       /' zb0 = (',d23.16,',',d23.16,')'
-c     2       /' zb1 = (',d23.16,',',d23.16,')'
-c     3       /' zc0 = (',d23.16,',',d23.16,')'
-c     4       /' zc1 = (',d23.16,',',d23.16,')'
-c     5       /' zd1 = (',d23.16,',',d23.16,')') 
+      write(6,*) '> > a1 = ', za1
+      write(6,*) '> > b0 = ', zb0
+      write(6,*) '> > b1 = ', zb1
+      write(6,*) '> > c0 = ', zc0
+      write(6,*) '> > c1 = ', zc1
+      write(6,*) '> > d1 = ', zd1
 
 cp    Compute terms
       zatrm = za1*z1dnsq
@@ -2170,11 +2173,10 @@ cp      summing scheme
       ztmpc = zctrm - (zsumc - zc0)
       zsumd = zone + zdtrm
       ztmpd = zdtrm - (zsumd - zone)
-c      write(6,6040) zsuma,zsumb,zsumc,zsumd
-c 6040 format(/' zsuma = (',d23.16,',',d23.16,')'
-c     1       /' zsumb = (',d23.16,',',d23.16,')'
-c     2       /' zsumc = (',d23.16,',',d23.16,')'
-c     3       /' zsumd = (',d23.16,',',d23.16,')')
+      write(6,*) '> > asum = ', zsuma
+      write(6,*) '> > bsum = ', zsumb
+      write(6,*) '> > csum = ', zsumc
+      write(6,*) '> > dsum = ', zsumd
 
 cp    Set convergence flag to no convergence indication
       lcvgnc = .false.
@@ -2188,15 +2190,14 @@ cp    Combine sums in form appearing in expansions
       zh2s = zaim + zo4dm*zb0
       zh1ds = zod2p*zc0 + zod0dp
       zh2ds = zod2m*zc0 + zod0dm
-c      write(6,6050) zh1s,zh1ds,zh2s,zh2ds,zh1sm,zh1dsm,zh2sm,zh2dsm
-c 6050 format(/' zh1s   = (',d23.16,',',d23.16,')'
-c     1       /' zh1ds  = (',d23.16,',',d23.16,')'
-c     2       /' zh2s   = (',d23.16,',',d23.16,')'
-c     3       /' zh2ds  = (',d23.16,',',d23.16,')'
-c     4       /' zh1sm  = (',d23.16,',',d23.16,')'
-c     5       /' zh1dsm = (',d23.16,',',d23.16,')'
-c     6       /' zh2sm  = (',d23.16,',',d23.16,')'
-c     7       /' zh2dsm = (',d23.16,',',d23.16,')')
+      write(6,*) '> > > h1sum = ', zh1sm
+      write(6,*) '> > > h2sum = ', zh2sm
+      write(6,*) '> > > h1psum = ', zh1dsm
+      write(6,*) '> > > h2psum = ', zh2dsm
+      write(6,*) '> > > h1save = ', zh1s
+      write(6,*) '> > > h2save = ', zh2s
+      write(6,*) '> > > h1psave = ', zh1ds
+      write(6,*) '> > > h2psave = ', zh2ds
 
 cp    Prepare to check convergence criteria for terms included thus
 cp      far
@@ -2234,7 +2235,7 @@ cp    Update power of nu**(-2)
 
 cp    Loop until convergence criteria satisfied
 cp         or    maximum number of terms reached
-        do 30 k=2,nterms 
+      do 30 k=2,nterms 
 cp      Initialize for evaluation of two new u and v polynomials
 cp        via Horner's rule modified for complex arguments and real
 cp        coefficients
@@ -2291,17 +2292,18 @@ cp      Post multiply and form new polynomials
      1                              dukta*dytsq)
         zwksp(ndxv+nduv) = ztpowk*dcmplx(dvkta*dxtsq+dvktb,
      1                                    dvkta*dytsq)
-c      write(6,6060) nduv,zwksp(nduv),zwksp(ndxv+nduv)
-c 6060 format(/' nduv = ',i4
-c     1       /' zwksp = (',d23.16,',',d23.16,')'
-c     2       /' zwksp(+ndxv) = (',d23.16,',',d23.16,')')
+        write(6,*) '> > > nduv = ', nduv
+        write(6,*) '> > > zwksp[nduv] = ', zwksp(nduv)
+        write(6,*) '> > > zwksp[indexv + nduv] = ', zwksp(ndxv+nduv)
         ztpowk = zt*ztpowk
         nduv = nduv + 1
         zwksp(nduv) = ztpowk*dcmplx(dukpta*dxtsq+dukptb,
      1                              dukpta*dytsq)
         zwksp(ndxv+nduv) = ztpowk*dcmplx(dvkpta*dxtsq+dvkptb,
      1                                   dvkpta*dytsq)
-c      write(6,6060) nduv,zwksp(nduv),zwksp(ndxv+nduv)
+        write(6,*) '> > > nduv = ', nduv
+        write(6,*) '> > > zwksp[nduv] = ', zwksp(nduv)
+        write(6,*) '> > > zwksp[indexv + nduv] = ', zwksp(ndxv+nduv)
 
 cp      Update indices in preparation for next iteration
         nduv = nduv + 1
@@ -2321,10 +2323,14 @@ cp        via horner's rule
      1               dmu(i2kp1)*dyzt3h+dmu(i2k)*dyzv1)
         zd1 = dcmplx(dlamda(i2k)*dxzt3h+dlamda(i2km1)*dxzv1,
      1               dlamda(i2k)*dyzt3h+dlamda(i2km1)*dyzv1)
+        write(6,*) '> > > a1 = ', za1
+        write(6,*) '> > > b1 = ', zb1
+        write(6,*) '> > > c1 = ', zc1
+        write(6,*) '> > > d1 = ', zd1
 
 cp      loop until partial a, b, c, and d evaluations done via 
 cp                 horner's rule
-          do 20 l=2,i2km1
+        do 20 l=2,i2km1
           ndxvpl = ndxv + l
           i2kl = i2k - l
           za1 = za1*zetm3h + dcmplx(dmu(i2kl)*dreal(zwksp(l)),
@@ -2337,7 +2343,7 @@ cp                 horner's rule
      1                              dlamda(i2kl)*dimag(zwksp(l)))
           zc1 = zc1*zetm3h + dcmplx(dmu(i2kl)*dreal(zwksp(ndxvpl)),
      2                              dmu(i2kl)*dimag(zwksp(ndxvpl)))
-   20     continue
+   20   continue
 cp      repeat
 
 cp      complete the evaluations
@@ -2350,11 +2356,10 @@ cp      complete the evaluations
      1         dcmplx(dmu(1)*dreal(zwksp(ndxv+i2k)),
      2                dmu(1)*dimag(zwksp(ndxv+i2k)))) + 
      3         zwksp(ndxv+i2kp1)
-c       write(6,6070) za1,zb1,zc1,zd1
-c 6070 format(/' za1 = (',d23.16,',',d23.16,')'
-c     1       /' zb1 = (',d23.16,',',d23.16,')'
-c     2       /' zc1 = (',d23.16,',',d23.16,')'
-c     3       /' zd1 = (',d23.16,',',d23.16,')')
+        write(6,*) '> > > a1 = ', za1
+        write(6,*) '> > > b1 = ', zb1
+        write(6,*) '> > > c1 = ', zc1
+        write(6,*) '> > > d1 = ', zd1
 
 cp      Evaluate new terms for sums
         z1dn2k = z1dnsq*z1dn2k
@@ -2362,11 +2367,10 @@ cp      Evaluate new terms for sums
         zbtrm = zb1*z1dn2k + ztmpb
         zctrm = zc1*z1dn2k + ztmpc
         zdtrm = zd1*z1dn2k + ztmpd
-c       write(6,6080) zatrm,zbtrm,zctrm,zdtrm
-c 6080 format(/' zatrm = (',d23.16,',',d23.16,')'
-c     1       /' zbtrm = (',d23.16,',',d23.16,')'
-c     2       /' zctrm = (',d23.16,',',d23.16,')'
-c     3       /' zdtrm = (',d23.16,',',d23.16,')')
+        write(6,*) '> > > aterm = ', zatrm
+        write(6,*) '> > > bterm = ', zbtrm
+        write(6,*) '> > > cterm = ', zctrm
+        write(6,*) '> > > dterm = ', zdtrm
 
 cp      Update sums via Kahan summing scheme
         ztmpa = zsuma
@@ -2381,15 +2385,24 @@ cp      Update sums via Kahan summing scheme
         ztmpd = zsumd
         zsumd = zsumd + zdtrm
         ztmpd = zdtrm - (zsumd - ztmpd)
-c      write(6,6040) zsuma,zsumb,zsumc,zsumd
+        write(6,*) '> > > asum = ', zsuma
+        write(6,*) '> > > bsum = ', zsumb
+        write(6,*) '> > > csum = ', zsumc
+        write(6,*) '> > > dsum = ', zsumd
 
 cp      Combine sume in form appearing in expansions
         zh1sm = zaip*zsuma + zo4dp*zsumb
         zh2sm = zaim*zsuma + zo4dm*zsumb
         zh1dsm = zod2p*zsumc + zod0dp*zsumd
         zh2dsm = zod2m*zsumc + zod0dm*zsumd
-c       write(6,6050) zh1s,zh1ds,zh2s,zh2ds,zh1sm,zh1dsm,zh2sm,
-c     1               zh2dsm
+        write(6,*) '> > > h1sum = ', zh1sm
+        write(6,*) '> > > h2sum = ', zh2sm
+        write(6,*) '> > > h1psum = ', zh1dsm
+        write(6,*) '> > > h2psum = ', zh2dsm
+        write(6,*) '> > > h1save = ', zh1s
+        write(6,*) '> > > h2save = ', zh2s
+        write(6,*) '> > > h1psave = ', zh1ds
+        write(6,*) '> > > h2psave = ', zh2ds
 
 cp      Prepare for convergence tests
         z1dif = zh1sm - zh1s
@@ -2403,7 +2416,7 @@ c     2       /' z1ddif = (',d23.16,',',d23.16,')'
 c     3       /' z2ddif = (',d23.16,',',d23.16,')') 
 
 cp      If convergence criteria met this term
-          if (dabs(dreal(z1dif))+dabs(dimag(z1dif)) .lt.
+        if (dabs(dreal(z1dif))+dabs(dimag(z1dif)) .lt.
      1        deps*(dabs(dreal(zh1sm))+dabs(dimag(zh1sm))) .and.
      2        dabs(dreal(z2dif)) + dabs(dimag(z2dif)) .lt.
      3        deps*(dabs(dreal(zh2sm))+dabs(dimag(zh2sm))) .and.
@@ -2432,7 +2445,7 @@ cp      Save combined sums for comparison next iteration
         zh2s = zh2sm
         zh1ds = zh1dsm
         zh2ds = zh2dsm
-   30   continue
+   30 continue
 cp    repeat
 cp    . All allowable terms used - set completion code
         ier = 177

@@ -470,7 +470,7 @@ template<typename _Tp>
 	// Check for successful completion
 	if (ier != 0)
 	  {
-	    std::cerr << "  hankel_uniform_sum: "
+	    std::cerr << "  hankel_uniform_outer: "
 		      << "  ier = " << ier << '\n'
 		      << "  nu  = " << nu << '\n'
 		      << "  z   = " << z << '\n';
@@ -610,13 +610,7 @@ template<typename _Tp>
   {
     using cmplx = std::complex<_Tp>;
 
-    cmplx za1, zb0, zb1, zc0, zc1, zd1, ztpowk,
-     	  zatrm, zbtrm, zctrm, zdtrm, zsuma, zsumb, zsumc,
-     	  zsumd, ztmpa, ztmpb, ztmpc, ztmpd, z1dif,
-     	  z1pdif, z2dif, z2pdif, h1save, h1psave, h2save, h2psave,
-     	  z1dn2k;
-
-    _Tp dytsq2, dukta, dvkta, duktb, dvktb, dukpta,
+    _Tp dukta, dvkta, duktb, dvktb, dukpta,
      	dvkpta, dukptb, dvkptb, dsdata;
 
     int index, indexp, nduv, indexend, i2k,
@@ -812,7 +806,7 @@ template<typename _Tp>
       -0.1572726362036805e+02,
       -0.8228143909718595e+02,
       -0.4923553705236705e+03,
-      -0.3316218568547973e+04
+      -0.3316218568547973e+04,
       -0.2482767424520859e+05,
       -0.2045265873151298e+06,
       -0.1838444917068210e+07,
@@ -835,91 +829,114 @@ template<typename _Tp>
     auto ds = std::norm(ztsq);
 
     //  Compute u_0,1,2 and v_0,1,2 and store for later use
-    indexv = 2 * nterms + 1;
-    ztpowk = zt;
-    zwksp[0] = ztpowk * (a[1] * ztsq + a[2]);
-    zwksp[indexv] = ztpowk * (b[1] * ztsq + b[2]);
-    dytsq2 = dytsq * dytsq;
-    ztpowk *= zt;
-    zwksp[1] = ztpowk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
+    indexv = 2 * nterms;
+    std::cout << " > > indexv = " << indexv << '\n';
+    auto tk = zt;
+    zwksp[0] = tk * (a[1] * ztsq + a[2]);
+    zwksp[indexv] = tk * (b[1] * ztsq + b[2]);
+    std::cout << " > > tk = " << tk << '\n';
+    std::cout << " > > zwksp[0] = " << zwksp[0] << '\n';
+    std::cout << " > > zwksp[indexv] = " << zwksp[indexv] << '\n';
+    auto dytsq2 = dytsq * dytsq;
+    tk *= zt;
+    zwksp[1] = tk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
 			       (2 * a[3] * dxtsq + a[4]) * dytsq);
-    zwksp[indexv + 1] = ztpowk
+    zwksp[indexv + 1] = tk
 		    * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
 			     (2 * b[3] * dxtsq + b[4]) * dytsq);
-    ztpowk *= zt;
-    zwksp[2] = ztpowk
+    std::cout << " > > tk = " << tk << '\n';
+    std::cout << " > > zwksp[1] = " << zwksp[1] << '\n';
+    std::cout << " > > zwksp[indexv + 1] = " << zwksp[indexv + 1] << '\n';
+    tk *= zt;
+    zwksp[2] = tk
 	     * cmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
      		      + a[9] - (3 * a[6] * dxtsq + a[7]) * dytsq2,
      		      ((3 * a[6] * dxtsq + 2 * a[7]) * dxtsq + a[8]
      		      - a[6] * dytsq2) * dytsq);
-    zwksp[indexv + 2] = ztpowk
+    zwksp[indexv + 2] = tk
 		    * cmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8])
      		      * dxtsq + b[9] - (3 * b[6] * dxtsq + b[7]) * dytsq2,
      		      ((3 * b[6] * dxtsq + 2 * b[7]) * dxtsq + b[8]
      		      - b[6] * dytsq2) * dytsq);
+    std::cout << " > > tk = " << tk << '\n';
+    std::cout << " > > zwksp[2] = " << zwksp[2] << '\n';
+    std::cout << " > > zwksp[indexv + 2] = " << zwksp[indexv + 2] << '\n';
 
-    //  Compute a_1, b_0,1, c_0,1, d_1 ... note that
-    //  uhnksm exploits that fact that a_0 = d_0 = 1
-    //  also, b_k and c_k are computed up to -zeta**(-1/2)
+    //  Compute a_0,1, b_0,1, c_0,1, d_0,1 ... note that
+    //  b_k and c_k are computed up to -zeta**(-1/2)
     //  -zeta**(1/2) factors, respectively.  These recurring factors
     //  are included as appropriate in the outer factors, thus saving
     //  repeated multiplications by them.
-    za1 = zwksp[1]
-	+ zetm3h * (mu[1] * zetm3h
-		 +  mu[0] * zwksp[0]);
-    zb0 = zwksp[0] + lambda[0] * zetm3h;
-    zb1 = zwksp[2]
-	+ zetm3h * (lambda[2] * zetm3h
-		  + lambda[1] * zwksp[0]
-		  + lambda[0] * zwksp[1]);
-    zc0 = zwksp[indexv] + mu[0] * zetm3h;
-    zc1 = zwksp[indexv + 2]
-	+ zetm3h * (mu[2] * zetm3h
-		  + mu[1] * zwksp[indexv]
-		  + mu[0] * zwksp[indexv + 2]);
-    zd1 = zwksp[indexv + 1]
-	+ zetm3h * (lambda[1] * zetm3h
-		  + lambda[0] * zwksp[indexv]);
+    auto a0 = zone;
+    auto a1 = zwksp[1]
+	    + zetm3h * (mu[1] * zetm3h
+		     +  mu[0] * zwksp[0]);
+    auto b0 = zwksp[0] + lambda[0] * zetm3h;
+    auto b1 = zwksp[2]
+	    + zetm3h * (zetm3h * (lambda[2] * zetm3h
+				+ lambda[1] * zwksp[0])
+		      + lambda[0] * zwksp[1]);
+    auto c0 = zwksp[indexv] + mu[0] * zetm3h;
+    auto c1 = zwksp[indexv + 2]
+	    + zetm3h * (zetm3h * (mu[2] * zetm3h
+				+ mu[1] * zwksp[indexv])
+		      + mu[0] * zwksp[indexv + 1]);
+    auto d0 = zone;
+    auto d1 = zwksp[indexv + 1]
+	    + zetm3h * (lambda[1] * zetm3h
+		      + lambda[0] * zwksp[indexv]);
+    std::cout << " > > a1 = " << a1 << '\n';
+    std::cout << " > > b0 = " << b0 << '\n';
+    std::cout << " > > b1 = " << b1 << '\n';
+    std::cout << " > > c0 = " << c0 << '\n';
+    std::cout << " > > c1 = " << c1 << '\n';
+    std::cout << " > > d1 = " << d1 << '\n';
 
     //  Compute terms
-    zatrm = za1 * z1dnsq;
-    zbtrm = zb1 * z1dnsq;
-    zctrm = zc1 * z1dnsq;
-    zdtrm = zd1 * z1dnsq;
+    auto aterm = a1 * z1dnsq;
+    auto bterm = b1 * z1dnsq;
+    auto cterm = c1 * z1dnsq;
+    auto dterm = d1 * z1dnsq;
     //  Compute sum of first two terms, thus initializing Kahan summing scheme
-    zsuma = zone + zatrm;
-    ztmpa = zatrm - (zsuma - zone);
-    zsumb = zb0 + zbtrm;
-    ztmpb = zbtrm - (zsumb - zb0);
-    zsumc = zc0 + zctrm;
-    ztmpc = zctrm - (zsumc - zc0);
-    zsumd = zone + zdtrm;
-    ztmpd = zdtrm - (zsumd - zone);
+    auto asum = a0 + aterm;
+    auto atemp = aterm - (asum - zone);
+    auto bsum = b0 + bterm;
+    auto btemp = bterm - (bsum - b0);
+    auto csum = c0 + cterm;
+    auto ctemp = cterm - (csum - c0);
+    auto dsum = d0 + dterm;
+    auto dtemp = dterm - (dsum - zone);
+    std::cout << " > > asum = " << asum << '\n';
+    std::cout << " > > bsum = " << bsum << '\n';
+    std::cout << " > > csum = " << csum << '\n';
+    std::cout << " > > dsum = " << dsum << '\n';
 
     //  Set convergence flag to no convergence indication
     coverged = false;
 
     //  Combine sums in form appearing in expansions
-    h1sum = zaip * zsuma + zo4dp * zsumb;
-    h2sum = zaim * zsuma + zo4dm * zsumb;
-    h1psum = zod2p * zsumc + zod0dp * zsumd;
-    h2psum = zod2m * zsumc + zod0dm * zsumd;
-    h1save = zaip + zo4dp * zb0;
-    h2save = zaim + zo4dm * zb0;
-    h1psave = zod2p * zc0 + zod0dp;
-    h2psave = zod2m * zc0 + zod0dm;
-
-    //  Prepare to check convergence criteria for terms included thus far
-    z1dif = h1sum - h1save;
-    z2dif = h2sum - h2save;
-    z1pdif = h1psum - h1psave;
-    z2pdif = h2psum - h2psave;
+    h1sum = zaip * asum + zo4dp * bsum;
+    h2sum = zaim * asum + zo4dm * bsum;
+    h1psum = zod2p * csum + zod0dp * dsum;
+    h2psum = zod2m * csum + zod0dm * dsum;
+    auto h1save = zaip + zo4dp * b0;
+    auto h2save = zaim + zo4dm * b0;
+    auto h1psave = zod2p * c0 + zod0dp;
+    auto h2psave = zod2m * c0 + zod0dm;
+    std::cout << " > > > h1sum = " << h1sum << '\n';
+    std::cout << " > > > h2sum = " << h2sum << '\n';
+    std::cout << " > > > h1psum = " << h1psum << '\n';
+    std::cout << " > > > h2psum = " << h2psum << '\n';
+    std::cout << " > > > h1save = " << h1save << '\n';
+    std::cout << " > > > h2save = " << h2save << '\n';
+    std::cout << " > > > h1psave = " << h1psave << '\n';
+    std::cout << " > > > h2psave = " << h2psave << '\n';
 
     //  If convergence criteria now satisfied
-    if (norm1(z1dif) < eps * norm1(h1sum)
-     && norm1(z2dif) < eps * norm1(h2sum)
-     && norm1(z1pdif) < eps * norm1(h1psum)
-     && norm1(z2pdif) < eps * norm1(h2psum))
+    if (norm1(h1sum - h1save) < eps * norm1(h1sum)
+     && norm1(h2sum - h2save) < eps * norm1(h2sum)
+     && norm1(h1psum - h1psave) < eps * norm1(h1psum)
+     && norm1(h2psum - h2psave) < eps * norm1(h2psum))
       coverged = true;
 
     //  Save current sums combined as in expansion for next convergence test
@@ -934,7 +951,7 @@ template<typename _Tp>
     //  Update index into storage for u and v polynomials
     nduv = 3;//4;
     //  Update power of nu**(-2)
-    z1dn2k = z1dnsq;
+    auto z1dn2k = z1dnsq;
 
     //  Loop until convergence criteria satisfied or maximum number of terms reached
     for (auto k = 2; k <= nterms; ++k)
@@ -987,13 +1004,19 @@ template<typename _Tp>
 	dvkptb = b[indexp] - dsdata;
 
 	//  Post multiply and form new polynomials
-	ztpowk *= zt;
-	zwksp[nduv] = ztpowk * (dukta * cmplx(dxtsq, dytsq) + duktb);
-	zwksp[indexv + nduv] = ztpowk * (dvkta * cmplx(dxtsq, dytsq) + dvktb);
-	ztpowk *= zt;
+	tk *= zt;
+	zwksp[nduv] = tk * (dukta * ztsq + duktb);
+	zwksp[indexv + nduv] = tk * (dvkta * ztsq + dvktb);
+	std::cout << " > > > nduv = " << nduv << '\n';
+	std::cout << " > > > zwksp[nduv] = " << zwksp[nduv] << '\n';
+	std::cout << " > > > zwksp[indexv + nduv] = " << zwksp[indexv + nduv] << '\n';
+	tk *= zt;
 	++nduv = nduv;
-	zwksp[nduv] = ztpowk * (dukpta * cmplx(dxtsq, dytsq) + dukptb);
-	zwksp[indexv + nduv] = ztpowk * (dvkpta * cmplx(dxtsq, dytsq) + dvkptb);
+	zwksp[nduv] = tk * (dukpta * ztsq + dukptb);
+	zwksp[indexv + nduv] = tk * (dvkpta * ztsq + dvkptb);
+	std::cout << " > > > nduv = " << nduv << '\n';
+	std::cout << " > > > zwksp[nduv] = " << zwksp[nduv] << '\n';
+	std::cout << " > > > zwksp[indexv + nduv] = " << zwksp[indexv + nduv] << '\n';
 
 	//  Update indices in preparation for next iteration
 	++nduv = nduv;
@@ -1004,71 +1027,89 @@ template<typename _Tp>
 	indexp = indexp + i2kp1 + 2;
 
 	//  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
-	za1 = mu[i2k] * zetm3h + mu[i2km1] * zwksp[0];
-	zb1 = lambda[i2kp1] * zetm3h + lambda[i2k] * zwksp[0];
-	zc1 = mu[i2kp1] * zetm3h + mu[i2k] * zwksp[indexv];
-	zd1 = lambda[i2k] * zetm3h + lambda[i2km1] * zwksp[indexv];
+	a1 = mu[i2k] * zetm3h + mu[i2km1] * zwksp[0];
+	b1 = lambda[i2kp1] * zetm3h + lambda[i2k] * zwksp[0];
+	c1 = mu[i2kp1] * zetm3h + mu[i2k] * zwksp[indexv];
+	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * zwksp[indexv];
+	std::cout << " > > > a1 = " << a1 << '\n';
+	std::cout << " > > > b1 = " << b1 << '\n';
+	std::cout << " > > > c1 = " << c1 << '\n';
+	std::cout << " > > > d1 = " << d1 << '\n';
 
 	//  loop until partial a, b, c, and d evaluations done via Horner's rule
 	for(auto l = 1; l < i2km1; ++l)
 	  {
 	    indexvpl = indexv + l;
 	    i2kl = i2k - l;
-	    za1 = za1 * zetm3h + mu[i2kl] * zwksp[l];
-	    zd1 = zd1 * zetm3h + lambda[i2kl] * zwksp[indexvpl];
+	    a1 = a1 * zetm3h + mu[i2kl] * zwksp[l];
+	    d1 = d1 * zetm3h + lambda[i2kl] * zwksp[indexvpl];
 	    i2kl = i2kp1 - l;
-	    zb1 = zb1 * zetm3h + lambda[i2kl] * zwksp[l];
-	    zc1 = zc1 * zetm3h + mu[i2kl] * zwksp[indexvpl];
+	    b1 = b1 * zetm3h + lambda[i2kl] * zwksp[l];
+	    c1 = c1 * zetm3h + mu[i2kl] * zwksp[indexvpl];
 	  }
 
-	//  complete the evaluations
-	za1 = za1 * zetm3h + zwksp[i2k];
-	zd1 = zd1 * zetm3h + zwksp[indexv + i2k];
-	zb1 = zetm3h
-     	    * (zb1 * zetm3h + lambda[0] * zwksp[i2k])
+	//  Complete the evaluations
+	a1 = a1 * zetm3h + zwksp[i2k];
+	d1 = d1 * zetm3h + zwksp[indexv + i2k];
+	b1 = zetm3h
+     	    * (b1 * zetm3h + lambda[0] * zwksp[i2k])
 	    + zwksp[i2kp1];
-	zc1 = zetm3h
-     	    * (zc1 * zetm3h + mu[0] * zwksp[indexv + i2k])
+	c1 = zetm3h
+     	    * (c1 * zetm3h + mu[0] * zwksp[indexv + i2k])
      	    + zwksp[indexv + i2kp1];
+	std::cout << " > > > a1 = " << a1 << '\n';
+	std::cout << " > > > b1 = " << b1 << '\n';
+	std::cout << " > > > c1 = " << c1 << '\n';
+	std::cout << " > > > d1 = " << d1 << '\n';
 
 	//  Evaluate new terms for sums
 	z1dn2k *= z1dnsq;
-	zatrm = za1 * z1dn2k + ztmpa;
-	zbtrm = zb1 * z1dn2k + ztmpb;
-	zctrm = zc1 * z1dn2k + ztmpc;
-	zdtrm = zd1 * z1dn2k + ztmpd;
+	aterm = a1 * z1dn2k + atemp;
+	bterm = b1 * z1dn2k + btemp;
+	cterm = c1 * z1dn2k + ctemp;
+	dterm = d1 * z1dn2k + dtemp;
+	std::cout << " > > > aterm = " << aterm << '\n';
+	std::cout << " > > > bterm = " << bterm << '\n';
+	std::cout << " > > > cterm = " << cterm << '\n';
+	std::cout << " > > > dterm = " << dterm << '\n';
 
 	//  Update sums via Kahan summing scheme
-	ztmpa = zsuma;
-	zsuma += zatrm;
-	ztmpa = zatrm - (zsuma - ztmpa);
-	ztmpb = zsumb;
-	zsumb += zbtrm;
-	ztmpb = zbtrm - (zsumb - ztmpb);
-	ztmpc = zsumc;
-	zsumc += zctrm;
-	ztmpc = zctrm - (zsumc - ztmpc);
-	ztmpd = zsumd;
-	zsumd += zdtrm;
-	ztmpd = zdtrm - (zsumd - ztmpd);
+	atemp = asum;
+	asum += aterm;
+	atemp = aterm - (asum - atemp);
+	btemp = bsum;
+	bsum += bterm;
+	btemp = bterm - (bsum - btemp);
+	ctemp = csum;
+	csum += cterm;
+	ctemp = cterm - (csum - ctemp);
+	dtemp = dsum;
+	dsum += dterm;
+	dtemp = dterm - (dsum - dtemp);
+	std::cout << " > > > asum = " << asum << '\n';
+	std::cout << " > > > bsum = " << bsum << '\n';
+	std::cout << " > > > csum = " << csum << '\n';
+	std::cout << " > > > dsum = " << dsum << '\n';
 
-	//  Combine sume in form appearing in expansions
-	h1sum  = zaip  * zsuma  + zo4dp * zsumb;
-	h2sum  = zaim  * zsuma  + zo4dm * zsumb;
-	h1psum = zod2p * zsumc + zod0dp * zsumd;
-	h2psum = zod2m * zsumc + zod0dm * zsumd;
-
-	//  Prepare for convergence tests
-	z1dif = h1sum - h1save;
-	z2dif = h2sum - h2save;
-	z1pdif = h1psum - h1psave;
-	z2pdif = h2psum - h2psave;
+	//  Combine sums in form appearing in expansions
+	h1sum  = zaip  * asum  + zo4dp * bsum;
+	h2sum  = zaim  * asum  + zo4dm * bsum;
+	h1psum = zod2p * csum + zod0dp * dsum;
+	h2psum = zod2m * csum + zod0dm * dsum;
+	std::cout << " > > > h1sum = " << h1sum << '\n';
+	std::cout << " > > > h2sum = " << h2sum << '\n';
+	std::cout << " > > > h1psum = " << h1psum << '\n';
+	std::cout << " > > > h2psum = " << h2psum << '\n';
+	std::cout << " > > > h1save = " << h1save << '\n';
+	std::cout << " > > > h2save = " << h2save << '\n';
+	std::cout << " > > > h1psave = " << h1psave << '\n';
+	std::cout << " > > > h2psave = " << h2psave << '\n';
 
 	//  If convergence criteria met this term, see if it was before
-	if (norm1(z1dif) < eps * norm1(h1sum)
-	 && norm1(z2dif) < eps * norm1(h2sum)
-	 && norm1(z1pdif) < eps * norm1(h1psum)
-	 && norm1(z2pdif) < eps * norm1(h2psum)) 
+	if (norm1(h1sum - h1save) < eps * norm1(h1sum)
+	 && norm1(h2sum - h2save) < eps * norm1(h2sum)
+	 && norm1(h1psum - h1psave) < eps * norm1(h1psum)
+	 && norm1(h2psum - h2psave) < eps * norm1(h2psum)) 
 	  {
 	    if (coverged) // Convergence - relative error criteria met twice in a row
 	      return;

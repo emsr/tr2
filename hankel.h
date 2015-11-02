@@ -25,6 +25,9 @@ template<typename _Tp>
   std::complex<_Tp>
   airy_ai(std::complex<_Tp> __z)
   {
-    
+    std::complex<_Tp> __ai, __aip;
+    int __error;
+    airy(__z, __ai, __aip, __error);
+    return __ai;
   }
 #endif // HANKEL_H

@@ -320,7 +320,7 @@ template<typename _Tp>
 
 /**
     Compute the modified Bessel functions of the first kind orders 
-    + or - 1/3 and + or - 2/3 needed to compute the Airy functions
+    +-1/3 and +-2/3 needed to compute the Airy functions
     and their derivatives from their representation in terms of the
     modified Bessel functions.  This program is only used for z
     less than two in modulus and in the closed right half plane.
