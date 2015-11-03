@@ -2120,15 +2120,12 @@ cp    Compute square of magnituds
       ds = dxtsq*dxtsq + dytsq*dytsq
 cp    Compute u-sub-1,2,3 and v-sub-1,2,3 and store for later use
       ndxv = 2*nterms + 1
-      write(6,*) '> > ndxv = ', ndxv
-c      write(6,6000) nterms,ndxv
-c 6000 format(' nterms = ',i4,'  ndxv = ',i4)
       ztpowk = zt
       zwksp(1) = ztpowk*dcmplx(a(2)*dxtsq+a(3),a(2)*dytsq)
       zwksp(ndxv+1) = ztpowk*dcmplx(b(2)*dxtsq+b(3),b(2)*dytsq)
       write(6,*) '> > tk = ', ztpowk
-      write(6,*) '> > zwksp[0] = ', zwksp(1)
-      write(6,*) '> > zwksp[indexv] = ', zwksp(ndxv+1)
+      write(6,*) '> > u[0] = ', zwksp(1)
+      write(6,*) '> > v[0] = ', zwksp(ndxv+1)
       dytsq2 = dytsq*dytsq
       ztpowk = zt*ztpowk
       zwksp(2) = ztpowk*dcmplx((a(4)*dxtsq+a(5))*dxtsq+a(6)-
@@ -2136,8 +2133,8 @@ c 6000 format(' nterms = ',i4,'  ndxv = ',i4)
       zwksp(ndxv+2) = ztpowk*dcmplx((b(4)*dxtsq+b(5))*dxtsq+b(6)-
      1                      b(4)*dytsq2,(dtwo*b(4)*dxtsq+b(5))*dytsq)
       write(6,*) '> > tk = ', ztpowk
-      write(6,*) '> > zwksp[0] = ', zwksp(2)
-      write(6,*) '> > zwksp[indexv] = ', zwksp(ndxv+2)
+      write(6,*) '> > u[1] = ', zwksp(2)
+      write(6,*) '> > v[1] = ', zwksp(ndxv+2)
       ztpowk = zt*ztpowk
       zwksp(3) = ztpowk*dcmplx(((a(7)*dxtsq+a(8))*dxtsq+a(9))*dxtsq+
      1                   a(10)-(dthree*a(7)*dxtsq+a(8))*dytsq2,
@@ -2148,8 +2145,8 @@ c 6000 format(' nterms = ',i4,'  ndxv = ',i4)
      2                   ((dthree*b(7)*dxtsq+dtwo*b(8))*dxtsq+b(9)-
      3                   b(7)*dytsq2)*dytsq)
       write(6,*) '> > tk = ', ztpowk
-      write(6,*) '> > zwksp[0] = ', zwksp(3)
-      write(6,*) '> > zwksp[indexv] = ', zwksp(ndxv+3)
+      write(6,*) '> > u[2] = ', zwksp(3)
+      write(6,*) '> > v[2] = ', zwksp(ndxv+3)
 
 cp    Compute a-sub-1, b-sub-0,1, c-sub-0,1, d-sub-1 ... note that
 cp      uhnksm exploits that fact that a-sub-0 = d-sub-0 = 1
@@ -2222,14 +2219,14 @@ cp    Combine sums in form appearing in expansions
       zh2s = zaim + zo4dm*zb0
       zh1ds = zod2p*zc0 + zod0dp
       zh2ds = zod2m*zc0 + zod0dm
-      write(6,*) '> > > h1sum = ', zh1sm
-      write(6,*) '> > > h2sum = ', zh2sm
-      write(6,*) '> > > h1psum = ', zh1dsm
-      write(6,*) '> > > h2psum = ', zh2dsm
-      write(6,*) '> > > h1save = ', zh1s
-      write(6,*) '> > > h2save = ', zh2s
-      write(6,*) '> > > h1psave = ', zh1ds
-      write(6,*) '> > > h2psave = ', zh2ds
+      write(6,*) '> > h1sum = ', zh1sm
+      write(6,*) '> > h2sum = ', zh2sm
+      write(6,*) '> > h1psum = ', zh1dsm
+      write(6,*) '> > h2psum = ', zh2dsm
+      write(6,*) '> > h1save = ', zh1s
+      write(6,*) '> > h2save = ', zh2s
+      write(6,*) '> > h1psave = ', zh1ds
+      write(6,*) '> > h2psave = ', zh2ds
 
 cp    Prepare to check convergence criteria for terms included thus
 cp      far
@@ -2287,11 +2284,19 @@ cp        coefficients
 cp      update indices into coefficients to reflect initialization
         ndx = ndx + 1
         ndxp = ndxp + 1
+        write(6,*) '> > > dukta = ', dukta
+        write(6,*) '> > > dvkta = ', dvkta
+        write(6,*) '> > > duktb = ', duktb
+        write(6,*) '> > > dvktb = ', dvktb
+        write(6,*) '> > > dukpta = ', dukpta
+        write(6,*) '> > > dvkpta = ', dvkpta
+        write(6,*) '> > > dukptb = ', dukptb
+        write(6,*) '> > > dvkptb = ', dvkptb
 
 cp      Loop until quantities to evaluate lowest order u and v 
 cp                 polynomials and partial quantities to evaluate
 cp                 next highest order polynomials computed
-          do 10 l=ndx,ndxend
+        do 10 l=ndx,ndxend
           dsdata = ds*dukta
           dukta = duktb + dr*dukta
           duktb = a(l) - dsdata
@@ -2305,8 +2310,16 @@ cp                 next highest order polynomials computed
           dvkpta = dvkptb + dr*dvkpta
           dvkptb = b(ndxp) - dsdata
           ndxp = ndxp + 1
-   10     continue
-cp      Repeat
+	  write(6,*) '> > > > l = ', l
+	  write(6,*) '> > > > dukta = ', dukta
+	  write(6,*) '> > > > dvkta = ', dvkta
+	  write(6,*) '> > > > duktb = ', duktb
+	  write(6,*) '> > > > dvktb = ', dvktb
+	  write(6,*) '> > > > dukpta = ', dukpta
+	  write(6,*) '> > > > dvkpta = ', dvkpta
+	  write(6,*) '> > > > dukptb = ', dukptb
+	  write(6,*) '> > > > dvkptb = ', dvkptb
+   10   continue
 
 cp      One more iteration for highest order polynomials
         dsdata = ds*dukpta
@@ -2325,8 +2338,8 @@ cp      Post multiply and form new polynomials
         zwksp(ndxv+nduv) = ztpowk*dcmplx(dvkta*dxtsq+dvktb,
      1                                    dvkta*dytsq)
         write(6,*) '> > > nduv = ', nduv
-        write(6,*) '> > > zwksp[nduv] = ', zwksp(nduv)
-        write(6,*) '> > > zwksp[indexv + nduv] = ', zwksp(ndxv+nduv)
+        write(6,*) '> > > u[nduv] = ', zwksp(nduv)
+        write(6,*) '> > > v[nduv] = ', zwksp(ndxv+nduv)
         ztpowk = zt*ztpowk
         nduv = nduv + 1
         zwksp(nduv) = ztpowk*dcmplx(dukpta*dxtsq+dukptb,
@@ -2334,8 +2347,8 @@ cp      Post multiply and form new polynomials
         zwksp(ndxv+nduv) = ztpowk*dcmplx(dvkpta*dxtsq+dvkptb,
      1                                   dvkpta*dytsq)
         write(6,*) '> > > nduv = ', nduv
-        write(6,*) '> > > zwksp[nduv] = ', zwksp(nduv)
-        write(6,*) '> > > zwksp[indexv + nduv] = ', zwksp(ndxv+nduv)
+        write(6,*) '> > > u[nduv] = ', zwksp(nduv)
+        write(6,*) '> > > v[nduv] = ', zwksp(ndxv+nduv)
 
 cp      Update indices in preparation for next iteration
         nduv = nduv + 1
@@ -2344,6 +2357,11 @@ cp      Update indices in preparation for next iteration
         i2km1 = i2k - 1
         i2kp1 = i2k + 1
         ndxp = ndxp + i2kp1 + 2
+	write(6,*) '> > > index  = ', ndx
+	write(6,*) '> > > i2k    = ', i2k
+	write(6,*) '> > > i2km1  = ', i2km1
+	write(6,*) '> > > i2kp1  = ', i2kp1
+	write(6,*) '> > > indexp = ', ndxp
 
 cp      initialize for evaluation of a, b, c, and d polynomials
 cp        via horner's rule

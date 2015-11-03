@@ -56,7 +56,6 @@ template<typename _Tp>
 		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
 		     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
 		     _Tp eps,
-		     int nterms, std::vector<std::complex<_Tp>> & zwksp,
 		     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
 		     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
 		     int & ier);
@@ -426,7 +425,6 @@ template<typename _Tp>
     static constexpr cmplx j{1il};
     static constexpr _Tp eps   = 1.0e-06;
     static constexpr _Tp epsai = 1.0e-12;
-    int nterms = 4;
 
     //  Extended to accommodate negative real orders.
     bool nuswitch = false;
@@ -443,8 +441,6 @@ template<typename _Tp>
 	  _1dnsq, etm3h, aip, o4dp, aim, o4dm,
 	  od2p, od0dp, od0dm, tmp, zhat, nm1d3,
 	  nm2d3, etrat, od2m, r_factor;
-    static constexpr int nwksp = 100; // > some function of nterms
-    std::vector<cmplx> wksp(nwksp);
     int ier;
     hankel_uniform_outer(nu, z, epsai, zhat, _1dnsq, nm1d3, nm2d3, t, tsq,
 			 etm3h, etrat, aip, o4dp, aim, o4dm, od2p,
@@ -456,7 +452,7 @@ template<typename _Tp>
 	// Compute further terms in the expansions in their appropriate linear combinations.
 
 	hankel_uniform_sum(t, tsq, _1dnsq, etm3h, aip, o4dp, aim, o4dm,
-			   od2p, od0dp, od2m, od0dm, eps, nterms, wksp,
+			   od2p, od0dp, od2m, od0dm, eps,
 			   h1, h1p, h2, h2p, ier);
 
 	// Assemble approximations.
@@ -616,7 +612,6 @@ template<typename _Tp>
 		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
 		     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
 		     _Tp eps,
-		     int nterms, std::vector<std::complex<_Tp>> & zwksp,
 		     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
 		     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
 		     int & ier)
@@ -627,9 +622,10 @@ template<typename _Tp>
      	dvkpta, dukptb, dvkptb, dsdata;
 
     int index, indexp, nduv, indexend, i2k,
-	i2kp1, i2km1, indexv, indexvpl, i2kl;
+	i2kp1, i2km1, i2kl;
 
     bool coverged;
+    int nterms = 4;
 
     static constexpr auto zone = cmplx{1, 0};
 
@@ -845,6 +841,9 @@ template<typename _Tp>
       -0.9295073331010611e+15
     };
 
+    std::vector<cmplx> u(100);
+    std::vector<cmplx> v(100);
+
     ier = 0;
     //  Initialize for modified Horner's rule evaluation of u_k and v_k polynomials
     auto dxtsq = std::real(tsq);
@@ -854,38 +853,33 @@ template<typename _Tp>
     auto ds = std::norm(tsq);
 
     //  Compute u_0,1,2 and v_0,1,2 and store for later use
-    indexv = 2 * nterms;
-    std::cout << " > > indexv = " << indexv << '\n';
     auto tk = t;
-    zwksp[0] = tk * (a[1] * tsq + a[2]);
-    zwksp[indexv] = tk * (b[1] * tsq + b[2]);
+    u[0] = tk * (a[1] * tsq + a[2]);
+    v[0] = tk * (b[1] * tsq + b[2]);
     std::cout << " > > tk = " << tk << '\n';
-    std::cout << " > > zwksp[0] = " << zwksp[0] << '\n';
-    std::cout << " > > zwksp[indexv] = " << zwksp[indexv] << '\n';
+    std::cout << " > > u[0] = " << u[0] << '\n';
+    std::cout << " > > v[0] = " << v[0] << '\n';
     auto dytsq2 = dytsq * dytsq;
     tk *= t;
-    zwksp[1] = tk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
-			       (2 * a[3] * dxtsq + a[4]) * dytsq);
-    zwksp[indexv + 1] = tk
-		    * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
-			     (2 * b[3] * dxtsq + b[4]) * dytsq);
+    u[1] = tk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
+		      (2 * a[3] * dxtsq + a[4]) * dytsq);
+    v[1] = tk * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
+		      (2 * b[3] * dxtsq + b[4]) * dytsq);
     std::cout << " > > tk = " << tk << '\n';
-    std::cout << " > > zwksp[1] = " << zwksp[1] << '\n';
-    std::cout << " > > zwksp[indexv + 1] = " << zwksp[indexv + 1] << '\n';
+    std::cout << " > > u[1] = " << u[1] << '\n';
+    std::cout << " > > v[1] = " << v[1] << '\n';
     tk *= t;
-    zwksp[2] = tk
-	     * cmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
+    u[2] = tk * cmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
      		      + a[9] - (3 * a[6] * dxtsq + a[7]) * dytsq2,
      		      ((3 * a[6] * dxtsq + 2 * a[7]) * dxtsq + a[8]
      		      - a[6] * dytsq2) * dytsq);
-    zwksp[indexv + 2] = tk
-		    * cmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8])
-     		      * dxtsq + b[9] - (3 * b[6] * dxtsq + b[7]) * dytsq2,
+    v[2] = tk * cmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8]) * dxtsq
+     		      + b[9] - (3 * b[6] * dxtsq + b[7]) * dytsq2,
      		      ((3 * b[6] * dxtsq + 2 * b[7]) * dxtsq + b[8]
      		      - b[6] * dytsq2) * dytsq);
     std::cout << " > > tk = " << tk << '\n';
-    std::cout << " > > zwksp[2] = " << zwksp[2] << '\n';
-    std::cout << " > > zwksp[indexv + 2] = " << zwksp[indexv + 2] << '\n';
+    std::cout << " > > u[2] = " << u[2] << '\n';
+    std::cout << " > > v[2] = " << v[2] << '\n';
 
     //  Compute a_0,1, b_0,1, c_0,1, d_0,1 ... note that
     //  b_k and c_k are computed up to -zeta**(-1/2)
@@ -893,23 +887,19 @@ template<typename _Tp>
     //  are included as appropriate in the outer factors, thus saving
     //  repeated multiplications by them.
     auto a0 = zone;
-    auto a1 = zwksp[1]
-	    + zetm3h * (mu[1] * zetm3h
-		     +  mu[0] * zwksp[0]);
-    auto b0 = zwksp[0] + lambda[0] * zetm3h;
-    auto b1 = zwksp[2]
-	    + zetm3h * (zetm3h * (lambda[2] * zetm3h
-				+ lambda[1] * zwksp[0])
-		      + lambda[0] * zwksp[1]);
-    auto c0 = zwksp[indexv] + mu[0] * zetm3h;
-    auto c1 = zwksp[indexv + 2]
-	    + zetm3h * (zetm3h * (mu[2] * zetm3h
-				+ mu[1] * zwksp[indexv])
-		      + mu[0] * zwksp[indexv + 1]);
+    auto a1 = u[1]
+	    + zetm3h * (mu[1] * zetm3h + mu[0] * u[0]);
+    auto b0 = u[0] + lambda[0] * zetm3h;
+    auto b1 = u[2] + zetm3h * (zetm3h * (lambda[2] * zetm3h
+				       + lambda[1] * u[0])
+		   + lambda[0] * u[1]);
+    auto c0 = v[0] + mu[0] * zetm3h;
+    auto c1 = v[2] + zetm3h * (zetm3h * (mu[2] * zetm3h
+				       + mu[1] * v[0])
+		   + mu[0] * v[1]);
     auto d0 = zone;
-    auto d1 = zwksp[indexv + 1]
-	    + zetm3h * (lambda[1] * zetm3h
-		      + lambda[0] * zwksp[indexv]);
+    auto d1 = v[1] + zetm3h * (lambda[1] * zetm3h
+		      + lambda[0] * v[0]);
     std::cout << " > > a1 = " << a1 << '\n';
     std::cout << " > > b0 = " << b0 << '\n';
     std::cout << " > > b1 = " << b1 << '\n';
@@ -948,14 +938,14 @@ template<typename _Tp>
     auto h2save = aim + zo4dm * b0;
     auto h1psave = zod2p * c0 + zod0dp;
     auto h2psave = zod2m * c0 + zod0dm;
-    std::cout << " > > > h1sum = " << h1sum << '\n';
-    std::cout << " > > > h2sum = " << h2sum << '\n';
-    std::cout << " > > > h1psum = " << h1psum << '\n';
-    std::cout << " > > > h2psum = " << h2psum << '\n';
-    std::cout << " > > > h1save = " << h1save << '\n';
-    std::cout << " > > > h2save = " << h2save << '\n';
-    std::cout << " > > > h1psave = " << h1psave << '\n';
-    std::cout << " > > > h2psave = " << h2psave << '\n';
+    std::cout << " > > h1sum = " << h1sum << '\n';
+    std::cout << " > > h2sum = " << h2sum << '\n';
+    std::cout << " > > h1psum = " << h1psum << '\n';
+    std::cout << " > > h2psum = " << h2psum << '\n';
+    std::cout << " > > h1save = " << h1save << '\n';
+    std::cout << " > > h2save = " << h2save << '\n';
+    std::cout << " > > h1psave = " << h1psave << '\n';
+    std::cout << " > > h2psave = " << h2psave << '\n';
 
     //  If convergence criteria now satisfied
     if (norm1(h1sum - h1save) < eps * norm1(h1sum)
@@ -999,11 +989,19 @@ template<typename _Tp>
 	//  Update indices into coefficients to reflect initialization
 	++index;
 	++indexp;
+	std::cout << " > > > dukta = " << dukta << '\n';
+	std::cout << " > > > dvkta = " << dvkta << '\n';
+	std::cout << " > > > duktb = " << duktb << '\n';
+	std::cout << " > > > dvktb = " << dvktb << '\n';
+	std::cout << " > > > dukpta = " << dukpta << '\n';
+	std::cout << " > > > dvkpta = " << dvkpta << '\n';
+	std::cout << " > > > dukptb = " << dukptb << '\n';
+	std::cout << " > > > dvkptb = " << dvkptb << '\n';
 
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
-	for (auto l = index; l < indexend; ++l)
+	for (auto l = index; l <= indexend; ++l)
 	  {
 	    dsdata = ds * dukta;
 	    dukta = duktb + dr * dukta;
@@ -1018,6 +1016,15 @@ template<typename _Tp>
 	    dvkpta = dvkptb + dr * dvkpta;
 	    dvkptb = b[indexp] - dsdata;
 	    ++indexp;
+	    std::cout << " > > > > l = " << l << '\n';
+	    std::cout << " > > > > dukta = " << dukta << '\n';
+	    std::cout << " > > > > dvkta = " << dvkta << '\n';
+	    std::cout << " > > > > duktb = " << duktb << '\n';
+	    std::cout << " > > > > dvktb = " << dvktb << '\n';
+	    std::cout << " > > > > dukpta = " << dukpta << '\n';
+	    std::cout << " > > > > dvkpta = " << dvkpta << '\n';
+	    std::cout << " > > > > dukptb = " << dukptb << '\n';
+	    std::cout << " > > > > dvkptb = " << dvkptb << '\n';
 	  }
 
 	//  One more iteration for highest order polynomials
@@ -1030,58 +1037,58 @@ template<typename _Tp>
 
 	//  Post multiply and form new polynomials
 	tk *= t;
-	zwksp[nduv] = tk * (dukta * tsq + duktb);
-	zwksp[indexv + nduv] = tk * (dvkta * tsq + dvktb);
+	u[nduv] = tk * (dukta * tsq + duktb);
+	v[nduv] = tk * (dvkta * tsq + dvktb);
 	std::cout << " > > > nduv = " << nduv << '\n';
-	std::cout << " > > > zwksp[nduv] = " << zwksp[nduv] << '\n';
-	std::cout << " > > > zwksp[indexv + nduv] = " << zwksp[indexv + nduv] << '\n';
+	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
+	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
 	tk *= t;
 	++nduv = nduv;
-	zwksp[nduv] = tk * (dukpta * tsq + dukptb);
-	zwksp[indexv + nduv] = tk * (dvkpta * tsq + dvkptb);
+	u[nduv] = tk * (dukpta * tsq + dukptb);
+	v[nduv] = tk * (dvkpta * tsq + dvkptb);
 	std::cout << " > > > nduv = " << nduv << '\n';
-	std::cout << " > > > zwksp[nduv] = " << zwksp[nduv] << '\n';
-	std::cout << " > > > zwksp[indexv + nduv] = " << zwksp[indexv + nduv] << '\n';
+	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
+	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
 
 	//  Update indices in preparation for next iteration
 	++nduv = nduv;
 	index = indexp;
 	i2k = 2 * k - 1;
-	i2km1 = i2k - 1 - 1;
-	i2kp1 = i2k + 1 - 1;
-	indexp = indexp + i2kp1 + 2;
+	i2km1 = i2k - 1;
+	i2kp1 = i2k + 1;
+	indexp += i2kp1 + 2;
+	std::cout << " > > > index  = " << index << '\n';
+	std::cout << " > > > i2k    = " << i2k << '\n';
+	std::cout << " > > > i2km1  = " << i2km1 << '\n';
+	std::cout << " > > > i2kp1  = " << i2kp1 << '\n';
+	std::cout << " > > > indexp = " << indexp << '\n';
 
 	//  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
-	a1 = mu[i2k] * zetm3h + mu[i2km1] * zwksp[0];
-	b1 = lambda[i2kp1] * zetm3h + lambda[i2k] * zwksp[0];
-	c1 = mu[i2kp1] * zetm3h + mu[i2k] * zwksp[indexv];
-	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * zwksp[indexv];
+	a1 = mu[i2k] * zetm3h + mu[i2km1] * u[0];
+	b1 = lambda[i2kp1] * zetm3h + lambda[i2k] * u[0];
+	c1 = mu[i2kp1] * zetm3h + mu[i2k] * v[0];
+	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * v[0];
 	std::cout << " > > > a1 = " << a1 << '\n';
 	std::cout << " > > > b1 = " << b1 << '\n';
 	std::cout << " > > > c1 = " << c1 << '\n';
 	std::cout << " > > > d1 = " << d1 << '\n';
 
-	//  loop until partial a, b, c, and d evaluations done via Horner's rule
+	//  Loop until partial a, b, c, and d evaluations done via Horner's rule
 	for(auto l = 1; l < i2km1; ++l)
 	  {
-	    indexvpl = indexv + l;
 	    i2kl = i2k - l;
-	    a1 = a1 * zetm3h + mu[i2kl] * zwksp[l];
-	    d1 = d1 * zetm3h + lambda[i2kl] * zwksp[indexvpl];
+	    a1 = a1 * zetm3h + mu[i2kl] * u[l];
+	    d1 = d1 * zetm3h + lambda[i2kl] * v[l];
 	    i2kl = i2kp1 - l;
-	    b1 = b1 * zetm3h + lambda[i2kl] * zwksp[l];
-	    c1 = c1 * zetm3h + mu[i2kl] * zwksp[indexvpl];
+	    b1 = b1 * zetm3h + lambda[i2kl] * u[l];
+	    c1 = c1 * zetm3h + mu[i2kl] * v[l];
 	  }
 
 	//  Complete the evaluations
-	a1 = a1 * zetm3h + zwksp[i2k];
-	d1 = d1 * zetm3h + zwksp[indexv + i2k];
-	b1 = zetm3h
-     	    * (b1 * zetm3h + lambda[0] * zwksp[i2k])
-	    + zwksp[i2kp1];
-	c1 = zetm3h
-     	    * (c1 * zetm3h + mu[0] * zwksp[indexv + i2k])
-     	    + zwksp[indexv + i2kp1];
+	a1 = a1 * zetm3h + u[i2k];
+	d1 = d1 * zetm3h + v[i2k];
+	b1 = zetm3h * (b1 * zetm3h + lambda[0] * u[i2k]) + u[i2kp1];
+	c1 = zetm3h * (c1 * zetm3h + mu[0] * v[i2k]) + v[i2kp1];
 	std::cout << " > > > a1 = " << a1 << '\n';
 	std::cout << " > > > b1 = " << b1 << '\n';
 	std::cout << " > > > c1 = " << c1 << '\n';
