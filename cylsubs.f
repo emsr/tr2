@@ -230,7 +230,10 @@ c     data statements defining constants used herein
 c     initialize completion code
       ier = 0
 
-      write(6,*) '> airy: z = ', z
+      write(6,*) '> airy:'
+      write(6,*) '> > z = ', z
+      write(6,*) '> > small = ', dzsmal
+      write(6,*) '> > big   = ', dzbig
 
 cp    compute modulus of z for later use
       dabsz = zabs(z)
@@ -290,6 +293,8 @@ cp            recover ai(z) and ai'(z)
      1              (zim1d3 - zi1d3)
               zaipr = dcmplx(d1d3*dreal(z),d1d3*dimag(z))*
      1                (zi2d3 - zim2d3)
+              write(6,*) '> > > > > > ai = ', zai
+              write(6,*) '> > > > > > aip = ', zaipr
             end if
 
           end if
@@ -353,6 +358,8 @@ cp          recover ai(z) and ai'(z)
      1            (zm1d3f*zim1d3 + z1d3f*zi1d3)
             zaipr = dcmplx(d1d3*dreal(z),d1d3*dimag(z))*
      1              (zm2d3f*zim2d3 - z2d3f*zi2d3)
+            write(6,*) '> > > > > ai = ', zai
+            write(6,*) '> > > > > aip = ', zaipr
           end if
 
         end if
@@ -508,7 +515,8 @@ cph
      5     dgm4d3/8.929795115692492d-01/, dgm5d3/9.027452929509336d-01/,
      6     d2sqr2/2.828427124746190d+01/
 
-      write(6,*) '> airy_bessel_i: z = ', z
+      write(6,*) '> airy_bessel_i:'
+      write(6,*) '> > z = ', z
 
 cp    compute 1/z for use in recurrence for speed and abs(z)
       dzr = dreal(z)
@@ -665,6 +673,8 @@ cp        update normalization sums
 cp      repeat
 
       end if
+      write(6,*) '> > sum1 = ', zsum1
+      write(6,*) '> > sum2 = ', zsum2
 
 cp    perform last two recurrence steps for order 1/3
       zpold1 = zplst1
@@ -677,6 +687,7 @@ cp    perform last two recurrence steps for order 1/3
       zp1 = dcmplx(d8d3*dreal(zplst1),d8d3*dimag(zplst1))*z1dz +
      1      zpold1
       zsum1 = (zsum1 + zsum1) + zp1
+      write(6,*) '> > sum1 = ', zsum1
 
 cp    compute scale factor and scale results for order 1/3 case
       zd2pow = dcmplx(dhalf*dzr,dhalf*dzi)**(-d1d3)
@@ -684,6 +695,9 @@ cp    compute scale factor and scale results for order 1/3 case
       zsum1 = zpold1*dcmplx(dgm4d3*dreal(zsum1),dgm4d3*dimag(zsum1))
       zplst1 = zplst1/zsum1
       zi1d3 = zp1/zsum1
+      write(6,*) '> > zpold1 = ', zpold1
+      write(6,*) '> > zd2pow = ', zd2pow
+      write(6,*) '> > sum1 = ', zsum1
 
 cp    perform last two recurrence steps for order 2/3
       zpold2 = zplst2
@@ -696,12 +710,16 @@ cp    perform last two recurrence steps for order 2/3
       zp2 = dcmplx(d10d3*dreal(zplst2),d10d3*dimag(zplst2))*z1dz +
      1      zpold2
       zsum2 = (zsum2 + zsum2) + zp2
+      write(6,*) '> > sum2 = ', zsum2
 
 cp    compute scale factor and scale results for order 2/3 case
       zsum2 = zd2pow*zpold1*dcmplx(dgm5d3*dreal(zsum2),
      1                             dgm5d3*dimag(zsum2))
       zplst2 = zplst2/zsum2
       zi2d3 = zp2/zsum2
+      write(6,*) '> > zpold1 = ', zpold1
+      write(6,*) '> > zd2pow = ', zd2pow
+      write(6,*) '> > sum2 = ', zsum2
 
 cp    recur back one step from order 1/3 to get order -2/3
       zim2d3 = dcmplx(d2d3*dreal(zi1d3),d2d3*dimag(zi1d3))*z1dz +
@@ -862,19 +880,19 @@ c     1       /' zf12   = (',d23.16,',',d23.16,')'
 c     2       /' zphi11 = (',d23.16,',',d23.16,')'
 c     3       /' zphi12 = (',d23.16,',',d23.16,')')
 
-      write(6,*) '> > zf10 = ', zf10
-      write(6,*) '> > zf20 = ', zf20
-      write(6,*) '> > zf11 = ', zf11
-      write(6,*) '> > zf12 = ', zf12
-      write(6,*) '> > zf21 = ', zf21
-      write(6,*) '> > zf22 = ', zf22
+      write(6,*) '> > f10 = ', zf10
+      write(6,*) '> > f20 = ', zf20
+      write(6,*) '> > f11 = ', zf11
+      write(6,*) '> > f12 = ', zf12
+      write(6,*) '> > f21 = ', zf21
+      write(6,*) '> > f22 = ', zf22
 
-      write(6,*) '> > zphi10 = ', zphi10
-      write(6,*) '> > zphi20 = ', zphi20
-      write(6,*) '> > zphi11 = ', zphi11
-      write(6,*) '> > zphi12 = ', zphi12
-      write(6,*) '> > zphi21 = ', zphi21
-      write(6,*) '> > zphi22 = ', zphi22
+      write(6,*) '> > phi10 = ', zphi10
+      write(6,*) '> > phi20 = ', zphi20
+      write(6,*) '> > phi11 = ', zphi11
+      write(6,*) '> > phi12 = ', zphi12
+      write(6,*) '> > phi21 = ', zphi21
+      write(6,*) '> > phi22 = ', zphi22
 
 cp    initialize for recursion
       zratol = zphi22/zf22
@@ -1788,24 +1806,26 @@ cp      if parameters successfully computed
      1  then
 cp        try to compute airy function arguments
           call aryarg(znm2d3,zeta,zargp,zargm,ier)
-c       write(6,6000) znm2d3,zeta,zargp,zargm
-c 6000  format(/' znm2d3 = (',d23.16,',',d23.16,')'      
-c     1        /' zeta   = (',d23.16,',',d23.16,')'
-c     2        /' zargp  = (',d23.16,',',d23.16,')'
-c     3        /' zargm  = (',d23.16,',',d23.16,')')
+          write(6,*) '> > nm2d3 = ', znm2d3
+          write(6,*) '> > zeta  = ', zeta
+          write(6,*) '> > argp  = ', zargp
+          write(6,*) '> > argm  = ', zargm
+          write(6,*) '> > error = ', ier
 
 cp        if parameters successfully computed
             if (ier .eq. 0)
      1    then
 cp          compute airy functions and derivatives             
             call zairy(zargp,deps,zaip,zaidp,ier1)     
+            write(6,*) '> > argp   = ', zargp
+            write(6,*) '> > aip    = ', zaip
+            write(6,*) '> > aipp   = ', zaidp
+            write(6,*) '> > errorp = ', ier1
             call zairy(zargm,deps,zaim,zaidm,ier2)
-c       write(6,6010) zaip,zaidp,zaim,zaidm
-c 6010  format(/' zaip   = (',d23.16,',',d23.16,')'
-c     1        /' zaidp  = (',d23.16,',',d23.16,')'
-c     2        /' zaim   = (',d23.16,',',d23.16,')'
-c     3        /' zaidm  = (',d23.16,',',d23.16,')')  
-c   
+            write(6,*) '> > argm   = ', zargm
+            write(6,*) '> > aim    = ', zaim
+            write(6,*) '> > aimp   = ', zaidm
+            write(6,*) '> > errorm = ', ier2
 cp          if airy functions successfully computed
               if (ier1 .eq. 0 .and. ier2 .eq. 0)
      1      then
@@ -2074,7 +2094,19 @@ c     lambda and mu coefficients appearing in the expansions
      9     dmu(20)/-0.6199585732586975d+14/
       data dmu(21)/-0.9295073331010611d+15/
 
-      write(6,*) '> hankel_uniform_sum: zt = ', zt
+      write(6,*) '> hankel_uniform_sum:'
+      write(6,*) '> t      = ', zt
+      write(6,*) '> tsq    = ', ztsq
+      write(6,*) '> z1dnsq = ', z1dnsq
+      write(6,*) '> zetm3h = ', zetm3h
+      write(6,*) '> aip    = ', zaip
+      write(6,*) '> zo4dp  = ', zo4dp
+      write(6,*) '> aim    = ', zaim
+      write(6,*) '> zo4dm  = ', zo4dm
+      write(6,*) '> zod2p  = ', zod2p
+      write(6,*) '> zod0dp = ', zod0dp
+      write(6,*) '> zod2m  = ', zod2m
+      write(6,*) '> zod0dm = ', zod0dm
 
 cp    Initialize completion code
       ier = 0
@@ -2611,13 +2643,13 @@ cp        if xi lies in lower half-plane
 cp        end if
         end if
       end if
-      write(6,*) ' > > > dtemp = ', dtemp
+      write(6,*) '> > > dtemp = ', dtemp
 
 cp    if logarithm of xi must be adjusted
         if (dtemp .ne. dzero) zlnxi =
      1      dcmplx(dreal(zlnxi),dimag(zlnxi)+dtemp)
 cp    end if    
-      write(6,*) ' > > > zlnxi = ', zlnxi
+      write(6,*) '> > > zlnxi = ', zlnxi
 
 cp    compute ln(zeta), zeta, zeta**(1/2), zeta**(-1/2)
       zlnzet = dcmplx(d2d3*dreal(zlnxi)+dlncon,
@@ -2688,10 +2720,10 @@ cp    if nu**(2/3)*zeta successfully computed
       if (lzdiv(zeta,znm2d3,zargm))
      1then
 
-        write(6,*) '> > > aryarg';
-        write(6,*) '> > > > znm2d3 = ', znm2d3
-        write(6,*) '> > > > zeta = ', zeta
-        write(6,*) '> > > > argm = ', zargm
+        write(6,*) '> > > airy_arg';
+        write(6,*) '> > > > nm2d3 = ', znm2d3
+        write(6,*) '> > > > zeta  = ', zeta
+        write(6,*) '> > > > argm  = ', zargm
 cp      compute zargp and zargm
         zargp = zexpp*zargm
         zargm = zexpm*zargm

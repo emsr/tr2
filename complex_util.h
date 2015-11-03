@@ -17,8 +17,8 @@ template<typename _Tp>
  */
 template<typename _Tp>
   bool
-  zdiv(std::complex<_Tp> z1, std::complex<_Tp> z2,
-       std::complex<_Tp> & z1dz2);
+  safe_div(std::complex<_Tp> z1, std::complex<_Tp> z2,
+	   std::complex<_Tp> & z1dz2);
 
 /**
  *  Carefully compute @c s/z2 avoiding overflow and destructive underflow.
@@ -28,9 +28,9 @@ template<typename _Tp>
  */
 template<typename _Sp, typename _Tp>
   inline bool
-  zdiv(_Sp s, std::complex<_Tp> z2,
-       std::complex<_Tp> & z1dz2)
-  { return zdiv(std::complex<_Tp>(s), z2, z1dz2); }
+  safe_div(_Sp s, std::complex<_Tp> z2,
+	   std::complex<_Tp> & z1dz2)
+  { return safe_div(std::complex<_Tp>(s), z2, z1dz2); }
 
 /**
  *  Carefully compute @c z1/s avoiding overflow and destructive underflow.
@@ -40,9 +40,9 @@ template<typename _Sp, typename _Tp>
  */
 template<typename _Sp, typename _Tp>
   inline bool
-  zdiv(std::complex<_Tp> z1, _Sp s,
-       std::complex<_Tp> & z1dz2)
-  { return zdiv(z1, std::complex<_Tp>(s), z1dz2); }
+  safe_div(std::complex<_Tp> z1, _Sp s,
+	   std::complex<_Tp> & z1dz2)
+  { return safe_div(z1, std::complex<_Tp>(s), z1dz2); }
 
 #include "complex_util.tcc"
 

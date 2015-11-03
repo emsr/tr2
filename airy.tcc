@@ -25,8 +25,8 @@ template<typename _Tp>
 template<typename _Tp>
   void
   zcrary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
-	 std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3);
+	 std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
+	 std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3);
 
 template<typename _Tp>
   void
@@ -188,7 +188,10 @@ template<typename _Tp>
 
     error = 0;
 
-    std::cout << " > airy: z = " << z << '\n';
+    std::cout << " > airy:\n";
+    std::cout << " > > z = " << z << '\n';
+    std::cout << " > > small = " << small << '\n';
+    std::cout << " > > big   = " << big << '\n';
 
     //  Compute modulus of z for later use
     auto absz = std::abs(z);
@@ -200,7 +203,7 @@ template<typename _Tp>
 	      z1d3f, zm1d3f, z2d3f, zm2d3f;
 
 	//  Moderate or small abs(z)
-	//  Check for right or left half plane argument
+	//  Check argument for right or left half plane
 	if (std::real(z) >= dzero)
 	  {
 	    //  Argument in closed right half plane
@@ -242,18 +245,20 @@ template<typename _Tp>
 		    //  Recover Ai(z) and Ai'(z)
 		    ai = d1d3 * sqrtz * (zim1d3 - zi1d3);
 		    aip = d1d3 * z * (zi2d3 - zim2d3);
+                    std::cout << " > > > > > > ai = " << ai << '\n';
+                    std::cout << " > > > > > > aip = " << aip << '\n';
 		  }
 	      }
 	  }
 	else
 	  {
-	    //  z lies in left half plane
-	    //  Compute xi as defined in the representations in terms of bessel functions
+	    //  Argument lies in left half plane
+	    //  Compute xi as defined in the representations in terms of Bessel functions
 	    auto sqrtz = std::sqrt(-z);
 	    auto xi = -z * sqrtz;
 	    xi *= d2d3;
 	    cmplx z2xi;
-	    //  Set up arguments to recover bessel functions of the first kind in (3) and (6)
+	    //  Set up arguments to recover Bessel functions of the first kind in (3) and (6)
 	    if (std::imag(xi) >= dzero)
 	      {
 		//  Argument lies in upper half plane, so use appropriate identity
@@ -296,6 +301,8 @@ template<typename _Tp>
 		//  Recover Ai(z) and Ai'(z)
 		ai = d1d3 * sqrtz * (zm1d3f * zim1d3 + z1d3f * zi1d3);
 		aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
+                std::cout << " > > > > > ai = " << ai << '\n';
+                std::cout << " > > > > > aip = " << aip << '\n';
 	      }
 	  }
       }
@@ -305,12 +312,12 @@ template<typename _Tp>
 	if (std::real(z) >= dzero
 	    || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
 	{
-	  //  abs(arg(z)) <= 2*dpi/3  -  use asymptotic expansion for this region
+	  //  abs(arg(z)) <= 2*pi/3  -  use asymptotic expansion for this region
 	  airy_asymp(z, ai, aip);
 	}
 	else
 	{
-	  //  abs(arg(-z)) < dpi/3  -  use asymptotic expansion for this region
+	  //  abs(arg(-z)) < pi/3  -  use asymptotic expansion for this region
 	  zasaly(z, ai, aip);
 	}
       }
@@ -406,19 +413,20 @@ template<typename _Tp>
     using cmplx = std::complex<_Tp>;
 
     constexpr cmplx zero{0}, zone{1};
-    constexpr _Tp done{1.0e+00}, dhalf{5.0e-01},
+    constexpr _Tp one{1.0L}, half{0.5L},
     	 d1d3  {3.333333333333333e-01}, d2d3  {6.666666666666667e-01},
     	 d4d3  {1.333333333333333e+00}, d5d3  {1.666666666666667e+00},
     	 d8d3  {2.666666666666667e+00}, d10d3 {3.333333333333333e+00},
     	 d14d3 {4.666666666666667e+00}, d16d3 {5.333333333333333e+00},
-    	 dgm4d3{8.929795115692492e-01}, dgm5d3{9.027452929509336e-01},
+    	 gm4d3{8.929795115692492e-01}, gm5d3{9.027452929509336e-01},
     	 d2sqr2{2.828427124746190e+01};
 
-    std::cout << " > airy_bessel_i: z = " << z << '\n';
+    std::cout << " > airy_bessel_i:\n";
+    std::cout << " > > z = " << z << '\n';
 
     //  Compute 1/z for use in recurrence for speed and abs(z)
     cmplx z1dz;
-    zdiv(1, z, z1dz);
+    safe_div(1, z, z1dz);
 
     //  Initialize for forward recursion based on order 2/3
     int n = 0;
@@ -427,8 +435,8 @@ template<typename _Tp>
     auto zp2 = d2n * z1dz;
 
     //  Calculate weak convergence test and set flag for weak convergence loop
-    auto dtest = d2sqr2 / eps;
-    bool lstcnv = false;
+    auto test = d2sqr2 / eps;
+    bool converged = false;
 
     //  loop until weak and strong convergence tests satisfied when recurring forward
     while (true)
@@ -444,56 +452,56 @@ template<typename _Tp>
     	    //  Recur forward one step
     	    zp2 = z1dz * d2n * zplst2 + zpold2;
 	  }
-	while (norm1(zp2) < dtest);  //  Check if convergence test (in 1-norm) satisfied
+	while (norm1(zp2) < test);  //  Check if convergence test (in 1-norm) satisfied
 
-	//  if strong convergence, then weak and strong convergence
-	if (lstcnv)
+	//  If strong convergence, then weak and strong convergence
+	if (converged)
     	  break;
 
-	//  Calculate strong convergence test in single precision.  see
-	//  the Olver and Sookne papers cited for details.
-	auto spr = std::real(zp2);
-	auto spi = std::imag(zp2);
-	auto splstr = std::real(zplst2);
-	auto splsti = std::imag(zplst2);
+	//  Calculate strong convergence test.
+	//  See the Olver and Sookne papers cited for details.
+	auto rep2 = std::real(zp2);
+	auto imp2 = std::imag(zp2);
+	auto replast = std::real(zplst2);
+	auto implast = std::imag(zplst2);
 	//  Compute scale factor to avoid possible overflow
-	auto slamn = std::max(std::abs(spr), std::abs(spi));
-	//  Compute the k-sub-n of strong convergence lemma
-	auto skn = std::sqrt(((spr / slamn) * (spr / slamn)
-    			    + (spi / slamn) * (spi / slamn))
-    			   / ((splstr / slamn) * (splstr / slamn)
-    			    + (splsti / slamn) * (splsti / slamn)));
-	//  Compute quantity needed for lambda-sub-n of strong convergence lemma
-	slamn = _Tp(n + 1) / std::abs(z);
-	//  Determine appropriate value for rho-sub-n of lemma
-	if (skn + 1 / skn > 2 * slamn)
-    	  skn = slamn + std::sqrt(slamn * slamn - 1);
+	auto lamn = std::max(std::abs(rep2), std::abs(imp2));
+	//  Compute the kappa_n of strong convergence lemma
+	auto kapn = std::sqrt(((rep2 / lamn) * (rep2 / lamn)
+    			     + (imp2 / lamn) * (imp2 / lamn))
+    			   / ((replast / lamn) * (replast / lamn)
+    			    + (implast / lamn) * (implast / lamn)));
+	//  Compute quantity needed for lambda_n of strong convergence lemma
+	lamn = _Tp(n + 1) / std::abs(z);
+	//  Determine appropriate value for rho_n of lemma
+	if (kapn + 1 / kapn > 2 * lamn)
+    	  kapn = lamn + std::sqrt(lamn * lamn - 1);
 	//  Compute test value - sqrt(2) multiple already included
-	dtest *= std::sqrt(skn - 1 / skn);
+	test *= std::sqrt(kapn - 1 / kapn);
 	//  Set strong convergence test flag
-	lstcnv = true;
-    }
+	converged = true;
+      }
 
     //  Prepare for backward recurrence for both orders 1/3 and 2/3
-    auto dn = _Tp(n);
+    auto rn = _Tp(n);
     ++n;
     d2n = _Tp(2 * n);
     auto zplst1 = zero;
     zplst2 = zero;
     //  Carefully compute 1/zp2 to avoid overflow in complex divide
     cmplx zp1;
-    zdiv(1, zp2, zp1);
+    safe_div(1, zp2, zp1);
     zp2 = zp1;
     //  Set up n dependent parameters used in normalization sum
-    auto dnpn1 = dn + d1d3;
-    auto dnpn2 = dn + d2d3;
-    auto dnp2n1 = (dn - done) + d2d3;
-    auto dnp2n2 = (dn - done) + d4d3;
+    auto rnpn1 = rn + d1d3;
+    auto rnpn2 = rn + d2d3;
+    auto rnp2n1 = (rn - one) + d2d3;
+    auto rnp2n2 = (rn - one) + d4d3;
     //  Initialize normalization sum
-    auto dfac1 = dnpn1 * dnp2n1 / dn;
-    auto zsum1 = dfac1 * zp1;
-    auto dfac2 = dnpn2 * dnp2n2 / dn;
-    auto zsum2 = dfac2 * zp2;
+    auto fact1 = rnpn1 * rnp2n1 / rn;
+    auto sum1 = fact1 * zp1;
+    auto fact2 = rnpn2 * rnp2n2 / rn;
+    auto sum2 = fact2 * zp2;
     //  Set ending loop index to correspond to k=1 term of the
     //  normalization relationship
     auto nend = n - 3;
@@ -507,65 +515,75 @@ template<typename _Tp>
     	    //  Update n dependent quantities
     	    --n;
     	    d2n -= 2;
-    	    dfac1 = d2n + d2d3;
-    	    dfac2 = d2n + d4d3;
+    	    fact1 = d2n + d2d3;
+    	    fact2 = d2n + d4d3;
     	    //  Interchanges for order 1/3 recurrence
     	    auto zpold1 = zplst1;
     	    zplst1 = zp1;
     	    //  Recur back one step for order 1/3
-    	    zp1 = z1dz * dfac1 * zplst1 + zpold1;
+    	    zp1 = z1dz * fact1 * zplst1 + zpold1;
     	    //  Interchanges for order 2/3 recurrence
     	    auto zpold2 = zplst2;
     	    zplst2 = zp2;
     	    //  Recur back one step for order 2/3
-    	    zp2 = z1dz * dfac2 * zplst2 + zpold2;
+    	    zp2 = z1dz * fact2 * zplst2 + zpold2;
     	    //  Update quantities for computing normalization sums
-    	    dn = dn - done;
-    	    dnpn1 = dn + d1d3;
-    	    dnp2n1 = dn - d1d3;
-    	    dnpn2 = dn + d2d3;
-    	    dnp2n2 = dnpn1;
-    	    dfac1 = dnp2n1 / dn;
-    	    dfac2 = dnp2n2 / dn;
+    	    rn = rn - one;
+    	    rnpn1 = rn + d1d3;
+    	    rnp2n1 = rn - d1d3;
+    	    rnpn2 = rn + d2d3;
+    	    rnp2n2 = rnpn1;
+    	    fact1 = rnp2n1 / rn;
+    	    fact2 = rnp2n2 / rn;
     	    //  Update normalization sums
-    	    zsum1 += dnpn1 * zp1;
-    	    zsum1 *= dfac1;
-    	    zsum2 += dnpn2 * zp2;
-    	    zsum2 *= dfac2;
+    	    sum1 += rnpn1 * zp1;
+    	    sum1 *= fact1;
+    	    sum2 += rnpn2 * zp2;
+    	    sum2 *= fact2;
 	  }
       }
+    std::cout << " > > sum1 = " << sum1 << '\n';
+    std::cout << " > > sum2 = " << sum2 << '\n';
 
     //  Perform last two recurrence steps for order 1/3
     auto zpold1 = zplst1;
     zplst1 = zp1;
-    zp1 = z1dz * d14d3 * zplst1 + zpold1;
-    zsum1 += d4d3 * zp1;
+    zp1 = d14d3 * zplst1 * z1dz + zpold1;
+    sum1 += d4d3 * zp1;
     zpold1 = zplst1;
     zplst1 = zp1;
     zp1 = d8d3 * zplst1 * z1dz + zpold1;
-    zsum1 = (zsum1 + zsum1) + zp1;
+    sum1 = _Tp(2) * sum1 + zp1;
+    std::cout << " > > sum1 = " << sum1 << '\n';
 
     //  Compute scale factor and scale results for order 1/3 case
-    auto zd2pow = std::pow(dhalf * z1dz, -d1d3);
+    auto zd2pow = std::pow(half * z, -d1d3);
     zpold1 = zd2pow * std::exp(-z);
-    zsum1 *= zpold1 * dgm4d3;
-    zplst1 /= zsum1;
-    zi1d3 = zp1 / zsum1;
+    sum1 *= gm4d3 * zpold1;
+    zplst1 /= sum1;
+    zi1d3 = zp1 / sum1;
+    std::cout << " > > zpold1 = " << zpold1 << '\n';
+    std::cout << " > > zd2pow = " << zd2pow << '\n';
+    std::cout << " > > sum1 = " << sum1 << '\n';
 
     //  Perform last two recurrence steps for order 2/3
     auto zpold2 = zplst2;
     zplst2 = zp2;
     zp2 = d16d3 * zplst2 * z1dz + zpold2;
-    zsum2 += d5d3 * zp2;
+    sum2 += d5d3 * zp2;
     zpold2 = zplst2;
     zplst2 = zp2;
     zp2 = d10d3 * zplst2 * z1dz + zpold2;
-    zsum2 = (zsum2 + zsum2) + zp2;
+    sum2 = _Tp(2) * sum2 + zp2;
+    std::cout << " > > sum2 = " << sum2 << '\n';
 
     //  Compute scale factor and scale results for order 2/3 case
-    zsum2 *= zd2pow * zpold1 * dgm5d3;
-    zplst2 /= zsum2;
-    zi2d3 = zp2 / zsum2;
+    sum2 *= gm5d3 * zd2pow * zpold1;
+    zplst2 /= sum2;
+    zi2d3 = zp2 / sum2;
+    std::cout << " > > zpold1 = " << zpold1 << '\n';
+    std::cout << " > > zd2pow = " << zd2pow << '\n';
+    std::cout << " > > sum2 = " << sum2 << '\n';
 
     //  Recur back one step from order 1/3 to get order -2/3
     zim2d3 = d2d3 * zi1d3 * z1dz + zplst1;
@@ -583,7 +601,7 @@ template<typename _Tp>
     second kind of orders 1/3 and 2/3 for moderate arguments.
     More specifically, the program computes
 
-      E_nu(Z) = exp(z) sqrt(2 z/pi) K_nu(z), for nu = 1/3 and nu = 2/3.
+      E_nu(z) = exp(z) sqrt(2 z/pi) K_nu(z), for nu = 1/3 and nu = 2/3.
        			   
 
     This subprogram uses a rational approximation given in
@@ -604,14 +622,14 @@ template<typename _Tp>
     loss of significance are unimportant for our purpose.
 
     Arguments
-      z      The value for which the quantity e-sub-nu is to
+      z      The value for which the quantity E_nu is to
 	     be computed.  it is recommended that abs(z) not be
 	     too small and that abs(arg(z)) <= 3*pi/4.
       eps   The maximum relative error allowable in the computed
 	     results.  the relative error test is based on the
 	     comparison of successive iterates.
-      zk1d3  The value computed for E-sub-(1/3) of z.
-      zk2d3  The value computed for E-sub-(2/3) of z.
+      zk1d3  The value computed for E_(1/3) of z.
+      zk2d3  The value computed for E_(2/3) of z.
       error    A completion code.
 	     error = 0 indicates normal completion
 	     error = 129, convergence failed in 100 iterations
@@ -630,14 +648,14 @@ template<typename _Tp>
   {
     using cmplx = std::complex<_Tp>;
 
-    constexpr _Tp dan1i{ 4.8555555555555555555e+01L},
-		  dan2i{ 4.7222222222222222222e+01L},
-		  dp12i{ 3.1444444444444444444e+01L},
-		  dp22i{ 3.2777777777777777777e+01L},
-		  dp13i{-9.2592592592592592592e-01L},
-		  dp23i{ 1.2962962962962962962e+00L},
-		  dp11i{-7.9074074074074074074e+01L},
-		  dp21i{-8.1296296296296296296e+01L};
+    constexpr _Tp an1i{ 4.8555555555555555555e+01L},
+		  an2i{ 4.7222222222222222222e+01L},
+		  p12i{ 3.1444444444444444444e+01L},
+		  p22i{ 3.2777777777777777777e+01L},
+		  p13i{-9.2592592592592592592e-01L},
+		  p23i{ 1.2962962962962962962e+00L},
+		  p11i{-7.9074074074074074074e+01L},
+		  p21i{-8.1296296296296296296e+01L};
 
     constexpr std::complex<_Tp> zone{1};
 
@@ -646,7 +664,7 @@ template<typename _Tp>
     { 144, 77, 62208, 95472, 17017, 65, 90288, 13585 };
 
     constexpr _Tp
-    dphico[6]
+    phico[6]
     { 67, 91152, 12697, 79, 96336, 19633 };
 
     std::cout << " > airy_bessel_k: z = " << z << '\n';
@@ -654,119 +672,119 @@ template<typename _Tp>
     error = 0;
 
     //  Initialize polynomials for recurrence
-    auto zf10 = zone;
-    auto zf20 = zone;
-    auto zf11 = zone + dfco[0] * z / dfco[1];
-    auto zf12 = z * (dfco[2] * z + dfco[3]);
-    zf12 = zone + zf12 / dfco[4];
-    auto zf21 = zone + dfco[0] * z / dfco[5];
-    auto zf22 = z * (dfco[2] * z + dfco[6]);
-    zf22 = zone + zf22 / dfco[7];
+    auto f10 = zone;
+    auto f20 = zone;
+    auto f11 = zone + dfco[0] * z / dfco[1];
+    auto f12 = z * (dfco[2] * z + dfco[3]);
+    f12 = zone + f12 / dfco[4];
+    auto f21 = zone + dfco[0] * z / dfco[5];
+    auto f22 = z * (dfco[2] * z + dfco[6]);
+    f22 = zone + f22 / dfco[7];
 
-    std::cout << " > > zf10 = " << zf10 << '\n';
-    std::cout << " > > zf20 = " << zf20 << '\n';
-    std::cout << " > > zf11 = " << zf11 << '\n';
-    std::cout << " > > zf12 = " << zf12 << '\n';
-    std::cout << " > > zf21 = " << zf21 << '\n';
-    std::cout << " > > zf22 = " << zf22 << '\n';
+    std::cout << " > > f10 = " << f10 << '\n';
+    std::cout << " > > f20 = " << f20 << '\n';
+    std::cout << " > > f11 = " << f11 << '\n';
+    std::cout << " > > f12 = " << f12 << '\n';
+    std::cout << " > > f21 = " << f21 << '\n';
+    std::cout << " > > f22 = " << f22 << '\n';
 
-    auto zphi10 = zone;
-    auto zphi20 = zone;
-    auto zphi11 = cmplx((dfco[0] * std::real(z) + dphico[0]) / dfco[1],
-		     std::imag(zf11));
-    auto zphi12 = z * (dfco[2] * z + dphico[1]);
-    zphi12 = (zphi12 + dphico[2]) / dfco[4];
-    auto zphi21 = cmplx((dfco[0] * std::real(z) + dphico[3]) / dfco[5],
-		     std::imag(zf21));
-    auto zphi22 = z * (dfco[2] * z + dphico[4]);
-    zphi22 = (zphi22 + dphico[5]) / dfco[7];
+    auto phi10 = zone;
+    auto phi20 = zone;
+    auto phi11 = cmplx((dfco[0] * std::real(z) + phico[0]) / dfco[1],
+		       std::imag(f11));
+    auto phi12 = z * (dfco[2] * z + phico[1]);
+    phi12 = (phi12 + phico[2]) / dfco[4];
+    auto phi21 = cmplx((dfco[0] * std::real(z) + phico[3]) / dfco[5],
+		       std::imag(f21));
+    auto phi22 = z * (dfco[2] * z + phico[4]);
+    phi22 = (phi22 + phico[5]) / dfco[7];
 
-    std::cout << " > > zphi10 = " << zphi10 << '\n';
-    std::cout << " > > zphi20 = " << zphi20 << '\n';
-    std::cout << " > > zphi11 = " << zphi11 << '\n';
-    std::cout << " > > zphi12 = " << zphi12 << '\n';
-    std::cout << " > > zphi21 = " << zphi21 << '\n';
-    std::cout << " > > zphi22 = " << zphi22 << '\n';
+    std::cout << " > > phi10 = " << phi10 << '\n';
+    std::cout << " > > phi20 = " << phi20 << '\n';
+    std::cout << " > > phi11 = " << phi11 << '\n';
+    std::cout << " > > phi12 = " << phi12 << '\n';
+    std::cout << " > > phi21 = " << phi21 << '\n';
+    std::cout << " > > phi22 = " << phi22 << '\n';
 
     //  Initialize for recursion
-    auto zratol = zphi22 / zf22;
-    auto zrat1 = zphi12 / zf12;
+    auto zratol = phi22 / f22;
+    auto zrat1 = phi12 / f12;
     auto delt = _Tp(32);
-    auto dan1 = dan1i;
-    auto dan2 = dan2i;
-    auto dp11 = dp11i;
-    auto dp12 = dp12i;
-    auto dp13 = dp13i;
-    auto dp21 = dp21i;
-    auto dp22 = dp22i;
-    auto dp23 = dp23i;
-    auto deta = _Tp(24);
-    auto dgamm = _Tp(3);
-    auto dgam = _Tp(5);
-    auto dq = _Tp(16) * dgam;
+    auto an1 = an1i;
+    auto an2 = an2i;
+    auto p11 = p11i;
+    auto p12 = p12i;
+    auto p13 = p13i;
+    auto p21 = p21i;
+    auto p22 = p22i;
+    auto p23 = p23i;
+    auto eta = _Tp(24);
+    auto gamm = _Tp(3);
+    auto gam = _Tp(5);
+    auto q = _Tp(16) * gam;
 
     //  Loop until maximum iterations used or convergence
     for (int i = 1; i < 100; ++i)
       {
 	//  Evaluate next term in recurrence for order 1/3 polynomials
-	auto dqz = dq * z;
-	auto zfact1 = dqz - dp11;
-	auto zfact2 = dqz - dp12;
-	auto zf13 = zfact1 * zf12 + zfact2 * zf11 - dp13 * zf10;
-	zf13 /= dan1;
-	auto zphi13 = zfact1 * zphi12 + zfact2 * zphi11 - dp13 * zphi10;
-	zphi13 /= dan1;
+	auto qz = q * z;
+	auto fact1 = qz - p11;
+	auto fact2 = qz - p12;
+	auto f13 = fact1 * f12 + fact2 * f11 - p13 * f10;
+	f13 /= an1;
+	auto phi13 = fact1 * phi12 + fact2 * phi11 - p13 * phi10;
+	phi13 /= an1;
 
 	//  Evaluate next term in recurrence for order 2/3 polynomials
-	zfact1 = dqz - dp21;
-	zfact2 = dqz - dp22;
-	auto zf23 = zfact1 * zf22 + zfact2 * zf21 - dp23 * zf20;
-	zf23 /= dan2;
-	auto zphi23 = zfact1 * zphi22 + zfact2 * zphi21 - dp23 * zphi20;
-	zphi23 /= dan2;
+	fact1 = qz - p21;
+	fact2 = qz - p22;
+	auto f23 = fact1 * f22 + fact2 * f21 - p23 * f20;
+	f23 /= an2;
+	auto phi23 = fact1 * phi22 + fact2 * phi21 - p23 * phi20;
+	phi23 /= an2;
 
 	//  check for convergence
-	auto zratnw = zphi23 / zf23;
-	zrat1 = zphi13 / zf13;
+	auto zratnw = phi23 / f23;
+	zrat1 = phi13 / f13;
 
 	if (std::abs(zratnw - zratol) < eps * std::abs(zratnw))
 	  {
 	    //  Convergence.
 	    zk2d3 = zratnw;
-	    zk1d3 = zphi13 / zf13;
+	    zk1d3 = phi13 / f13;
 	    return;
 	  }
 
 	//  Prepare for next iteration
 	zratol = zratnw;
-	zf20 = zf21;
-	zf21 = zf22;
-	zf22 = zf23;
-	zphi20 = zphi21;
-	zphi21 = zphi22;
-	zphi22 = zphi23;
-	zf10 = zf11;
-	zf11 = zf12;
-	zf12 = zf13;
-	zphi10 = zphi11;
-	zphi11 = zphi12;
-	zphi12 = zphi13;
+	f20 = f21;
+	f21 = f22;
+	f22 = f23;
+	phi20 = phi21;
+	phi21 = phi22;
+	phi22 = phi23;
+	f10 = f11;
+	f11 = f12;
+	f12 = f13;
+	phi10 = phi11;
+	phi11 = phi12;
+	phi12 = phi13;
 	delt = delt + 24;
-	dp12 = dp12 + delt;
-	dp22 = dp22 + delt;
-	deta += 8;
-	dan1 += deta;
-	dan2 += deta;
-	auto danm1 = dan1 - delt - _Tp(16);
-	auto danm2 = dan2 - delt - _Tp(16);
-	dgamm = dgam;
-	dgam += 2;
-	dp23 = -dgam / dgamm;
-	dp13 = dp23 * danm1;
-	dp23 = dp23 * danm2;
-	dp11 = -dan1 - dp12 - dp13;
-	dp21 = -dan2 - dp22 - dp23;
-	dq = _Tp(16) * dgam;
+	p12 = p12 + delt;
+	p22 = p22 + delt;
+	eta += 8;
+	an1 += eta;
+	an2 += eta;
+	auto anm1 = an1 - delt - _Tp(16);
+	auto anm2 = an2 - delt - _Tp(16);
+	gamm = gam;
+	gam += 2;
+	p23 = -gam / gamm;
+	p13 = p23 * anm1;
+	p23 = p23 * anm2;
+	p11 = -an1 - p12 - p13;
+	p21 = -an2 - p22 - p23;
+	q = _Tp(16) * gam;
       }
 
     //  Maximum iterations exceeded
@@ -779,14 +797,14 @@ template<typename _Tp>
 /**
     @brief This subroutine computes rational approximations
       to the hypergeometric functions related to the modified Bessel
-      functions of orders nu = + or - 1/3 and + or - 2/3.  That is,
+      functions of orders \nu = +-1/3 and \nu +- 2/3.  That is,
       A(z)/B(z), Where A(z) and B(z) are cubic polynomials with
       real coefficients, approximates
 
-	Gamma(nu+1)
-	----------- I_nu(z) = 0_F_1 (;nu+1;z^2/4) ,
-	 (z/2)**nu         
-     
+	\Gamma(\nu+1)
+	----------- I_\nu(z) = 0_F_1 (;\nu+1;z^2/4) ,
+	 (z/2)^nu         
+
       Where the function on the right is a generalized Gaussian
       hypergeometric function.  For abs(z) <= 1/4  and
       abs(arg(z)) <= pi/2, the approximations are accurate to
@@ -808,33 +826,28 @@ template<typename _Tp>
       absolutely necessary are not made.  Under these assumptions
       an error return is not needed.
 
-	z      Complex input variable set equal
-	       to the argument at which the hypergeometric given
-	       above is to be evaluated.  Since the approximation
-	       is of fixed order, abs(z) must be small to insure
-	       sufficient accuracy of the computed results.
-	zf1d3  Complex output variable containing
-	       the approximate value of the hypergeometric
-	       function related to the modified Bessel function
-	       of order 1/3.
-	zfm1d3 Complex output variable containing
-	       the approximate value of the hypergeometric
-	       function related to the modified Bessel function
-	       of order -1/3.
-	zf2d3  Complex output variable containing
-	       the approximate value of the hypergeometric
-	       function related to the modified Bessel function
-	       of order 2/3.
-	zfm2d3 Complex output variable containing
-	       the approximate value of the hypergeometric
-	       function related to the modified Bessel function
-	       of order -2/3.
+    @param[in]  z	The argument at which the hypergeometric given
+			above is to be evaluated.  Since the approximation
+			is of fixed order, abs(z) must be small to ensure
+			sufficient accuracy of the computed results.
+    @param[out]  f1d3	The approximate value of the Gauss hypergeometric
+			function related to the modified Bessel function
+			of order 1/3.
+    @param[out]  fm1d3	The approximate value of the Gauss hypergeometric
+			function related to the modified Bessel function
+			of order -1/3.
+    @param[out]  f2d3	The approximate value of the Gauss hypergeometric
+			function related to the modified Bessel function
+			of order 2/3.
+    @param[out]  fm2d3	The approximate value of the Gauss hypergeometric
+			function related to the modified Bessel function
+			of order -2/3.
  */
 template<typename _Tp>
   void
   zcrary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & zf1d3, std::complex<_Tp> & zfm1d3,
-	 std::complex<_Tp> & zf2d3, std::complex<_Tp> & zfm2d3)
+	 std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
+	 std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -842,39 +855,37 @@ template<typename _Tp>
 
     //  dsmall is the 1/3 root of the smallest magnitude
     //  floating-point number representable on the machine
-    constexpr _Tp dsmall = 1.0e-12;
+    constexpr _Tp small = 1.0e-12;
 
-    constexpr _Tp da1d3[4]{  81, 32400, 2585520, 37920960 };
-    constexpr _Tp db1d3[4]{ -35, 5040, -574560, 37920960 };
-    constexpr _Tp dam1d3[4]{ 81, 22680, 1156680, 7711200 };
-    constexpr _Tp dbm1d3[4]{ -10, 1260, -128520, 7711200 };
-    constexpr _Tp da2d3[4]{ 162, 75735, 7270560, 139352400 };
-    constexpr _Tp db2d3[4]{ -110, 16830, -2019600, 139352400 };
-    constexpr _Tp dam2d3[4]{ 162, 36855, 1415232, 4481568 };
-    constexpr _Tp dbm2d3[4]{ -7, 819, -78624, 4481568 };
+    constexpr _Tp a1d3[4]{  81, 32400, 2585520, 37920960 };
+    constexpr _Tp b1d3[4]{ -35, 5040, -574560, 37920960 };
+    constexpr _Tp am1d3[4]{ 81, 22680, 1156680, 7711200 };
+    constexpr _Tp bm1d3[4]{ -10, 1260, -128520, 7711200 };
+    constexpr _Tp a2d3[4]{ 162, 75735, 7270560, 139352400 };
+    constexpr _Tp b2d3[4]{ -110, 16830, -2019600, 139352400 };
+    constexpr _Tp am2d3[4]{ 162, 36855, 1415232, 4481568 };
+    constexpr _Tp bm2d3[4]{ -7, 819, -78624, 4481568 };
 
     //  Check to see if z**3 will underflow and act accordingly
 
     std::cout << " > zcrary: z = " << z << '\n';
 
-    if (std::abs(z) < dsmall)
+    if (std::abs(z) < small)
       {
-	//  All ratios are 1 
-	zf1d3  = zone;
-	zfm1d3 = zone;
-	zf2d3  = zone;
-	zfm2d3 = zone;
+	f1d3  = zone;
+	fm1d3 = zone;
+	f2d3  = zone;
+	fm2d3 = zone;
       }
     else
       {
-	//  Initialize argument dependent quantities used throughout
 	cmplx zzz = z * z * z;
-	_Tp dr = 2 * std::real(zzz);
-	_Tp ds = std::norm(zzz);
+	_Tp r = 2 * std::real(zzz);
+	_Tp s = std::norm(zzz);
 
 	//  All of the following polynomial evaluations are done using
 	//  a modified of Horner's rule which exploits the fact that
-	//  the polynomial coefficients are all real.  the algorithm is
+	//  the polynomial coefficients are all real.  The algorithm is
 	//  discussed in detail in:
 	//  Knuth, D. E., The Art of Computer Programming: Seminumerical
 	//  Algorithms (Vol. 2), Addison-Wesley, pp 423-424, 1969.
@@ -883,87 +894,87 @@ template<typename _Tp>
 	//  saved and 4 * n - 6 additions are saved.
 
 	//  Evaluate numerator polynomial for nu=1/3 approximant
-	auto dal = da1d3[0];
-	auto dt  = ds * dal;
-	dal = da1d3[1] + dr * dal;
-	auto dbe = da1d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = da1d3[3] - dt;
-	zf1d3 = dal * zzz + dbe;
+	auto al = a1d3[0];
+	auto t  = s * al;
+	al = a1d3[1] + r * al;
+	auto be = a1d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = a1d3[3] - t;
+	f1d3 = al * zzz + be;
 
 	//  Evaluate denominator polynomial for nu=1/3 approximant
 	//  and compute ratio of numerator and denominator
-	dal = db1d3[0];
-	dt  = ds * dal;
-	dal = db1d3[1] + dr * dal;
-	dbe = db1d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = db1d3[3] - dt;
-	zf1d3 /= dal * zzz + dbe;
+	al = b1d3[0];
+	t  = s * al;
+	al = b1d3[1] + r * al;
+	be = b1d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = b1d3[3] - t;
+	f1d3 /= al * zzz + be;
 
 	//  Evaluate numerator polynomial for nu=-1/3 approximant
-	dal = dam1d3[0];
-	dt  = ds * dal;
-	dal = dam1d3[1] + dr * dal;
-	dbe = dam1d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = dam1d3[3] - dt;
-	zfm1d3 = dal * zzz + dbe;
+	al = am1d3[0];
+	t  = s * al;
+	al = am1d3[1] + r * al;
+	be = am1d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = am1d3[3] - t;
+	fm1d3 = al * zzz + be;
 	//  Evaluate denominator polynomial for nu=-1/3 approximant
 	//  and compute ratio of numerator and denominator
-	dal = dbm1d3[0];
-	dt  = ds * dal;
-	dal = dbm1d3[1] + dr * dal;
-	dbe = dbm1d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = dbm1d3[3] - dt;
-	zfm1d3 /= dal * zzz + dbe;
+	al = bm1d3[0];
+	t  = s * al;
+	al = bm1d3[1] + r * al;
+	be = bm1d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = bm1d3[3] - t;
+	fm1d3 /= al * zzz + be;
 
 	//  Evaluate numerator polynomial for nu=2/3 approximant
-	dal = da2d3[0];
-	dt  = ds * dal;
-	dal = da2d3[1] + dr * dal;
-	dbe = da2d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = da2d3[3] - dt;
-	zf2d3 = dal * zzz + dbe;
+	al = a2d3[0];
+	t  = s * al;
+	al = a2d3[1] + r * al;
+	be = a2d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = a2d3[3] - t;
+	f2d3 = al * zzz + be;
 
 	//  Evaluate denominator polynomial for nu=2/3 approximant
 	//  and compute ratio of numerator and denominator
-	dal = db2d3[0];
-	dt  = ds * dal;
-	dal = db2d3[1] + dr * dal;
-	dbe = db2d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = db2d3[3] - dt;
-	zf2d3 /= dal * zzz + dbe;
+	al = b2d3[0];
+	t  = s * al;
+	al = b2d3[1] + r * al;
+	be = b2d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = b2d3[3] - t;
+	f2d3 /= al * zzz + be;
 
 	//  Evaluate numerator polynomial for nu=-2/3 approximant
-	dal = dam2d3[0];
-	dt  = ds * dal;
-	dal = dam2d3[1] + dr * dal;
-	dbe = dam2d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = dam2d3[3] - dt;
-	zfm2d3 = dal * zzz + dbe;
+	al = am2d3[0];
+	t  = s * al;
+	al = am2d3[1] + r * al;
+	be = am2d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = am2d3[3] - t;
+	fm2d3 = al * zzz + be;
 
 	//  Evaluate denominator polynomial for nu=-2/3 approximant
 	//  and compute ratio of numerator and denominator
-	dal = dbm2d3[0];
-	dt  = ds * dal;
-	dal = dbm2d3[1] + dr * dal;
-	dbe = dbm2d3[2] - dt;
-	dt  = ds * dal;
-	dal = dbe + dr * dal;
-	dbe = dbm2d3[3] - dt;
-	zfm2d3 /= dal * zzz + dbe;
+	al = bm2d3[0];
+	t  = s * al;
+	al = bm2d3[1] + r * al;
+	be = bm2d3[2] - t;
+	t  = s * al;
+	al = be + r * al;
+	be = bm2d3[3] - t;
+	fm2d3 /= al * zzz + be;
       }
 
     return;
@@ -997,15 +1008,15 @@ template<typename _Tp>
 	     std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
     constexpr _Tp d2d3   = 6.666666666666667e-01;
-    constexpr _Tp dpmhd2 = 2.820947917738781e-01;
+    constexpr _Tp pmhd2 = 2.820947917738781e-01;
     constexpr std::complex<_Tp> zmone{-1};
-    constexpr int ntermx = 15;
+    constexpr int ncoeffs = 15;
     constexpr int numnterms = 5;
-    constexpr int nterms[5]{ ntermx, 12, 11, 11, 9 };
+    constexpr int nterms[5]{ ncoeffs, 12, 11, 11, 9 };
 
-    //  coefficients for the expansion
+    //  Coefficients for the expansion
     constexpr _Tp
-    dck[ntermx]
+    ck[ncoeffs]
     {
       0.5989251356587907e+05,
       0.9207206599726415e+04,
@@ -1025,7 +1036,7 @@ template<typename _Tp>
     };
 
     constexpr _Tp
-    ddk[ntermx]
+    ddk[ncoeffs]
     {
       -0.6133570666385206e+05,
       -0.9446354823095932e+04,
@@ -1047,46 +1058,44 @@ template<typename _Tp>
     std::cout << " > airy_asymp: z = " << z << '\n';
 
     //  Compute -xi and z**(1/4)
-    auto zpw1d4 = std::sqrt(z);
-    auto xim = z * zpw1d4;
+    auto pw1d4 = std::sqrt(z);
+    auto xim = z * pw1d4;
     xim *= d2d3;
-    zpw1d4 = std::sqrt(zpw1d4);
+    pw1d4 = std::sqrt(pw1d4);
 
     //  Compute outer factors in the expansions
     auto zoutpr = std::exp(-xim);
-    zoutpr *= dpmhd2;
-    auto zout = zoutpr / zpw1d4;
-    zoutpr *= -zpw1d4;
+    zoutpr *= pmhd2;
+    auto zout = zoutpr / pw1d4;
+    zoutpr *= -pw1d4;
 
     //  Determine number of terms to use
     auto nterm = nterms[std::min(numnterms - 1, (int(std::abs(z)) - 10) / 5)];
-    //  Initialize for modified horner's rule evaluation of sums
-    //  it is assumed that at least three terms are used
+    //  Initialize for modified Horner's rule evaluation of sums.
+    //  It is assumed that at least three terms are used.
     xim = zmone / xim;
-    auto dr = 2 * std::real(xim);
-    auto ds = std::norm(xim);
-    auto ndx = ntermx - nterm;// + 1;
-    auto dal = dck[ndx];
-    auto dalpr = ddk[ndx];
-    ++ndx;
-    auto dbe = dck[ndx];
-    auto dbepr = ddk[ndx];
-    ++ndx;
+    auto r = 2 * std::real(xim);
+    auto s = std::norm(xim);
+    auto index = ncoeffs - nterm;// + 1;
+    auto al = ck[index];
+    auto alpr = ddk[index];
+    ++index;
+    auto be = ck[index];
+    auto bepr = ddk[index];
+    ++index;
 
-    //  Loop until components contributing to sums are computed
-    for (int k = ndx; k < ntermx; ++k)
+    for (int k = index; k < ncoeffs; ++k)
     {
-      auto dsdata = ds * dal;
-      dal = dbe + dr * dal;
-      dbe = dck[k] - dsdata;
-      dsdata = ds * dalpr;
-      dalpr = dbepr + dr * dalpr;
-      dbepr = ddk[k] - dsdata;
+      auto sdata = s * al;
+      al = be + r * al;
+      be = ck[k] - sdata;
+      sdata = s * alpr;
+      alpr = bepr + r * alpr;
+      bepr = ddk[k] - sdata;
     }
 
-    //  Complete evaluation of the airy functions
-    ai = zout * dal * xim + dbe;
-    aip = zoutpr * dalpr * xim + dbepr;
+    ai = zout * al * xim + be;
+    aip = zoutpr * alpr * xim + bepr;
 
     return;
   }
@@ -1094,7 +1103,7 @@ template<typename _Tp>
 
 
 /**
-    Purpose
+    @brief
       This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
       expansions for abs(arg(-z)) < pi/3.  For speed, the number
       of terms needed to achieve about 16 decimals accuracy is tabled
@@ -1104,15 +1113,11 @@ template<typename _Tp>
       is to be called by another, checks for valid arguments are not
       made.  Hence, an error return is not needed.
 
-    Arguments
-      z      Complex input variable set equal to the
-	     value at which Ai(z) and its derivative are to be eval-
-	     uated.  This subroutine assumes abs(z) > 15 and
-	     abs(arg(-z)) < pi/3.
-      ai     Complex output variable containing the
-	     value computed for Ai(z).
-      aip    Complex output variable containing the
-	     value computed for Ai'(z).
+    @param[in]  z   The value at which the Airy function and its derivative
+	            are to be evaluated.
+		    This subroutine assumes abs(z) > 15 and abs(arg(-z)) < pi/3.
+    @param[out]  ai   The computed value of the Airy function Ai(z).
+    @param[out]  aip  The computed value of the Airy function derivative Ai'(z).
  */
 template<typename _Tp>
   void
@@ -1121,16 +1126,16 @@ template<typename _Tp>
   {
     constexpr _Tp d2d3 {6.666666666666667e-01};
     constexpr _Tp d9d4 {2.25e+00};
-    constexpr _Tp dpimh{5.641895835477563e-01};
-    constexpr _Tp dpid4{7.853981633974483e-01};
+    constexpr _Tp pimh{5.641895835477563e-01};
+    constexpr _Tp pid4{7.853981633974483e-01};
     constexpr std::complex<_Tp> zone{1};
-    constexpr int ntermx = 9;
+    constexpr int ncoeffs = 9;
     constexpr int numnterms = 5;
-    constexpr int nterms[numnterms]{ ntermx, 7, 6, 6, 5 };
+    constexpr int nterms[numnterms]{ ncoeffs, 7, 6, 6, 5 };
 
     //  coefficients for the expansion
     constexpr _Tp
-    dckc[ntermx]
+    ckc[ncoeffs]
     {
       0.2519891987160237e+08,
       0.4195248751165511e+06,
@@ -1143,7 +1148,7 @@ template<typename _Tp>
       0.6944444444444444e-01
     };
     constexpr _Tp
-    dcks[ntermx]
+    cks[ncoeffs]
     {
       0.3148257417866826e+07,
       0.5989251356587907e+05,
@@ -1157,7 +1162,7 @@ template<typename _Tp>
     };
 
     constexpr _Tp
-    ddks[ntermx]
+    dks[ncoeffs]
     {
       -0.2569790838391133e+08,
       -0.4289524004000691e+06,
@@ -1170,7 +1175,7 @@ template<typename _Tp>
       -0.9722222222222222e-01
     };
     constexpr _Tp
-    ddkc[ntermx]
+    dkc[ncoeffs]
     {
       -0.3214536521400865e+07,
       -0.6133570666385206e+05,
@@ -1188,63 +1193,63 @@ template<typename _Tp>
     //  Set up working value of z
     z = -z;
     //  Compute xi and z**(1/4)
-    auto zpw1d4 = std::sqrt(z);
-    auto xi = z * zpw1d4;
+    auto pw1d4 = std::sqrt(z);
+    auto xi = z * pw1d4;
     xi *= d2d3;
-    zpw1d4 = std::sqrt(zpw1d4);
+    pw1d4 = std::sqrt(pw1d4);
 
     //  Compute sine and cosine factors in the expansions.
-    auto xiarg = xi + dpid4;
-    auto zsinxi = std::sin(xiarg);
-    auto zcosxi = std::cos(xiarg);
+    auto xiarg = xi + pid4;
+    auto sinxi = std::sin(xiarg);
+    auto cosxi = std::cos(xiarg);
 
     //  Determine number of terms to use.
     auto nterm = nterms[std::min(numnterms - 1, (int(std::abs(z)) - 10) / 5)];
     //  Initialize for modified Horner's rule evaluation of sums
     //  it is assumed that at least three terms are used
     z = std::pow(zone / z, 3);
-    z = d9d4 * z;
-    auto dr = -2 * std::real(z);
-    auto ds = std::norm(z);
-    auto ndx = ntermx - nterm;// + 1;
+    z *= d9d4;
+    auto r = -2 * std::real(z);
+    auto s = std::norm(z);
+    auto index = ncoeffs - nterm;// + 1;
 
-    auto dals = dcks[ndx];
-    auto dalc = dckc[ndx];
-    auto dalprs = ddks[ndx];
-    auto dalprc = ddkc[ndx];
-    ++ndx;
+    auto als = cks[index];
+    auto alc = ckc[index];
+    auto alprs = dks[index];
+    auto alprc = dkc[index];
+    ++index;
 
-    auto dbes = dcks[ndx];
-    auto dbec = dckc[ndx];
-    auto dbeprs = ddks[ndx];
-    auto dbeprc = ddkc[ndx];
-    ++ndx;
+    auto bes = cks[index];
+    auto bec = ckc[index];
+    auto beprs = dks[index];
+    auto beprc = dkc[index];
+    ++index;
 
     //  Loop until components contributing to sums are computed
-    for (int k = ndx; k < ntermx; ++k)
+    for (int k = index; k < ncoeffs; ++k)
     {
-      auto dsdata = ds * dals;
-      dals = dbes + dr * dals;
-      dbes = dcks[k] - dsdata;
-      dsdata = ds * dalc;
-      dalc = dbec + dr * dalc;
-      dbec = dckc[k] - dsdata;
-      dsdata = ds * dalprs;
-      dalprs = dbeprs + dr * dalprs;
-      dbeprs = ddks[k] - dsdata;
-      dsdata = ds * dalprc;
-      dalprc = dbeprc + dr * dalprc;
-      dbeprc = ddkc[k] - dsdata;
+      auto sdata = s * als;
+      als = bes + r * als;
+      bes = cks[k] - sdata;
+      sdata = s * alc;
+      alc = bec + r * alc;
+      bec = ckc[k] - sdata;
+      sdata = s * alprs;
+      alprs = beprs + r * alprs;
+      beprs = dks[k] - sdata;
+      sdata = s * alprc;
+      alprc = beprc + r * alprc;
+      beprc = dkc[k] - sdata;
     }
 
     //  Complete evaluation of the Airy functions
     xi = zone / xi;
-    ai = zsinxi * dals * z + dbes
-       - xi * zcosxi * dalc * z + dbec;
-    ai = dpimh * ai / zpw1d4;
-    aip = zcosxi * dalprc * z + dbeprc
-	+ xi * zsinxi * dalprs * z + dbeprs;
-    aip = -dpimh * aip * zpw1d4;
+    ai = sinxi * als * z + bes
+       - xi * cosxi * alc * z + bec;
+    ai *= pimh / pw1d4;
+    aip = cosxi * alprc * z + beprc
+	+ xi * sinxi * alprs * z + beprs;
+    aip *= -pimh * pw1d4;
 
     return;
   }
