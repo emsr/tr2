@@ -2311,7 +2311,6 @@ cp                 next highest order polynomials computed
           dsdata = ds*dvkpta
           dvkpta = dvkptb + dr*dvkpta
           dvkptb = b(ndxp) - dsdata
-          ndxp = ndxp + 1
           write(6,*) '> > > > l = ', l
           write(6,*) '> > > > a[l] = ', a(l)
           write(6,*) '> > > > b[l] = ', b(l)
@@ -2326,6 +2325,7 @@ cp                 next highest order polynomials computed
           write(6,*) '> > > > dvkpta = ', dvkpta
           write(6,*) '> > > > dukptb = ', dukptb
           write(6,*) '> > > > dvkptb = ', dvkptb
+          ndxp = ndxp + 1
    10   continue
 
 cp      One more iteration for highest order polynomials
@@ -2335,6 +2335,11 @@ cp      One more iteration for highest order polynomials
         dsdata = ds*dvkpta
         dvkpta = dvkptb + dr*dvkpta
         dvkptb = b(ndxp) - dsdata
+	write(6,*) '> > > indexp = ', ndxp
+	write(6,*) '> > > dukpta = ', dukpta
+	write(6,*) '> > > dukptb = ', dukptb
+	write(6,*) '> > > dvkpta = ', dvkpta
+	write(6,*) '> > > dvkptb = ', dvkptb
 
 cp      Update power appearing outside polynomials
         ztpowk = zt*ztpowk
@@ -2388,20 +2393,26 @@ cp        via horner's rule
 cp      loop until partial a, b, c, and d evaluations done via 
 cp                 horner's rule
         do 20 l=2,i2km1
+          write(6,*) '> > > > l    = ', l
           ndxvpl = ndxv + l
           i2kl = i2k - l
+          write(6,*) '> > > > i2kl = ', i2kl
           za1 = za1*zetm3h + dcmplx(dmu(i2kl)*dreal(zwksp(l)),
      1                              dmu(i2kl)*dimag(zwksp(l)))
           zd1 = zd1*zetm3h + 
      1                dcmplx(dlamda(i2kl)*dreal(zwksp(ndxvpl)),
      2                       dlamda(i2kl)*dimag(zwksp(ndxvpl)))
           i2kl = i2kp1 - l
+          write(6,*) '> > > > i2kl = ', i2kl
           zb1 = zb1*zetm3h + dcmplx(dlamda(i2kl)*dreal(zwksp(l)),
      1                              dlamda(i2kl)*dimag(zwksp(l)))
           zc1 = zc1*zetm3h + dcmplx(dmu(i2kl)*dreal(zwksp(ndxvpl)),
      2                              dmu(i2kl)*dimag(zwksp(ndxvpl)))
+          write(6,*) '> > > > a1   = ', za1
+          write(6,*) '> > > > b1   = ', zb1
+          write(6,*) '> > > > c1   = ', zc1
+          write(6,*) '> > > > d1   = ', zd1
    20   continue
-cp      repeat
 
 cp      complete the evaluations
         za1 = za1*zetm3h + zwksp(i2k)
@@ -2413,6 +2424,8 @@ cp      complete the evaluations
      1         dcmplx(dmu(1)*dreal(zwksp(ndxv+i2k)),
      2                dmu(1)*dimag(zwksp(ndxv+i2k)))) + 
      3         zwksp(ndxv+i2kp1)
+        write(6,*) '> > > i2k   = ', i2k
+        write(6,*) '> > > i2kp1 = ', i2kp1
         write(6,*) '> > > a1 = ', za1
         write(6,*) '> > > b1 = ', zb1
         write(6,*) '> > > c1 = ', zc1

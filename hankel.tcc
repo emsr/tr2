@@ -1000,14 +1000,14 @@ template<typename _Tp>
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
-	for (auto l = index; l < indexend; ++l)
+	for (++indexp; index < indexend; ++index, ++indexp)
 	  {
 	    dsdata = ds * dukta;
 	    dukta = duktb + dr * dukta;
-	    duktb = a[l] - dsdata;
+	    duktb = a[index] - dsdata;
 	    dsdata = ds * dvkta;
 	    dvkta = dvktb + dr * dvkta;
-	    dvktb = b[l] - dsdata;
+	    dvktb = b[index] - dsdata;
 
 	    dsdata = ds * dukpta;
 	    dukpta = dukptb + dr * dukpta;
@@ -1015,11 +1015,9 @@ template<typename _Tp>
 	    dsdata = ds * dvkpta;
 	    dvkpta = dvkptb + dr * dvkpta;
 	    dvkptb = b[indexp] - dsdata;
-	    ++indexp;
-
-	    std::cout << " > > > > l = " << l << '\n';
-	    std::cout << " > > > > a[l] = " << a[l] << '\n';
-	    std::cout << " > > > > b[l] = " << b[l] << '\n';
+	    std::cout << " > > > > l = " << index << '\n';
+	    std::cout << " > > > > a[l] = " << a[index] << '\n';
+	    std::cout << " > > > > b[l] = " << b[index] << '\n';
 	    std::cout << " > > > > indexp = " << indexp << '\n';
 	    std::cout << " > > > > a[indexp] = " << a[indexp] << '\n';
 	    std::cout << " > > > > b[indexp] = " << b[indexp] << '\n';
@@ -1034,8 +1032,7 @@ template<typename _Tp>
 	  }
 
 	//  Update indices into coefficients to reflect initialization
-	++index;
-	++indexp;
+	//++index;
 
 	//  One more iteration for highest order polynomials
 	dsdata = ds * dukpta;
@@ -1044,6 +1041,12 @@ template<typename _Tp>
 	dsdata = ds * dvkpta;
 	dvkpta = dvkptb + dr * dvkpta;
 	dvkptb = b[indexp] - dsdata;
+	std::cout << " > > > indexp = " << indexp << '\n';
+	std::cout << " > > > dukpta = " << dukpta << '\n';
+	std::cout << " > > > dukptb = " << dukptb << '\n';
+	std::cout << " > > > dvkpta = " << dvkpta << '\n';
+	std::cout << " > > > dvkptb = " << dvkptb << '\n';
+	++indexp;
 
 	//  Post multiply and form new polynomials
 	tk *= t;
@@ -1076,23 +1079,30 @@ template<typename _Tp>
 
 	//  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
 	a1 = mu[i2k] * zetm3h + mu[i2km1] * u[0];
+	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * v[0];
 	b1 = lambda[i2kp1] * zetm3h + lambda[i2k] * u[0];
 	c1 = mu[i2kp1] * zetm3h + mu[i2k] * v[0];
-	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * v[0];
 	std::cout << " > > > a1 = " << a1 << '\n';
 	std::cout << " > > > b1 = " << b1 << '\n';
 	std::cout << " > > > c1 = " << c1 << '\n';
 	std::cout << " > > > d1 = " << d1 << '\n';
 
 	//  Loop until partial a, b, c, and d evaluations done via Horner's rule
-	for(auto l = 1; l < i2km1; ++l)
+	for(auto l = 1; l <= i2km1; ++l)
 	  {
-	    auto i2kl = i2k - l;
+	    std::cout << " > > > > l    = " << l << '\n';
+	    auto i2kl = i2km1 - l;
+	    std::cout << " > > > > i2kl = " << i2kl << '\n';
 	    a1 = a1 * zetm3h + mu[i2kl] * u[l];
 	    d1 = d1 * zetm3h + lambda[i2kl] * v[l];
-	    i2kl = i2kp1 - l;
+	    i2kl = i2k - l;
+	    std::cout << " > > > > i2kl = " << i2kl << '\n';
 	    b1 = b1 * zetm3h + lambda[i2kl] * u[l];
 	    c1 = c1 * zetm3h + mu[i2kl] * v[l];
+	    std::cout << " > > > > a1   = " << a1 << '\n';
+	    std::cout << " > > > > b1   = " << b1 << '\n';
+	    std::cout << " > > > > c1   = " << c1 << '\n';
+	    std::cout << " > > > > d1   = " << d1 << '\n';
 	  }
 
 	//  Complete the evaluations
@@ -1100,6 +1110,8 @@ template<typename _Tp>
 	d1 = d1 * zetm3h + v[i2k];
 	b1 = zetm3h * (b1 * zetm3h + lambda[0] * u[i2k]) + u[i2kp1];
 	c1 = zetm3h * (c1 * zetm3h + mu[0] * v[i2k]) + v[i2kp1];
+	std::cout << " > > > i2k   = " << i2k << '\n';
+	std::cout << " > > > i2kp1 = " << i2kp1 << '\n';
 	std::cout << " > > > a1 = " << a1 << '\n';
 	std::cout << " > > > b1 = " << b1 << '\n';
 	std::cout << " > > > c1 = " << c1 << '\n';
@@ -1296,6 +1308,7 @@ template<typename _Tp>
 	      dtemp = d2pi;
 	  }
       }
+    std::cout.precision(std::numeric_limits<double>::max_digits10);
     std::cout << " > > > dtemp = " << dtemp << '\n';
 
     //  Adjust logarithm of xi.
