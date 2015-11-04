@@ -2281,9 +2281,8 @@ cp        coefficients
         ndxp = ndxp + 1
         dukptb = a(ndxp)
         dvkptb = b(ndxp)
-cp      update indices into coefficients to reflect initialization
-        ndx = ndx + 1
-        ndxp = ndxp + 1
+        write(6,*) '> > > index = ', ndx
+        write(6,*) '> > > indexp = ', ndxp
         write(6,*) '> > > dukta = ', dukta
         write(6,*) '> > > dvkta = ', dvkta
         write(6,*) '> > > duktb = ', duktb
@@ -2292,6 +2291,9 @@ cp      update indices into coefficients to reflect initialization
         write(6,*) '> > > dvkpta = ', dvkpta
         write(6,*) '> > > dukptb = ', dukptb
         write(6,*) '> > > dvkptb = ', dvkptb
+cp      update indices into coefficients to reflect initialization
+        ndx = ndx + 1
+        ndxp = ndxp + 1
 
 cp      Loop until quantities to evaluate lowest order u and v 
 cp                 polynomials and partial quantities to evaluate
@@ -2310,15 +2312,20 @@ cp                 next highest order polynomials computed
           dvkpta = dvkptb + dr*dvkpta
           dvkptb = b(ndxp) - dsdata
           ndxp = ndxp + 1
-	  write(6,*) '> > > > l = ', l
-	  write(6,*) '> > > > dukta = ', dukta
-	  write(6,*) '> > > > dvkta = ', dvkta
-	  write(6,*) '> > > > duktb = ', duktb
-	  write(6,*) '> > > > dvktb = ', dvktb
-	  write(6,*) '> > > > dukpta = ', dukpta
-	  write(6,*) '> > > > dvkpta = ', dvkpta
-	  write(6,*) '> > > > dukptb = ', dukptb
-	  write(6,*) '> > > > dvkptb = ', dvkptb
+          write(6,*) '> > > > l = ', l
+          write(6,*) '> > > > a[l] = ', a(l)
+          write(6,*) '> > > > b[l] = ', b(l)
+          write(6,*) '> > > > indexp = ', ndxp
+          write(6,*) '> > > > a[indexp] = ', a(ndxp)
+          write(6,*) '> > > > b[indexp] = ', b(ndxp)
+          write(6,*) '> > > > dukta = ', dukta
+          write(6,*) '> > > > dvkta = ', dvkta
+          write(6,*) '> > > > duktb = ', duktb
+          write(6,*) '> > > > dvktb = ', dvktb
+          write(6,*) '> > > > dukpta = ', dukpta
+          write(6,*) '> > > > dvkpta = ', dvkpta
+          write(6,*) '> > > > dukptb = ', dukptb
+          write(6,*) '> > > > dvkptb = ', dvkptb
    10   continue
 
 cp      One more iteration for highest order polynomials
@@ -2357,11 +2364,11 @@ cp      Update indices in preparation for next iteration
         i2km1 = i2k - 1
         i2kp1 = i2k + 1
         ndxp = ndxp + i2kp1 + 2
-	write(6,*) '> > > index  = ', ndx
-	write(6,*) '> > > i2k    = ', i2k
-	write(6,*) '> > > i2km1  = ', i2km1
-	write(6,*) '> > > i2kp1  = ', i2kp1
-	write(6,*) '> > > indexp = ', ndxp
+        write(6,*) '> > > index  = ', ndx
+        write(6,*) '> > > indexp = ', ndxp
+        write(6,*) '> > > i2k    = ', i2k
+        write(6,*) '> > > i2km1  = ', i2km1
+        write(6,*) '> > > i2kp1  = ', i2kp1
 
 cp      initialize for evaluation of a, b, c, and d polynomials
 cp        via horner's rule

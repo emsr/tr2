@@ -621,9 +621,6 @@ template<typename _Tp>
     _Tp dukta, dvkta, duktb, dvktb, dukpta,
      	dvkpta, dukptb, dvkptb, dsdata;
 
-    int index, indexp, nduv, indexend, i2k,
-	i2kp1, i2km1, i2kl;
-
     bool coverged;
     int nterms = 4;
 
@@ -848,38 +845,43 @@ template<typename _Tp>
     //  Initialize for modified Horner's rule evaluation of u_k and v_k polynomials
     auto dxtsq = std::real(tsq);
     auto dytsq = std::imag(tsq);
+    auto dytsq2 = dytsq * dytsq;
     auto dr = 2 * dxtsq;
     //  Compute square of magnitudes
     auto ds = std::norm(tsq);
 
     //  Compute u_0,1,2 and v_0,1,2 and store for later use
     auto tk = t;
-    u[0] = tk * (a[1] * tsq + a[2]);
-    v[0] = tk * (b[1] * tsq + b[2]);
+    //  Index into storage for u and v polynomials
+    auto nduv = 0;
+    u[nduv] = tk * (a[1] * tsq + a[2]);
+    v[nduv] = tk * (b[1] * tsq + b[2]);
     std::cout << " > > tk = " << tk << '\n';
-    std::cout << " > > u[0] = " << u[0] << '\n';
-    std::cout << " > > v[0] = " << v[0] << '\n';
-    auto dytsq2 = dytsq * dytsq;
+    std::cout << " > > u[0] = " << u[nduv] << '\n';
+    std::cout << " > > v[0] = " << v[nduv] << '\n';
+    ++nduv;
     tk *= t;
-    u[1] = tk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
+    u[nduv] = tk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
 		      (2 * a[3] * dxtsq + a[4]) * dytsq);
-    v[1] = tk * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
+    v[nduv] = tk * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
 		      (2 * b[3] * dxtsq + b[4]) * dytsq);
     std::cout << " > > tk = " << tk << '\n';
     std::cout << " > > u[1] = " << u[1] << '\n';
     std::cout << " > > v[1] = " << v[1] << '\n';
+    ++nduv;
     tk *= t;
-    u[2] = tk * cmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
+    u[nduv] = tk * cmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
      		      + a[9] - (3 * a[6] * dxtsq + a[7]) * dytsq2,
      		      ((3 * a[6] * dxtsq + 2 * a[7]) * dxtsq + a[8]
      		      - a[6] * dytsq2) * dytsq);
-    v[2] = tk * cmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8]) * dxtsq
+    v[nduv] = tk * cmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8]) * dxtsq
      		      + b[9] - (3 * b[6] * dxtsq + b[7]) * dytsq2,
      		      ((3 * b[6] * dxtsq + 2 * b[7]) * dxtsq + b[8]
      		      - b[6] * dytsq2) * dytsq);
     std::cout << " > > tk = " << tk << '\n';
     std::cout << " > > u[2] = " << u[2] << '\n';
     std::cout << " > > v[2] = " << v[2] << '\n';
+    ++nduv;
 
     //  Compute a_0,1, b_0,1, c_0,1, d_0,1 ... note that
     //  b_k and c_k are computed up to -zeta**(-1/2)
@@ -960,12 +962,10 @@ template<typename _Tp>
     h1psave = h1psum;
     h2psave = h2psum;
 
-    //  Update index into u_k and v_k coefficients
-    index = 9;//10;
-    indexp = 14;//15;
-    //  Update index into storage for u and v polynomials
-    nduv = 3;//4;
-    //  Update power of nu**(-2)
+    //  Maintain index into u_k and v_k coefficients
+    auto index = 10;
+    auto indexp = 15;
+    //  Maintain power of nu**(-2)
     auto z1dn2k = z1dnsq;
 
     //  Loop until convergence criteria satisfied or maximum number of terms reached
@@ -973,22 +973,21 @@ template<typename _Tp>
       {
 	//  Initialize for evaluation of two new u and v polynomials
 	//  via Horner's rule modified for complex arguments and real coefficients
-	indexend = indexp;
-	++index;
+	auto indexend = indexp;
 	dukta = a[index];
 	dvkta = b[index];
 	++index;
 	duktb = a[index];
 	dvktb = b[index];
-	++indexp;
+	++index;
 	dukpta = a[indexp];
 	dvkpta = b[indexp];
 	++indexp;
 	dukptb = a[indexp];
 	dvkptb = b[indexp];
-	//  Update indices into coefficients to reflect initialization
-	++index;
 	++indexp;
+	std::cout << " > > > index = " << index << '\n';
+	std::cout << " > > > indexp = " << indexp << '\n';
 	std::cout << " > > > dukta = " << dukta << '\n';
 	std::cout << " > > > dvkta = " << dvkta << '\n';
 	std::cout << " > > > duktb = " << duktb << '\n';
@@ -1001,7 +1000,7 @@ template<typename _Tp>
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
-	for (auto l = index; l <= indexend; ++l)
+	for (auto l = index; l < indexend; ++l)
 	  {
 	    dsdata = ds * dukta;
 	    dukta = duktb + dr * dukta;
@@ -1009,6 +1008,7 @@ template<typename _Tp>
 	    dsdata = ds * dvkta;
 	    dvkta = dvktb + dr * dvkta;
 	    dvktb = b[l] - dsdata;
+
 	    dsdata = ds * dukpta;
 	    dukpta = dukptb + dr * dukpta;
 	    dukptb = a[indexp] - dsdata;
@@ -1016,7 +1016,13 @@ template<typename _Tp>
 	    dvkpta = dvkptb + dr * dvkpta;
 	    dvkptb = b[indexp] - dsdata;
 	    ++indexp;
+
 	    std::cout << " > > > > l = " << l << '\n';
+	    std::cout << " > > > > a[l] = " << a[l] << '\n';
+	    std::cout << " > > > > b[l] = " << b[l] << '\n';
+	    std::cout << " > > > > indexp = " << indexp << '\n';
+	    std::cout << " > > > > a[indexp] = " << a[indexp] << '\n';
+	    std::cout << " > > > > b[indexp] = " << b[indexp] << '\n';
 	    std::cout << " > > > > dukta = " << dukta << '\n';
 	    std::cout << " > > > > dvkta = " << dvkta << '\n';
 	    std::cout << " > > > > duktb = " << duktb << '\n';
@@ -1026,6 +1032,10 @@ template<typename _Tp>
 	    std::cout << " > > > > dukptb = " << dukptb << '\n';
 	    std::cout << " > > > > dvkptb = " << dvkptb << '\n';
 	  }
+
+	//  Update indices into coefficients to reflect initialization
+	++index;
+	++indexp;
 
 	//  One more iteration for highest order polynomials
 	dsdata = ds * dukpta;
@@ -1042,26 +1052,27 @@ template<typename _Tp>
 	std::cout << " > > > nduv = " << nduv << '\n';
 	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
 	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
+	++nduv;
+
 	tk *= t;
-	++nduv = nduv;
 	u[nduv] = tk * (dukpta * tsq + dukptb);
 	v[nduv] = tk * (dvkpta * tsq + dvkptb);
 	std::cout << " > > > nduv = " << nduv << '\n';
 	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
 	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
+	++nduv;
 
 	//  Update indices in preparation for next iteration
-	++nduv = nduv;
 	index = indexp;
-	i2k = 2 * k - 1;
-	i2km1 = i2k - 1;
-	i2kp1 = i2k + 1;
+	auto i2k = 2 * k - 1;
+	auto i2km1 = i2k - 1;
+	auto i2kp1 = i2k + 1;
 	indexp += i2kp1 + 2;
 	std::cout << " > > > index  = " << index << '\n';
+	std::cout << " > > > indexp = " << indexp << '\n';
 	std::cout << " > > > i2k    = " << i2k << '\n';
 	std::cout << " > > > i2km1  = " << i2km1 << '\n';
 	std::cout << " > > > i2kp1  = " << i2kp1 << '\n';
-	std::cout << " > > > indexp = " << indexp << '\n';
 
 	//  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
 	a1 = mu[i2k] * zetm3h + mu[i2km1] * u[0];
@@ -1076,7 +1087,7 @@ template<typename _Tp>
 	//  Loop until partial a, b, c, and d evaluations done via Horner's rule
 	for(auto l = 1; l < i2km1; ++l)
 	  {
-	    i2kl = i2k - l;
+	    auto i2kl = i2k - l;
 	    a1 = a1 * zetm3h + mu[i2kl] * u[l];
 	    d1 = d1 * zetm3h + lambda[i2kl] * v[l];
 	    i2kl = i2kp1 - l;
