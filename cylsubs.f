@@ -1111,7 +1111,8 @@ c     data statements defining coefficients for cubic polynomials
 
 cp    check to see if z**3 will underflow and act accordingly
 
-      write(6,*) '> zcrary: z = ', z
+      write(6,*) '> airy_hyperg_rational:'
+      write(6,*) '> > z = ', z
 
       if (zabs(z) .lt. dsmall)
      1then
@@ -1312,7 +1313,8 @@ c
      d     ddk(14)/-0.9722222222222222d-01/,
      e     ddk(15)/ 0.1000000000000000d+01/
 
-      write(6,*) '> airy_asymp: z = ', z
+      write(6,*) '> airy_asymp_absphase_ge_pio3:'
+      write(6,*) '> > z = ', z
 
 cp    compute -xi and z**(1/4)
       zpw1d4 = zsqrt(z)
@@ -1460,7 +1462,8 @@ c     coefficients for the expansion
      7     ddkc( 8)/-0.4388503086419753d-01/,
      8     ddkc( 9)/ 0.1000000000000000d+01/
 
-      write(6,*) '> zasaly: z = ', z
+      write(6,*) '> airy_asymp_absphase_lt_pio3:'
+      write(6,*) '> > z = ', z
 
 cp    set up working value of z
       zwk = -z

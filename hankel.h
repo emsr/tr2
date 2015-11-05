@@ -52,4 +52,15 @@ template<typename _Tp>
     airy(__z, __ai, __aip, __error);
     return __ai;
   }
+
+//template<typename _Tp>
+//  std::complex<_Tp>
+//  airy_bi(std::complex<_Tp> __z)
+//  {
+//    std::complex<_Tp> __ai, __aip, __bi, __bip;
+//    int __error;
+//    airy(__z, __ai, __aip, __bi, __bip, __error);
+//    return __bi;
+//  }
+
 #endif // HANKEL_H

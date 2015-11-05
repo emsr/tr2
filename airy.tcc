@@ -24,19 +24,19 @@ template<typename _Tp>
 
 template<typename _Tp>
   void
-  zcrary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
-	 std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3);
+  airy_hyperg_rational(const std::complex<_Tp> & z,
+		       std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
+		       std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3);
 
 template<typename _Tp>
   void
-  airy_asymp(const std::complex<_Tp> & z,
-	     std::complex<_Tp> & ai, std::complex<_Tp> & aip);
+  airy_asymp_absphase_ge_pio3(const std::complex<_Tp> & z,
+			      std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 template<typename _Tp>
   void
-  zasaly(std::complex<_Tp> z,
-	 std::complex<_Tp> & ai, std::complex<_Tp> & aip);
+  airy_asymp_absphase_lt_pio3(std::complex<_Tp> z,
+			      std::complex<_Tp> & ai, std::complex<_Tp> & aip);
 
 /**
     @brief
@@ -229,7 +229,7 @@ template<typename _Tp>
 		if (absz <= small)
 		  {
 		    //  Use rational approximation along with (1) and (4)
-		    zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
+		    airy_hyperg_rational(z, zi1d3, zim1d3, zi2d3, zim2d3);
 		    //  Recover Ai(z) and Ai'(z)
 		    zim1d3 *= dgm2d3;
 		    zi1d3 *= dgm1d3;
@@ -283,7 +283,7 @@ template<typename _Tp>
 	      {
 		//  Use rational approximation
 		xi = -z;
-		zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
+		airy_hyperg_rational(z, zi1d3, zim1d3, zi2d3, zim2d3);
 		//  Recover Ai(z) and Ai'(z)
 		zim1d3 *= dgm2d3;
 		zi1d3 *= dgm1d3;
@@ -313,12 +313,12 @@ template<typename _Tp>
 	    || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
 	{
 	  //  abs(arg(z)) <= 2*pi/3  -  use asymptotic expansion for this region
-	  airy_asymp(z, ai, aip);
+	  airy_asymp_absphase_ge_pio3(z, ai, aip);
 	}
 	else
 	{
 	  //  abs(arg(-z)) < pi/3  -  use asymptotic expansion for this region
-	  zasaly(z, ai, aip);
+	  airy_asymp_absphase_lt_pio3(z, ai, aip);
 	}
       }
     return;
@@ -845,32 +845,31 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  zcrary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
-	 std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3)
+  airy_hyperg_rational(const std::complex<_Tp> & z,
+		       std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
+		       std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3)
   {
     using cmplx = std::complex<_Tp>;
 
     constexpr cmplx zone{1};
 
-    //  dsmall is the 1/3 root of the smallest magnitude
-    //  floating-point number representable on the machine
-    constexpr _Tp small = 1.0e-12;
-
-    constexpr _Tp a1d3[4]{  81, 32400, 2585520, 37920960 };
-    constexpr _Tp b1d3[4]{ -35, 5040, -574560, 37920960 };
-    constexpr _Tp am1d3[4]{ 81, 22680, 1156680, 7711200 };
-    constexpr _Tp bm1d3[4]{ -10, 1260, -128520, 7711200 };
-    constexpr _Tp a2d3[4]{ 162, 75735, 7270560, 139352400 };
-    constexpr _Tp b2d3[4]{ -110, 16830, -2019600, 139352400 };
-    constexpr _Tp am2d3[4]{ 162, 36855, 1415232, 4481568 };
-    constexpr _Tp bm2d3[4]{ -7, 819, -78624, 4481568 };
+    constexpr _Tp ap1d3[4]{   81, 32400,  2585520,  37920960 };
+    constexpr _Tp bp1d3[4]{  -35,  5040,  -574560,  37920960 };
+    constexpr _Tp am1d3[4]{   81, 22680,  1156680,   7711200 };
+    constexpr _Tp bm1d3[4]{  -10,  1260,  -128520,   7711200 };
+    constexpr _Tp ap2d3[4]{  162, 75735,  7270560, 139352400 };
+    constexpr _Tp bp2d3[4]{ -110, 16830, -2019600, 139352400 };
+    constexpr _Tp am2d3[4]{  162, 36855,  1415232,   4481568 };
+    constexpr _Tp bm2d3[4]{   -7,   819,   -78624,   4481568 };
 
     //  Check to see if z**3 will underflow and act accordingly
 
-    std::cout << " > zcrary: z = " << z << '\n';
+    std::cout << " > airy_hyperg_rational:\n";
+    std::cout << " > > z = " << z << '\n';
 
-    if (std::abs(z) < small)
+    auto zzz = z * z * z;
+
+    if (std::abs(zzz) < _Tp(10) * std::numeric_limits<_Tp>::min())
       {
 	f1d3  = zone;
 	fm1d3 = zone;
@@ -879,9 +878,8 @@ template<typename _Tp>
       }
     else
       {
-	cmplx zzz = z * z * z;
-	_Tp r = 2 * std::real(zzz);
-	_Tp s = std::norm(zzz);
+	auto r = 2 * std::real(zzz);
+	auto s = std::norm(zzz);
 
 	//  All of the following polynomial evaluations are done using
 	//  a modified of Horner's rule which exploits the fact that
@@ -893,25 +891,25 @@ template<typename _Tp>
 	//  If n is the degree of the polynomial, n - 3 multiplies are
 	//  saved and 4 * n - 6 additions are saved.
 
-	//  Evaluate numerator polynomial for nu=1/3 approximant
-	auto al = a1d3[0];
+	//  Evaluate numerator polynomial for nu=+1/3 approximant
+	auto al = ap1d3[0];
 	auto t  = s * al;
-	al = a1d3[1] + r * al;
-	auto be = a1d3[2] - t;
+	al = ap1d3[1] + r * al;
+	auto be = ap1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = a1d3[3] - t;
+	be = ap1d3[3] - t;
 	f1d3 = al * zzz + be;
 
-	//  Evaluate denominator polynomial for nu=1/3 approximant
+	//  Evaluate denominator polynomial for nu=+1/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = b1d3[0];
+	al = bp1d3[0];
 	t  = s * al;
-	al = b1d3[1] + r * al;
-	be = b1d3[2] - t;
+	al = bp1d3[1] + r * al;
+	be = bp1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = b1d3[3] - t;
+	be = bp1d3[3] - t;
 	f1d3 /= al * zzz + be;
 
 	//  Evaluate numerator polynomial for nu=-1/3 approximant
@@ -934,25 +932,25 @@ template<typename _Tp>
 	be = bm1d3[3] - t;
 	fm1d3 /= al * zzz + be;
 
-	//  Evaluate numerator polynomial for nu=2/3 approximant
-	al = a2d3[0];
+	//  Evaluate numerator polynomial for nu=+2/3 approximant
+	al = ap2d3[0];
 	t  = s * al;
-	al = a2d3[1] + r * al;
-	be = a2d3[2] - t;
+	al = ap2d3[1] + r * al;
+	be = ap2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = a2d3[3] - t;
+	be = ap2d3[3] - t;
 	f2d3 = al * zzz + be;
 
-	//  Evaluate denominator polynomial for nu=2/3 approximant
+	//  Evaluate denominator polynomial for nu=+2/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = b2d3[0];
+	al = bp2d3[0];
 	t  = s * al;
-	al = b2d3[1] + r * al;
-	be = b2d3[2] - t;
+	al = bp2d3[1] + r * al;
+	be = bp2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = b2d3[3] - t;
+	be = bp2d3[3] - t;
 	f2d3 /= al * zzz + be;
 
 	//  Evaluate numerator polynomial for nu=-2/3 approximant
@@ -1004,8 +1002,8 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_asymp(const std::complex<_Tp> & z,
-	     std::complex<_Tp> & ai, std::complex<_Tp> & aip)
+  airy_asymp_absphase_ge_pio3(const std::complex<_Tp> & z,
+			      std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
     constexpr _Tp d2d3   = 6.666666666666667e-01;
     constexpr _Tp pmhd2 = 2.820947917738781e-01;
@@ -1055,7 +1053,8 @@ template<typename _Tp>
        0.1000000000000000e+01
     };
 
-    std::cout << " > airy_asymp: z = " << z << '\n';
+    std::cout << " > airy_asymp_absphase_ge_pio3:\n";
+    std::cout << " > > z = " << z << '\n';
 
     //  Compute -xi and z**(1/4)
     auto pw1d4 = std::sqrt(z);
@@ -1121,8 +1120,8 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  zasaly(std::complex<_Tp> z,
-	 std::complex<_Tp> & ai, std::complex<_Tp> & aip)
+  airy_asymp_absphase_lt_pio3(std::complex<_Tp> z,
+			      std::complex<_Tp> & ai, std::complex<_Tp> & aip)
   {
     constexpr _Tp d2d3 {6.666666666666667e-01};
     constexpr _Tp d9d4 {2.25e+00};
@@ -1188,7 +1187,8 @@ template<typename _Tp>
        0.1000000000000000e+01
     };
 
-    std::cout << " > zasaly: z = " << z << '\n';
+    std::cout << " > airy_asymp_absphase_lt_pio3:\n";
+    std::cout << " > > z = " << z << '\n';
 
     //  Set up working value of z
     z = -z;
