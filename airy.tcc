@@ -165,11 +165,12 @@ template<typename _Tp>
     @see Wimp, J., On the computation of Tricomi's psi function, Computing,
       Vol 13, pp 195-203, 1974.
  
-    @param[in]  z	The argument at which the Airy function and its derivative are to be computed.
-    @param[in]  eps	Relative error required.  At present, eps is used only in the 
-    			backward recursion algorithms.
-    @param[out]  ai	The value computed for Ai(z).
-    @param[out]  aip    The value computed for Ai'(z).
+    @param[in] z   The argument at which the Airy function and its derivative
+		   are to be computed.
+    @param[in] eps Relative error required.  Currently, eps is used only
+    		   in the backward recursion algorithms.
+    @param[out] ai  The value computed for Ai(z).
+    @param[out] aip The value computed for Ai'(z).
  */
 template<typename _Tp>
   void

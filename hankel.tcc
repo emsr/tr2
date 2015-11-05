@@ -1001,7 +1001,7 @@ template<typename _Tp>
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
-	for (++indexp; index < indexend; ++index, ++indexp)
+	for (; index < indexend; ++index)
 	  {
 	    auto term = ds * ukta;
 	    ukta = uktb + dr * ukta;
@@ -1030,7 +1030,6 @@ template<typename _Tp>
 	    std::cout << " > > > > vkpta     = " << vkpta << '\n';
 	    std::cout << " > > > > ukptb     = " << ukptb << '\n';
 	    std::cout << " > > > > vkptb     = " << vkptb << '\n';
-	    ++indexp;
 	  }
 
 	//  Update indices into coefficients to reflect initialization
@@ -1072,7 +1071,7 @@ template<typename _Tp>
 	auto i2k = 2 * k - 1;
 	auto i2km1 = i2k - 1;
 	auto i2kp1 = i2k + 1;
-	indexp += i2kp1 + 2;
+	indexp += i2kp1 + 3;
 	std::cout << " > > > index  = " << index << '\n';
 	std::cout << " > > > indexp = " << indexp << '\n';
 	std::cout << " > > > i2k    = " << i2k << '\n';
