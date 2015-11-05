@@ -14,11 +14,11 @@ template<typename _Tp>
   hankel(std::complex<_Tp> nu, std::complex<_Tp> arg,
 	 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
 	 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-	 int & error);
+	 int & status);
 
 template<typename _Tp>
   void
-  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & error);
+  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & status);
 
 template<typename _Tp>
   void
@@ -26,7 +26,7 @@ template<typename _Tp>
 	       _Tp alpha, int & indexr, char & aorb, int & morn,
 	       std::complex<_Tp> & h1dbye, std::complex<_Tp> & h2dbye,
 	       std::complex<_Tp> & h1pdby, std::complex<_Tp> & h2pdby,
-	       int & error);
+	       int & status);
 
 template<typename _Tp>
   void
@@ -45,7 +45,7 @@ template<typename _Tp>
 		       std::complex<_Tp> & aim, std::complex<_Tp> & o4dm,
 		       std::complex<_Tp> & od2p, std::complex<_Tp> & od0dp,
 		       std::complex<_Tp> & od2m, std::complex<_Tp> & od0dm,
-		       int & ier);
+		       int & status);
 
 template<typename _Tp>
   void
@@ -58,7 +58,7 @@ template<typename _Tp>
 		     _Tp eps,
 		     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
 		     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
-		     int & ier);
+		     int & status);
 
 template<typename _Tp>
   bool
@@ -68,7 +68,7 @@ template<typename _Tp>
 template<typename _Tp>
   void
   airy_arg(std::complex<_Tp> znm2d3, std::complex<_Tp> zeta,
-	   std::complex<_Tp> & zargp, std::complex<_Tp> & zargm, int & ier);
+	   std::complex<_Tp> & zargp, std::complex<_Tp> & zargm, int & status);
 
 template<typename _Tp>
   void
@@ -79,7 +79,7 @@ template<typename _Tp>
 		std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
 		std::complex<_Tp> & zetaphf, std::complex<_Tp> & zetamhf,
 		std::complex<_Tp> & zetm3h, std::complex<_Tp> & zetrat,
-		int & ier);
+		int & status);
 
 /**
  *
@@ -89,15 +89,15 @@ template<typename _Tp>
   hankel(std::complex<_Tp> nu, std::complex<_Tp> z,
 	 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
 	 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-	 int & error)
+	 int & status)
   {
     static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
 
-    int indexr, ierr;
+    int indexr, statusr;
 
     std::cout << " > hankel: nu = " << nu << " z = " << z << '\n';
 
-    error = 0;
+    status = 0;
 
     auto test = std::abs((nu - z) / std::pow(nu, 1.0/3.0));
     if (test < 4.0)
@@ -118,7 +118,7 @@ template<typename _Tp>
 	    aorb = ' ';
 	  }
 	else
-	  region(alpha, indexr, aorb, ierr);
+	  region(alpha, indexr, aorb, statusr);
 	auto morn = 0;
 	if (aorb == 'A')
 	  {
@@ -135,7 +135,7 @@ template<typename _Tp>
 	      --morn;
 	  }
 	hankel_debye(nu, z, alpha, indexr, aorb, morn,
-		     h1, h2, h1p, h2p, error);
+		     h1, h2, h1p, h2p, status);
       }
 
     return;
@@ -146,11 +146,11 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & error)
+  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & status)
   {
     static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
 
-    error = 0;
+    status = 0;
     aorb = ' ';
 
     auto alphar = std::real(alpha);
@@ -203,7 +203,7 @@ template<typename _Tp>
 	       int indexr, char & aorb, int & morn,
 	       std::complex<_Tp> & h1dbye, std::complex<_Tp> & h2dbye,
 	       std::complex<_Tp> & h1pdby, std::complex<_Tp> & h2pdby,
-	       int & error)
+	       int & status)
   {
     using namespace std::literals::complex_literals;
     using cmplx = std::complex<_Tp>;
@@ -223,7 +223,7 @@ template<typename _Tp>
     auto denom = std::sqrt(pi * z / 2) * std::sqrt(-j * std::sinh(alpha));
     if (std::abs(std::real(nu * (thalpa - alpha))) > 690.0)
       {
-	error = 1;
+	status = 1;
 	return;
       }
     auto s1 = std::exp(nu * (thalpa - alpha) - j * pi / 4) / denom;
@@ -296,7 +296,7 @@ template<typename _Tp>
 		     ((1.0 + std::exp(-j * (morn + 1) * nu * pi) * sinrat) * s2 + s1);
 	  }
 	else
-	  error = 1;
+	  status = 1;
       }
     else
       {
@@ -323,7 +323,7 @@ template<typename _Tp>
 			     + std::exp(-2 * j * nu * pi) * s2);
 	  }
 	else
-	  error = 1;
+	  status = 1;
       }
 
     return;
@@ -441,19 +441,19 @@ template<typename _Tp>
 	  _1dnsq, etm3h, aip, o4dp, aim, o4dm,
 	  od2p, od0dp, od0dm, tmp, zhat, nm1d3,
 	  nm2d3, etrat, od2m, r_factor;
-    int ier;
+    int status;
     hankel_uniform_outer(nu, z, epsai, zhat, _1dnsq, nm1d3, nm2d3, t, tsq,
 			 etm3h, etrat, aip, o4dp, aim, o4dm, od2p,
-			 od0dp, od2m, od0dm, ier);
+			 od0dp, od2m, od0dm, status);
 
     // Check for successful completion
-    if (ier == 0)
+    if (status == 0)
       {
 	// Compute further terms in the expansions in their appropriate linear combinations.
 
 	hankel_uniform_sum(t, tsq, _1dnsq, etm3h, aip, o4dp, aim, o4dm,
 			   od2p, od0dp, od2m, od0dm, eps,
-			   h1, h1p, h2, h2p, ier);
+			   h1, h1p, h2, h2p, status);
 
 	// Assemble approximations.
 	tmp = etrat * nm1d3;
@@ -464,17 +464,17 @@ template<typename _Tp>
 	h2p = con2m * tmp * h2p;
 
 	// Check for successful completion
-	if (ier != 0)
+	if (status != 0)
 	  {
 	    std::cerr << "  hankel_uniform_sum: "
-		      << "  ier = " << ier << '\n'
+		      << "  status = " << status << '\n'
 		      << "  nu  = " << nu << '\n'
 		      << "  z   = " << z << '\n';
 	  }
       }
     else
       std::cerr << "  hankel_uniform_outer: "
-		<< "  ier = " << ier << '\n'
+		<< "  status = " << status << '\n'
 		<< "  nu  = " << nu << '\n'
 		<< "  z   = " << z << '\n';
 
@@ -510,7 +510,7 @@ template<typename _Tp>
 		       std::complex<_Tp> & aim, std::complex<_Tp> & o4dm,
 		       std::complex<_Tp> & od2p, std::complex<_Tp> & od0dp,
 		       std::complex<_Tp> & od2m, std::complex<_Tp> & od0dm,
-		       int & error)
+		       int & status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -520,16 +520,17 @@ template<typename _Tp>
     std::cout << " > hankel_uniform_outer: nu = " << nu << " z = " << z << '\n';
 
 
-    error = 0;
+    status = 0;
 
     if (safe_div(z, nu, zhat))
       {
 	//  Try to compute other nu and z dependent parameters except args to Airy functions
 	cmplx nm4d3, nusq, zeta, etphf, etmhf;
 	hankel_params(nu, zhat, t, tsq, nusq, _1dnsq, nm1d3, nm2d3, nm4d3,
-		      zeta, etphf, etmhf, etm3h, etrat, error);
+		      zeta, etphf, etmhf, etm3h, etrat, status);
 
         std::cout.precision(std::numeric_limits<double>::max_digits10);
+        //std::cout << std::scientific;
         std::cout << " > > t      = " << t << '\n';
         std::cout << " > > tsq    = " << tsq << '\n';
         std::cout << " > > nusq   = " << nusq << '\n';
@@ -542,35 +543,35 @@ template<typename _Tp>
         std::cout << " > > etmhf  = " << etmhf << '\n';
         std::cout << " > > etm3h  = " << etm3h << '\n';
         std::cout << " > > etrat  = " << etrat << '\n';
-        std::cout << " > > error  = " << error << '\n';
+        std::cout << " > > status = " << status << '\n';
 
-	if (error == 0)
+	if (status == 0)
 	  {
 	    //  Try to compute Airy function arguments
 	    cmplx argp, argm;
-	    airy_arg(nm2d3, zeta, argp, argm, error);
+	    airy_arg(nm2d3, zeta, argp, argm, status);
 	    std::cout << " > > nm2d3 = " << nm2d3 << '\n';
 	    std::cout << " > > zeta  = " << zeta << '\n';
 	    std::cout << " > > argp  = " << argp << '\n';
 	    std::cout << " > > argm  = " << argm << '\n';
-	    std::cout << " > > error = " << error << '\n';
+	    std::cout << " > > status = " << status << '\n';
 
-	    if (error == 0)
+	    if (status == 0)
 	      {
 		//  Compute Airy functions and derivatives
 		cmplx aipp, aimp;
-		int errorp, errorm;
-		airy(argp, eps, aip, aipp, errorp);
-		std::cout << " > > argp   = " << argp << '\n';
-		std::cout << " > > aip    = " << aip << '\n';
-		std::cout << " > > aipp   = " << aipp << '\n';
-		std::cout << " > > errorp = " << errorp << '\n';
-		airy(argm, eps, aim, aimp, errorm);
-		std::cout << " > > argm   = " << argm << '\n';
-		std::cout << " > > aim    = " << aim << '\n';
-		std::cout << " > > aimp   = " << aimp << '\n';
-		std::cout << " > > errorm = " << errorm << '\n';
-		if (errorp == 0 && errorm == 0)
+		int statusp, statusm;
+		airy(argp, eps, aip, aipp, statusp);
+		std::cout << " > > argp    = " << argp << '\n';
+		std::cout << " > > aip     = " << aip << '\n';
+		std::cout << " > > aipp    = " << aipp << '\n';
+		std::cout << " > > statusp = " << statusp << '\n';
+		airy(argm, eps, aim, aimp, statusm);
+		std::cout << " > > argm    = " << argm << '\n';
+		std::cout << " > > aim     = " << aim << '\n';
+		std::cout << " > > aimp    = " << aimp << '\n';
+		std::cout << " > > statusm = " << statusm << '\n';
+		if (statusp == 0 && statusm == 0)
 		  {
 		    //  Compute partial outer terms in expansions
 		    o4dp = -etmhf * nm4d3 * e2pd3 * aipp;
@@ -581,16 +582,16 @@ template<typename _Tp>
 		    od0dm = d2pd3 * aimp;
 		  }
 		else  //  Error in evaluation of Airy functions
-		  error = 134;
+		  status = 134;
 	      }
 	    else  //  Airy function args not computable
-	      error = 133;
+	      status = 133;
 	  }
 	else  //  Factors not successfully computed
-	  error = 135;
+	  status = 135;
       }
     else //  z/nu not successfully computed
-      error = 130;
+      status = 130;
 
     return;
   }
@@ -614,12 +615,12 @@ template<typename _Tp>
 		     _Tp eps,
 		     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
 		     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
-		     int & ier)
+		     int & status)
   {
     using cmplx = std::complex<_Tp>;
 
-    _Tp dukta, dvkta, duktb, dvktb, dukpta,
-     	dvkpta, dukptb, dvkptb, dsdata;
+    _Tp ukta, vkta, uktb, vktb, ukpta,
+     	vkpta, ukptb, vkptb;
 
     bool coverged;
     int nterms = 4;
@@ -841,7 +842,7 @@ template<typename _Tp>
     std::vector<cmplx> u(100);
     std::vector<cmplx> v(100);
 
-    ier = 0;
+    status = 0;
     //  Initialize for modified Horner's rule evaluation of u_k and v_k polynomials
     auto dxtsq = std::real(tsq);
     auto dytsq = std::imag(tsq);
@@ -974,47 +975,47 @@ template<typename _Tp>
 	//  Initialize for evaluation of two new u and v polynomials
 	//  via Horner's rule modified for complex arguments and real coefficients
 	auto indexend = indexp;
-	dukta = a[index];
-	dvkta = b[index];
+	ukta = a[index];
+	vkta = b[index];
 	++index;
-	duktb = a[index];
-	dvktb = b[index];
+	uktb = a[index];
+	vktb = b[index];
 	++index;
-	dukpta = a[indexp];
-	dvkpta = b[indexp];
+	ukpta = a[indexp];
+	vkpta = b[indexp];
 	++indexp;
-	dukptb = a[indexp];
-	dvkptb = b[indexp];
+	ukptb = a[indexp];
+	vkptb = b[indexp];
 	++indexp;
 	std::cout << " > > > index = " << index << '\n';
 	std::cout << " > > > indexp = " << indexp << '\n';
-	std::cout << " > > > dukta = " << dukta << '\n';
-	std::cout << " > > > dvkta = " << dvkta << '\n';
-	std::cout << " > > > duktb = " << duktb << '\n';
-	std::cout << " > > > dvktb = " << dvktb << '\n';
-	std::cout << " > > > dukpta = " << dukpta << '\n';
-	std::cout << " > > > dvkpta = " << dvkpta << '\n';
-	std::cout << " > > > dukptb = " << dukptb << '\n';
-	std::cout << " > > > dvkptb = " << dvkptb << '\n';
+	std::cout << " > > > ukta = " << ukta << '\n';
+	std::cout << " > > > vkta = " << vkta << '\n';
+	std::cout << " > > > uktb = " << uktb << '\n';
+	std::cout << " > > > vktb = " << vktb << '\n';
+	std::cout << " > > > ukpta = " << ukpta << '\n';
+	std::cout << " > > > vkpta = " << vkpta << '\n';
+	std::cout << " > > > ukptb = " << ukptb << '\n';
+	std::cout << " > > > vkptb = " << vkptb << '\n';
 
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
 	for (auto l = index; l < indexend; ++l)
 	  {
-	    dsdata = ds * dukta;
-	    dukta = duktb + dr * dukta;
-	    duktb = a[l] - dsdata;
-	    dsdata = ds * dvkta;
-	    dvkta = dvktb + dr * dvkta;
-	    dvktb = b[l] - dsdata;
+	    auto term = ds * ukta;
+	    ukta = uktb + dr * ukta;
+	    uktb = a[l] - term;
+	    term = ds * vkta;
+	    vkta = vktb + dr * vkta;
+	    vktb = b[l] - term;
 
-	    dsdata = ds * dukpta;
-	    dukpta = dukptb + dr * dukpta;
-	    dukptb = a[indexp] - dsdata;
-	    dsdata = ds * dvkpta;
-	    dvkpta = dvkptb + dr * dvkpta;
-	    dvkptb = b[indexp] - dsdata;
+	    term = ds * ukpta;
+	    ukpta = ukptb + dr * ukpta;
+	    ukptb = a[indexp] - term;
+	    term = ds * vkpta;
+	    vkpta = vkptb + dr * vkpta;
+	    vkptb = b[indexp] - term;
 	    ++indexp;
 
 	    std::cout << " > > > > l = " << l << '\n';
@@ -1023,14 +1024,14 @@ template<typename _Tp>
 	    std::cout << " > > > > indexp = " << indexp << '\n';
 	    std::cout << " > > > > a[indexp] = " << a[indexp] << '\n';
 	    std::cout << " > > > > b[indexp] = " << b[indexp] << '\n';
-	    std::cout << " > > > > dukta = " << dukta << '\n';
-	    std::cout << " > > > > dvkta = " << dvkta << '\n';
-	    std::cout << " > > > > duktb = " << duktb << '\n';
-	    std::cout << " > > > > dvktb = " << dvktb << '\n';
-	    std::cout << " > > > > dukpta = " << dukpta << '\n';
-	    std::cout << " > > > > dvkpta = " << dvkpta << '\n';
-	    std::cout << " > > > > dukptb = " << dukptb << '\n';
-	    std::cout << " > > > > dvkptb = " << dvkptb << '\n';
+	    std::cout << " > > > > ukta = " << ukta << '\n';
+	    std::cout << " > > > > vkta = " << vkta << '\n';
+	    std::cout << " > > > > uktb = " << uktb << '\n';
+	    std::cout << " > > > > vktb = " << vktb << '\n';
+	    std::cout << " > > > > ukpta = " << ukpta << '\n';
+	    std::cout << " > > > > vkpta = " << vkpta << '\n';
+	    std::cout << " > > > > ukptb = " << ukptb << '\n';
+	    std::cout << " > > > > vkptb = " << vkptb << '\n';
 	  }
 
 	//  Update indices into coefficients to reflect initialization
@@ -1038,25 +1039,25 @@ template<typename _Tp>
 	++indexp;
 
 	//  One more iteration for highest order polynomials
-	dsdata = ds * dukpta;
-	dukpta = dukptb + dr * dukpta;
-	dukptb = a[indexp] - dsdata;
-	dsdata = ds * dvkpta;
-	dvkpta = dvkptb + dr * dvkpta;
-	dvkptb = b[indexp] - dsdata;
+	auto term = ds * ukpta;
+	ukpta = ukptb + dr * ukpta;
+	ukptb = a[indexp] - term;
+	term = ds * vkpta;
+	vkpta = vkptb + dr * vkpta;
+	vkptb = b[indexp] - term;
 
 	//  Post multiply and form new polynomials
 	tk *= t;
-	u[nduv] = tk * (dukta * tsq + duktb);
-	v[nduv] = tk * (dvkta * tsq + dvktb);
+	u[nduv] = tk * (ukta * tsq + uktb);
+	v[nduv] = tk * (vkta * tsq + vktb);
 	std::cout << " > > > nduv = " << nduv << '\n';
 	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
 	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
 	++nduv;
 
 	tk *= t;
-	u[nduv] = tk * (dukpta * tsq + dukptb);
-	v[nduv] = tk * (dvkpta * tsq + dvkptb);
+	u[nduv] = tk * (ukpta * tsq + ukptb);
+	v[nduv] = tk * (vkpta * tsq + vkptb);
 	std::cout << " > > > nduv = " << nduv << '\n';
 	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
 	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
@@ -1170,7 +1171,7 @@ template<typename _Tp>
       }
 
     //  All allowable terms used - set completion code
-    ier = 177;
+    status = 177;
 
     return;
   }
@@ -1190,7 +1191,7 @@ template<typename _Tp>
 		std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
 		std::complex<_Tp> & zetaphf, std::complex<_Tp> & zetamhf,
 		std::complex<_Tp> & zetm3h, std::complex<_Tp> & zetrat,
-		int & ier)
+		int & status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -1232,14 +1233,14 @@ template<typename _Tp>
 	if (du >= dhalf && dv > dinf / (2 * du))
 	  {
 	    //  set completion code - unable to compute 1-zhat**2 and exit
-	    ier = 131;
+	    status = 131;
 	    return;
 	  }
       }
     else
       {
 	//  set completion code - unable to compute 1-zhat**2 and exit
-	ier = 131;
+	status = 131;
 	return;
       }
 
@@ -1263,7 +1264,7 @@ template<typename _Tp>
     else
       {
 	//  set completion code - unable to compute nu**2
-	ier = 132;
+	status = 132;
 	return;
       }
 
@@ -1330,15 +1331,15 @@ template<typename _Tp>
 			In our implementation, zeta is output from dparms.
     @param[out]  zargp  exp(2*pi*i/3) * nu(2/3) * zeta.
     @param[out]  zargm  exp(-2*pi*i/3) * nu(2/3) * zeta.
-    @param[out]  ier    A completion code.
-			ier = 0 indicates normal completion.
-			ier = 133 indicates failure in computing nu(2/3)*zeta
+    @param[out]  status A completion code.
+			status = 0 indicates normal completion.
+			status = 133 indicates failure in computing nu(2/3)*zeta
 			from the input zmn2d3 and zeta.
  */
 template<typename _Tp>
   void
   airy_arg(std::complex<_Tp> nm2d3, std::complex<_Tp> zeta,
-	   std::complex<_Tp> & argp, std::complex<_Tp> & argm, int & ier)
+	   std::complex<_Tp> & argp, std::complex<_Tp> & argm, int & status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -1350,7 +1351,7 @@ template<typename _Tp>
     std::cout << " > > > > nm2d3 = " << nm2d3 << '\n';
     std::cout << " > > > > zeta  = " << zeta << '\n';
 
-    ier = 0;
+    status = 0;
 
     if (safe_div(zeta, nm2d3, argm))
       {
@@ -1359,7 +1360,7 @@ template<typename _Tp>
 	argm = expm * argm;
       }
     else
-      ier = 133;
+      status = 133;
     std::cout << " > > > > argp = " << argp << '\n';
     std::cout << " > > > > argm = " << argm << '\n';
   }

@@ -1039,7 +1039,7 @@ ci
 ci      Note also that for the sake of speed and the fact that this
 ci      subroutine will be driven by another, checks that are not
 ci      absolutely necessary are not made.  Under these assumptions
-ci      an error return is not needed.
+ci      a status return is not needed.
 ci
 ci      ARGUMENTS
 ci        z      Double precision complex input variable set equal
@@ -1234,7 +1234,7 @@ ci      and determined from abs(z).
 ci
 ci      Note that for the sake of speed and the fact that this subroutine
 ci      is to be called by another, checks for valid arguments are not
-ci      made.  Hence, an error return is not needed.
+ci      made.  Hence, a status return is not needed.
 ci
 ci    Arguments
 ci      z      Double precision complex input variable set equal to the
@@ -1374,7 +1374,7 @@ ci      and determined from abs(z).
 ci
 ci      Note that for the sake of speed and the fact that this subroutine
 ci      is to be called by another, checks for valid arguments are not
-ci      made.  Hence, an error return is not needed.
+ci      made.  Hence, a status return is not needed.
 ci
 ci    Arguments
 ci      z      Double precision complex input variable set equal to the
@@ -1799,33 +1799,33 @@ cp        to airy functions
         write(6,*) '> > etmhf  = ', zetmhf
         write(6,*) '> > etm3h  = ', zetm3h
         write(6,*) '> > etrat  = ', zetrat
-        write(6,*) '> > ier    = ', ier
+        write(6,*) '> > status = ', ier
 
 cp      if parameters successfully computed
           if (ier .eq. 0)
      1  then
 cp        try to compute airy function arguments
           call aryarg(znm2d3,zeta,zargp,zargm,ier)
-          write(6,*) '> > nm2d3 = ', znm2d3
-          write(6,*) '> > zeta  = ', zeta
-          write(6,*) '> > argp  = ', zargp
-          write(6,*) '> > argm  = ', zargm
-          write(6,*) '> > error = ', ier
+          write(6,*) '> > nm2d3  = ', znm2d3
+          write(6,*) '> > zeta   = ', zeta
+          write(6,*) '> > argp   = ', zargp
+          write(6,*) '> > argm   = ', zargm
+          write(6,*) '> > status = ', ier
 
 cp        if parameters successfully computed
             if (ier .eq. 0)
      1    then
 cp          compute airy functions and derivatives             
             call zairy(zargp,deps,zaip,zaidp,ier1)     
-            write(6,*) '> > argp   = ', zargp
-            write(6,*) '> > aip    = ', zaip
-            write(6,*) '> > aipp   = ', zaidp
-            write(6,*) '> > errorp = ', ier1
+            write(6,*) '> > argp    = ', zargp
+            write(6,*) '> > aip     = ', zaip
+            write(6,*) '> > aipp    = ', zaidp
+            write(6,*) '> > statusp = ', ier1
             call zairy(zargm,deps,zaim,zaidm,ier2)
-            write(6,*) '> > argm   = ', zargm
-            write(6,*) '> > aim    = ', zaim
-            write(6,*) '> > aimp   = ', zaidm
-            write(6,*) '> > errorm = ', ier2
+            write(6,*) '> > argm    = ', zargm
+            write(6,*) '> > aim     = ', zaim
+            write(6,*) '> > aimp    = ', zaidm
+            write(6,*) '> > statusm = ', ier2
 cp          if airy functions successfully computed
               if (ier1 .eq. 0 .and. ier2 .eq. 0)
      1      then
@@ -2283,14 +2283,14 @@ cp        coefficients
         dvkptb = b(ndxp)
         write(6,*) '> > > index = ', ndx
         write(6,*) '> > > indexp = ', ndxp
-        write(6,*) '> > > dukta = ', dukta
-        write(6,*) '> > > dvkta = ', dvkta
-        write(6,*) '> > > duktb = ', duktb
-        write(6,*) '> > > dvktb = ', dvktb
-        write(6,*) '> > > dukpta = ', dukpta
-        write(6,*) '> > > dvkpta = ', dvkpta
-        write(6,*) '> > > dukptb = ', dukptb
-        write(6,*) '> > > dvkptb = ', dvkptb
+        write(6,*) '> > > ukta = ', dukta
+        write(6,*) '> > > vkta = ', dvkta
+        write(6,*) '> > > uktb = ', duktb
+        write(6,*) '> > > vktb = ', dvktb
+        write(6,*) '> > > ukpta = ', dukpta
+        write(6,*) '> > > vkpta = ', dvkpta
+        write(6,*) '> > > ukptb = ', dukptb
+        write(6,*) '> > > vkptb = ', dvkptb
 cp      update indices into coefficients to reflect initialization
         ndx = ndx + 1
         ndxp = ndxp + 1
@@ -2318,14 +2318,14 @@ cp                 next highest order polynomials computed
           write(6,*) '> > > > indexp = ', ndxp
           write(6,*) '> > > > a[indexp] = ', a(ndxp)
           write(6,*) '> > > > b[indexp] = ', b(ndxp)
-          write(6,*) '> > > > dukta = ', dukta
-          write(6,*) '> > > > dvkta = ', dvkta
-          write(6,*) '> > > > duktb = ', duktb
-          write(6,*) '> > > > dvktb = ', dvktb
-          write(6,*) '> > > > dukpta = ', dukpta
-          write(6,*) '> > > > dvkpta = ', dvkpta
-          write(6,*) '> > > > dukptb = ', dukptb
-          write(6,*) '> > > > dvkptb = ', dvkptb
+          write(6,*) '> > > > ukta = ', dukta
+          write(6,*) '> > > > vkta = ', dvkta
+          write(6,*) '> > > > uktb = ', duktb
+          write(6,*) '> > > > vktb = ', dvktb
+          write(6,*) '> > > > ukpta = ', dukpta
+          write(6,*) '> > > > vkpta = ', dvkpta
+          write(6,*) '> > > > ukptb = ', dukptb
+          write(6,*) '> > > > vkptb = ', dvkptb
    10   continue
 
 cp      One more iteration for highest order polynomials

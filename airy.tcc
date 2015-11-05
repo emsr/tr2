@@ -48,12 +48,12 @@ template<typename _Tp>
     here for reference
 
 		  sqrt(z)
-    (1) Ai(z)	= ------- (I (xi) - I (xi))
-		     3      -1/3     1/3
+    (1) Ai(z)	= ------- (I_(-1/3)(xi) - I_(1/3)(xi))
+		     3
 
 		  sqrt(z/3)
-    (2) Ai(z)	= --------- K (xi)
-		     pi      1/3
+    (2) Ai(z)	= --------- K_(1/3)(xi)
+		     pi
 
 		    2/3  -5/6
 		   2	3
@@ -61,16 +61,16 @@ template<typename _Tp>
 		   sqrt(pi)
 
 		  sqrt(z)
-    (3) Ai(-z)  = ------- (J  (xi) + J (xi))
-		     3      -1/3      1/3
+    (3) Ai(-z)  = ------- (J_(-1/3)(xi) + J_(1/3)(xi))
+		     3
 
 		  z
-    (4) Ai'(z)  = - (I (xi) - I  (xi))
-		  3   2/3      -2/3
+    (4) Ai'(z)  = - (I_(2/3)(xi) - I_(-2/3)(xi))
+		  3
 
 			 z
-    (5) Ai'(z)  = - ---------- K (xi)
-		    pi*sqrt(3)  2/3
+    (5) Ai'(z)  = - ---------- K_(2/3)(xi)
+		    pi*sqrt(3)
 
 		      2/3  -7/6
 		     4    3    2
@@ -78,8 +78,8 @@ template<typename _Tp>
 		     sqrt(pi)
 
 		   z
-    (6) Ai'(-z) =  - (J (xi) - J  (xi)) ,
-		   3   2/3	-2/3
+    (6) Ai'(-z) =  - (J_(2/3)(xi) - J_(-2/3)(xi)) ,
+		   3
 
 	       2  3/2
     Where xi = - z    and U( ; ; ) is the confluent hypergeometric
@@ -132,7 +132,7 @@ template<typename _Tp>
     The particular backward recursion algorithm used is discussed in 
 
     @see Olver, F. W. J, Numerical solution of second-order linear
-      difference equations, NBS J. RES., Series B, VOL 71B,
+      difference equations, NBS J. Res., Series B, VOL 71B,
       pp 111-129, 1967.
 
     @see Olver, F. W. J. and Sookne, D. J., Note on backward recurrence
@@ -199,9 +199,6 @@ template<typename _Tp>
     //  Check size of abs(z) and select appropriate methods
     if (absz < big)
       {
-	cmplx zi1d3, zim1d3, zi2d3, zim2d3,
-	      z1d3f, zm1d3f, z2d3f, zm2d3f;
-
 	//  Moderate or small abs(z)
 	//  Check argument for right or left half plane
 	if (std::real(z) >= dzero)
@@ -209,8 +206,7 @@ template<typename _Tp>
 	    //  Argument in closed right half plane
 	    //  Compute xi as defined in the representations in terms of Bessel functions
 	    auto sqrtz = std::sqrt(z);
-	    auto xi = z * sqrtz;
-	    xi *= d2d3;
+	    auto xi = d2d3 * z * sqrtz;
 
 	    //  Check for abs(z) too large for accuracy of representations (1) and (4)
 	    if (absz >= _Tp{2})
@@ -229,6 +225,7 @@ template<typename _Tp>
 		if (absz <= small)
 		  {
 		    //  Use rational approximation along with (1) and (4)
+		    cmplx zi1d3, zim1d3, zi2d3, zim2d3;
 		    zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
 		    //  Recover Ai(z) and Ai'(z)
 		    zim1d3 *= dgm2d3;
@@ -241,6 +238,7 @@ template<typename _Tp>
 		else
 		  {
 		    //  Use backward recurrence along with (1) and (4)
+		    cmplx zi1d3, zim1d3, zi2d3, zim2d3;
 		    airy_bessel_i(xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
 		    //  Recover Ai(z) and Ai'(z)
 		    ai = d1d3 * sqrtz * (zim1d3 - zi1d3);
@@ -255,14 +253,13 @@ template<typename _Tp>
 	    //  Argument lies in left half plane
 	    //  Compute xi as defined in the representations in terms of Bessel functions
 	    auto sqrtz = std::sqrt(-z);
-	    auto xi = -z * sqrtz;
-	    xi *= d2d3;
-	    cmplx z2xi;
+	    auto xi = -d2d3 * z * sqrtz;
 	    //  Set up arguments to recover Bessel functions of the first kind in (3) and (6)
+	    cmplx z2xi, z1d3f, zm1d3f, z2d3f, zm2d3f;
 	    if (std::imag(xi) >= dzero)
 	      {
 		//  Argument lies in upper half plane, so use appropriate identity
-		z2xi = -j * xi;//std::complex<_Tp>(xii, -xir);
+		z2xi = -j * xi;
 		z1d3f = zepd6;
 		zm1d3f = zempd6;
 		z2d3f = zepd3;
@@ -271,7 +268,7 @@ template<typename _Tp>
 	    else
 	      {
 		//  Argument lies in lower half plane, so use appropriate identity
-		z2xi = j * xi;//std::complex<_Tp>(-xii, xir);
+		z2xi = j * xi;
 		z1d3f = zempd6;
 		zm1d3f = zepd6;
 		z2d3f = zempd3;
@@ -283,20 +280,20 @@ template<typename _Tp>
 	      {
 		//  Use rational approximation
 		xi = -z;
+		cmplx zi1d3, zim1d3, zi2d3, zim2d3;
 		zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
 		//  Recover Ai(z) and Ai'(z)
 		zim1d3 *= dgm2d3;
 		zi1d3 *= dgm1d3;
 		ai = zim1d3 - z * zi1d3;
-		//ai = zm1d3f * zim1d3 + z * z1d3f * zi1d3
 		zim2d3 *= dgm1d3;
 		zi2d3 *= d2g2d3;
 		aip = z * z * zi2d3 - zim2d3;
-		//aip = z * z * z2d3f * zi2d3 - zm2d3f * zim2d3
 	      }
 	    else
 	      {
 		//  Use backward recurrence
+		cmplx zi1d3, zim1d3, zi2d3, zim2d3;
 		airy_bessel_i(z2xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
 		//  Recover Ai(z) and Ai'(z)
 		ai = d1d3 * sqrtz * (zm1d3f * zim1d3 + z1d3f * zi1d3);
@@ -311,15 +308,9 @@ template<typename _Tp>
 	//  abs(z) is large; check arg(z) to see which asymptotic form is appropriate
 	if (std::real(z) >= dzero
 	    || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
-	{
-	  //  abs(arg(z)) <= 2*pi/3  -  use asymptotic expansion for this region
-	  airy_asymp(z, ai, aip);
-	}
+	  airy_asymp(z, ai, aip);  //  abs(arg(z)) <= 2*pi/3
 	else
-	{
-	  //  abs(arg(-z)) < pi/3  -  use asymptotic expansion for this region
-	  zasaly(z, ai, aip);
-	}
+	  zasaly(z, ai, aip);  //  abs(arg(-z)) < pi/3
       }
     return;
 }
@@ -392,7 +383,7 @@ template<typename _Tp>
     Note also that for the sake of speed and the fact that this
     subroutine will be driven by another, checks that are not
     absolutely necessary are not made.  Under these assumptions
-    an error return is not needed.
+    a status return is not needed.
 
     Arguments
     @param[in]   z      The argument at which the modified Bessel
@@ -630,13 +621,13 @@ template<typename _Tp>
 	     comparison of successive iterates.
       zk1d3  The value computed for E_(1/3) of z.
       zk2d3  The value computed for E_(2/3) of z.
-      error    A completion code.
-	     error = 0 indicates normal completion
-	     error = 129, convergence failed in 100 iterations
+      status A completion code.
+	     status = 0 indicates normal completion
+	     status = 129, convergence failed in 100 iterations
 	    
 
     @note According to published information about the behaviour of the error for orders
-	  1/3 and 2/3, error = 129 should never occur for the domain of z that we recommend.
+	  1/3 and 2/3, status = 129 should never occur for the domain of z that we recommend.
 	  indeed, in the worst case, say, z=2 and arg(z) = 3*pi/4, we expect 20 iterations
 	  to give 7 or 8 decimals of accuracy.
  */
@@ -644,7 +635,7 @@ template<typename _Tp>
   void
   airy_bessel_k(const std::complex<_Tp> & z, _Tp eps,
 		std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
-		int & error)
+		int & status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -669,7 +660,7 @@ template<typename _Tp>
 
     std::cout << " > airy_bessel_k: z = " << z << '\n';
 
-    error = 0;
+    status = 0;
 
     //  Initialize polynomials for recurrence
     auto f10 = zone;
@@ -788,7 +779,7 @@ template<typename _Tp>
       }
 
     //  Maximum iterations exceeded
-    error = 129;
+    status = 129;
     return;
   }
 
@@ -824,7 +815,7 @@ template<typename _Tp>
       Note also that for the sake of speed and the fact that this
       subroutine will be driven by another, checks that are not
       absolutely necessary are not made.  Under these assumptions
-      an error return is not needed.
+      a status return is not needed.
 
     @param[in]  z	The argument at which the hypergeometric given
 			above is to be evaluated.  Since the approximation
@@ -990,7 +981,7 @@ template<typename _Tp>
 
       Note that for the sake of speed and the fact that this subroutine
       is to be called by another, checks for valid arguments are not
-      made.  Hence, an error return is not needed.
+      made.  Hence, a status return is not needed.
 
     Arguments
       z      Complex input variable set equal to the
@@ -1036,7 +1027,7 @@ template<typename _Tp>
     };
 
     constexpr _Tp
-    ddk[ncoeffs]
+    dk[ncoeffs]
     {
       -0.6133570666385206e+05,
       -0.9446354823095932e+04,
@@ -1078,20 +1069,20 @@ template<typename _Tp>
     auto s = std::norm(xim);
     auto index = ncoeffs - nterm;// + 1;
     auto al = ck[index];
-    auto alpr = ddk[index];
+    auto alpr = dk[index];
     ++index;
     auto be = ck[index];
-    auto bepr = ddk[index];
+    auto bepr = dk[index];
     ++index;
 
     for (int k = index; k < ncoeffs; ++k)
     {
-      auto sdata = s * al;
+      auto term = s * al;
       al = be + r * al;
-      be = ck[k] - sdata;
-      sdata = s * alpr;
+      be = ck[k] - term;
+      term = s * alpr;
       alpr = bepr + r * alpr;
-      bepr = ddk[k] - sdata;
+      bepr = dk[k] - term;
     }
 
     ai = zout * al * xim + be;
@@ -1228,18 +1219,18 @@ template<typename _Tp>
     //  Loop until components contributing to sums are computed
     for (int k = index; k < ncoeffs; ++k)
     {
-      auto sdata = s * als;
+      auto term = s * als;
       als = bes + r * als;
-      bes = cks[k] - sdata;
-      sdata = s * alc;
+      bes = cks[k] - term;
+      term = s * alc;
       alc = bec + r * alc;
-      bec = ckc[k] - sdata;
-      sdata = s * alprs;
+      bec = ckc[k] - term;
+      term = s * alprs;
       alprs = beprs + r * alprs;
-      beprs = dks[k] - sdata;
-      sdata = s * alprc;
+      beprs = dks[k] - term;
+      term = s * alprc;
       alprc = beprc + r * alprc;
-      beprc = dkc[k] - sdata;
+      beprc = dkc[k] - term;
     }
 
     //  Complete evaluation of the Airy functions
