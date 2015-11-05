@@ -7,36 +7,45 @@
 
 template<typename _Tp>
   void
-  airy(const std::complex<_Tp> & z, _Tp eps,
-       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & error);
+  airy(const std::complex<_Tp>& z, _Tp eps,
+       std::complex<_Tp>& ai,
+       std::complex<_Tp>& aip,
+       int& error);
 
 template<typename _Tp>
   void
-  airy_bessel_i(const std::complex<_Tp> & z, _Tp eps,
-		std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
-		std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3);
+  airy_bessel_i(const std::complex<_Tp>& z, _Tp eps,
+		std::complex<_Tp>& ip1d3,
+		std::complex<_Tp>& im1d3,
+		std::complex<_Tp>& ip2d3,
+		std::complex<_Tp>& im2d3);
 
 template<typename _Tp>
   void
-  airy_bessel_k(const std::complex<_Tp> & z, _Tp eps,
-		std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
-		int & error);
+  airy_bessel_k(const std::complex<_Tp>& z, _Tp eps,
+		std::complex<_Tp>& kp1d3,
+		std::complex<_Tp>& kp2d3,
+		int& error);
 
 template<typename _Tp>
   void
-  zcrary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
-	 std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3);
+  airy_hyperg_rational(const std::complex<_Tp>& z,
+		       std::complex<_Tp>& fp1d3,
+		       std::complex<_Tp>& fm1d3,
+		       std::complex<_Tp>& fp2d3,
+		       std::complex<_Tp>& fm2d3);
 
 template<typename _Tp>
   void
-  airy_asymp(const std::complex<_Tp> & z,
-	     std::complex<_Tp> & ai, std::complex<_Tp> & aip);
+  airy_asymp_absarg_ge_pio3(const std::complex<_Tp>& z,
+			    std::complex<_Tp>& ai,
+			    std::complex<_Tp>& aip);
 
 template<typename _Tp>
   void
-  zasaly(std::complex<_Tp> z,
-	 std::complex<_Tp> & ai, std::complex<_Tp> & aip);
+  airy_asymp_absarg_lt_pio3(std::complex<_Tp> z,
+			    std::complex<_Tp>& ai,
+			    std::complex<_Tp>& aip);
 
 /**
     @brief
@@ -44,8 +53,8 @@ template<typename _Tp>
     derivative in the complex z-plane.
 
     The algorithm used exploits numerous representations of the
-    Airy function and its derivative.  We record the representations
-    here for reference
+    Airy function and its derivative.
+    The representations are recorded here for reference:
 
 		  sqrt(z)
     (1) Ai(z)	= ------- (I_(-1/3)(xi) - I_(1/3)(xi))
@@ -70,7 +79,7 @@ template<typename _Tp>
 
 			 z
     (5) Ai'(z)  = - ---------- K_(2/3)(xi)
-		    pi*sqrt(3)
+		    pi sqrt(3)
 
 		      2/3  -7/6
 		     4    3    2
@@ -82,9 +91,9 @@ template<typename _Tp>
 		   3
 
 	       2  3/2
-    Where xi = - z    and U( ; ; ) is the confluent hypergeometric
+    Where xi = - z    and U(a;b;z) is the confluent hypergeometric
 	       3
-    Function as defined in
+    function as defined in
 
     @see Stegun, I. A. and Abramowitz, M., Handbook of Mathematical Functions,
       Natl. Bureau of Standards, AMS 55, pp 504-515, 1964.
@@ -140,7 +149,7 @@ template<typename _Tp>
       OCT. 1972
 
     @see Sookne, D. J., Bessel Functions I and J of Complex Argument and
-      Integer Order, NBS J. Res., Series B, Vol 77B, Nos 3 & 4,
+      Integer Order, NBS J. Res., Series B, Vol 77B, Nos 3& 4,
       pp 111-113, July-December, 1973. 
 
     The following paper was also useful
@@ -164,26 +173,28 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy(const std::complex<_Tp> & z, _Tp eps,
-       std::complex<_Tp> & ai, std::complex<_Tp> & aip, int & error)
+  airy(const std::complex<_Tp>& z, _Tp eps,
+       std::complex<_Tp>& ai,
+       std::complex<_Tp>& aip,
+       int& error)
   {
     using cmplx = std::complex<_Tp>;
 
     static constexpr std::complex<_Tp>
-      zepd6 { 8.660254037844386e-01,  5.0e-01},
-      zempd6{ 8.660254037844386e-01, -5.0e-01},
-      zepd3 { 5.0e-01,  8.660254037844386e-01},
-      zempd3{ 5.0e-01, -8.660254037844386e-01},
+      eppid6{ 0.8660254037844386,  0.5},
+      empid6{ 0.8660254037844386, -0.5},
+      eppid3{ 0.5,  0.8660254037844386},
+      empid3{ 0.5, -0.8660254037844386},
       j{0, 1};
     static constexpr _Tp
-      dzero{0},
+      dzero {0},
       d1d3  {3.33333333333333333e-01},
       d2d3  {6.66666666666666667e-01},
-      dsqrt3{1.732050807568877e+00},
       dgm1d3{2.588194037928068e-01},
       dgm2d3{3.550280538878172e-01},
       d2g2d3{1.775140269439086e-01},
-      drsqpi{2.820947917738781e-01};
+      drsqpi{2.820947917738781e-01},
+      pi    {3.1415926535897932385};
     static constexpr _Tp small{0.25}, big{15};
 
     error = 0;
@@ -225,24 +236,24 @@ template<typename _Tp>
 		if (absz <= small)
 		  {
 		    //  Use rational approximation along with (1) and (4)
-		    cmplx zi1d3, zim1d3, zi2d3, zim2d3;
-		    zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
+		    cmplx ip1d3, im1d3, ip2d3, im2d3;
+		    airy_hyperg_rational(z, ip1d3, im1d3, ip2d3, im2d3);
 		    //  Recover Ai(z) and Ai'(z)
-		    zim1d3 *= dgm2d3;
-		    zi1d3 *= dgm1d3;
-		    ai = zim1d3 - z * zi1d3;
-		    zim2d3 *= dgm1d3;
-		    zi2d3 *= d2g2d3;
-		    aip = z * z * zi2d3 - zim2d3;
+		    im1d3 *= dgm2d3;
+		    ip1d3 *= dgm1d3;
+		    ai = im1d3 - z * ip1d3;
+		    im2d3 *= dgm1d3;
+		    ip2d3 *= d2g2d3;
+		    aip = z * z * ip2d3 - im2d3;
 		  }
 		else
 		  {
 		    //  Use backward recurrence along with (1) and (4)
-		    cmplx zi1d3, zim1d3, zi2d3, zim2d3;
-		    airy_bessel_i(xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
+		    cmplx ip1d3, im1d3, ip2d3, im2d3;
+		    airy_bessel_i(xi, eps, ip1d3, im1d3, ip2d3, im2d3);
 		    //  Recover Ai(z) and Ai'(z)
-		    ai = d1d3 * sqrtz * (zim1d3 - zi1d3);
-		    aip = d1d3 * z * (zi2d3 - zim2d3);
+		    ai = d1d3 * sqrtz * (im1d3 - ip1d3);
+		    aip = d1d3 * z * (ip2d3 - im2d3);
                     std::cout << " > > > > > > ai = " << ai << '\n';
                     std::cout << " > > > > > > aip = " << aip << '\n';
 		  }
@@ -255,24 +266,24 @@ template<typename _Tp>
 	    auto sqrtz = std::sqrt(-z);
 	    auto xi = -d2d3 * z * sqrtz;
 	    //  Set up arguments to recover Bessel functions of the first kind in (3) and (6)
-	    cmplx z2xi, z1d3f, zm1d3f, z2d3f, zm2d3f;
+	    cmplx z2xi, zp1d3f, zm1d3f, zp2d3f, zm2d3f;
 	    if (std::imag(xi) >= dzero)
 	      {
 		//  Argument lies in upper half plane, so use appropriate identity
 		z2xi = -j * xi;
-		z1d3f = zepd6;
-		zm1d3f = zempd6;
-		z2d3f = zepd3;
-		zm2d3f = zempd3;
+		zp1d3f = eppid6;
+		zm1d3f = empid6;
+		zp2d3f = eppid3;
+		zm2d3f = empid3;
 	      }
 	    else
 	      {
 		//  Argument lies in lower half plane, so use appropriate identity
 		z2xi = j * xi;
-		z1d3f = zempd6;
-		zm1d3f = zepd6;
-		z2d3f = zempd3;
-		zm2d3f = zepd3;
+		zp1d3f = empid6;
+		zm1d3f = eppid6;
+		zp2d3f = empid3;
+		zm2d3f = eppid3;
 	      }
 
 	    //  Use approximation depending on size of z
@@ -280,45 +291,44 @@ template<typename _Tp>
 	      {
 		//  Use rational approximation
 		xi = -z;
-		cmplx zi1d3, zim1d3, zi2d3, zim2d3;
-		zcrary(z, zi1d3, zim1d3, zi2d3, zim2d3);
+		cmplx ip1d3, im1d3, ip2d3, im2d3;
+		airy_hyperg_rational(z, ip1d3, im1d3, ip2d3, im2d3);
 		//  Recover Ai(z) and Ai'(z)
-		zim1d3 *= dgm2d3;
-		zi1d3 *= dgm1d3;
-		ai = zim1d3 - z * zi1d3;
-		zim2d3 *= dgm1d3;
-		zi2d3 *= d2g2d3;
-		aip = z * z * zi2d3 - zim2d3;
+		im1d3 *= dgm2d3;
+		ip1d3 *= dgm1d3;
+		ai = im1d3 - z * ip1d3;
+		im2d3 *= dgm1d3;
+		ip2d3 *= d2g2d3;
+		aip = z * z * ip2d3 - im2d3;
 	      }
 	    else
 	      {
 		//  Use backward recurrence
-		cmplx zi1d3, zim1d3, zi2d3, zim2d3;
-		airy_bessel_i(z2xi, eps, zi1d3, zim1d3, zi2d3, zim2d3);
+		cmplx ip1d3, im1d3, ip2d3, im2d3;
+		airy_bessel_i(z2xi, eps, ip1d3, im1d3, ip2d3, im2d3);
 		//  Recover Ai(z) and Ai'(z)
-		ai = d1d3 * sqrtz * (zm1d3f * zim1d3 + z1d3f * zi1d3);
-		aip = d1d3 * z * (zm2d3f * zim2d3 - z2d3f * zi2d3);
+		ai = d1d3 * sqrtz * (zm1d3f * im1d3 + zp1d3f * ip1d3);
+		aip = d1d3 * z * (zm2d3f * im2d3 - zp2d3f * ip2d3);
                 std::cout << " > > > > > ai = " << ai << '\n';
                 std::cout << " > > > > > aip = " << aip << '\n';
 	      }
 	  }
       }
     else
-      {
-	//  abs(z) is large; check arg(z) to see which asymptotic form is appropriate
-	if (std::real(z) >= dzero
-	    || std::abs(std::imag(z)) >= -dsqrt3 * std::real(z))
-	  airy_asymp(z, ai, aip);  //  abs(arg(z)) <= 2*pi/3
+      {  //  abs(z) is large...
+	//  Check arg(z) to see which asymptotic form is appropriate
+	if (std::abs(std::arg(z)) < 2 * pi / 3)
+	  airy_asymp_absarg_ge_pio3(z, ai, aip);
 	else
-	  zasaly(z, ai, aip);  //  abs(arg(-z)) < pi/3
+	  airy_asymp_absarg_lt_pio3(z, ai, aip);
       }
     return;
 }
 
 
 /**
-    Compute the modified Bessel functions of the first kind orders 
-    +-1/3 and +-2/3 needed to compute the Airy functions
+    Compute the modified Bessel functions of the first kind of
+    orders +-1/3 and +-2/3 needed to compute the Airy functions
     and their derivatives from their representation in terms of the
     modified Bessel functions.  This program is only used for z
     less than two in modulus and in the closed right half plane.
@@ -352,7 +362,7 @@ template<typename _Tp>
   
     Sookne, D. J., Bessel Functions I and J of Complex Argument 
       and Integer Order, J. Res. NBS - Series B, Vol 77B, Nos.
-      3 & 4, July-December, 1973.
+      3& 4, July-December, 1973.
 
     Insight was also gained from
 
@@ -385,21 +395,21 @@ template<typename _Tp>
     absolutely necessary are not made.  Under these assumptions
     a status return is not needed.
 
-    Arguments
-    @param[in]   z      The argument at which the modified Bessel
-			functions computed by this program are to be
-			evaluated.
-    @param[in]   eps    The maximum relative error required in the results.
-    @param[out]  zi1d3   The value of I_(1/3) (z).
-    @param[out]  zim1d3  The value of I_(-1/3) (z).
-    @param[out]  zi2d3   The value of I_(2/3) (z).
-    @param[out]  zim2d3  The value of I_(-2/3) (z).
+    @param[in]  z     The argument at which the modified Bessel
+		      functions computed by this program are to be evaluated.
+    @param[in]  eps   The maximum relative error required in the results.
+    @param[out] ip1d3 The value of I_(+1/3)(z).
+    @param[out] im1d3 The value of I_(-1/3)(z).
+    @param[out] ip2d3 The value of I_(+2/3)(z).
+    @param[out] im2d3 The value of I_(-2/3)(z).
  */
 template<typename _Tp>
   void
-  airy_bessel_i(const std::complex<_Tp> & z, _Tp eps,
-		std::complex<_Tp> & zi1d3, std::complex<_Tp> & zim1d3,
-		std::complex<_Tp> & zi2d3, std::complex<_Tp> & zim2d3)
+  airy_bessel_i(const std::complex<_Tp>& z, _Tp eps,
+		std::complex<_Tp>& ip1d3,
+		std::complex<_Tp>& im1d3,
+		std::complex<_Tp>& ip2d3,
+		std::complex<_Tp>& im2d3)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -552,7 +562,7 @@ template<typename _Tp>
     zpold1 = zd2pow * std::exp(-z);
     sum1 *= gm4d3 * zpold1;
     zplst1 /= sum1;
-    zi1d3 = zp1 / sum1;
+    ip1d3 = zp1 / sum1;
     std::cout << " > > zpold1 = " << zpold1 << '\n';
     std::cout << " > > zd2pow = " << zd2pow << '\n';
     std::cout << " > > sum1 = " << sum1 << '\n';
@@ -571,33 +581,31 @@ template<typename _Tp>
     //  Compute scale factor and scale results for order 2/3 case
     sum2 *= gm5d3 * zd2pow * zpold1;
     zplst2 /= sum2;
-    zi2d3 = zp2 / sum2;
+    ip2d3 = zp2 / sum2;
     std::cout << " > > zpold1 = " << zpold1 << '\n';
     std::cout << " > > zd2pow = " << zd2pow << '\n';
     std::cout << " > > sum2 = " << sum2 << '\n';
 
-    //  Recur back one step from order 1/3 to get order -2/3
-    zim2d3 = d2d3 * zi1d3 * z1dz + zplst1;
+    //  Recur back one step from order +1/3 to get order -2/3
+    im2d3 = d2d3 * ip1d3 * z1dz + zplst1;
 
-    //  Recur back one step from order 2/3 to get order -1/3
-    zim1d3 = d4d3 * zi2d3 * z1dz + zplst2;
+    //  Recur back one step from order +2/3 to get order -1/3
+    im1d3 = d4d3 * ip2d3 * z1dz + zplst2;
 
     return;
   }
 
 
 /**
-    @brief
-    Compute approximations to the modified Bessel functions of the
+    @brief Compute approximations to the modified Bessel functions of the
     second kind of orders 1/3 and 2/3 for moderate arguments.
     More specifically, the program computes
 
-      E_nu(z) = exp(z) sqrt(2 z/pi) K_nu(z), for nu = 1/3 and nu = 2/3.
-       			   
+    E_nu(z) = exp(z) sqrt(2 z/pi) K_nu(z), for nu = 1/3 and nu = 2/3.
 
     This subprogram uses a rational approximation given in
 
-    Luke, Y.L., Mathematical functions and their approximations,
+    Luke, Y. L., Mathematical functions and their approximations,
       Academic Press, pp 366-367, 1975.
 
     Though the approximation converges in abs(arg(z)) <= pi,
@@ -612,19 +620,17 @@ template<typename _Tp>
     Hence, certain considerations of overflow, underflow, and
     loss of significance are unimportant for our purpose.
 
-    Arguments
-      z      The value for which the quantity E_nu is to
-	     be computed.  it is recommended that abs(z) not be
-	     too small and that abs(arg(z)) <= 3*pi/4.
-      eps   The maximum relative error allowable in the computed
-	     results.  the relative error test is based on the
-	     comparison of successive iterates.
-      zk1d3  The value computed for E_(1/3) of z.
-      zk2d3  The value computed for E_(2/3) of z.
-      status A completion code.
-	     status = 0 indicates normal completion
-	     status = 129, convergence failed in 100 iterations
-	    
+    @param[in] z   The value for which the quantity E_nu is to be computed.
+		   it is recommended that abs(z) not be too small and that
+		   abs(arg(z)) <= 3*pi/4.
+    @param[in] eps The maximum relative error allowable in the computed
+		   results. The relative error test is based on the comparison
+		   of successive iterates.
+    @param[out] kp1d3  The value computed for E_(+1/3) of z.
+    @param[out] kp2d3  The value computed for E_(+2/3) of z.
+    @param[out] status A completion code.
+		       status = 0 indicates normal completion
+		       status = 129, convergence failed in 100 iterations
 
     @note According to published information about the behaviour of the error for orders
 	  1/3 and 2/3, status = 129 should never occur for the domain of z that we recommend.
@@ -633,9 +639,10 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_bessel_k(const std::complex<_Tp> & z, _Tp eps,
-		std::complex<_Tp> & zk1d3, std::complex<_Tp> & zk2d3,
-		int & status)
+  airy_bessel_k(const std::complex<_Tp>& z, _Tp eps,
+		std::complex<_Tp>& kp1d3,
+		std::complex<_Tp>& kp2d3,
+		int& status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -671,7 +678,6 @@ template<typename _Tp>
     auto f21 = zone + dfco[0] * z / dfco[5];
     auto f22 = z * (dfco[2] * z + dfco[6]);
     f22 = zone + f22 / dfco[7];
-
     std::cout << " > > f10 = " << f10 << '\n';
     std::cout << " > > f20 = " << f20 << '\n';
     std::cout << " > > f11 = " << f11 << '\n';
@@ -689,7 +695,6 @@ template<typename _Tp>
 		       std::imag(f21));
     auto phi22 = z * (dfco[2] * z + phico[4]);
     phi22 = (phi22 + phico[5]) / dfco[7];
-
     std::cout << " > > phi10 = " << phi10 << '\n';
     std::cout << " > > phi20 = " << phi20 << '\n';
     std::cout << " > > phi11 = " << phi11 << '\n';
@@ -741,8 +746,8 @@ template<typename _Tp>
 	if (std::abs(zratnw - zratol) < eps * std::abs(zratnw))
 	  {
 	    //  Convergence.
-	    zk2d3 = zratnw;
-	    zk1d3 = phi13 / f13;
+	    kp2d3 = zratnw;
+	    kp1d3 = phi13 / f13;
 	    return;
 	  }
 
@@ -787,123 +792,121 @@ template<typename _Tp>
 
 /**
     @brief This subroutine computes rational approximations
-      to the hypergeometric functions related to the modified Bessel
-      functions of orders \nu = +-1/3 and \nu +- 2/3.  That is,
-      A(z)/B(z), Where A(z) and B(z) are cubic polynomials with
-      real coefficients, approximates
+    to the hypergeometric functions related to the modified Bessel
+    functions of orders \nu = +-1/3 and \nu +- 2/3.  That is,
+    A(z)/B(z), Where A(z) and B(z) are cubic polynomials with
+    real coefficients, approximates
 
-	\Gamma(\nu+1)
-	----------- I_\nu(z) = 0_F_1 (;\nu+1;z^2/4) ,
-	 (z/2)^nu         
+      \Gamma(\nu+1)
+      ------------- I_\nu(z) = 0_F_1 (;\nu+1;z^2/4) ,
+       (z/2)^nu 	
 
-      Where the function on the right is a generalized Gaussian
-      hypergeometric function.  For abs(z) <= 1/4  and
-      abs(arg(z)) <= pi/2, the approximations are accurate to
-      about 16 decimals.
+    Where the function on the right is a generalized Gaussian
+    hypergeometric function.  For abs(z) <= 1/4  and
+    abs(arg(z)) <= pi/2, the approximations are accurate to
+    about 16 decimals.
 
-      For further details including the four term recurrence
-      relation satisfied by the numerator and denominator poly-
-      nomials in the higher order approximants, see
+    For further details including the four term recurrence
+    relation satisfied by the numerator and denominator poly-
+    nomials in the higher order approximants, see
 
-      Luke, Y.L., Mathematical Functions and their Approximations,
-      Academic Press, pp 361-363, 1975.
+    Luke, Y.L., Mathematical Functions and their Approximations,
+    Academic Press, pp 361-363, 1975.
 
-      An asymptotic expression for the error is given as well as
-      other useful expressions in the event one wants to extend
-      this subroutine to incorporate higher order approximants.
+    An asymptotic expression for the error is given as well as
+    other useful expressions in the event one wants to extend
+    this subroutine to incorporate higher order approximants.
 
-      Note also that for the sake of speed and the fact that this
-      subroutine will be driven by another, checks that are not
-      absolutely necessary are not made.  Under these assumptions
-      a status return is not needed.
+    Note also that for the sake of speed and the fact that this
+    subroutine will be driven by another, checks that are not
+    absolutely necessary are not made.  Under these assumptions
+    a status return is not needed.
 
     @param[in]  z	The argument at which the hypergeometric given
 			above is to be evaluated.  Since the approximation
 			is of fixed order, abs(z) must be small to ensure
 			sufficient accuracy of the computed results.
-    @param[out]  f1d3	The approximate value of the Gauss hypergeometric
+    @param[out]  fp1d3	The approximate value of the Gauss hypergeometric
 			function related to the modified Bessel function
-			of order 1/3.
+			of order +1/3.
     @param[out]  fm1d3	The approximate value of the Gauss hypergeometric
 			function related to the modified Bessel function
 			of order -1/3.
-    @param[out]  f2d3	The approximate value of the Gauss hypergeometric
+    @param[out]  fp2d3	The approximate value of the Gauss hypergeometric
 			function related to the modified Bessel function
-			of order 2/3.
+			of order +2/3.
     @param[out]  fm2d3	The approximate value of the Gauss hypergeometric
 			function related to the modified Bessel function
 			of order -2/3.
  */
 template<typename _Tp>
   void
-  zcrary(const std::complex<_Tp> & z,
-	 std::complex<_Tp> & f1d3, std::complex<_Tp> & fm1d3,
-	 std::complex<_Tp> & f2d3, std::complex<_Tp> & fm2d3)
+  airy_hyperg_rational(const std::complex<_Tp>& z,
+		       std::complex<_Tp>& fp1d3,
+		       std::complex<_Tp>& fm1d3,
+		       std::complex<_Tp>& fp2d3,
+		       std::complex<_Tp>& fm2d3)
   {
     using cmplx = std::complex<_Tp>;
 
     constexpr cmplx zone{1};
 
-    //  dsmall is the 1/3 root of the smallest magnitude
-    //  floating-point number representable on the machine
-    constexpr _Tp small = 1.0e-12;
+    constexpr _Tp ap1d3[4]{   81, 32400,  2585520,  37920960 };
+    constexpr _Tp bp1d3[4]{  -35,  5040,  -574560,  37920960 };
+    constexpr _Tp am1d3[4]{   81, 22680,  1156680,   7711200 };
+    constexpr _Tp bm1d3[4]{  -10,  1260,  -128520,   7711200 };
+    constexpr _Tp ap2d3[4]{  162, 75735,  7270560, 139352400 };
+    constexpr _Tp bp2d3[4]{ -110, 16830, -2019600, 139352400 };
+    constexpr _Tp am2d3[4]{  162, 36855,  1415232,   4481568 };
+    constexpr _Tp bm2d3[4]{   -7,   819,   -78624,   4481568 };
 
-    constexpr _Tp a1d3[4]{  81, 32400, 2585520, 37920960 };
-    constexpr _Tp b1d3[4]{ -35, 5040, -574560, 37920960 };
-    constexpr _Tp am1d3[4]{ 81, 22680, 1156680, 7711200 };
-    constexpr _Tp bm1d3[4]{ -10, 1260, -128520, 7711200 };
-    constexpr _Tp a2d3[4]{ 162, 75735, 7270560, 139352400 };
-    constexpr _Tp b2d3[4]{ -110, 16830, -2019600, 139352400 };
-    constexpr _Tp am2d3[4]{ 162, 36855, 1415232, 4481568 };
-    constexpr _Tp bm2d3[4]{ -7, 819, -78624, 4481568 };
+    std::cout << " > airy_hyperg_rational:\n";
+    std::cout << " > > z = " << z << '\n';
 
-    //  Check to see if z**3 will underflow and act accordingly
+    //  Check to see if z^3 will underflow and act accordingly
+    auto zzz = z * z * z;
 
-    std::cout << " > zcrary: z = " << z << '\n';
-
-    if (std::abs(z) < small)
+    if (std::abs(zzz) < _Tp(10) * std::numeric_limits<_Tp>::min())
       {
-	f1d3  = zone;
+	fp1d3  = zone;
 	fm1d3 = zone;
-	f2d3  = zone;
+	fp2d3  = zone;
 	fm2d3 = zone;
       }
     else
       {
-	cmplx zzz = z * z * z;
-	_Tp r = 2 * std::real(zzz);
-	_Tp s = std::norm(zzz);
+	auto r = 2 * std::real(zzz);
+	auto s = std::norm(zzz);
 
 	//  All of the following polynomial evaluations are done using
 	//  a modified of Horner's rule which exploits the fact that
 	//  the polynomial coefficients are all real.  The algorithm is
 	//  discussed in detail in:
 	//  Knuth, D. E., The Art of Computer Programming: Seminumerical
-	//  Algorithms (Vol. 2), Addison-Wesley, pp 423-424, 1969.
+	//  Algorithms (Vol. 2) Third Ed., Addison-Wesley, pp 486-488, 1998.
 
 	//  If n is the degree of the polynomial, n - 3 multiplies are
 	//  saved and 4 * n - 6 additions are saved.
 
-	//  Evaluate numerator polynomial for nu=1/3 approximant
-	auto al = a1d3[0];
+	//  Evaluate numerator polynomial for nu=+1/3 approximant
+	auto al = ap1d3[0];
 	auto t  = s * al;
-	al = a1d3[1] + r * al;
-	auto be = a1d3[2] - t;
+	al = ap1d3[1] + r * al;
+	auto be = ap1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = a1d3[3] - t;
-	f1d3 = al * zzz + be;
-
-	//  Evaluate denominator polynomial for nu=1/3 approximant
+	be = ap1d3[3] - t;
+	fp1d3 = al * zzz + be;
+	//  Evaluate denominator polynomial for nu=+1/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = b1d3[0];
+	al = bp1d3[0];
 	t  = s * al;
-	al = b1d3[1] + r * al;
-	be = b1d3[2] - t;
+	al = bp1d3[1] + r * al;
+	be = bp1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = b1d3[3] - t;
-	f1d3 /= al * zzz + be;
+	be = bp1d3[3] - t;
+	fp1d3 /= al * zzz + be;
 
 	//  Evaluate numerator polynomial for nu=-1/3 approximant
 	al = am1d3[0];
@@ -925,26 +928,25 @@ template<typename _Tp>
 	be = bm1d3[3] - t;
 	fm1d3 /= al * zzz + be;
 
-	//  Evaluate numerator polynomial for nu=2/3 approximant
-	al = a2d3[0];
+	//  Evaluate numerator polynomial for nu=+2/3 approximant
+	al = ap2d3[0];
 	t  = s * al;
-	al = a2d3[1] + r * al;
-	be = a2d3[2] - t;
+	al = ap2d3[1] + r * al;
+	be = ap2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = a2d3[3] - t;
-	f2d3 = al * zzz + be;
-
-	//  Evaluate denominator polynomial for nu=2/3 approximant
+	be = ap2d3[3] - t;
+	fp2d3 = al * zzz + be;
+	//  Evaluate denominator polynomial for nu=+2/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = b2d3[0];
+	al = bp2d3[0];
 	t  = s * al;
-	al = b2d3[1] + r * al;
-	be = b2d3[2] - t;
+	al = bp2d3[1] + r * al;
+	be = bp2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = b2d3[3] - t;
-	f2d3 /= al * zzz + be;
+	be = bp2d3[3] - t;
+	fp2d3 /= al * zzz + be;
 
 	//  Evaluate numerator polynomial for nu=-2/3 approximant
 	al = am2d3[0];
@@ -955,7 +957,6 @@ template<typename _Tp>
 	al = be + r * al;
 	be = am2d3[3] - t;
 	fm2d3 = al * zzz + be;
-
 	//  Evaluate denominator polynomial for nu=-2/3 approximant
 	//  and compute ratio of numerator and denominator
 	al = bm2d3[0];
@@ -973,30 +974,28 @@ template<typename _Tp>
 
 
 /**
-    Purpose
-      This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
-      expansions for abs(arg(z)) < 2*pi/3.  For speed, the number
-      of terms needed to achieve about 16 decimals accuracy is tabled
-      and determined from abs(z).
+    @brief
+    This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
+    expansions for abs(arg(z)) < 2*pi/3.  For speed, the number
+    of terms needed to achieve about 16 decimals accuracy is tabled
+    and determined from abs(z).
 
-      Note that for the sake of speed and the fact that this subroutine
-      is to be called by another, checks for valid arguments are not
-      made.  Hence, a status return is not needed.
+    Note that for the sake of speed and the fact that this subroutine
+    is to be called by another, checks for valid arguments are not
+    made.  Hence, a status return is not needed.
 
-    Arguments
-      z      Complex input variable set equal to the
-	     value at which Ai(z) and its derivative are to be eval-
-	     uated.  this subroutine assumes abs(z) > 15 and
-	     abs(arg(z)) < 2*pi/3.
-      ai     Complex output variable containing the
-	     value computed for Ai(z).
-      aip    Complex output variable containing the
-	     value computed for Ai'(z).
+    @param[in]  z Complex input variable set equal to the value at which
+		  Ai(z) and its derivative are to be evaluated.
+		  This subroutine assumes abs(z) > 15
+		  and abs(arg(z)) < 2*pi/3.
+    @param[out] ai  The value computed for Ai(z).
+    @param[out] aip The value computed for Ai'(z).
  */
 template<typename _Tp>
   void
-  airy_asymp(const std::complex<_Tp> & z,
-	     std::complex<_Tp> & ai, std::complex<_Tp> & aip)
+  airy_asymp_absarg_ge_pio3(const std::complex<_Tp>& z,
+			    std::complex<_Tp>& ai,
+			    std::complex<_Tp>& aip)
   {
     constexpr _Tp d2d3   = 6.666666666666667e-01;
     constexpr _Tp pmhd2 = 2.820947917738781e-01;
@@ -1046,9 +1045,10 @@ template<typename _Tp>
        0.1000000000000000e+01
     };
 
-    std::cout << " > airy_asymp: z = " << z << '\n';
+    std::cout << " > airy_asymp_absarg_ge_pio3:\n";
+    std::cout << " > > z = " << z << '\n';
 
-    //  Compute -xi and z**(1/4)
+    //  Compute -xi and z^(1/4)
     auto pw1d4 = std::sqrt(z);
     auto xim = z * pw1d4;
     xim *= d2d3;
@@ -1076,14 +1076,14 @@ template<typename _Tp>
     ++index;
 
     for (int k = index; k < ncoeffs; ++k)
-    {
-      auto term = s * al;
-      al = be + r * al;
-      be = ck[k] - term;
-      term = s * alpr;
-      alpr = bepr + r * alpr;
-      bepr = dk[k] - term;
-    }
+      {
+	auto term = s * al;
+	al = be + r * al;
+	be = ck[k] - term;
+	term = s * alpr;
+	alpr = bepr + r * alpr;
+	bepr = dk[k] - term;
+      }
 
     ai = zout * al * xim + be;
     aip = zoutpr * alpr * xim + bepr;
@@ -1094,26 +1094,26 @@ template<typename _Tp>
 
 
 /**
-    @brief
-      This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
-      expansions for abs(arg(-z)) < pi/3.  For speed, the number
-      of terms needed to achieve about 16 decimals accuracy is tabled
-      and determined from abs(z).
+    @brief This subroutine evaluates Ai(z) and Ai'(z) from their asymptotic
+    expansions for abs(arg(-z)) < pi/3.  For speed, the number
+    of terms needed to achieve about 16 decimals accuracy is tabled
+    and determined from abs(z).
 
-      Note that for the sake of speed and the fact that this subroutine
-      is to be called by another, checks for valid arguments are not
-      made.  Hence, an error return is not needed.
+    Note that for the sake of speed and the fact that this subroutine
+    is to be called by another, checks for valid arguments are not
+    made.  Hence, an error return is not needed.
 
-    @param[in]  z   The value at which the Airy function and its derivative
-	            are to be evaluated.
-		    This subroutine assumes abs(z) > 15 and abs(arg(-z)) < pi/3.
-    @param[out]  ai   The computed value of the Airy function Ai(z).
-    @param[out]  aip  The computed value of the Airy function derivative Ai'(z).
+    @param[in] z  The value at which the Airy function and its derivative
+	          are to be evaluated.
+		  This subroutine assumes abs(z) > 15 and abs(arg(-z)) < pi/3.
+    @param[out] ai  The computed value of the Airy function Ai(z).
+    @param[out] aip The computed value of the Airy function derivative Ai'(z).
  */
 template<typename _Tp>
   void
-  zasaly(std::complex<_Tp> z,
-	 std::complex<_Tp> & ai, std::complex<_Tp> & aip)
+  airy_asymp_absarg_lt_pio3(std::complex<_Tp> z,
+			    std::complex<_Tp>& ai,
+			    std::complex<_Tp>& aip)
   {
     constexpr _Tp d2d3 {6.666666666666667e-01};
     constexpr _Tp d9d4 {2.25e+00};
@@ -1179,11 +1179,12 @@ template<typename _Tp>
        0.1000000000000000e+01
     };
 
-    std::cout << " > zasaly: z = " << z << '\n';
+    std::cout << " > airy_asymp_absarg_lt_pio3:\n";
+    std::cout << " > > z = " << z << '\n';
 
     //  Set up working value of z
     z = -z;
-    //  Compute xi and z**(1/4)
+    //  Compute xi and z^(1/4)
     auto pw1d4 = std::sqrt(z);
     auto xi = z * pw1d4;
     xi *= d2d3;
@@ -1198,7 +1199,7 @@ template<typename _Tp>
     auto nterm = nterms[std::min(numnterms - 1, (int(std::abs(z)) - 10) / 5)];
     //  Initialize for modified Horner's rule evaluation of sums
     //  it is assumed that at least three terms are used
-    z = std::pow(zone / z, 3);
+    z = std::pow(zone / z, _Tp(3));
     z *= d9d4;
     auto r = -2 * std::real(z);
     auto s = std::norm(z);
@@ -1218,20 +1219,20 @@ template<typename _Tp>
 
     //  Loop until components contributing to sums are computed
     for (int k = index; k < ncoeffs; ++k)
-    {
-      auto term = s * als;
-      als = bes + r * als;
-      bes = cks[k] - term;
-      term = s * alc;
-      alc = bec + r * alc;
-      bec = ckc[k] - term;
-      term = s * alprs;
-      alprs = beprs + r * alprs;
-      beprs = dks[k] - term;
-      term = s * alprc;
-      alprc = beprc + r * alprc;
-      beprc = dkc[k] - term;
-    }
+      {
+	auto term = s * als;
+	als = bes + r * als;
+	bes = cks[k] - term;
+	term = s * alc;
+	alc = bec + r * alc;
+	bec = ckc[k] - term;
+	term = s * alprs;
+	alprs = beprs + r * alprs;
+	beprs = dks[k] - term;
+	term = s * alprc;
+	alprc = beprc + r * alprc;
+	beprc = dkc[k] - term;
+      }
 
     //  Complete evaluation of the Airy functions
     xi = zone / xi;

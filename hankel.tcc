@@ -12,40 +12,40 @@
 template<typename _Tp>
   void
   hankel(std::complex<_Tp> nu, std::complex<_Tp> arg,
-	 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-	 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-	 int & status);
+	 std::complex<_Tp>& h1, std::complex<_Tp>& h2,
+	 std::complex<_Tp>& h1p, std::complex<_Tp>& h2p,
+	 int& status);
 
 template<typename _Tp>
   void
-  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & status);
+  region(std::complex<_Tp> alpha, int& indexr, char& aorb, int& status);
 
 template<typename _Tp>
   void
   hankel_debye(std::complex<_Tp> nu, std::complex<_Tp> arg,
-	       _Tp alpha, int & indexr, char & aorb, int & morn,
-	       std::complex<_Tp> & h1dbye, std::complex<_Tp> & h2dbye,
-	       std::complex<_Tp> & h1pdby, std::complex<_Tp> & h2pdby,
-	       int & status);
+	       _Tp alpha, int& indexr, char& aorb, int& morn,
+	       std::complex<_Tp>& h1dbye, std::complex<_Tp>& h2dbye,
+	       std::complex<_Tp>& h1pdby, std::complex<_Tp>& h2pdby,
+	       int& status);
 
 template<typename _Tp>
   void
   hankel_uniform_olver(std::complex<_Tp> nu, std::complex<_Tp> z,
-		       std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-		       std::complex<_Tp> & h1p, std::complex<_Tp> & h2p);
+		       std::complex<_Tp>& h1, std::complex<_Tp>& h2,
+		       std::complex<_Tp>& h1p, std::complex<_Tp>& h2p);
 
 template<typename _Tp>
   void
   hankel_uniform_outer(std::complex<_Tp> nu, std::complex<_Tp> z, _Tp eps,
-		       std::complex<_Tp> & zhat, std::complex<_Tp> & _1dnsq,
-		       std::complex<_Tp> & nm1d3, std::complex<_Tp> & nm2d3,
-		       std::complex<_Tp> & t, std::complex<_Tp> & tsq,
-		       std::complex<_Tp> & etm3h, std::complex<_Tp> & etrat,
-		       std::complex<_Tp> & aip, std::complex<_Tp> & o4dp,
-		       std::complex<_Tp> & aim, std::complex<_Tp> & o4dm,
-		       std::complex<_Tp> & od2p, std::complex<_Tp> & od0dp,
-		       std::complex<_Tp> & od2m, std::complex<_Tp> & od0dm,
-		       int & status);
+		       std::complex<_Tp>& zhat, std::complex<_Tp>& _1dnsq,
+		       std::complex<_Tp>& nm1d3, std::complex<_Tp>& nm2d3,
+		       std::complex<_Tp>& t, std::complex<_Tp>& tsq,
+		       std::complex<_Tp>& etm3h, std::complex<_Tp>& etrat,
+		       std::complex<_Tp>& aip, std::complex<_Tp>& o4dp,
+		       std::complex<_Tp>& aim, std::complex<_Tp>& o4dm,
+		       std::complex<_Tp>& od2p, std::complex<_Tp>& od0dp,
+		       std::complex<_Tp>& od2m, std::complex<_Tp>& od0dm,
+		       int& status);
 
 template<typename _Tp>
   void
@@ -56,30 +56,30 @@ template<typename _Tp>
 		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
 		     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
 		     _Tp eps,
-		     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
-		     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
-		     int & status);
+		     std::complex<_Tp>& h1sum, std::complex<_Tp>& h1psum,
+		     std::complex<_Tp>& h2sum, std::complex<_Tp>& h2psum,
+		     int& status);
 
 template<typename _Tp>
   bool
   safe_div(std::complex<_Tp> z1, std::complex<_Tp> z2,
-	   std::complex<_Tp> & z1dz2);
+	   std::complex<_Tp>& z1dz2);
 
 template<typename _Tp>
   void
   airy_arg(std::complex<_Tp> znm2d3, std::complex<_Tp> zeta,
-	   std::complex<_Tp> & zargp, std::complex<_Tp> & zargm, int & status);
+	   std::complex<_Tp>& zargp, std::complex<_Tp>& zargm, int& status);
 
 template<typename _Tp>
   void
   hankel_params(std::complex<_Tp> nu, std::complex<_Tp> zhat,
-		std::complex<_Tp> & t, std::complex<_Tp> & tsq,
-		std::complex<_Tp> & nusq, std::complex<_Tp> & z1dnsq,
-		std::complex<_Tp> & znm1d3, std::complex<_Tp> & znm2d3,
-		std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
-		std::complex<_Tp> & zetaphf, std::complex<_Tp> & zetamhf,
-		std::complex<_Tp> & zetm3h, std::complex<_Tp> & zetrat,
-		int & status);
+		std::complex<_Tp>& t, std::complex<_Tp>& tsq,
+		std::complex<_Tp>& nusq, std::complex<_Tp>& z1dnsq,
+		std::complex<_Tp>& znm1d3, std::complex<_Tp>& znm2d3,
+		std::complex<_Tp>& znm4d3, std::complex<_Tp>& zeta,
+		std::complex<_Tp>& zetaphf, std::complex<_Tp>& zetamhf,
+		std::complex<_Tp>& zetm3h, std::complex<_Tp>& zetrat,
+		int& status);
 
 /**
  *
@@ -87,9 +87,9 @@ template<typename _Tp>
 template<typename _Tp>
   void
   hankel(std::complex<_Tp> nu, std::complex<_Tp> z,
-	 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-	 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p,
-	 int & status)
+	 std::complex<_Tp>& h1, std::complex<_Tp>& h2,
+	 std::complex<_Tp>& h1p, std::complex<_Tp>& h2p,
+	 int& status)
   {
     static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
 
@@ -146,7 +146,7 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  region(std::complex<_Tp> alpha, int & indexr, char & aorb, int & status)
+  region(std::complex<_Tp> alpha, int& indexr, char& aorb, int& status)
   {
     static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
 
@@ -200,10 +200,10 @@ template<typename _Tp>
 template<typename _Tp>
   void
   hankel_debye(std::complex<_Tp> nu, std::complex<_Tp> z, std::complex<_Tp> alpha,
-	       int indexr, char & aorb, int & morn,
-	       std::complex<_Tp> & h1dbye, std::complex<_Tp> & h2dbye,
-	       std::complex<_Tp> & h1pdby, std::complex<_Tp> & h2pdby,
-	       int & status)
+	       int indexr, char& aorb, int& morn,
+	       std::complex<_Tp>& h1dbye, std::complex<_Tp>& h2dbye,
+	       std::complex<_Tp>& h1pdby, std::complex<_Tp>& h2pdby,
+	       int& status)
   {
     using namespace std::literals::complex_literals;
     using cmplx = std::complex<_Tp>;
@@ -351,8 +351,8 @@ template<typename _Tp>
 template<typename _Tp>
   void
   hankel_uniform(std::complex<_Tp> nu, std::complex<_Tp> z,
-		 std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-		 std::complex<_Tp> & h1p, std::complex<_Tp> & h2p)
+		 std::complex<_Tp>& h1, std::complex<_Tp>& h2,
+		 std::complex<_Tp>& h1p, std::complex<_Tp>& h2p)
   {
     using cmplx = std::complex<_Tp>;
     _Tp test = std::pow(std::abs(nu), _Tp(1) / _Tp(3)) / _Tp(5);
@@ -407,8 +407,8 @@ template<typename _Tp>
 template<typename _Tp>
   void
   hankel_uniform_olver(std::complex<_Tp> nu, std::complex<_Tp> z,
-		       std::complex<_Tp> & h1, std::complex<_Tp> & h2,
-		       std::complex<_Tp> & h1p, std::complex<_Tp> & h2p)
+		       std::complex<_Tp>& h1, std::complex<_Tp>& h2,
+		       std::complex<_Tp>& h1p, std::complex<_Tp>& h2p)
   {
     using namespace std::literals::complex_literals;
     using cmplx = std::complex<_Tp>;
@@ -502,15 +502,15 @@ template<typename _Tp>
 template<typename _Tp>
   void
   hankel_uniform_outer(std::complex<_Tp> nu, std::complex<_Tp> z, _Tp eps,
-		       std::complex<_Tp> & zhat, std::complex<_Tp> & _1dnsq,
-		       std::complex<_Tp> & nm1d3, std::complex<_Tp> & nm2d3,
-		       std::complex<_Tp> & t, std::complex<_Tp> & tsq,
-		       std::complex<_Tp> & etm3h, std::complex<_Tp> & etrat,
-		       std::complex<_Tp> & aip, std::complex<_Tp> & o4dp,
-		       std::complex<_Tp> & aim, std::complex<_Tp> & o4dm,
-		       std::complex<_Tp> & od2p, std::complex<_Tp> & od0dp,
-		       std::complex<_Tp> & od2m, std::complex<_Tp> & od0dm,
-		       int & status)
+		       std::complex<_Tp>& zhat, std::complex<_Tp>& _1dnsq,
+		       std::complex<_Tp>& nm1d3, std::complex<_Tp>& nm2d3,
+		       std::complex<_Tp>& t, std::complex<_Tp>& tsq,
+		       std::complex<_Tp>& etm3h, std::complex<_Tp>& etrat,
+		       std::complex<_Tp>& aip, std::complex<_Tp>& o4dp,
+		       std::complex<_Tp>& aim, std::complex<_Tp>& o4dm,
+		       std::complex<_Tp>& od2p, std::complex<_Tp>& od0dp,
+		       std::complex<_Tp>& od2m, std::complex<_Tp>& od0dm,
+		       int& status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -613,9 +613,9 @@ template<typename _Tp>
 		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
 		     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
 		     _Tp eps,
-		     std::complex<_Tp> & h1sum, std::complex<_Tp> & h1psum,
-		     std::complex<_Tp> & h2sum, std::complex<_Tp> & h2psum,
-		     int & status)
+		     std::complex<_Tp>& h1sum, std::complex<_Tp>& h1psum,
+		     std::complex<_Tp>& h2sum, std::complex<_Tp>& h2psum,
+		     int& status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -857,7 +857,7 @@ template<typename _Tp>
     auto nduv = 0;
     u[nduv] = tk * (a[1] * tsq + a[2]);
     v[nduv] = tk * (b[1] * tsq + b[2]);
-    std::cout << " > > tk = " << tk << '\n';
+    std::cout << " > > tk   = " << tk << '\n';
     std::cout << " > > u[0] = " << u[nduv] << '\n';
     std::cout << " > > v[0] = " << v[nduv] << '\n';
     ++nduv;
@@ -866,7 +866,7 @@ template<typename _Tp>
 		      (2 * a[3] * dxtsq + a[4]) * dytsq);
     v[nduv] = tk * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
 		      (2 * b[3] * dxtsq + b[4]) * dytsq);
-    std::cout << " > > tk = " << tk << '\n';
+    std::cout << " > > tk   = " << tk << '\n';
     std::cout << " > > u[1] = " << u[1] << '\n';
     std::cout << " > > v[1] = " << v[1] << '\n';
     ++nduv;
@@ -879,14 +879,14 @@ template<typename _Tp>
      		      + b[9] - (3 * b[6] * dxtsq + b[7]) * dytsq2,
      		      ((3 * b[6] * dxtsq + 2 * b[7]) * dxtsq + b[8]
      		      - b[6] * dytsq2) * dytsq);
-    std::cout << " > > tk = " << tk << '\n';
+    std::cout << " > > tk   = " << tk << '\n';
     std::cout << " > > u[2] = " << u[2] << '\n';
     std::cout << " > > v[2] = " << v[2] << '\n';
     ++nduv;
 
     //  Compute a_0,1, b_0,1, c_0,1, d_0,1 ... note that
-    //  b_k and c_k are computed up to -zeta**(-1/2)
-    //  -zeta**(1/2) factors, respectively.  These recurring factors
+    //  b_k and c_k are computed up to -zeta^(-1/2)
+    //  -zeta^(1/2) factors, respectively.  These recurring factors
     //  are included as appropriate in the outer factors, thus saving
     //  repeated multiplications by them.
     auto a0 = zone;
@@ -941,12 +941,12 @@ template<typename _Tp>
     auto h2save = aim + zo4dm * b0;
     auto h1psave = zod2p * c0 + zod0dp;
     auto h2psave = zod2m * c0 + zod0dm;
-    std::cout << " > > h1sum = " << h1sum << '\n';
-    std::cout << " > > h2sum = " << h2sum << '\n';
-    std::cout << " > > h1psum = " << h1psum << '\n';
-    std::cout << " > > h2psum = " << h2psum << '\n';
-    std::cout << " > > h1save = " << h1save << '\n';
-    std::cout << " > > h2save = " << h2save << '\n';
+    std::cout << " > > h1sum   = " << h1sum << '\n';
+    std::cout << " > > h2sum   = " << h2sum << '\n';
+    std::cout << " > > h1psum  = " << h1psum << '\n';
+    std::cout << " > > h2psum  = " << h2psum << '\n';
+    std::cout << " > > h1save  = " << h1save << '\n';
+    std::cout << " > > h2save  = " << h2save << '\n';
     std::cout << " > > h1psave = " << h1psave << '\n';
     std::cout << " > > h2psave = " << h2psave << '\n';
 
@@ -966,7 +966,7 @@ template<typename _Tp>
     //  Maintain index into u_k and v_k coefficients
     auto index = 10;
     auto indexp = 15;
-    //  Maintain power of nu**(-2)
+    //  Maintain power of nu^(-2)
     auto z1dn2k = z1dnsq;
 
     //  Loop until convergence criteria satisfied or maximum number of terms reached
@@ -987,28 +987,28 @@ template<typename _Tp>
 	ukptb = a[indexp];
 	vkptb = b[indexp];
 	++indexp;
-	std::cout << " > > > index = " << index << '\n';
+	std::cout << " > > > index  = " << index << '\n';
 	std::cout << " > > > indexp = " << indexp << '\n';
-	std::cout << " > > > ukta = " << ukta << '\n';
-	std::cout << " > > > vkta = " << vkta << '\n';
-	std::cout << " > > > uktb = " << uktb << '\n';
-	std::cout << " > > > vktb = " << vktb << '\n';
-	std::cout << " > > > ukpta = " << ukpta << '\n';
-	std::cout << " > > > vkpta = " << vkpta << '\n';
-	std::cout << " > > > ukptb = " << ukptb << '\n';
-	std::cout << " > > > vkptb = " << vkptb << '\n';
+	std::cout << " > > > ukta   = " << ukta << '\n';
+	std::cout << " > > > vkta   = " << vkta << '\n';
+	std::cout << " > > > uktb   = " << uktb << '\n';
+	std::cout << " > > > vktb   = " << vktb << '\n';
+	std::cout << " > > > ukpta  = " << ukpta << '\n';
+	std::cout << " > > > vkpta  = " << vkpta << '\n';
+	std::cout << " > > > ukptb  = " << ukptb << '\n';
+	std::cout << " > > > vkptb  = " << vkptb << '\n';
 
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
-	for (auto l = index; l < indexend; ++l)
+	for (++indexp; index < indexend; ++index, ++indexp)
 	  {
 	    auto term = ds * ukta;
 	    ukta = uktb + dr * ukta;
-	    uktb = a[l] - term;
+	    uktb = a[index] - term;
 	    term = ds * vkta;
 	    vkta = vktb + dr * vkta;
-	    vktb = b[l] - term;
+	    vktb = b[index] - term;
 
 	    term = ds * ukpta;
 	    ukpta = ukptb + dr * ukpta;
@@ -1016,27 +1016,25 @@ template<typename _Tp>
 	    term = ds * vkpta;
 	    vkpta = vkptb + dr * vkpta;
 	    vkptb = b[indexp] - term;
-	    ++indexp;
-
-	    std::cout << " > > > > l = " << l << '\n';
-	    std::cout << " > > > > a[l] = " << a[l] << '\n';
-	    std::cout << " > > > > b[l] = " << b[l] << '\n';
-	    std::cout << " > > > > indexp = " << indexp << '\n';
+	    std::cout << " > > > > index     = " << index << '\n';
+	    std::cout << " > > > > a[index]  = " << a[index] << '\n';
+	    std::cout << " > > > > b[index]  = " << b[index] << '\n';
+	    std::cout << " > > > > indexp    = " << indexp << '\n';
 	    std::cout << " > > > > a[indexp] = " << a[indexp] << '\n';
 	    std::cout << " > > > > b[indexp] = " << b[indexp] << '\n';
-	    std::cout << " > > > > ukta = " << ukta << '\n';
-	    std::cout << " > > > > vkta = " << vkta << '\n';
-	    std::cout << " > > > > uktb = " << uktb << '\n';
-	    std::cout << " > > > > vktb = " << vktb << '\n';
-	    std::cout << " > > > > ukpta = " << ukpta << '\n';
-	    std::cout << " > > > > vkpta = " << vkpta << '\n';
-	    std::cout << " > > > > ukptb = " << ukptb << '\n';
-	    std::cout << " > > > > vkptb = " << vkptb << '\n';
+	    std::cout << " > > > > ukta      = " << ukta << '\n';
+	    std::cout << " > > > > vkta      = " << vkta << '\n';
+	    std::cout << " > > > > uktb      = " << uktb << '\n';
+	    std::cout << " > > > > vktb      = " << vktb << '\n';
+	    std::cout << " > > > > ukpta     = " << ukpta << '\n';
+	    std::cout << " > > > > vkpta     = " << vkpta << '\n';
+	    std::cout << " > > > > ukptb     = " << ukptb << '\n';
+	    std::cout << " > > > > vkptb     = " << vkptb << '\n';
+	    ++indexp;
 	  }
 
 	//  Update indices into coefficients to reflect initialization
-	++index;
-	++indexp;
+	//++index;
 
 	//  One more iteration for highest order polynomials
 	auto term = ds * ukpta;
@@ -1045,12 +1043,18 @@ template<typename _Tp>
 	term = ds * vkpta;
 	vkpta = vkptb + dr * vkpta;
 	vkptb = b[indexp] - term;
+	std::cout << " > > > indexp = " << indexp << '\n';
+	std::cout << " > > > ukpta  = " << ukpta << '\n';
+	std::cout << " > > > ukptb  = " << ukptb << '\n';
+	std::cout << " > > > vkpta  = " << vkpta << '\n';
+	std::cout << " > > > vkptb  = " << vkptb << '\n';
+	++indexp;
 
 	//  Post multiply and form new polynomials
 	tk *= t;
 	u[nduv] = tk * (ukta * tsq + uktb);
 	v[nduv] = tk * (vkta * tsq + vktb);
-	std::cout << " > > > nduv = " << nduv << '\n';
+	std::cout << " > > > nduv    = " << nduv << '\n';
 	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
 	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
 	++nduv;
@@ -1058,7 +1062,7 @@ template<typename _Tp>
 	tk *= t;
 	u[nduv] = tk * (ukpta * tsq + ukptb);
 	v[nduv] = tk * (vkpta * tsq + vkptb);
-	std::cout << " > > > nduv = " << nduv << '\n';
+	std::cout << " > > > nduv    = " << nduv << '\n';
 	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
 	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
 	++nduv;
@@ -1077,23 +1081,30 @@ template<typename _Tp>
 
 	//  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
 	a1 = mu[i2k] * zetm3h + mu[i2km1] * u[0];
+	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * v[0];
 	b1 = lambda[i2kp1] * zetm3h + lambda[i2k] * u[0];
 	c1 = mu[i2kp1] * zetm3h + mu[i2k] * v[0];
-	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * v[0];
 	std::cout << " > > > a1 = " << a1 << '\n';
 	std::cout << " > > > b1 = " << b1 << '\n';
 	std::cout << " > > > c1 = " << c1 << '\n';
 	std::cout << " > > > d1 = " << d1 << '\n';
 
 	//  Loop until partial a, b, c, and d evaluations done via Horner's rule
-	for(auto l = 1; l < i2km1; ++l)
+	for(auto l = 1; l <= i2km1; ++l)
 	  {
-	    auto i2kl = i2k - l;
+	    std::cout << " > > > > l    = " << l << '\n';
+	    auto i2kl = i2km1 - l;
+	    std::cout << " > > > > i2kl = " << i2kl << '\n';
 	    a1 = a1 * zetm3h + mu[i2kl] * u[l];
 	    d1 = d1 * zetm3h + lambda[i2kl] * v[l];
-	    i2kl = i2kp1 - l;
+	    i2kl = i2k - l;
+	    std::cout << " > > > > i2kl = " << i2kl << '\n';
 	    b1 = b1 * zetm3h + lambda[i2kl] * u[l];
 	    c1 = c1 * zetm3h + mu[i2kl] * v[l];
+	    std::cout << " > > > > a1   = " << a1 << '\n';
+	    std::cout << " > > > > b1   = " << b1 << '\n';
+	    std::cout << " > > > > c1   = " << c1 << '\n';
+	    std::cout << " > > > > d1   = " << d1 << '\n';
 	  }
 
 	//  Complete the evaluations
@@ -1101,10 +1112,12 @@ template<typename _Tp>
 	d1 = d1 * zetm3h + v[i2k];
 	b1 = zetm3h * (b1 * zetm3h + lambda[0] * u[i2k]) + u[i2kp1];
 	c1 = zetm3h * (c1 * zetm3h + mu[0] * v[i2k]) + v[i2kp1];
-	std::cout << " > > > a1 = " << a1 << '\n';
-	std::cout << " > > > b1 = " << b1 << '\n';
-	std::cout << " > > > c1 = " << c1 << '\n';
-	std::cout << " > > > d1 = " << d1 << '\n';
+	std::cout << " > > > i2k   = " << i2k << '\n';
+	std::cout << " > > > i2kp1 = " << i2kp1 << '\n';
+	std::cout << " > > > a1    = " << a1 << '\n';
+	std::cout << " > > > b1    = " << b1 << '\n';
+	std::cout << " > > > c1    = " << c1 << '\n';
+	std::cout << " > > > d1    = " << d1 << '\n';
 
 	//  Evaluate new terms for sums
 	z1dn2k *= z1dnsq;
@@ -1140,12 +1153,12 @@ template<typename _Tp>
 	h2sum  = aim  * asum  + zo4dm * bsum;
 	h1psum = zod2p * csum + zod0dp * dsum;
 	h2psum = zod2m * csum + zod0dm * dsum;
-	std::cout << " > > > h1sum = " << h1sum << '\n';
-	std::cout << " > > > h2sum = " << h2sum << '\n';
-	std::cout << " > > > h1psum = " << h1psum << '\n';
-	std::cout << " > > > h2psum = " << h2psum << '\n';
-	std::cout << " > > > h1save = " << h1save << '\n';
-	std::cout << " > > > h2save = " << h2save << '\n';
+	std::cout << " > > > h1sum   = " << h1sum << '\n';
+	std::cout << " > > > h2sum   = " << h2sum << '\n';
+	std::cout << " > > > h1psum  = " << h1psum << '\n';
+	std::cout << " > > > h2psum  = " << h2psum << '\n';
+	std::cout << " > > > h1save  = " << h1save << '\n';
+	std::cout << " > > > h2save  = " << h2save << '\n';
 	std::cout << " > > > h1psave = " << h1psave << '\n';
 	std::cout << " > > > h2psave = " << h2psave << '\n';
 
@@ -1185,13 +1198,13 @@ template<typename _Tp>
 template<typename _Tp>
   void
   hankel_params(std::complex<_Tp> nu, std::complex<_Tp> zhat,
-		std::complex<_Tp> & t, std::complex<_Tp> & tsq,
-		std::complex<_Tp> & nusq, std::complex<_Tp> & z1dnsq,
-		std::complex<_Tp> & znm1d3, std::complex<_Tp> & znm2d3,
-		std::complex<_Tp> & znm4d3, std::complex<_Tp> & zeta,
-		std::complex<_Tp> & zetaphf, std::complex<_Tp> & zetamhf,
-		std::complex<_Tp> & zetm3h, std::complex<_Tp> & zetrat,
-		int & status)
+		std::complex<_Tp>& t, std::complex<_Tp>& tsq,
+		std::complex<_Tp>& nusq, std::complex<_Tp>& z1dnsq,
+		std::complex<_Tp>& znm1d3, std::complex<_Tp>& znm2d3,
+		std::complex<_Tp>& znm4d3, std::complex<_Tp>& zeta,
+		std::complex<_Tp>& zetaphf, std::complex<_Tp>& zetamhf,
+		std::complex<_Tp>& zetm3h, std::complex<_Tp>& zetrat,
+		int& status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -1222,7 +1235,7 @@ template<typename _Tp>
     auto dxabs = std::abs(dx);
     auto dyabs = std::abs(dy);
 
-    //  If 1 - zhat**2 can be computed without overflow
+    //  If 1 - zhat^2 can be computed without overflow
     if (dxabs <= dinfsr && dyabs <= (dinfsr - 1))
       {
 	//  find max and min of abs(dx) and abs(dy)
@@ -1232,30 +1245,30 @@ template<typename _Tp>
 	  std::swap(du, dv);
 	if (du >= dhalf && dv > dinf / (2 * du))
 	  {
-	    //  set completion code - unable to compute 1-zhat**2 and exit
+	    //  set completion code - unable to compute 1-zhat^2 and exit
 	    status = 131;
 	    return;
 	  }
       }
     else
       {
-	//  set completion code - unable to compute 1-zhat**2 and exit
+	//  set completion code - unable to compute 1-zhat^2 and exit
 	status = 131;
 	return;
       }
 
-    //  compute 1 - zhat**2 and related constants
+    //  compute 1 - zhat^2 and related constants
     auto ztemp = cmplx{1 - (dx - dy) * (dx + dy), -2 * dx * dy};
     ztemp = std::sqrt(ztemp);
     t = _Tp(1) / ztemp;
     tsq = t * t;
 
-    //  if nu**2 can be computed without overflow
+    //  if nu^2 can be computed without overflow
     if (std::abs(nu) <= dinfsr)
       {
 	nusq = nu * nu;
 	z1dnsq = _Tp(1) / nusq;
-	//  compute nu**(-2/3), nu**(-4/3), nu**(-1/3)
+	//  compute nu^(-2/3), nu^(-4/3), nu^(-1/3)
 	znm4d3 = -std::log(nu);
 	znm1d3 = std::exp(d1d3 * znm4d3);
 	znm2d3 = std::exp(d2d3 * znm4d3);
@@ -1263,12 +1276,12 @@ template<typename _Tp>
       }
     else
       {
-	//  set completion code - unable to compute nu**2
+	//  set completion code - unable to compute nu^2
 	status = 132;
 	return;
       }
 
-    //  compute xi = ln(1+(1-zhat**2)**(1/2)) - ln(zhat) - (1-zhat**2)**(1/2)
+    //  compute xi = ln(1+(1-zhat^2)^(1/2)) - ln(zhat) - (1-zhat^2)^(1/2)
     //  using default branch of logarithm and square root
     auto xi = std::log(zone + ztemp) - std::log(zhat) - ztemp;
     zetm3h = d2d3 / xi;
@@ -1297,19 +1310,20 @@ template<typename _Tp>
 	      dtemp = d2pi;
 	  }
       }
+    std::cout.precision(std::numeric_limits<double>::max_digits10);
     std::cout << " > > > dtemp = " << dtemp << '\n';
 
     //  Adjust logarithm of xi.
     lnxi += dtemp * j;
     std::cout << " > > > lnxi = " << lnxi << '\n';
 
-    //  compute ln(zeta), zeta, zeta^(1/2), zeta^(-1/2)
+    //  Compute ln(zeta), zeta, zeta^(+1/2), zeta^(-1/2)
     auto lnzeta = d2d3 * lnxi + dlncon;
     zeta = std::exp(lnzeta);
     zetaphf = std::sqrt(zeta);
     zetamhf = _Tp(1) / zetaphf;
 
-    //  compute (4 * zeta / (1 - zhat**2))^(1/4)
+    //  compute (4 * zeta / (1 - zhat^2))^(1/4)
     ztemp = std::log(ztemp);
     zetrat = dsqr2 * std::exp(d1d4 * lnzeta - dhalf * ztemp);
 
@@ -1325,12 +1339,12 @@ template<typename _Tp>
       implementation can be obtained without use of safe_div.
 
     Arguments
-    @param[in]  znm2d3  nu**(-2/3).  in our implementation, zmn2d3 is
+    @param[in]  znm2d3  nu^(-2/3).  in our implementation, zmn2d3 is
 			output from hankel_params.
     @param[in]  zeta    zeta in the uniform asymptotic expansions.
 			In our implementation, zeta is output from dparms.
-    @param[out]  zargp  exp(2*pi*i/3) * nu(2/3) * zeta.
-    @param[out]  zargm  exp(-2*pi*i/3) * nu(2/3) * zeta.
+    @param[out]  zargp  exp(+2*pi*i/3) * nu^(-2/3) * zeta.
+    @param[out]  zargm  exp(-2*pi*i/3) * nu^(-2/3) * zeta.
     @param[out]  status A completion code.
 			status = 0 indicates normal completion.
 			status = 133 indicates failure in computing nu(2/3)*zeta
@@ -1339,7 +1353,7 @@ template<typename _Tp>
 template<typename _Tp>
   void
   airy_arg(std::complex<_Tp> nm2d3, std::complex<_Tp> zeta,
-	   std::complex<_Tp> & argp, std::complex<_Tp> & argm, int & status)
+	   std::complex<_Tp>& argp, std::complex<_Tp>& argm, int& status)
   {
     using cmplx = std::complex<_Tp>;
 
@@ -1347,7 +1361,7 @@ template<typename _Tp>
     static constexpr auto expp = cmplx{-0.5L,  0.8660254037844386L};
     static constexpr auto expm = cmplx{-0.5L, -0.8660254037844386L};
 
-    std::cout << " > > > airy_arg\n";
+    std::cout << " > > > airy_arg:\n";
     std::cout << " > > > > nm2d3 = " << nm2d3 << '\n';
     std::cout << " > > > > zeta  = " << zeta << '\n';
 
