@@ -14,41 +14,41 @@
  */
 template<typename _Tp>
   bool
-  safe_div(std::complex<_Tp> z1, std::complex<_Tp> z2,
-	   std::complex<_Tp> & z1dz2)
+  __safe_div(std::complex<_Tp> __z1, std::complex<_Tp> __z2,
+	   std::complex<_Tp> & __z1dz2)
   {
     //  Note that xhinf is a machine floating-point dependent constant
     //  set equal to half the largest available floating-point number.
-    static constexpr _Tp xhinf = 0.5L * std::numeric_limits<_Tp>::max();
+    static constexpr _Tp __xhinf = 0.5L * std::numeric_limits<_Tp>::max();
 
     //  Separate real and imaginary parts of arguments
-    auto re1 = std::real(z1);
-    auto im1 = std::imag(z1);
-    auto re2 = std::real(z2);
-    auto im2 = std::imag(z2);
+    auto __re1 = std::real(__z1);
+    auto __im1 = std::imag(__z1);
+    auto __re2 = std::real(__z2);
+    auto __im2 = std::imag(__z2);
 
     //  Set up largest and smallest magnitudes needed
-    auto z1b = std::max(std::abs(re1), std::abs(im1));
-    auto z2b = std::abs(re2);
-    auto z2ub = std::abs(im2);
+    auto __z1b = std::max(std::abs(__re1), std::abs(__im1));
+    auto __z2b = std::abs(__re2);
+    auto __z2ub = std::abs(__im2);
 
-    if (z2b < z2ub)
-      std::swap(z2b, z2ub);
+    if (__z2b < __z2ub)
+      std::swap(__z2b, __z2ub);
 
     //  If overflow will occur, then abort
-    if (z2b < _Tp(1) && z1b > z2b * xhinf)
+    if (__z2b < _Tp(1) && __z1b > __z2b * __xhinf)
       return false;
 
-    re1 /= z1b;
-    im1 /= z1b;
-    re2 /= z2b;
-    im2 /= z2b;
-    auto term = z2ub / z2b;
-    auto denom = _Tp(1) + term * term;
-    auto scale = z1b / z2b / denom;
-    auto qr = (re1 * re2 + im1 * im2) * scale;
-    auto qi = (re2 * im1 - re1 * im2) * scale;
-    z1dz2 = std::complex<_Tp>{qr, qi};
+    __re1 /= __z1b;
+    __im1 /= __z1b;
+    __re2 /= __z2b;
+    __im2 /= __z2b;
+    auto __term = __z2ub / __z2b;
+    auto __denom = _Tp(1) + __term * __term;
+    auto __scale = __z1b / __z2b / __denom;
+    auto __qr = (__re1 * __re2 + __im1 * __im2) * __scale;
+    auto __qi = (__re2 * __im1 - __re1 * __im2) * __scale;
+    __z1dz2 = std::complex<_Tp>{__qr, __qi};
 
     return true;
   }

@@ -11,131 +11,135 @@
 
 template<typename _Tp>
   void
-  hankel(std::complex<_Tp> nu, std::complex<_Tp> arg,
-	 std::complex<_Tp>& h1, std::complex<_Tp>& h2,
-	 std::complex<_Tp>& h1p, std::complex<_Tp>& h2p,
-	 int& status);
+  __hankel(std::complex<_Tp> __nu, std::complex<_Tp> __arg,
+	   std::complex<_Tp>& __h1, std::complex<_Tp>& __h2,
+	   std::complex<_Tp>& __h1p, std::complex<_Tp>& __h2p,
+	   int& __status);
 
 template<typename _Tp>
   void
-  region(std::complex<_Tp> alpha, int& indexr, char& aorb, int& status);
+  __region(std::complex<_Tp> __alpha,
+	   int& __indexr, char& __aorb, int& __status);
 
 template<typename _Tp>
   void
-  hankel_debye(std::complex<_Tp> nu, std::complex<_Tp> arg,
-	       _Tp alpha, int& indexr, char& aorb, int& morn,
-	       std::complex<_Tp>& h1dbye, std::complex<_Tp>& h2dbye,
-	       std::complex<_Tp>& h1pdby, std::complex<_Tp>& h2pdby,
-	       int& status);
+  __hankel_debye(std::complex<_Tp> __nu, std::complex<_Tp> __arg,
+		 _Tp __alpha, int& __indexr, char& __aorb, int& __morn,
+		 std::complex<_Tp>& __h1, std::complex<_Tp>& __h2,
+		 std::complex<_Tp>& __h1p, std::complex<_Tp>& __h2p,
+		 int& __status);
 
 template<typename _Tp>
   void
-  hankel_uniform_olver(std::complex<_Tp> nu, std::complex<_Tp> z,
-		       std::complex<_Tp>& h1, std::complex<_Tp>& h2,
-		       std::complex<_Tp>& h1p, std::complex<_Tp>& h2p);
+  __hankel_uniform_olver(std::complex<_Tp> __nu, std::complex<_Tp> __z,
+			 std::complex<_Tp>& __h1, std::complex<_Tp>& __h2,
+			 std::complex<_Tp>& __h1p, std::complex<_Tp>& __h2p);
 
 template<typename _Tp>
   void
-  hankel_uniform_outer(std::complex<_Tp> nu, std::complex<_Tp> z, _Tp eps,
-		       std::complex<_Tp>& zhat, std::complex<_Tp>& _1dnsq,
-		       std::complex<_Tp>& nm1d3, std::complex<_Tp>& nm2d3,
-		       std::complex<_Tp>& t, std::complex<_Tp>& tsq,
-		       std::complex<_Tp>& etm3h, std::complex<_Tp>& etrat,
-		       std::complex<_Tp>& aip, std::complex<_Tp>& o4dp,
-		       std::complex<_Tp>& aim, std::complex<_Tp>& o4dm,
-		       std::complex<_Tp>& od2p, std::complex<_Tp>& od0dp,
-		       std::complex<_Tp>& od2m, std::complex<_Tp>& od0dm,
-		       int& status);
+  __hankel_uniform_outer(std::complex<_Tp> __nu, std::complex<_Tp> __z, _Tp __eps,
+			 std::complex<_Tp>& __zhat, std::complex<_Tp>& __1dnsq,
+			 std::complex<_Tp>& __nm1d3, std::complex<_Tp>& __nm2d3,
+			 std::complex<_Tp>& __t, std::complex<_Tp>& __tsq,
+			 std::complex<_Tp>& __etm3h, std::complex<_Tp>& __etrat,
+			 std::complex<_Tp>& __aip, std::complex<_Tp>& __o4dp,
+			 std::complex<_Tp>& __aim, std::complex<_Tp>& __o4dm,
+			 std::complex<_Tp>& __od2p, std::complex<_Tp>& __od0dp,
+			 std::complex<_Tp>& __od2m, std::complex<_Tp>& __od0dm,
+			 int& __status);
 
 template<typename _Tp>
   void
-  hankel_uniform_sum(std::complex<_Tp> t, std::complex<_Tp> tsq,
-		     std::complex<_Tp> z1dnsq, std::complex<_Tp> zetm3h,
-		     std::complex<_Tp> aip, std::complex<_Tp> zo4dp,
-		     std::complex<_Tp> aim, std::complex<_Tp> zo4dm,
-		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
-		     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
-		     _Tp eps,
-		     std::complex<_Tp>& h1sum, std::complex<_Tp>& h1psum,
-		     std::complex<_Tp>& h2sum, std::complex<_Tp>& h2psum,
-		     int& status);
+  __hankel_uniform_sum(std::complex<_Tp> __t, std::complex<_Tp> __tsq,
+		       std::complex<_Tp> __1dnusq, std::complex<_Tp> __zetm3h,
+		       std::complex<_Tp> __aip, std::complex<_Tp> __zo4dp,
+		       std::complex<_Tp> __aim, std::complex<_Tp> __zo4dm,
+		       std::complex<_Tp> __zod2p, std::complex<_Tp> __zod0dp,
+		       std::complex<_Tp> __zod2m, std::complex<_Tp> __zod0dm,
+		       _Tp __eps,
+		       std::complex<_Tp>& __h1sum, std::complex<_Tp>& __h1psum,
+		       std::complex<_Tp>& __h2sum, std::complex<_Tp>& __h2psum,
+		       int& __status);
 
 template<typename _Tp>
   bool
-  safe_div(std::complex<_Tp> z1, std::complex<_Tp> z2,
-	   std::complex<_Tp>& z1dz2);
+  __safe_div(std::complex<_Tp> __z1, std::complex<_Tp> __z2,
+	   std::complex<_Tp>& __z1dz2);
 
 template<typename _Tp>
   void
-  airy_arg(std::complex<_Tp> znm2d3, std::complex<_Tp> zeta,
-	   std::complex<_Tp>& zargp, std::complex<_Tp>& zargm, int& status);
+  __airy_arg(std::complex<_Tp> __num2d3, std::complex<_Tp> __zeta,
+	     std::complex<_Tp>& __zargp, std::complex<_Tp>& __zargm,
+	     int& __status);
 
 template<typename _Tp>
   void
-  hankel_params(std::complex<_Tp> nu, std::complex<_Tp> zhat,
-		std::complex<_Tp>& t, std::complex<_Tp>& tsq,
-		std::complex<_Tp>& nusq, std::complex<_Tp>& z1dnsq,
-		std::complex<_Tp>& znm1d3, std::complex<_Tp>& znm2d3,
-		std::complex<_Tp>& znm4d3, std::complex<_Tp>& zeta,
-		std::complex<_Tp>& zetaphf, std::complex<_Tp>& zetamhf,
-		std::complex<_Tp>& zetm3h, std::complex<_Tp>& zetrat,
-		int& status);
+  __hankel_params(std::complex<_Tp> __nu, std::complex<_Tp> __zhat,
+		  std::complex<_Tp>& __t, std::complex<_Tp>& __tsq,
+		  std::complex<_Tp>& __nusq, std::complex<_Tp>& __1dnusq,
+		  std::complex<_Tp>& __num1d3, std::complex<_Tp>& __num2d3,
+		  std::complex<_Tp>& __num4d3, std::complex<_Tp>& __zeta,
+		  std::complex<_Tp>& __zetaphf, std::complex<_Tp>& __zetamhf,
+		  std::complex<_Tp>& __zetm3h, std::complex<_Tp>& __zetrat,
+		  int& __status);
 
 /**
  *
  */
 template<typename _Tp>
   void
-  hankel(std::complex<_Tp> nu, std::complex<_Tp> z,
-	 std::complex<_Tp>& h1, std::complex<_Tp>& h2,
-	 std::complex<_Tp>& h1p, std::complex<_Tp>& h2p,
-	 int& status)
+  __hankel(std::complex<_Tp> __nu, std::complex<_Tp> __z,
+	   std::complex<_Tp>& __h1, std::complex<_Tp>& __h2,
+	   std::complex<_Tp>& __h1p, std::complex<_Tp>& __h2p,
+	   int& __status)
   {
-    static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
+    static constexpr _Tp _S_pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
 
-    int indexr, statusr;
+    int __indexr, __statusr;
 
-    std::cout << " > hankel: nu = " << nu << " z = " << z << '\n';
+    std::cout << " > hankel: nu = " << __nu << " z = " << __z << '\n';
 
-    status = 0;
+    __status = 0;
 
-    auto test = std::abs((nu - z) / std::pow(nu, 1.0/3.0));
-    if (test < 4.0)
-      hankel_uniform(z, nu, h1, h2, h1p, h2p);
+    auto __test = std::abs((__nu - __z) / std::pow(__nu, 1.0/3.0));
+    if (__test < 4.0)
+      __hankel_uniform(__z, __nu, __h1, __h2, __h1p, __h2p);
     else
       {
-	auto sqtrm = std::sqrt((nu / z) * (nu / z) - 1);
-	auto alpha = std::log((nu / z) + sqtrm);
-	if (std::imag(alpha) < 0)
-	  alpha = -alpha;
-	auto alphar = std::real(alpha);
-	auto alphai = std::imag(alpha);
-	char aorb;
-	if ((std::real(nu) > std::real(z))
-	 && (std::abs(std::imag(nu/z)) <= 0))
+	auto __sqtrm = std::sqrt((__nu / __z) * (__nu / __z) - 1);
+	auto __alpha = std::log((__nu / __z) + __sqtrm);
+	if (std::imag(__alpha) < 0)
+	  __alpha = -__alpha;
+	auto __alphar = std::real(__alpha);
+	auto __alphai = std::imag(__alpha);
+	char __aorb;
+	if ((std::real(__nu) > std::real(__z))
+	 && (std::abs(std::imag(__nu/__z)) <= 0))
 	  {
-	    indexr = 0;
-	    aorb = ' ';
+	    __indexr = 0;
+	    __aorb = ' ';
 	  }
 	else
-	  region(alpha, indexr, aorb, statusr);
-	auto morn = 0;
-	if (aorb == 'A')
+	  __region(__alpha, __indexr, __aorb, __statusr);
+	auto __morn = 0;
+	if (__aorb == 'A')
 	  {
-	    auto mfun = ((alphar * std::tanh(alphar) - 1) * std::tan(alphai) + alphai) / pi;
-	    morn = int(mfun);
-	    if (mfun < 0 && (std::fmod(mfun, 1) != 0))
-	    --morn;
+	    auto __mfun = ((__alphar * std::tanh(__alphar) - 1)
+			* std::tan(__alphai) + __alphai) / _S_pi;
+	    __morn = int(__mfun);
+	    if (__mfun < 0 && (std::fmod(__mfun, 1) != 0))
+	      --__morn;
 	  }
-	else if (aorb == 'B')
+	else if (__aorb == 'B')
 	  {
-	    auto nfun = ((1 - alphar * std::tanh(alphar)) * std::tan(alphai) - alphai) / pi;
-	    morn = int(nfun) + 1;
-	    if (nfun < 0 && std::fmod(nfun, 1) != 0)
-	      --morn;
+	    auto __nfun = ((1 - __alphar * std::tanh(__alphar))
+			* std::tan(__alphai) - __alphai) / _S_pi;
+	    __morn = int(__nfun) + 1;
+	    if (__nfun < 0 && std::fmod(__nfun, 1) != 0)
+	      --__morn;
 	  }
-	hankel_debye(nu, z, alpha, indexr, aorb, morn,
-		     h1, h2, h1p, h2p, status);
+	__hankel_debye(__nu, __z, __alpha, __indexr, __aorb, __morn,
+		       __h1, __h2, __h1p, __h2p, __status);
       }
 
     return;
@@ -146,50 +150,50 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  region(std::complex<_Tp> alpha, int& indexr, char& aorb, int& status)
+  __region(std::complex<_Tp> __alpha, int& __indexr, char& __aorb, int& __status)
   {
-    static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
+    static constexpr _Tp _S_pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
 
-    status = 0;
-    aorb = ' ';
+    __status = 0;
+    __aorb = ' ';
 
-    auto alphar = std::real(alpha);
-    auto alphai = std::imag(alpha);
+    auto __alphar = std::real(__alpha);
+    auto __alphai = std::imag(__alpha);
 
-    auto f1 = _Tp{1}
-	    - alphai * std::cos(alphai) / std::sin(alphai)
-	    - alphar * std::sinh(alphar) / std::cosh(alphar);
+    auto __f1 = _Tp{1}
+	      - __alphai * std::cos(__alphai) / std::sin(__alphai)
+	      - __alphar * std::sinh(__alphar) / std::cosh(__alphar);
 
-    auto f2 = _Tp{1}
-	    + (pi - alphai) * std::cos(alphai) / std::sin(alphai)
-	    - alphar * std::sinh(alphar) / std::cosh(alphar);
+    auto __f2 = _Tp{1}
+	      + (_S_pi - __alphai) * std::cos(__alphai) / std::sin(__alphai)
+	      - __alphar * std::sinh(__alphar) / std::cosh(__alphar);
 
-    if (f1 > _Tp{0} && f2 > _Tp{0})
-      indexr = 1;
-    else if (f2 > _Tp{0})
+    if (__f1 > _Tp{0} && __f2 > _Tp{0})
+      __indexr = 1;
+    else if (__f2 > _Tp{0})
       {
-	if (alphar > _Tp{0})
-	  indexr = 2;
+	if (__alphar > _Tp{0})
+	  __indexr = 2;
 	else
-	  indexr = 3;
+	  __indexr = 3;
       }
-    else if (f1 > _Tp{0})
+    else if (__f1 > _Tp{0})
       {
-	if (alphar > _Tp{0})
-	  indexr = 4;
+	if (__alphar > _Tp{0})
+	  __indexr = 4;
 	else
-	  indexr = 5;
+	  __indexr = 5;
       }
     else
       {
-	if (alphar > _Tp{0})
-          indexr = 6;
+	if (__alphar > _Tp{0})
+          __indexr = 6;
 	else
-          indexr = 7;
-        if (alphai <= (pi / _Tp{2}))
-          aorb = 'A';
+          __indexr = 7;
+        if (__alphai <= (_S_pi / _Tp{2}))
+          __aorb = 'A';
         else
-          aorb = 'B';
+          __aorb = 'B';
       }
     return;
   }
@@ -199,131 +203,130 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel_debye(std::complex<_Tp> nu, std::complex<_Tp> z, std::complex<_Tp> alpha,
-	       int indexr, char& aorb, int& morn,
-	       std::complex<_Tp>& h1dbye, std::complex<_Tp>& h2dbye,
-	       std::complex<_Tp>& h1pdby, std::complex<_Tp>& h2pdby,
-	       int& status)
+  hankel_debye(std::complex<_Tp> __nu, std::complex<_Tp> __z,
+	       std::complex<_Tp> __alpha,
+	       int __indexr, char& __aorb, int& __morn,
+	       std::complex<_Tp>& __h1, std::complex<_Tp>& __h2,
+	       std::complex<_Tp>& __h1p, std::complex<_Tp>& __h2p,
+	       int& __status)
   {
     using namespace std::literals::complex_literals;
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
-    static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
-    static constexpr cmplx j = 1.0il;
-    static constexpr _Tp toler = 1.0e-8;
+    static constexpr _Tp _S_pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
+    static constexpr __cmplx _S_j = 1.0il;
+    static constexpr _Tp _S_toler = 1.0e-8;
 
-    std::cout << " > hankel_debye: nu = " << nu << " z = " << z << '\n';
+    std::cout << " > hankel_debye: nu = " << __nu << " z = " << __z << '\n';
 
-    cmplx jdbye;
-
-    auto alphar = std::real(alpha);
-    auto alphai = std::imag(alpha);
-    auto thalpa = std::sinh(alpha) / std::cosh(alpha);
-    auto snhalp = std::sinh(alpha);
-    auto denom = std::sqrt(pi * z / 2) * std::sqrt(-j * std::sinh(alpha));
-    if (std::abs(std::real(nu * (thalpa - alpha))) > 690.0)
+    auto __alphar = std::real(__alpha);
+    auto __alphai = std::imag(__alpha);
+    auto __thalpa = std::sinh(__alpha) / std::cosh(__alpha);
+    auto __snhalp = std::sinh(__alpha);
+    auto __denom = std::sqrt(_S_pi * __z / 2) * std::sqrt(-_S_j * std::sinh(__alpha));
+    if (std::abs(std::real(__nu * (__thalpa - __alpha))) > 690.0)
       {
-	status = 1;
+	__status = 1;
 	return;
       }
-    auto s1 = std::exp(nu * (thalpa - alpha) - j * pi / 4) / denom;
-    auto s2 = std::exp(-nu * (thalpa - alpha) + j * pi / 4) / denom;
-    auto exparg = nu * (thalpa - alpha) - j * pi / 4;
-    if (indexr == 0)
+    auto __s1 = std::exp(+__nu * (__thalpa - __alpha) - _S_j * _S_pi / 4) / __denom;
+    auto __s2 = std::exp(-__nu * (__thalpa - __alpha) + _S_j * _S_pi / 4) / __denom;
+    auto __exparg = __nu * (__thalpa - __alpha) - _S_j * _S_pi / 4;
+    if (__indexr == 0)
       {
-	h1dbye = 0.5 * s1 - s2;
-	h2dbye = 0.5 * s1 + s2;
-	h1pdby = snhalp * (0.5 * s1 + s2);
-	h2pdby = snhalp * (0.5 * s1 - s2);
+	__h1 = 0.5 * __s1 - __s2;
+	__h2 = 0.5 * __s1 + __s2;
+	__h1p = __snhalp * (0.5 * __s1 + __s2);
+	__h2p = __snhalp * (0.5 * __s1 - __s2);
       }
-    else if (indexr == 1)
+    else if (__indexr == 1)
       {
-	h1dbye = s1;
-	h2dbye = s2;
-	h1pdby = snhalp * s1;
-	h2pdby = -snhalp * s2;
+	__h1 = __s1;
+	__h2 = __s2;
+	__h1p = +__snhalp * __s1;
+	__h2p = -__snhalp * __s2;
       }
-    else if (indexr == 2)
+    else if (__indexr == 2)
       {
-	jdbye = s1 / 2.0;
-	h2dbye = s2;
-	h1dbye = 2.0 * jdbye - h2dbye;
-	h1pdby = snhalp * (s1 + s2);
-	h2pdby = -snhalp * s2;
+	auto __jdbye = __s1 / 2;
+	__h2 = __s2;
+	__h1 = 2 * __jdbye - __h2;
+	__h1p = +__snhalp * (__s1 + __s2);
+	__h2p = -__snhalp * __s2;
       }
-    else if (indexr == 3)
+    else if (__indexr == 3)
       {
-	h1dbye = s1;
-	h2dbye = s2 - s1;
-	h1pdby = snhalp * s1;
-	h2pdby = -snhalp * (s1 + s2);
+	__h1 = __s1;
+	__h2 = __s2 - __s1;
+	__h1p = +__snhalp * __s1;
+	__h2p = -__snhalp * (__s1 + __s2);
       }
-    else if (indexr == 4)
+    else if (__indexr == 4)
       {
-	h1dbye = s1;
-	h2dbye = s2 - std::exp(2 * j * nu * pi) * s1;
-	h1pdby = snhalp * s1;
-	h2pdby = -snhalp * (s2 + std::exp(2 * j * nu * pi) * s1);
+	__h1 = __s1;
+	__h2 = __s2 - std::exp(2 * _S_j * __nu * _S_pi) * __s1;
+	__h1p = +__snhalp * __s1;
+	__h2p = -__snhalp * (__s2 + std::exp(2 * _S_j * __nu * _S_pi) * __s1);
       }
-    else if (indexr == 5)
+    else if (__indexr == 5)
       {
-	h1dbye = s1 - std::exp(-2 * j * nu * pi) * s2;
-	h2dbye = s2;
-	h1pdby = snhalp * (s1 + std::exp(-2 * j * nu * pi) * s2);
-	h2pdby = -snhalp * s2;
+	__h1 = __s1 - std::exp(-2 * _S_j * __nu * _S_pi) * __s2;
+	__h2 = __s2;
+	__h1p = +__snhalp * (__s1 + std::exp(-2 * _S_j * __nu * _S_pi) * __s2);
+	__h2p = -__snhalp * __s2;
       }
-    else if (aorb == 'A')
+    else if (__aorb == 'A')
       {
-	cmplx sinrat;
-	if ((std::abs(std::imag(nu)) < toler)
-	 && (std::abs(std::fmod(std::real(nu), 1)) < toler))
-	  sinrat = morn;
+	__cmplx __sinrat;
+	if ((std::abs(std::imag(__nu)) < _S_toler)
+	 && (std::abs(std::fmod(std::real(__nu), 1)) < _S_toler))
+	  __sinrat = __morn;
 	else
-	  sinrat = std::sin(morn * nu * pi) / std::sin(nu * pi);
-	if (indexr == 6)
+	  __sinrat = std::sin(__morn * __nu * _S_pi) / std::sin(__nu * _S_pi);
+	if (__indexr == 6)
 	  {
-	    h2dbye = s2 - std::exp(j * (morn + 1) * nu * pi) * sinrat * s1;
-	    h1dbye = s1 - h2dbye;
-	    h2pdby = -snhalp * (s2 + std::exp(j * (morn + 1) * nu * pi) * sinrat * s1);
-	    h1pdby = snhalp * ((1 + std::exp(j * (morn + 1) * nu * pi) * sinrat) * s1 + s2);
+	    __h2 = __s2 - std::exp(_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat * __s1;
+	    __h1 = __s1 - __h2;
+	    __h2p = -__snhalp * (__s2 + std::exp(_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat * __s1);
+	    __h1p = +__snhalp * ((1 + std::exp(_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat) * __s1 + __s2);
 	  }
-	else if (indexr == 7)
+	else if (__indexr == 7)
 	  {
-	    h1dbye = s1 - std::exp(-j * (morn + 1) * nu * pi) * sinrat * s2;
-	    h2dbye = s2 - h1dbye;
-	    h1pdby = snhalp * (s1 + std::exp(-j * (morn + 1) * nu * pi) * sinrat * s2);
-	    h2pdby = -snhalp *
-		     ((1.0 + std::exp(-j * (morn + 1) * nu * pi) * sinrat) * s2 + s1);
+	    __h1 = __s1 - std::exp(-_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat * __s2;
+	    __h2 = __s2 - __h1;
+	    __h1p = +__snhalp * (__s1 + std::exp(-_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat * __s2);
+	    __h2p = -__snhalp
+		   * ((1 + std::exp(-_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat) * __s2 + __s1);
 	  }
 	else
-	  status = 1;
+	  __status = 1;
       }
     else
       {
-	cmplx sinrat;
-	if ((std::abs(std::imag(nu)) < toler)
-	 && (std::abs(std::fmod(dreal(nu), 1)) < toler))
-	  sinrat = -morn;
+	__cmplx __sinrat;
+	if ((std::abs(std::imag(__nu)) < _S_toler)
+	 && (std::abs(std::fmod(dreal(__nu), 1)) < _S_toler))
+	  __sinrat = -__morn;
 	else
-	  sinrat = std::sin(morn * nu * pi) / std::sin(nu * pi);
-	if (indexr == 6)
+	  __sinrat = std::sin(__morn * __nu * _S_pi) / std::sin(__nu * _S_pi);
+	if (__indexr == 6)
 	  {
-	    h1dbye = s1 - std::exp(j * (morn - 1) * nu * pi) * sinrat * s2;
-	    h2dbye = s2 - std::exp(2 * j * nu * pi) * h2dbye;
-	    h1pdby = snhalp * (s1 + std::exp(j * (morn - 1) * nu * pi) * sinrat * s2);
-	    h2pdby = -snhalp * ((1 + std::exp(j * (morn + 1) * nu * pi) * sinrat) * s2
-			     + std::exp(2 * j * nu * pi) * s1);
+	    __h1 = __s1 - std::exp(_S_j * (__morn - 1) * __nu * _S_pi) * __sinrat * __s2;
+	    __h2 = __s2 - std::exp(2 * _S_j * __nu * _S_pi) * __h2;
+	    __h1p = +__snhalp * (__s1 + std::exp(_S_j * (__morn - 1) * __nu * _S_pi) * __sinrat * __s2);
+	    __h2p = -__snhalp * ((1 + std::exp(_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat) * __s2
+			     + std::exp(2 * _S_j * __nu * _S_pi) * __s1);
 	  }
-	else if (indexr == 7)
+	else if (__indexr == 7)
 	  {
-	    h2dbye = s2 - std::exp(-j * (morn - 1) * nu * pi) * sinrat * s1;
-	    h1dbye = s1 - std::exp(-2 * j * nu * pi) * h2dbye;
-	    h2pdby = -snhalp * (s2 + std::exp(-j * (morn - 1) * nu * pi) * sinrat * s1);
-	    h1pdby = snhalp * ((1 + std::exp(-j * (morn + 1) * nu * pi) * sinrat) * s1
-			     + std::exp(-2 * j * nu * pi) * s2);
+	    __h2 = __s2 - std::exp(-_S_j * (__morn - 1) * __nu * _S_pi) * __sinrat * __s1;
+	    __h1 = __s1 - std::exp(-2 * _S_j * __nu * _S_pi) * __h2;
+	    __h2p = -__snhalp * (__s2 + std::exp(-_S_j * (__morn - 1) * __nu * _S_pi) * __sinrat * __s1);
+	    __h1p = +__snhalp * ((1 + std::exp(-_S_j * (__morn + 1) * __nu * _S_pi) * __sinrat) * __s1
+			     + std::exp(-2 * _S_j * __nu * _S_pi) * __s2);
 	  }
 	else
-	  status = 1;
+	  __status = 1;
       }
 
     return;
@@ -350,42 +353,42 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel_uniform(std::complex<_Tp> nu, std::complex<_Tp> z,
-		 std::complex<_Tp>& h1, std::complex<_Tp>& h2,
-		 std::complex<_Tp>& h1p, std::complex<_Tp>& h2p)
+  __hankel_uniform(std::complex<_Tp> __nu, std::complex<_Tp> __z,
+		   std::complex<_Tp>& __h1, std::complex<_Tp>& __h2,
+		   std::complex<_Tp>& __h1p, std::complex<_Tp>& __h2p)
   {
-    using cmplx = std::complex<_Tp>;
-    _Tp test = std::pow(std::abs(nu), _Tp(1) / _Tp(3)) / _Tp(5);
+    using __cmplx = std::complex<_Tp>;
+    _Tp __test = std::pow(std::abs(__nu), _Tp(1) / _Tp(3)) / _Tp(5);
 
-    std::cout << " > hankel_uniform: nu = " << nu << " z = " << z << '\n';
+    std::cout << " > hankel_uniform: nu = " << __nu << " z = " << __z << '\n';
 
-    if (std::abs(z - nu) > test)
-      hankel_uniform_olver(nu, z, h1, h2, h1p, h2p);
+    if (std::abs(__z - __nu) > __test)
+      __hankel_uniform_olver(__nu, __z, __h1, __h2, __h1p, __h2p);
     else
       {
-	_Tp r = 2 * test;
-	std::complex<_Tp> anu[4]{nu + cmplx{r, 0.0L},
-				 nu + cmplx{0.0L, r},
-				 nu - cmplx{r, 0.0L},
-				 nu - cmplx{0.0L, r}};
+	_Tp __r = 2 * __test;
+	std::complex<_Tp> _S_anu[4]{__nu + __cmplx{__r, _Tp()},
+				   __nu + __cmplx{_Tp(), __r},
+				   __nu - __cmplx{__r, _Tp()},
+				   __nu - __cmplx{_Tp(), __r}};
 
-	h1  = cmplx{};
-	h2  = cmplx{};
-	h1p = cmplx{};
-	h2p = cmplx{};
-	for (auto tnu : anu)
+	__h1  = __cmplx{};
+	__h2  = __cmplx{};
+	__h1p = __cmplx{};
+	__h2p = __cmplx{};
+	for (auto __tnu : _S_anu)
 	  {
-	    std::complex<_Tp> th1, th2, th1p, th2p;
-	    hankel_uniform_olver(tnu, z, th1, th2, th1p, th2p);
-	    h1  += th1;
-	    h2  += th2;
-	    h1p += th1p;
-	    h2p += th2p;
+	    std::complex<_Tp> __th1, __th2, __th1p, __th2p;
+	    __hankel_uniform_olver(__tnu, __z, __th1, __th2, __th1p, __th2p);
+	    __h1  += __th1;
+	    __h2  += __th2;
+	    __h1p += __th1p;
+	    __h2p += __th2p;
 	  }
-	h1  /= _Tp(4);
-	h2  /= _Tp(4);
-	h1p /= _Tp(4);
-	h2p /= _Tp(4);
+	__h1  /= _Tp(4);
+	__h2  /= _Tp(4);
+	__h1p /= _Tp(4);
+	__h2p /= _Tp(4);
       }
 
     return;
@@ -406,86 +409,88 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel_uniform_olver(std::complex<_Tp> nu, std::complex<_Tp> z,
-		       std::complex<_Tp>& h1, std::complex<_Tp>& h2,
-		       std::complex<_Tp>& h1p, std::complex<_Tp>& h2p)
+  __hankel_uniform_olver(std::complex<_Tp> __nu, std::complex<_Tp> __z,
+			 std::complex<_Tp>& __h1, std::complex<_Tp>& __h2,
+			 std::complex<_Tp>& __h1p, std::complex<_Tp>& __h2p)
   {
     using namespace std::literals::complex_literals;
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
 
-    std::cout << " > hankel_uniform_olver: nu = " << nu << " z = " << z << '\n';
+    std::cout << " > hankel_uniform_olver: nu = " << __nu << " z = " << __z << '\n';
 
-    static constexpr _Tp pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
-    //static constexpr _Tp pi_3 = 1.0471'97551'19659'77461'54214'46109'31676'28063e+0L;
-    static constexpr cmplx con1p{ 1.0, 1.732050807568877}; // 2*exp( pi*j/3)
-    static constexpr cmplx con1m{ 1.0,-1.732050807568877}; // 2*exp(-pi*j/3)
-    static constexpr cmplx con2p{-2.0, 3.464101615137755}; // 4*exp( 2*pi*j/3)
-    static constexpr cmplx con2m{-2.0,-3.464101615137755}; // 4*exp(-2*pi*j/3)
-    static constexpr cmplx j{1il};
-    static constexpr _Tp eps   = 1.0e-06;
-    static constexpr _Tp epsai = 1.0e-12;
+    static constexpr _Tp _S_pi   = 3.1415'92653'58979'32384'62643'38327'95028'84195e+0L;
+    //static constexpr _Tp _S_pi_3 = 1.0471'97551'19659'77461'54214'46109'31676'28063e+0L;
+    static constexpr __cmplx __con1p{ 1.0, 1.732050807568877}; // 2*exp( pi*j/3)
+    static constexpr __cmplx __con1m{ 1.0,-1.732050807568877}; // 2*exp(-pi*j/3)
+    static constexpr __cmplx __con2p{-2.0, 3.464101615137755}; // 4*exp( 2*pi*j/3)
+    static constexpr __cmplx __con2m{-2.0,-3.464101615137755}; // 4*exp(-2*pi*j/3)
+    static constexpr __cmplx _S_j{1il};
+    static constexpr _Tp __eps   = 1.0e-06;
+    static constexpr _Tp __epsai = 1.0e-12;
 
     //  Extended to accommodate negative real orders.
-    bool nuswitch = false;
-    if (std::real(nu) < _Tp(0))
+    bool __nuswitch = false;
+    if (std::real(__nu) < _Tp(0))
       {
-	nuswitch = true;
-	nu = -nu;
+	__nuswitch = true;
+	__nu = -__nu;
       }
 
     // Compute outer factors in the uniform asymptotic expansions
     // for the Hankel functions and their derivatives along with
     // other important functions of nu and z.
-    cmplx t, tsq,
-	  _1dnsq, etm3h, aip, o4dp, aim, o4dm,
-	  od2p, od0dp, od0dm, tmp, zhat, nm1d3,
-	  nm2d3, etrat, od2m, r_factor;
-    int status;
-    hankel_uniform_outer(nu, z, epsai, zhat, _1dnsq, nm1d3, nm2d3, t, tsq,
-			 etm3h, etrat, aip, o4dp, aim, o4dm, od2p,
-			 od0dp, od2m, od0dm, status);
+    __cmplx __t, __tsq,
+	  __1dnsq, __etm3h, __aip, __o4dp, __aim, __o4dm,
+	  __od2p, __od0dp, __od0dm, __tmp, __zhat, __nm1d3,
+	  __nm2d3, __etrat, __od2m, __r_factor;
+    int __status;
+    __hankel_uniform_outer(__nu, __z, __epsai, __zhat, __1dnsq, __nm1d3,
+			   __nm2d3, __t, __tsq, __etm3h, __etrat,
+			   __aip, __o4dp, __aim, __o4dm, __od2p,
+			   __od0dp, __od2m, __od0dm, __status);
 
     // Check for successful completion
-    if (status == 0)
+    if (__status == 0)
       {
 	// Compute further terms in the expansions in their appropriate linear combinations.
 
-	hankel_uniform_sum(t, tsq, _1dnsq, etm3h, aip, o4dp, aim, o4dm,
-			   od2p, od0dp, od2m, od0dm, eps,
-			   h1, h1p, h2, h2p, status);
+	__hankel_uniform_sum(__t, __tsq, __1dnsq, __etm3h,
+			     __aip, __o4dp, __aim, __o4dm,
+			     __od2p, __od0dp, __od2m, __od0dm, __eps,
+			     __h1, __h1p, __h2, __h2p, __status);
 
 	// Assemble approximations.
-	tmp = etrat * nm1d3;
-	h1 = con1m * tmp * h1;
-	h2 = con1p * tmp * h2;
-	tmp = nm2d3 / (zhat * etrat);
-	h1p = con2p * tmp * h1p;
-	h2p = con2m * tmp * h2p;
+	__tmp = __etrat * __nm1d3;
+	__h1 = __con1m * __tmp * __h1;
+	__h2 = __con1p * __tmp * __h2;
+	__tmp = __nm2d3 / (__zhat * __etrat);
+	__h1p = __con2p * __tmp * __h1p;
+	__h2p = __con2m * __tmp * __h2p;
 
 	// Check for successful completion
-	if (status != 0)
+	if (__status != 0)
 	  {
-	    std::cerr << "  hankel_uniform_sum: "
-		      << "  status = " << status << '\n'
-		      << "  nu  = " << nu << '\n'
-		      << "  z   = " << z << '\n';
+	    std::cerr << "__hankel_uniform_sum: "
+		      << "  status = " << __status << '\n'
+		      << "  nu  = " << __nu << '\n'
+		      << "  z   = " << __z << '\n';
 	  }
       }
     else
-      std::cerr << "  hankel_uniform_outer: "
-		<< "  status = " << status << '\n'
-		<< "  nu  = " << nu << '\n'
-		<< "  z   = " << z << '\n';
+      std::cerr << "__hankel_uniform_outer: "
+		<< "  status = " << __status << '\n'
+		<< "  nu  = " << __nu << '\n'
+		<< "  z   = " << __z << '\n';
 
-    if (nuswitch)
+    if (__nuswitch)
       {
-	r_factor = std::exp(j * nu * pi);
-	h1  = h1  * r_factor;
-	h1p = h1p * r_factor;
-	h2  = h2  / r_factor;
-	h2p = h2p / r_factor;
-	nu  = -nu;
+	__r_factor = std::exp(_S_j * __nu * _S_pi);
+	__h1  *= __r_factor;
+	__h1p *= __r_factor;
+	__h2  /= __r_factor;
+	__h2p /= __r_factor;
+	__nu  = -__nu;
       }
 
     return;
@@ -501,97 +506,97 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel_uniform_outer(std::complex<_Tp> nu, std::complex<_Tp> z, _Tp eps,
-		       std::complex<_Tp>& zhat, std::complex<_Tp>& _1dnsq,
-		       std::complex<_Tp>& nm1d3, std::complex<_Tp>& nm2d3,
-		       std::complex<_Tp>& t, std::complex<_Tp>& tsq,
-		       std::complex<_Tp>& etm3h, std::complex<_Tp>& etrat,
-		       std::complex<_Tp>& aip, std::complex<_Tp>& o4dp,
-		       std::complex<_Tp>& aim, std::complex<_Tp>& o4dm,
-		       std::complex<_Tp>& od2p, std::complex<_Tp>& od0dp,
-		       std::complex<_Tp>& od2m, std::complex<_Tp>& od0dm,
-		       int& status)
+  __hankel_uniform_outer(std::complex<_Tp> __nu, std::complex<_Tp> __z, _Tp __eps,
+			 std::complex<_Tp>& __zhat, std::complex<_Tp>& __1dnsq,
+			 std::complex<_Tp>& __nm1d3, std::complex<_Tp>& __nm2d3,
+			 std::complex<_Tp>& __t, std::complex<_Tp>& __tsq,
+			 std::complex<_Tp>& __etm3h, std::complex<_Tp>& __etrat,
+			 std::complex<_Tp>& __aip, std::complex<_Tp>& __o4dp,
+			 std::complex<_Tp>& __aim, std::complex<_Tp>& __o4dm,
+			 std::complex<_Tp>& __od2p, std::complex<_Tp>& __od0dp,
+			 std::complex<_Tp>& __od2m, std::complex<_Tp>& __od0dm,
+			 int& __status)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
-    static constexpr cmplx e2pd3{-0.5L,  0.8660254037844386L};
-    static constexpr cmplx d2pd3{-0.5L, -0.8660254037844386L};
+    static constexpr __cmplx __e2pd3{-0.5L,  0.8660254037844386L};
+    static constexpr __cmplx __d2pd3{-0.5L, -0.8660254037844386L};
 
-    std::cout << " > hankel_uniform_outer: nu = " << nu << " z = " << z << '\n';
+    std::cout << " > hankel_uniform_outer: nu = " << __nu << " z = " << __z << '\n';
 
 
-    status = 0;
+    __status = 0;
 
-    if (safe_div(z, nu, zhat))
+    if (__safe_div(__z, __nu, __zhat))
       {
 	//  Try to compute other nu and z dependent parameters except args to Airy functions
-	cmplx nm4d3, nusq, zeta, etphf, etmhf;
-	hankel_params(nu, zhat, t, tsq, nusq, _1dnsq, nm1d3, nm2d3, nm4d3,
-		      zeta, etphf, etmhf, etm3h, etrat, status);
+	__cmplx __nm4d3, __nusq, __zeta, __etphf, __etmhf;
+	__hankel_params(__nu, __zhat, __t, __tsq, __nusq, __1dnsq, __nm1d3, __nm2d3, __nm4d3,
+			__zeta, __etphf, __etmhf, __etm3h, __etrat, __status);
 
         std::cout.precision(std::numeric_limits<double>::max_digits10);
         //std::cout << std::scientific;
-        std::cout << " > > t      = " << t << '\n';
-        std::cout << " > > tsq    = " << tsq << '\n';
-        std::cout << " > > nusq   = " << nusq << '\n';
-        std::cout << " > > _1dnsq = " << _1dnsq << '\n';
-        std::cout << " > > nm1d3  = " << nm1d3 << '\n';
-        std::cout << " > > nm2d3  = " << nm2d3 << '\n';
-        std::cout << " > > nm4d3  = " << nm4d3 << '\n';
-        std::cout << " > > zeta   = " << zeta << '\n';
-        std::cout << " > > etphf  = " << etphf << '\n';
-        std::cout << " > > etmhf  = " << etmhf << '\n';
-        std::cout << " > > etm3h  = " << etm3h << '\n';
-        std::cout << " > > etrat  = " << etrat << '\n';
-        std::cout << " > > status = " << status << '\n';
+        std::cout << " > > t      = " << __t << '\n';
+        std::cout << " > > tsq    = " << __tsq << '\n';
+        std::cout << " > > nusq   = " << __nusq << '\n';
+        std::cout << " > > _1dnsq = " << __1dnsq << '\n';
+        std::cout << " > > nm1d3  = " << __nm1d3 << '\n';
+        std::cout << " > > nm2d3  = " << __nm2d3 << '\n';
+        std::cout << " > > nm4d3  = " << __nm4d3 << '\n';
+        std::cout << " > > zeta   = " << __zeta << '\n';
+        std::cout << " > > etphf  = " << __etphf << '\n';
+        std::cout << " > > etmhf  = " << __etmhf << '\n';
+        std::cout << " > > etm3h  = " << __etm3h << '\n';
+        std::cout << " > > etrat  = " << __etrat << '\n';
+        std::cout << " > > status = " << __status << '\n';
 
-	if (status == 0)
+	if (__status == 0)
 	  {
 	    //  Try to compute Airy function arguments
-	    cmplx argp, argm;
-	    airy_arg(nm2d3, zeta, argp, argm, status);
-	    std::cout << " > > nm2d3 = " << nm2d3 << '\n';
-	    std::cout << " > > zeta  = " << zeta << '\n';
-	    std::cout << " > > argp  = " << argp << '\n';
-	    std::cout << " > > argm  = " << argm << '\n';
-	    std::cout << " > > status = " << status << '\n';
+	    __cmplx __argp, __argm;
+	    __airy_arg(__nm2d3, __zeta, __argp, __argm, __status);
+	    std::cout << " > > nm2d3 = " << __nm2d3 << '\n';
+	    std::cout << " > > zeta  = " << __zeta << '\n';
+	    std::cout << " > > argp  = " << __argp << '\n';
+	    std::cout << " > > argm  = " << __argm << '\n';
+	    std::cout << " > > status = " << __status << '\n';
 
-	    if (status == 0)
+	    if (__status == 0)
 	      {
 		//  Compute Airy functions and derivatives
-		cmplx aipp, aimp;
-		int statusp, statusm;
-		airy(argp, eps, aip, aipp, statusp);
-		std::cout << " > > argp    = " << argp << '\n';
-		std::cout << " > > aip     = " << aip << '\n';
-		std::cout << " > > aipp    = " << aipp << '\n';
-		std::cout << " > > statusp = " << statusp << '\n';
-		airy(argm, eps, aim, aimp, statusm);
-		std::cout << " > > argm    = " << argm << '\n';
-		std::cout << " > > aim     = " << aim << '\n';
-		std::cout << " > > aimp    = " << aimp << '\n';
-		std::cout << " > > statusm = " << statusm << '\n';
-		if (statusp == 0 && statusm == 0)
+		__cmplx __aipp, __aimp;
+		int __statusp, __statusm;
+		__airy(__argp, __eps, __aip, __aipp, __statusp);
+		std::cout << " > > argp    = " << __argp << '\n';
+		std::cout << " > > aip     = " << __aip << '\n';
+		std::cout << " > > aipp    = " << __aipp << '\n';
+		std::cout << " > > statusp = " << __statusp << '\n';
+		__airy(__argm, __eps, __aim, __aimp, __statusm);
+		std::cout << " > > argm    = " << __argm << '\n';
+		std::cout << " > > aim     = " << __aim << '\n';
+		std::cout << " > > aimp    = " << __aimp << '\n';
+		std::cout << " > > statusm = " << __statusm << '\n';
+		if (__statusp == 0 && __statusm == 0)
 		  {
 		    //  Compute partial outer terms in expansions
-		    o4dp = -etmhf * nm4d3 * e2pd3 * aipp;
-		    o4dm = -etmhf * nm4d3 * d2pd3 * aimp;
-		    od2p = -etphf * nm2d3 * aip;
-		    od0dp = e2pd3 * aipp;
-		    od2m = -etphf * nm2d3 * aim;
-		    od0dm = d2pd3 * aimp;
+		    __o4dp = -__etmhf * __nm4d3 * __e2pd3 * __aipp;
+		    __o4dm = -__etmhf * __nm4d3 * __d2pd3 * __aimp;
+		    __od2p = -__etphf * __nm2d3 * __aip;
+		    __od0dp = __e2pd3 * __aipp;
+		    __od2m = -__etphf * __nm2d3 * __aim;
+		    __od0dm = __d2pd3 * __aimp;
 		  }
 		else  //  Error in evaluation of Airy functions
-		  status = 134;
+		  __status = 134;
 	      }
 	    else  //  Airy function args not computable
-	      status = 133;
+	      __status = 133;
 	  }
 	else  //  Factors not successfully computed
-	  status = 135;
+	  __status = 135;
       }
     else //  z/nu not successfully computed
-      status = 130;
+      __status = 130;
 
     return;
   }
@@ -606,47 +611,44 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel_uniform_sum(std::complex<_Tp> t, std::complex<_Tp> tsq,
-		     std::complex<_Tp> z1dnsq, std::complex<_Tp> zetm3h,
-		     std::complex<_Tp> aip, std::complex<_Tp> zo4dp,
-		     std::complex<_Tp> aim, std::complex<_Tp> zo4dm,
-		     std::complex<_Tp> zod2p, std::complex<_Tp> zod0dp,
-		     std::complex<_Tp> zod2m, std::complex<_Tp> zod0dm,
-		     _Tp eps,
-		     std::complex<_Tp>& h1sum, std::complex<_Tp>& h1psum,
-		     std::complex<_Tp>& h2sum, std::complex<_Tp>& h2psum,
-		     int& status)
+  __hankel_uniform_sum(std::complex<_Tp> __t, std::complex<_Tp> __tsq,
+		     std::complex<_Tp> __1dnusq, std::complex<_Tp> __zetm3h,
+		     std::complex<_Tp> __aip, std::complex<_Tp> __zo4dp,
+		     std::complex<_Tp> __aim, std::complex<_Tp> __zo4dm,
+		     std::complex<_Tp> __zod2p, std::complex<_Tp> __zod0dp,
+		     std::complex<_Tp> __zod2m, std::complex<_Tp> __zod0dm,
+		     _Tp __eps,
+		     std::complex<_Tp>& __h1sum, std::complex<_Tp>& __h1psum,
+		     std::complex<_Tp>& __h2sum, std::complex<_Tp>& __h2psum,
+		     int& __status)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
-    _Tp ukta, vkta, uktb, vktb, ukpta,
-     	vkpta, ukptb, vkptb;
+    bool __coverged;
+    int __nterms = 4;
 
-    bool coverged;
-    int nterms = 4;
-
-    static constexpr auto zone = cmplx{1, 0};
+    static constexpr auto __zone = __cmplx{1, 0};
 
     std::cout << " > hankel_uniform_sum:\n";
-    std::cout << " > t     = " << t << '\n';
-    std::cout << " > tsq   = " << tsq << '\n';
-    std::cout << " > z1dnsq = " << z1dnsq << '\n';
-    std::cout << " > zetm3h = " << zetm3h << '\n';
-    std::cout << " > aip    = " << aip << '\n';
-    std::cout << " > zo4dp  = " << zo4dp << '\n';
-    std::cout << " > aim    = " << aim << '\n';
-    std::cout << " > zo4dm  = " << zo4dm << '\n';
-    std::cout << " > zod2p  = " << zod2p << '\n';
-    std::cout << " > zod0dp = " << zod0dp << '\n';
-    std::cout << " > zod2m  = " << zod2m << '\n';
-    std::cout << " > zod0dm = " << zod0dm << '\n';
+    std::cout << " > t     = " << __t << '\n';
+    std::cout << " > tsq   = " << __tsq << '\n';
+    std::cout << " > z1dnsq = " << __1dnusq << '\n';
+    std::cout << " > zetm3h = " << __zetm3h << '\n';
+    std::cout << " > aip    = " << __aip << '\n';
+    std::cout << " > zo4dp  = " << __zo4dp << '\n';
+    std::cout << " > aim    = " << __aim << '\n';
+    std::cout << " > zo4dm  = " << __zo4dm << '\n';
+    std::cout << " > zod2p  = " << __zod2p << '\n';
+    std::cout << " > zod0dp = " << __zod0dp << '\n';
+    std::cout << " > zod2m  = " << __zod2m << '\n';
+    std::cout << " > zod0dm = " << __zod0dm << '\n';
 
     //  Coefficients for u and v polynomials appearing in Olver's
     //  uniform asymptotic expansions for the Hankel functions
     //  and their derivatives
 
     static constexpr _Tp
-    a[66]
+    _S_a[66]
     {
        0.1000000000000000e+01,
       -0.2083333333333333e+00,
@@ -717,7 +719,7 @@ template<typename _Tp>
     };
 
     static constexpr _Tp
-    b[66]
+    _S_b[66]
     {  0.1000000000000000e+01,
        0.2916666666666667e+00,
       -0.3750000000000000e+00,
@@ -788,7 +790,7 @@ template<typename _Tp>
 
     //  lambda and mu coefficients appearing in the expansions
     static constexpr _Tp
-    lambda[21]
+    _S_lambda[21]
     {
        0.1041666666666667e+00,
        0.8355034722222222e-01,
@@ -814,7 +816,7 @@ template<typename _Tp>
     };
 
     static constexpr _Tp
-    mu[21]
+    _S_mu[21]
     {
       -0.1458333333333333e+00,
       -0.9874131944444445e-01,
@@ -839,351 +841,351 @@ template<typename _Tp>
       -0.9295073331010611e+15
     };
 
-    std::vector<cmplx> u(100);
-    std::vector<cmplx> v(100);
+    std::vector<__cmplx> __u(100);
+    std::vector<__cmplx> __v(100);
 
-    status = 0;
+    __status = 0;
     //  Initialize for modified Horner's rule evaluation of u_k and v_k polynomials
-    auto dxtsq = std::real(tsq);
-    auto dytsq = std::imag(tsq);
-    auto dytsq2 = dytsq * dytsq;
-    auto dr = 2 * dxtsq;
+    auto __dxtsq = std::real(__tsq);
+    auto __dytsq = std::imag(__tsq);
+    auto __dytsq2 = __dytsq * __dytsq;
+    auto __dr = 2 * __dxtsq;
     //  Compute square of magnitudes
-    auto ds = std::norm(tsq);
+    auto __ds = std::norm(__tsq);
 
     //  Compute u_0,1,2 and v_0,1,2 and store for later use
-    auto tk = t;
+    auto __tk = __t;
     //  Index into storage for u and v polynomials
-    auto nduv = 0;
-    u[nduv] = tk * (a[1] * tsq + a[2]);
-    v[nduv] = tk * (b[1] * tsq + b[2]);
-    std::cout << " > > tk   = " << tk << '\n';
-    std::cout << " > > u[0] = " << u[nduv] << '\n';
-    std::cout << " > > v[0] = " << v[nduv] << '\n';
-    ++nduv;
-    tk *= t;
-    u[nduv] = tk * cmplx((a[3] * dxtsq + a[4]) * dxtsq + a[5] - a[3] * dytsq2,
-		      (2 * a[3] * dxtsq + a[4]) * dytsq);
-    v[nduv] = tk * cmplx((b[3] * dxtsq + b[4]) * dxtsq + b[5] - b[3] * dytsq2,
-		      (2 * b[3] * dxtsq + b[4]) * dytsq);
-    std::cout << " > > tk   = " << tk << '\n';
-    std::cout << " > > u[1] = " << u[1] << '\n';
-    std::cout << " > > v[1] = " << v[1] << '\n';
-    ++nduv;
-    tk *= t;
-    u[nduv] = tk * cmplx(((a[6] * dxtsq + a[7]) * dxtsq + a[8]) * dxtsq
-     		      + a[9] - (3 * a[6] * dxtsq + a[7]) * dytsq2,
-     		      ((3 * a[6] * dxtsq + 2 * a[7]) * dxtsq + a[8]
-     		      - a[6] * dytsq2) * dytsq);
-    v[nduv] = tk * cmplx(((b[6] * dxtsq + b[7]) * dxtsq + b[8]) * dxtsq
-     		      + b[9] - (3 * b[6] * dxtsq + b[7]) * dytsq2,
-     		      ((3 * b[6] * dxtsq + 2 * b[7]) * dxtsq + b[8]
-     		      - b[6] * dytsq2) * dytsq);
-    std::cout << " > > tk   = " << tk << '\n';
-    std::cout << " > > u[2] = " << u[2] << '\n';
-    std::cout << " > > v[2] = " << v[2] << '\n';
-    ++nduv;
+    auto __nduv = 0;
+    __u[__nduv] = __tk * (_S_a[1] * __tsq + _S_a[2]);
+    __v[__nduv] = __tk * (_S_b[1] * __tsq + _S_b[2]);
+    std::cout << " > > tk   = " << __tk << '\n';
+    std::cout << " > > u[0] = " << __u[__nduv] << '\n';
+    std::cout << " > > v[0] = " << __v[__nduv] << '\n';
+    ++__nduv;
+    __tk *= __t;
+    __u[__nduv] = __tk * __cmplx((_S_a[3] * __dxtsq + _S_a[4]) * __dxtsq + _S_a[5] - _S_a[3] * __dytsq2,
+		      (2 * _S_a[3] * __dxtsq + _S_a[4]) * __dytsq);
+    __v[__nduv] = __tk * __cmplx((_S_b[3] * __dxtsq + _S_b[4]) * __dxtsq + _S_b[5] - _S_b[3] * __dytsq2,
+		      (2 * _S_b[3] * __dxtsq + _S_b[4]) * __dytsq);
+    std::cout << " > > tk   = " << __tk << '\n';
+    std::cout << " > > u[1] = " << __u[1] << '\n';
+    std::cout << " > > v[1] = " << __v[1] << '\n';
+    ++__nduv;
+    __tk *= __t;
+    __u[__nduv] = __tk * __cmplx(((_S_a[6] * __dxtsq + _S_a[7]) * __dxtsq + _S_a[8]) * __dxtsq
+     		      + _S_a[9] - (3 * _S_a[6] * __dxtsq + _S_a[7]) * __dytsq2,
+     		      ((3 * _S_a[6] * __dxtsq + 2 * _S_a[7]) * __dxtsq + _S_a[8]
+     		      - _S_a[6] * __dytsq2) * __dytsq);
+    __v[__nduv] = __tk * __cmplx(((_S_b[6] * __dxtsq + _S_b[7]) * __dxtsq + _S_b[8]) * __dxtsq
+     		      + _S_b[9] - (3 * _S_b[6] * __dxtsq + _S_b[7]) * __dytsq2,
+     		      ((3 * _S_b[6] * __dxtsq + 2 * _S_b[7]) * __dxtsq + _S_b[8]
+     		      - _S_b[6] * __dytsq2) * __dytsq);
+    std::cout << " > > tk   = " << __tk << '\n';
+    std::cout << " > > u[2] = " << __u[2] << '\n';
+    std::cout << " > > v[2] = " << __v[2] << '\n';
+    ++__nduv;
 
     //  Compute a_0,1, b_0,1, c_0,1, d_0,1 ... note that
     //  b_k and c_k are computed up to -zeta^(-1/2)
     //  -zeta^(1/2) factors, respectively.  These recurring factors
     //  are included as appropriate in the outer factors, thus saving
     //  repeated multiplications by them.
-    auto a0 = zone;
-    auto a1 = u[1]
-	    + zetm3h * (mu[1] * zetm3h + mu[0] * u[0]);
-    auto b0 = u[0] + lambda[0] * zetm3h;
-    auto b1 = u[2] + zetm3h * (zetm3h * (lambda[2] * zetm3h
-				       + lambda[1] * u[0])
-		   + lambda[0] * u[1]);
-    auto c0 = v[0] + mu[0] * zetm3h;
-    auto c1 = v[2] + zetm3h * (zetm3h * (mu[2] * zetm3h
-				       + mu[1] * v[0])
-		   + mu[0] * v[1]);
-    auto d0 = zone;
-    auto d1 = v[1] + zetm3h * (lambda[1] * zetm3h
-		      + lambda[0] * v[0]);
-    std::cout << " > > a1 = " << a1 << '\n';
-    std::cout << " > > b0 = " << b0 << '\n';
-    std::cout << " > > b1 = " << b1 << '\n';
-    std::cout << " > > c0 = " << c0 << '\n';
-    std::cout << " > > c1 = " << c1 << '\n';
-    std::cout << " > > d1 = " << d1 << '\n';
+    auto __a0 = __zone;
+    auto __a1 = __u[1]
+	    + __zetm3h * (_S_mu[1] * __zetm3h + _S_mu[0] * __u[0]);
+    auto __b0 = __u[0] + _S_lambda[0] * __zetm3h;
+    auto __b1 = __u[2] + __zetm3h * (__zetm3h * (_S_lambda[2] * __zetm3h
+				       + _S_lambda[1] * __u[0])
+		   + _S_lambda[0] * __u[1]);
+    auto __c0 = __v[0] + _S_mu[0] * __zetm3h;
+    auto __c1 = __v[2] + __zetm3h * (__zetm3h * (_S_mu[2] * __zetm3h
+				       + _S_mu[1] * __v[0])
+		   + _S_mu[0] * __v[1]);
+    auto __d0 = __zone;
+    auto __d1 = __v[1] + __zetm3h * (_S_lambda[1] * __zetm3h
+		      + _S_lambda[0] * __v[0]);
+    std::cout << " > > a1 = " << __a1 << '\n';
+    std::cout << " > > b0 = " << __b0 << '\n';
+    std::cout << " > > b1 = " << __b1 << '\n';
+    std::cout << " > > c0 = " << __c0 << '\n';
+    std::cout << " > > c1 = " << __c1 << '\n';
+    std::cout << " > > d1 = " << __d1 << '\n';
 
     //  Compute terms
-    auto aterm = a1 * z1dnsq;
-    auto bterm = b1 * z1dnsq;
-    auto cterm = c1 * z1dnsq;
-    auto dterm = d1 * z1dnsq;
+    auto __aterm = __a1 * __1dnusq;
+    auto __bterm = __b1 * __1dnusq;
+    auto __cterm = __c1 * __1dnusq;
+    auto __dterm = __d1 * __1dnusq;
     //  Compute sum of first two terms, thus initializing Kahan summing scheme
-    auto asum = a0 + aterm;
-    auto atemp = aterm - (asum - zone);
-    auto bsum = b0 + bterm;
-    auto btemp = bterm - (bsum - b0);
-    auto csum = c0 + cterm;
-    auto ctemp = cterm - (csum - c0);
-    auto dsum = d0 + dterm;
-    auto dtemp = dterm - (dsum - zone);
-    std::cout << " > > asum = " << asum << '\n';
-    std::cout << " > > bsum = " << bsum << '\n';
-    std::cout << " > > csum = " << csum << '\n';
-    std::cout << " > > dsum = " << dsum << '\n';
+    auto __asum = __a0 + __aterm;
+    auto __atemp = __aterm - (__asum - __a0);
+    auto __bsum = __b0 + __bterm;
+    auto __btemp = __bterm - (__bsum - __b0);
+    auto __csum = __c0 + __cterm;
+    auto __ctemp = __cterm - (__csum - __c0);
+    auto __dsum = __d0 + __dterm;
+    auto __dtemp = __dterm - (__dsum - __d0);
+    std::cout << " > > asum = " << __asum << '\n';
+    std::cout << " > > bsum = " << __bsum << '\n';
+    std::cout << " > > csum = " << __csum << '\n';
+    std::cout << " > > dsum = " << __dsum << '\n';
 
     //  Set convergence flag to no convergence indication
-    coverged = false;
+    __coverged = false;
 
     //  Combine sums in form appearing in expansions
-    h1sum = aip * asum + zo4dp * bsum;
-    h2sum = aim * asum + zo4dm * bsum;
-    h1psum = zod2p * csum + zod0dp * dsum;
-    h2psum = zod2m * csum + zod0dm * dsum;
-    auto h1save = aip + zo4dp * b0;
-    auto h2save = aim + zo4dm * b0;
-    auto h1psave = zod2p * c0 + zod0dp;
-    auto h2psave = zod2m * c0 + zod0dm;
-    std::cout << " > > h1sum   = " << h1sum << '\n';
-    std::cout << " > > h2sum   = " << h2sum << '\n';
-    std::cout << " > > h1psum  = " << h1psum << '\n';
-    std::cout << " > > h2psum  = " << h2psum << '\n';
-    std::cout << " > > h1save  = " << h1save << '\n';
-    std::cout << " > > h2save  = " << h2save << '\n';
-    std::cout << " > > h1psave = " << h1psave << '\n';
-    std::cout << " > > h2psave = " << h2psave << '\n';
+    __h1sum = __aip * __asum + __zo4dp * __bsum;
+    __h2sum = __aim * __asum + __zo4dm * __bsum;
+    __h1psum = __zod2p * __csum + __zod0dp * __dsum;
+    __h2psum = __zod2m * __csum + __zod0dm * __dsum;
+    auto __h1save = __aip + __zo4dp * __b0;
+    auto __h2save = __aim + __zo4dm * __b0;
+    auto __h1psave = __zod2p * __c0 + __zod0dp;
+    auto __h2psave = __zod2m * __c0 + __zod0dm;
+    std::cout << " > > h1sum   = " << __h1sum << '\n';
+    std::cout << " > > h2sum   = " << __h2sum << '\n';
+    std::cout << " > > h1psum  = " << __h1psum << '\n';
+    std::cout << " > > h2psum  = " << __h2psum << '\n';
+    std::cout << " > > h1save  = " << __h1save << '\n';
+    std::cout << " > > h2save  = " << __h2save << '\n';
+    std::cout << " > > h1psave = " << __h1psave << '\n';
+    std::cout << " > > h2psave = " << __h2psave << '\n';
 
     //  If convergence criteria now satisfied
-    if (norm1(h1sum - h1save) < eps * norm1(h1sum)
-     && norm1(h2sum - h2save) < eps * norm1(h2sum)
-     && norm1(h1psum - h1psave) < eps * norm1(h1psum)
-     && norm1(h2psum - h2psave) < eps * norm1(h2psum))
-      coverged = true;
+    if (__norm_L1(__h1sum - __h1save) < __eps * __norm_L1(__h1sum)
+     && __norm_L1(__h2sum - __h2save) < __eps * __norm_L1(__h2sum)
+     && __norm_L1(__h1psum - __h1psave) < __eps * __norm_L1(__h1psum)
+     && __norm_L1(__h2psum - __h2psave) < __eps * __norm_L1(__h2psum))
+      __coverged = true;
 
     //  Save current sums combined as in expansion for next convergence test
-    h1save = h1sum;
-    h2save = h2sum;
-    h1psave = h1psum;
-    h2psave = h2psum;
+    __h1save = __h1sum;
+    __h2save = __h2sum;
+    __h1psave = __h1psum;
+    __h2psave = __h2psum;
 
     //  Maintain index into u_k and v_k coefficients
-    auto index = 10;
-    auto indexp = 15;
+    auto __index = 10;
+    auto __indexp = 15;
     //  Maintain power of nu^(-2)
-    auto z1dn2k = z1dnsq;
+    auto __z1dn2k = __1dnusq;
 
     //  Loop until convergence criteria satisfied or maximum number of terms reached
-    for (auto k = 2; k <= nterms; ++k)
+    for (auto __k = 2; __k <= __nterms; ++__k)
       {
 	//  Initialize for evaluation of two new u and v polynomials
 	//  via Horner's rule modified for complex arguments and real coefficients
-	auto indexend = indexp;
-	ukta = a[index];
-	vkta = b[index];
-	++index;
-	uktb = a[index];
-	vktb = b[index];
-	++index;
-	ukpta = a[indexp];
-	vkpta = b[indexp];
-	++indexp;
-	ukptb = a[indexp];
-	vkptb = b[indexp];
-	++indexp;
-	std::cout << " > > > index  = " << index << '\n';
-	std::cout << " > > > indexp = " << indexp << '\n';
-	std::cout << " > > > ukta   = " << ukta << '\n';
-	std::cout << " > > > vkta   = " << vkta << '\n';
-	std::cout << " > > > uktb   = " << uktb << '\n';
-	std::cout << " > > > vktb   = " << vktb << '\n';
-	std::cout << " > > > ukpta  = " << ukpta << '\n';
-	std::cout << " > > > vkpta  = " << vkpta << '\n';
-	std::cout << " > > > ukptb  = " << ukptb << '\n';
-	std::cout << " > > > vkptb  = " << vkptb << '\n';
+	auto __indexend = __indexp;
+	auto __ukta = _S_a[__index];
+	auto __vkta = _S_b[__index];
+	++__index;
+	auto __uktb = _S_a[__index];
+	auto __vktb = _S_b[__index];
+	++__index;
+	auto __ukpta = _S_a[__indexp];
+	auto __vkpta = _S_b[__indexp];
+	++__indexp;
+	auto __ukptb = _S_a[__indexp];
+	auto __vkptb = _S_b[__indexp];
+	++__indexp;
+	std::cout << " > > > index  = " << __index << '\n';
+	std::cout << " > > > indexp = " << __indexp << '\n';
+	std::cout << " > > > ukta   = " << __ukta << '\n';
+	std::cout << " > > > vkta   = " << __vkta << '\n';
+	std::cout << " > > > uktb   = " << __uktb << '\n';
+	std::cout << " > > > vktb   = " << __vktb << '\n';
+	std::cout << " > > > ukpta  = " << __ukpta << '\n';
+	std::cout << " > > > vkpta  = " << __vkpta << '\n';
+	std::cout << " > > > ukptb  = " << __ukptb << '\n';
+	std::cout << " > > > vkptb  = " << __vkptb << '\n';
 
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
-	for (; index < indexend; ++index, ++indexp)
+	for (; __index < __indexend; ++__index, ++__indexp)
 	  {
-	    auto term = ds * ukta;
-	    ukta = uktb + dr * ukta;
-	    uktb = a[index] - term;
-	    term = ds * vkta;
-	    vkta = vktb + dr * vkta;
-	    vktb = b[index] - term;
+	    auto __term = __ds * __ukta;
+	    __ukta = __uktb + __dr * __ukta;
+	    __uktb = _S_a[__index] - __term;
+	    __term = __ds * __vkta;
+	    __vkta = __vktb + __dr * __vkta;
+	    __vktb = _S_b[__index] - __term;
 
-	    term = ds * ukpta;
-	    ukpta = ukptb + dr * ukpta;
-	    ukptb = a[indexp] - term;
-	    term = ds * vkpta;
-	    vkpta = vkptb + dr * vkpta;
-	    vkptb = b[indexp] - term;
-	    std::cout << " > > > > index     = " << index << '\n';
-	    std::cout << " > > > > a[index]  = " << a[index] << '\n';
-	    std::cout << " > > > > b[index]  = " << b[index] << '\n';
-	    std::cout << " > > > > indexp    = " << indexp << '\n';
-	    std::cout << " > > > > a[indexp] = " << a[indexp] << '\n';
-	    std::cout << " > > > > b[indexp] = " << b[indexp] << '\n';
-	    std::cout << " > > > > ukta      = " << ukta << '\n';
-	    std::cout << " > > > > vkta      = " << vkta << '\n';
-	    std::cout << " > > > > uktb      = " << uktb << '\n';
-	    std::cout << " > > > > vktb      = " << vktb << '\n';
-	    std::cout << " > > > > ukpta     = " << ukpta << '\n';
-	    std::cout << " > > > > vkpta     = " << vkpta << '\n';
-	    std::cout << " > > > > ukptb     = " << ukptb << '\n';
-	    std::cout << " > > > > vkptb     = " << vkptb << '\n';
+	    __term = __ds * __ukpta;
+	    __ukpta = __ukptb + __dr * __ukpta;
+	    __ukptb = _S_a[__indexp] - __term;
+	    __term = __ds * __vkpta;
+	    __vkpta = __vkptb + __dr * __vkpta;
+	    __vkptb = _S_b[__indexp] - __term;
+	    std::cout << " > > > > index     = " << __index << '\n';
+	    std::cout << " > > > > a[index]  = " << _S_a[__index] << '\n';
+	    std::cout << " > > > > b[index]  = " << _S_b[__index] << '\n';
+	    std::cout << " > > > > indexp    = " << __indexp << '\n';
+	    std::cout << " > > > > a[indexp] = " << _S_a[__indexp] << '\n';
+	    std::cout << " > > > > b[indexp] = " << _S_b[__indexp] << '\n';
+	    std::cout << " > > > > ukta      = " << __ukta << '\n';
+	    std::cout << " > > > > vkta      = " << __vkta << '\n';
+	    std::cout << " > > > > uktb      = " << __uktb << '\n';
+	    std::cout << " > > > > vktb      = " << __vktb << '\n';
+	    std::cout << " > > > > ukpta     = " << __ukpta << '\n';
+	    std::cout << " > > > > vkpta     = " << __vkpta << '\n';
+	    std::cout << " > > > > ukptb     = " << __ukptb << '\n';
+	    std::cout << " > > > > vkptb     = " << __vkptb << '\n';
 	  }
 
 	//  Update indices into coefficients to reflect initialization
 	//++index;
 
 	//  One more iteration for highest order polynomials
-	auto term = ds * ukpta;
-	ukpta = ukptb + dr * ukpta;
-	ukptb = a[indexp] - term;
-	term = ds * vkpta;
-	vkpta = vkptb + dr * vkpta;
-	vkptb = b[indexp] - term;
-	std::cout << " > > > indexp = " << indexp << '\n';
-	std::cout << " > > > ukpta  = " << ukpta << '\n';
-	std::cout << " > > > ukptb  = " << ukptb << '\n';
-	std::cout << " > > > vkpta  = " << vkpta << '\n';
-	std::cout << " > > > vkptb  = " << vkptb << '\n';
-	++indexp;
+	auto __term = __ds * __ukpta;
+	__ukpta = __ukptb + __dr * __ukpta;
+	__ukptb = _S_a[__indexp] - __term;
+	__term = __ds * __vkpta;
+	__vkpta = __vkptb + __dr * __vkpta;
+	__vkptb = _S_b[__indexp] - __term;
+	std::cout << " > > > indexp = " << __indexp << '\n';
+	std::cout << " > > > ukpta  = " << __ukpta << '\n';
+	std::cout << " > > > ukptb  = " << __ukptb << '\n';
+	std::cout << " > > > vkpta  = " << __vkpta << '\n';
+	std::cout << " > > > vkptb  = " << __vkptb << '\n';
+	++__indexp;
 
 	//  Post multiply and form new polynomials
-	tk *= t;
-	u[nduv] = tk * (ukta * tsq + uktb);
-	v[nduv] = tk * (vkta * tsq + vktb);
-	std::cout << " > > > nduv    = " << nduv << '\n';
-	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
-	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
-	++nduv;
+	__tk *= __t;
+	__u[__nduv] = __tk * (__ukta * __tsq + __uktb);
+	__v[__nduv] = __tk * (__vkta * __tsq + __vktb);
+	std::cout << " > > > nduv    = " << __nduv << '\n';
+	std::cout << " > > > u[nduv] = " << __u[__nduv] << '\n';
+	std::cout << " > > > v[nduv] = " << __v[__nduv] << '\n';
+	++__nduv;
 
-	tk *= t;
-	u[nduv] = tk * (ukpta * tsq + ukptb);
-	v[nduv] = tk * (vkpta * tsq + vkptb);
-	std::cout << " > > > nduv    = " << nduv << '\n';
-	std::cout << " > > > u[nduv] = " << u[nduv] << '\n';
-	std::cout << " > > > v[nduv] = " << v[nduv] << '\n';
-	++nduv;
+	__tk *= __t;
+	__u[__nduv] = __tk * (__ukpta * __tsq + __ukptb);
+	__v[__nduv] = __tk * (__vkpta * __tsq + __vkptb);
+	std::cout << " > > > nduv    = " << __nduv << '\n';
+	std::cout << " > > > u[nduv] = " << __u[__nduv] << '\n';
+	std::cout << " > > > v[nduv] = " << __v[__nduv] << '\n';
+	++__nduv;
 
 	//  Update indices in preparation for next iteration
-	index = indexp;
-	auto i2k = 2 * k - 1;
-	auto i2km1 = i2k - 1;
-	auto i2kp1 = i2k + 1;
-	indexp += i2kp1 + 3;
-	std::cout << " > > > index  = " << index << '\n';
-	std::cout << " > > > indexp = " << indexp << '\n';
-	std::cout << " > > > i2k    = " << i2k << '\n';
-	std::cout << " > > > i2km1  = " << i2km1 << '\n';
-	std::cout << " > > > i2kp1  = " << i2kp1 << '\n';
+	__index = __indexp;
+	auto __i2k = 2 * __k - 1;
+	auto __i2km1 = __i2k - 1;
+	auto __i2kp1 = __i2k + 1;
+	__indexp += __i2kp1 + 3;
+	std::cout << " > > > index  = " << __index << '\n';
+	std::cout << " > > > indexp = " << __indexp << '\n';
+	std::cout << " > > > i2k    = " << __i2k << '\n';
+	std::cout << " > > > i2km1  = " << __i2km1 << '\n';
+	std::cout << " > > > i2kp1  = " << __i2kp1 << '\n';
 
 	//  Initialize for evaluation of a, b, c, and d polynomials via Horner's rule.
-	a1 = mu[i2k] * zetm3h + mu[i2km1] * u[0];
-	d1 = lambda[i2k] * zetm3h + lambda[i2km1] * v[0];
-	b1 = lambda[i2kp1] * zetm3h + lambda[i2k] * u[0];
-	c1 = mu[i2kp1] * zetm3h + mu[i2k] * v[0];
-	std::cout << " > > > a1 = " << a1 << '\n';
-	std::cout << " > > > b1 = " << b1 << '\n';
-	std::cout << " > > > c1 = " << c1 << '\n';
-	std::cout << " > > > d1 = " << d1 << '\n';
+	__a1 = _S_mu[__i2k] * __zetm3h + _S_mu[__i2km1] * __u[0];
+	__d1 = _S_lambda[__i2k] * __zetm3h + _S_lambda[__i2km1] * __v[0];
+	__b1 = _S_lambda[__i2kp1] * __zetm3h + _S_lambda[__i2k] * __u[0];
+	__c1 = _S_mu[__i2kp1] * __zetm3h + _S_mu[__i2k] * __v[0];
+	std::cout << " > > > a1 = " << __a1 << '\n';
+	std::cout << " > > > b1 = " << __b1 << '\n';
+	std::cout << " > > > c1 = " << __c1 << '\n';
+	std::cout << " > > > d1 = " << __d1 << '\n';
 
 	//  Loop until partial a, b, c, and d evaluations done via Horner's rule
-	for(auto l = 1; l <= i2km1; ++l)
+	for(auto __l = 1; __l <= __i2km1; ++__l)
 	  {
-	    std::cout << " > > > > l    = " << l << '\n';
-	    auto i2kl = i2km1 - l;
-	    std::cout << " > > > > i2kl = " << i2kl << '\n';
-	    a1 = a1 * zetm3h + mu[i2kl] * u[l];
-	    d1 = d1 * zetm3h + lambda[i2kl] * v[l];
-	    i2kl = i2k - l;
-	    std::cout << " > > > > i2kl = " << i2kl << '\n';
-	    b1 = b1 * zetm3h + lambda[i2kl] * u[l];
-	    c1 = c1 * zetm3h + mu[i2kl] * v[l];
-	    std::cout << " > > > > a1   = " << a1 << '\n';
-	    std::cout << " > > > > b1   = " << b1 << '\n';
-	    std::cout << " > > > > c1   = " << c1 << '\n';
-	    std::cout << " > > > > d1   = " << d1 << '\n';
+	    std::cout << " > > > > l    = " << __l << '\n';
+	    auto __i2kl = __i2km1 - __l;
+	    std::cout << " > > > > i2kl = " << __i2kl << '\n';
+	    __a1 = __a1 * __zetm3h + _S_mu[__i2kl] * __u[__l];
+	    __d1 = __d1 * __zetm3h + _S_lambda[__i2kl] * __v[__l];
+	    __i2kl = __i2k - __l;
+	    std::cout << " > > > > i2kl = " << __i2kl << '\n';
+	    __b1 = __b1 * __zetm3h + _S_lambda[__i2kl] * __u[__l];
+	    __c1 = __c1 * __zetm3h + _S_mu[__i2kl] * __v[__l];
+	    std::cout << " > > > > a1   = " << __a1 << '\n';
+	    std::cout << " > > > > b1   = " << __b1 << '\n';
+	    std::cout << " > > > > c1   = " << __c1 << '\n';
+	    std::cout << " > > > > d1   = " << __d1 << '\n';
 	  }
 
 	//  Complete the evaluations
-	a1 = a1 * zetm3h + u[i2k];
-	d1 = d1 * zetm3h + v[i2k];
-	b1 = zetm3h * (b1 * zetm3h + lambda[0] * u[i2k]) + u[i2kp1];
-	c1 = zetm3h * (c1 * zetm3h + mu[0] * v[i2k]) + v[i2kp1];
-	std::cout << " > > > i2k   = " << i2k << '\n';
-	std::cout << " > > > i2kp1 = " << i2kp1 << '\n';
-	std::cout << " > > > a1    = " << a1 << '\n';
-	std::cout << " > > > b1    = " << b1 << '\n';
-	std::cout << " > > > c1    = " << c1 << '\n';
-	std::cout << " > > > d1    = " << d1 << '\n';
+	__a1 = __a1 * __zetm3h + __u[__i2k];
+	__d1 = __d1 * __zetm3h + __v[__i2k];
+	__b1 = __zetm3h * (__b1 * __zetm3h + _S_lambda[0] * __u[__i2k]) + __u[__i2kp1];
+	__c1 = __zetm3h * (__c1 * __zetm3h + _S_mu[0] * __v[__i2k]) + __v[__i2kp1];
+	std::cout << " > > > i2k   = " << __i2k << '\n';
+	std::cout << " > > > i2kp1 = " << __i2kp1 << '\n';
+	std::cout << " > > > a1    = " << __a1 << '\n';
+	std::cout << " > > > b1    = " << __b1 << '\n';
+	std::cout << " > > > c1    = " << __c1 << '\n';
+	std::cout << " > > > d1    = " << __d1 << '\n';
 
 	//  Evaluate new terms for sums
-	z1dn2k *= z1dnsq;
-	aterm = a1 * z1dn2k + atemp;
-	bterm = b1 * z1dn2k + btemp;
-	cterm = c1 * z1dn2k + ctemp;
-	dterm = d1 * z1dn2k + dtemp;
-	std::cout << " > > > aterm = " << aterm << '\n';
-	std::cout << " > > > bterm = " << bterm << '\n';
-	std::cout << " > > > cterm = " << cterm << '\n';
-	std::cout << " > > > dterm = " << dterm << '\n';
+	__z1dn2k *= __1dnusq;
+	__aterm = __a1 * __z1dn2k + __atemp;
+	__bterm = __b1 * __z1dn2k + __btemp;
+	__cterm = __c1 * __z1dn2k + __ctemp;
+	__dterm = __d1 * __z1dn2k + __dtemp;
+	std::cout << " > > > aterm = " << __aterm << '\n';
+	std::cout << " > > > bterm = " << __bterm << '\n';
+	std::cout << " > > > cterm = " << __cterm << '\n';
+	std::cout << " > > > dterm = " << __dterm << '\n';
 
 	//  Update sums via Kahan summing scheme
-	atemp = asum;
-	asum += aterm;
-	atemp = aterm - (asum - atemp);
-	btemp = bsum;
-	bsum += bterm;
-	btemp = bterm - (bsum - btemp);
-	ctemp = csum;
-	csum += cterm;
-	ctemp = cterm - (csum - ctemp);
-	dtemp = dsum;
-	dsum += dterm;
-	dtemp = dterm - (dsum - dtemp);
-	std::cout << " > > > asum = " << asum << '\n';
-	std::cout << " > > > bsum = " << bsum << '\n';
-	std::cout << " > > > csum = " << csum << '\n';
-	std::cout << " > > > dsum = " << dsum << '\n';
+	__atemp = __asum;
+	__asum += __aterm;
+	__atemp = __aterm - (__asum - __atemp);
+	__btemp = __bsum;
+	__bsum += __bterm;
+	__btemp = __bterm - (__bsum - __btemp);
+	__ctemp = __csum;
+	__csum += __cterm;
+	__ctemp = __cterm - (__csum - __ctemp);
+	__dtemp = __dsum;
+	__dsum += __dterm;
+	__dtemp = __dterm - (__dsum - __dtemp);
+	std::cout << " > > > asum = " << __asum << '\n';
+	std::cout << " > > > bsum = " << __bsum << '\n';
+	std::cout << " > > > csum = " << __csum << '\n';
+	std::cout << " > > > dsum = " << __dsum << '\n';
 
 	//  Combine sums in form appearing in expansions
-	h1sum  = aip  * asum  + zo4dp * bsum;
-	h2sum  = aim  * asum  + zo4dm * bsum;
-	h1psum = zod2p * csum + zod0dp * dsum;
-	h2psum = zod2m * csum + zod0dm * dsum;
-	std::cout << " > > > h1sum   = " << h1sum << '\n';
-	std::cout << " > > > h2sum   = " << h2sum << '\n';
-	std::cout << " > > > h1psum  = " << h1psum << '\n';
-	std::cout << " > > > h2psum  = " << h2psum << '\n';
-	std::cout << " > > > h1save  = " << h1save << '\n';
-	std::cout << " > > > h2save  = " << h2save << '\n';
-	std::cout << " > > > h1psave = " << h1psave << '\n';
-	std::cout << " > > > h2psave = " << h2psave << '\n';
+	__h1sum  = __aip  * __asum  + __zo4dp * __bsum;
+	__h2sum  = __aim  * __asum  + __zo4dm * __bsum;
+	__h1psum = __zod2p * __csum + __zod0dp * __dsum;
+	__h2psum = __zod2m * __csum + __zod0dm * __dsum;
+	std::cout << " > > > h1sum   = " << __h1sum << '\n';
+	std::cout << " > > > h2sum   = " << __h2sum << '\n';
+	std::cout << " > > > h1psum  = " << __h1psum << '\n';
+	std::cout << " > > > h2psum  = " << __h2psum << '\n';
+	std::cout << " > > > h1save  = " << __h1save << '\n';
+	std::cout << " > > > h2save  = " << __h2save << '\n';
+	std::cout << " > > > h1psave = " << __h1psave << '\n';
+	std::cout << " > > > h2psave = " << __h2psave << '\n';
 
 	//  If convergence criteria met this term, see if it was before
-	if (norm1(h1sum - h1save) < eps * norm1(h1sum)
-	 && norm1(h2sum - h2save) < eps * norm1(h2sum)
-	 && norm1(h1psum - h1psave) < eps * norm1(h1psum)
-	 && norm1(h2psum - h2psave) < eps * norm1(h2psum)) 
+	if (__norm_L1(__h1sum - __h1save) < __eps * __norm_L1(__h1sum)
+	 && __norm_L1(__h2sum - __h2save) < __eps * __norm_L1(__h2sum)
+	 && __norm_L1(__h1psum - __h1psave) < __eps * __norm_L1(__h1psum)
+	 && __norm_L1(__h2psum - __h2psave) < __eps * __norm_L1(__h2psum))
 	  {
-	    if (coverged) // Convergence - relative error criteria met twice in a row
+	    if (__coverged) // Convergence criteria met twice in a row
 	      return;
 	    else  //  Converged
-	      coverged = true;
+	      __coverged = true;
 	  }
 	else  //  Reset relative error criteria flag
-	  coverged = false;
+	  __coverged = false;
 
 	//  Save combined sums for comparison next iteration
-	h1save = h1sum;
-	h2save = h2sum;
-	h1psave = h1psum;
-	h2psave = h2psum;
+	__h1save = __h1sum;
+	__h2save = __h2sum;
+	__h1psave = __h1psum;
+	__h2psave = __h2psum;
       }
 
     //  All allowable terms used - set completion code
-    status = 177;
+    __status = 177;
 
     return;
   }
@@ -1196,135 +1198,136 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  hankel_params(std::complex<_Tp> nu, std::complex<_Tp> zhat,
-		std::complex<_Tp>& t, std::complex<_Tp>& tsq,
-		std::complex<_Tp>& nusq, std::complex<_Tp>& z1dnsq,
-		std::complex<_Tp>& znm1d3, std::complex<_Tp>& znm2d3,
-		std::complex<_Tp>& znm4d3, std::complex<_Tp>& zeta,
-		std::complex<_Tp>& zetaphf, std::complex<_Tp>& zetamhf,
-		std::complex<_Tp>& zetm3h, std::complex<_Tp>& zetrat,
-		int& status)
+  __hankel_params(std::complex<_Tp> __nu, std::complex<_Tp> __zhat,
+		  std::complex<_Tp>& __t, std::complex<_Tp>& __tsq,
+		  std::complex<_Tp>& __nusq, std::complex<_Tp>& __1dnusq,
+		  std::complex<_Tp>& __num1d3, std::complex<_Tp>& __num2d3,
+		  std::complex<_Tp>& __num4d3, std::complex<_Tp>& __zeta,
+		  std::complex<_Tp>& __zetaphf, std::complex<_Tp>& __zetamhf,
+		  std::complex<_Tp>& __zetm3h, std::complex<_Tp>& __zetrat,
+		  int& __status)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
     //  data statements defining constants used in this subroutine
-    //  note that dinf and dinfsr are machine floating-point dependent
+    //  note that _S_inf and _S_sqrtinf are machine floating-point dependent
     //  constants equal to the largest available floating-point number and
     //  its square root, respectively.
 
-    static constexpr auto dinf   = std::numeric_limits<_Tp>::max();
-    static constexpr auto dinfsr = std::sqrt(dinf);
+    static constexpr auto _S_inf     = std::numeric_limits<_Tp>::max();
+    static constexpr auto _S_sqrtinf = std::sqrt(_S_inf);
 
-    static constexpr auto dzero  = _Tp(0.0L);
-    static constexpr auto d1d4   = _Tp(0.25L);
-    static constexpr auto d1d3   = _Tp(0.33333333333333333333L);
-    static constexpr auto dhalf  = _Tp(0.5L);
-    static constexpr auto d2d3   = _Tp(0.66666666666666633337L);
-    static constexpr auto d2pi   = _Tp(6.283185307179586L);
-    static constexpr auto dlncon = _Tp(0.2703100720721096L);
-    static constexpr auto dsqr2  = _Tp(1.4142135623730950L);
-    static constexpr auto d4d3   = _Tp(1.33333333333333333333L);
+    static constexpr auto _S_1d4   = _Tp(0.25L);
+    static constexpr auto _S_1d3   = _Tp(0.33333333333333333333L);
+    static constexpr auto _S_1d2   = _Tp(0.5L);
+    static constexpr auto _S_2d3   = _Tp(0.66666666666666633337L);
+    static constexpr auto _S_2pi   = _Tp(6.283185307179586L);
+    static constexpr auto _S_lncon = _Tp(0.2703100720721096L);
+    static constexpr auto _S_sqrt2 = _Tp(1.4142135623730950L);
+    static constexpr auto _S_4d3   = _Tp(1.33333333333333333333L);
 
-    static constexpr cmplx zone{1.0L, 0.0L};
-    static constexpr cmplx j{0.0L, 1.0L};
+    static constexpr __cmplx __zone{1.0L, 0.0L};
+    static constexpr __cmplx _S_j{0.0L, 1.0L};
 
     //  Separate real and imaginary parts of zhat
-    auto dx = std::real(zhat);
-    auto dy = std::imag(zhat);
-    auto dxabs = std::abs(dx);
-    auto dyabs = std::abs(dy);
+    auto __dx = std::real(__zhat);
+    auto __dy = std::imag(__zhat);
+    auto __dxabs = std::abs(__dx);
+    auto __dyabs = std::abs(__dy);
 
     //  If 1 - zhat^2 can be computed without overflow
-    if (dxabs <= dinfsr && dyabs <= (dinfsr - 1))
+    if (__dxabs <= _S_sqrtinf &&
+	__dyabs <= (_S_sqrtinf - 1))
       {
-	//  find max and min of abs(dx) and abs(dy)
-	auto du = dxabs;
-	auto dv = dyabs;
-	if (du < dv)
-	  std::swap(du, dv);
-	if (du >= dhalf && dv > dinf / (2 * du))
+	//  Find max and min of abs(dx) and abs(dy)
+	auto __du = __dxabs;
+	auto __dv = __dyabs;
+	if (__du < __dv)
+	  std::swap(__du, __dv);
+	if (__du >= _S_1d2 && __dv > _S_inf / (2 * __du))
 	  {
 	    //  set completion code - unable to compute 1-zhat^2 and exit
-	    status = 131;
+	    __status = 131;
 	    return;
 	  }
       }
     else
       {
 	//  set completion code - unable to compute 1-zhat^2 and exit
-	status = 131;
+	__status = 131;
 	return;
       }
 
     //  compute 1 - zhat^2 and related constants
-    auto ztemp = cmplx{1 - (dx - dy) * (dx + dy), -2 * dx * dy};
-    ztemp = std::sqrt(ztemp);
-    t = _Tp(1) / ztemp;
-    tsq = t * t;
+    auto __ztemp = __cmplx{_Tp(1) - (__dx - __dy) * (__dx + __dy),
+			-_Tp(2) * __dx * __dy};
+    __ztemp = std::sqrt(__ztemp);
+    __t = _Tp(1) / __ztemp;
+    __tsq = __t * __t;
 
     //  if nu^2 can be computed without overflow
-    if (std::abs(nu) <= dinfsr)
+    if (std::abs(__nu) <= _S_sqrtinf)
       {
-	nusq = nu * nu;
-	z1dnsq = _Tp(1) / nusq;
-	//  compute nu^(-2/3), nu^(-4/3), nu^(-1/3)
-	znm4d3 = -std::log(nu);
-	znm1d3 = std::exp(d1d3 * znm4d3);
-	znm2d3 = std::exp(d2d3 * znm4d3);
-	znm4d3 = std::exp(d4d3 * znm4d3);
+	__nusq = __nu * __nu;
+	__1dnusq = _Tp(1) / __nusq;
+	//  Compute nu^(-1/3), nu^(-2/3), nu^(-4/3)
+	__num4d3 = -std::log(__nu);
+	__num1d3 = std::exp(_S_1d3 * __num4d3);
+	__num2d3 = std::exp(_S_2d3 * __num4d3);
+	__num4d3 = std::exp(_S_4d3 * __num4d3);
       }
     else
       {
 	//  set completion code - unable to compute nu^2
-	status = 132;
+	__status = 132;
 	return;
       }
 
     //  compute xi = ln(1+(1-zhat^2)^(1/2)) - ln(zhat) - (1-zhat^2)^(1/2)
     //  using default branch of logarithm and square root
-    auto xi = std::log(zone + ztemp) - std::log(zhat) - ztemp;
-    zetm3h = d2d3 / xi;
+    auto __xi = std::log(__zone + __ztemp) - std::log(__zhat) - __ztemp;
+    __zetm3h = _S_2d3 / __xi;
 
     //  Compute principal value of ln(xi) and then adjust imaginary part
-    auto lnxi = std::log(xi);
+    auto __lnxi = std::log(__xi);
 
     //  Prepare to adjust logarithm of xi to appropriate Riemann sheet
-    auto dtemp = dzero;
+    auto __dtemp = _Tp(0);
 
     //  Find adjustment necessary to get on proper Riemann sheet
-    if (dy == dzero)  //  zhat is real
+    if (__dy == _Tp(0))  //  zhat is real
       {
-	if (dx > 1)
-	  dtemp = d2pi;
+	if (__dx > 1)
+	  __dtemp = _S_2pi;
       }
     else  //  zhat is not real
       {
 	//  if zhat is in upper half-plane
-	if (dy > dzero)
+	if (__dy > _Tp(0))
 	  {
 	    //  if xi lies in upper half-plane
-	    if (std::imag(xi) > dzero)
-	      dtemp = -d2pi;
+	    if (std::imag(__xi) > _Tp(0))
+	      __dtemp = -_S_2pi;
 	    else
-	      dtemp = d2pi;
+	      __dtemp = +_S_2pi;
 	  }
       }
     std::cout.precision(std::numeric_limits<double>::max_digits10);
-    std::cout << " > > > dtemp = " << dtemp << '\n';
+    std::cout << " > > > dtemp = " << __dtemp << '\n';
 
     //  Adjust logarithm of xi.
-    lnxi += dtemp * j;
-    std::cout << " > > > lnxi = " << lnxi << '\n';
+    __lnxi += __dtemp * _S_j;
+    std::cout << " > > > lnxi = " << __lnxi << '\n';
 
     //  Compute ln(zeta), zeta, zeta^(+1/2), zeta^(-1/2)
-    auto lnzeta = d2d3 * lnxi + dlncon;
-    zeta = std::exp(lnzeta);
-    zetaphf = std::sqrt(zeta);
-    zetamhf = _Tp(1) / zetaphf;
+    auto __lnzeta = _S_2d3 * __lnxi + _S_lncon;
+    __zeta = std::exp(__lnzeta);
+    __zetaphf = std::sqrt(__zeta);
+    __zetamhf = _Tp(1) / __zetaphf;
 
     //  compute (4 * zeta / (1 - zhat^2))^(1/4)
-    ztemp = std::log(ztemp);
-    zetrat = dsqr2 * std::exp(d1d4 * lnzeta - dhalf * ztemp);
+    __ztemp = std::log(__ztemp);
+    __zetrat = _S_sqrt2 * std::exp(_S_1d4 * __lnzeta - _S_1d2 * __ztemp);
 
     return;
   }
@@ -1338,7 +1341,7 @@ template<typename _Tp>
       implementation can be obtained without use of safe_div.
 
     Arguments
-    @param[in]  znm2d3  nu^(-2/3).  in our implementation, zmn2d3 is
+    @param[in]  num2d3  nu^(-2/3).  in our implementation, zmn2d3 is
 			output from hankel_params.
     @param[in]  zeta    zeta in the uniform asymptotic expansions.
 			In our implementation, zeta is output from dparms.
@@ -1351,31 +1354,31 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_arg(std::complex<_Tp> nm2d3, std::complex<_Tp> zeta,
-	   std::complex<_Tp>& argp, std::complex<_Tp>& argm, int& status)
+  __airy_arg(std::complex<_Tp> __nm2d3, std::complex<_Tp> __zeta,
+	     std::complex<_Tp>& __argp, std::complex<_Tp>& __argm, int& __status)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
     //  zexpp and zexpm are exp(2*pi*i/3) and its reciprocal, respectively.
-    static constexpr auto expp = cmplx{-0.5L,  0.8660254037844386L};
-    static constexpr auto expm = cmplx{-0.5L, -0.8660254037844386L};
+    static constexpr auto __expp = __cmplx{-0.5L,  0.8660254037844386L};
+    static constexpr auto __expm = __cmplx{-0.5L, -0.8660254037844386L};
 
     std::cout << " > > > airy_arg:\n";
-    std::cout << " > > > > nm2d3 = " << nm2d3 << '\n';
-    std::cout << " > > > > zeta  = " << zeta << '\n';
+    std::cout << " > > > > nm2d3 = " << __nm2d3 << '\n';
+    std::cout << " > > > > zeta  = " << __zeta << '\n';
 
-    status = 0;
+    __status = 0;
 
-    if (safe_div(zeta, nm2d3, argm))
+    if (__safe_div(__zeta, __nm2d3, __argm))
       {
-	std::cout << " > > > > argm = " << argm << '\n';
-	argp = expp * argm;
-	argm = expm * argm;
+	std::cout << " > > > > argm = " << __argm << '\n';
+	__argp = __expp * __argm;
+	__argm = __expm * __argm;
       }
     else
-      status = 133;
-    std::cout << " > > > > argp = " << argp << '\n';
-    std::cout << " > > > > argm = " << argm << '\n';
+      __status = 133;
+    std::cout << " > > > > argp = " << __argp << '\n';
+    std::cout << " > > > > argm = " << __argm << '\n';
   }
 
 #endif // HANKEL_TCC

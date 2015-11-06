@@ -1,9 +1,9 @@
 
 nedit cylsubs.f hankel_debye.f hankel.f region.f test_hankel_old.f hankel.h hankel.tcc airy.tcc test_hankel.cpp hankel_help.txt &
-kdiff3 test_hankel.out test_hankel_old.out &
+kdiff3 test_hankel.out test_hankel_old.out test_hankel_orig.out &
 
 notepad cylsubs.f hankel_debye.f hankel.f region.f test_hankel_old.f hankel.h hankel.tcc airy.tcc test_hankel.cpp hankel_help.txt &
-kdiff3 test_hankel.out test_hankel_old.out &
+kdiff3 test_hankel.out test_hankel_old.out test_hankel_orig.out &
 
 $HOME/bin/bin/g++ -std=c++14 -Wall -Wextra -o test_hankel test_hankel.cpp > /dev/null
 ./test_hankel > ./test_hankel.out

@@ -7,45 +7,45 @@
 
 template<typename _Tp>
   void
-  airy(const std::complex<_Tp>& z, _Tp eps,
-       std::complex<_Tp>& ai,
-       std::complex<_Tp>& aip,
-       int& error);
+  __airy(const std::complex<_Tp>& __z, _Tp __eps,
+         std::complex<_Tp>& __ai,
+         std::complex<_Tp>& __aip,
+         int& __error);
 
 template<typename _Tp>
   void
-  airy_bessel_i(const std::complex<_Tp>& z, _Tp eps,
-		std::complex<_Tp>& ip1d3,
-		std::complex<_Tp>& im1d3,
-		std::complex<_Tp>& ip2d3,
-		std::complex<_Tp>& im2d3);
+  __airy_bessel_i(const std::complex<_Tp>& __z, _Tp __eps,
+		  std::complex<_Tp>& __ip1d3,
+		  std::complex<_Tp>& __im1d3,
+		  std::complex<_Tp>& __ip2d3,
+		  std::complex<_Tp>& __im2d3);
 
 template<typename _Tp>
   void
-  airy_bessel_k(const std::complex<_Tp>& z, _Tp eps,
-		std::complex<_Tp>& kp1d3,
-		std::complex<_Tp>& kp2d3,
-		int& error);
+  __airy_bessel_k(const std::complex<_Tp>& __z, _Tp __eps,
+		  std::complex<_Tp>& __kp1d3,
+		  std::complex<_Tp>& __kp2d3,
+		  int& __error);
 
 template<typename _Tp>
   void
-  airy_hyperg_rational(const std::complex<_Tp>& z,
-		       std::complex<_Tp>& fp1d3,
-		       std::complex<_Tp>& fm1d3,
-		       std::complex<_Tp>& fp2d3,
-		       std::complex<_Tp>& fm2d3);
+  __airy_hyperg_rational(const std::complex<_Tp>& __z,
+			 std::complex<_Tp>& __fp1d3,
+			 std::complex<_Tp>& __fm1d3,
+			 std::complex<_Tp>& __fp2d3,
+			 std::complex<_Tp>& __fm2d3);
 
 template<typename _Tp>
   void
-  airy_asymp_absarg_ge_pio3(const std::complex<_Tp>& z,
-			    std::complex<_Tp>& ai,
-			    std::complex<_Tp>& aip);
+  __airy_asymp_absarg_ge_pio3(std::complex<_Tp> __z,
+			      std::complex<_Tp>& __ai,
+			      std::complex<_Tp>& __aip);
 
 template<typename _Tp>
   void
-  airy_asymp_absarg_lt_pio3(std::complex<_Tp> z,
-			    std::complex<_Tp>& ai,
-			    std::complex<_Tp>& aip);
+  __airy_asymp_absarg_lt_pio3(std::complex<_Tp> __z,
+			      std::complex<_Tp>& __ai,
+			      std::complex<_Tp>& __aip);
 
 /**
     @brief
@@ -174,89 +174,88 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy(const std::complex<_Tp>& z, _Tp eps,
-       std::complex<_Tp>& ai,
-       std::complex<_Tp>& aip,
-       int& error)
+  __airy(const std::complex<_Tp>& __z, _Tp __eps,
+         std::complex<_Tp>& __ai,
+         std::complex<_Tp>& __aip,
+         int& __error)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
     static constexpr std::complex<_Tp>
-      eppid6{ 0.8660254037844386,  0.5},
-      empid6{ 0.8660254037844386, -0.5},
-      eppid3{ 0.5,  0.8660254037844386},
-      empid3{ 0.5, -0.8660254037844386},
-      j{0, 1};
+      _S_eppid6{ 0.8660254037844386,  0.5},
+      _S_empid6{ 0.8660254037844386, -0.5},
+      _S_eppid3{ 0.5,  0.8660254037844386},
+      _S_empid3{ 0.5, -0.8660254037844386},
+      _S_j{0, 1};
     static constexpr _Tp
-      dzero {0},
-      d1d3  {3.33333333333333333e-01},
-      d2d3  {6.66666666666666667e-01},
-      dgm1d3{2.588194037928068e-01},
-      dgm2d3{3.550280538878172e-01},
-      d2g2d3{1.775140269439086e-01},
-      drsqpi{2.820947917738781e-01},
+      _S_1d3  {3.33333333333333333e-01},
+      _S_2d3  {6.66666666666666667e-01},
+      _S_gm1d3{2.588194037928068e-01},
+      _S_gm2d3{3.550280538878172e-01},
+      _S_2g2d3{1.775140269439086e-01},
+      _S_rsqpi{2.820947917738781e-01},
       pi    {3.1415926535897932385};
-    static constexpr _Tp small{0.25}, big{15};
+    static constexpr _Tp _S_small{0.25}, _S_big{15};
 
-    error = 0;
+    __error = 0;
 
     std::cout << " > airy:\n";
-    std::cout << " > > z = " << z << '\n';
-    std::cout << " > > small = " << small << '\n';
-    std::cout << " > > big   = " << big << '\n';
+    std::cout << " > > z = " << __z << '\n';
+    std::cout << " > > small = " << _S_small << '\n';
+    std::cout << " > > big   = " << _S_big << '\n';
 
     //  Compute modulus of z for later use
-    auto absz = std::abs(z);
-    std::cout << " > > absz = " << absz << '\n';
+    auto __absz = std::abs(__z);
+    std::cout << " > > absz = " << __absz << '\n';
     //  Check size of abs(z) and select appropriate methods
-    if (absz < big)
+    if (__absz < _S_big)
       {
 	//  Moderate or small abs(z)
 	//  Check argument for right or left half plane
-	if (std::real(z) >= dzero)
+	if (std::real(__z) >= _Tp(0))
 	  {
 	    //  Argument in closed right half plane
 	    //  Compute xi as defined in the representations in terms of Bessel functions
-	    auto sqrtz = std::sqrt(z);
-	    auto xi = d2d3 * z * sqrtz;
+	    auto __sqrtz = std::sqrt(__z);
+	    auto __xi = _S_2d3 * __z * __sqrtz;
 
 	    //  Check for abs(z) too large for accuracy of representations (1) and (4)
-	    if (absz >= _Tp{2})
+	    if (__absz >= _Tp{2})
 	      {
 		//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
-		airy_bessel_k(xi, eps, ai, aip, error);
+		__airy_bessel_k(__xi, __eps, __ai, __aip, __error);
 		//  Recover Ai(z) and Ai'(z)
-		auto zp1d4c = std::sqrt(sqrtz);
-		xi = drsqpi * std::exp(-xi);
-		ai *= xi / zp1d4c;
-		aip *= -xi * zp1d4c;
+		auto __p1d4c = std::sqrt(__sqrtz);
+		__xi = _S_rsqpi * std::exp(-__xi);
+		__ai *= __xi / __p1d4c;
+		__aip *= -__xi * __p1d4c;
 	      }
 	    else
 	      {
 		//  Check for abs(z) small enough for rational approximation
-		if (absz <= small)
+		if (__absz <= _S_small)
 		  {
 		    //  Use rational approximation along with (1) and (4)
-		    cmplx ip1d3, im1d3, ip2d3, im2d3;
-		    airy_hyperg_rational(z, ip1d3, im1d3, ip2d3, im2d3);
+		    __cmplx __ip1d3, __im1d3, __ip2d3, __im2d3;
+		    __airy_hyperg_rational(__z, __ip1d3, __im1d3, __ip2d3, __im2d3);
 		    //  Recover Ai(z) and Ai'(z)
-		    im1d3 *= dgm2d3;
-		    ip1d3 *= dgm1d3;
-		    ai = im1d3 - z * ip1d3;
-		    im2d3 *= dgm1d3;
-		    ip2d3 *= d2g2d3;
-		    aip = z * z * ip2d3 - im2d3;
+		    __im1d3 *= _S_gm2d3;
+		    __ip1d3 *= _S_gm1d3;
+		    __ai = __im1d3 - __z * __ip1d3;
+		    __im2d3 *= _S_gm1d3;
+		    __ip2d3 *= _S_2g2d3;
+		    __aip = __z * __z * __ip2d3 - __im2d3;
 		  }
 		else
 		  {
 		    //  Use backward recurrence along with (1) and (4)
-		    cmplx ip1d3, im1d3, ip2d3, im2d3;
-		    airy_bessel_i(xi, eps, ip1d3, im1d3, ip2d3, im2d3);
+		    __cmplx __ip1d3, __im1d3, __ip2d3, __im2d3;
+		    __airy_bessel_i(__xi, __eps, __ip1d3, __im1d3, __ip2d3, __im2d3);
 		    //  Recover Ai(z) and Ai'(z)
-		    ai = d1d3 * sqrtz * (im1d3 - ip1d3);
-		    aip = d1d3 * z * (ip2d3 - im2d3);
-                    std::cout << " > > > > > > ai = " << ai << '\n';
-                    std::cout << " > > > > > > aip = " << aip << '\n';
+		    __ai = _S_1d3 * __sqrtz * (__im1d3 - __ip1d3);
+		    __aip = _S_1d3 * __z * (__ip2d3 - __im2d3);
+                    std::cout << " > > > > > > ai = " << __ai << '\n';
+                    std::cout << " > > > > > > aip = " << __aip << '\n';
 		  }
 	      }
 	  }
@@ -264,64 +263,64 @@ template<typename _Tp>
 	  {
 	    //  Argument lies in left half plane
 	    //  Compute xi as defined in the representations in terms of Bessel functions
-	    auto sqrtz = std::sqrt(-z);
-	    auto xi = -d2d3 * z * sqrtz;
+	    auto __sqrtz = std::sqrt(-__z);
+	    auto __xi = -_S_2d3 * __z * __sqrtz;
 	    //  Set up arguments to recover Bessel functions of the first kind in (3) and (6)
-	    cmplx z2xi, zp1d3f, zm1d3f, zp2d3f, zm2d3f;
-	    if (std::imag(xi) >= dzero)
+	    __cmplx __z2xi, __p1d3f, __m1d3f, __p2d3f, __m2d3f;
+	    if (std::imag(__xi) >= _Tp(0))
 	      {
 		//  Argument lies in upper half plane, so use appropriate identity
-		z2xi = -j * xi;
-		zp1d3f = eppid6;
-		zm1d3f = empid6;
-		zp2d3f = eppid3;
-		zm2d3f = empid3;
+		__z2xi = -_S_j * __xi;
+		__p1d3f = _S_eppid6;
+		__m1d3f = _S_empid6;
+		__p2d3f = _S_eppid3;
+		__m2d3f = _S_empid3;
 	      }
 	    else
 	      {
 		//  Argument lies in lower half plane, so use appropriate identity
-		z2xi = j * xi;
-		zp1d3f = empid6;
-		zm1d3f = eppid6;
-		zp2d3f = empid3;
-		zm2d3f = eppid3;
+		__z2xi = _S_j * __xi;
+		__p1d3f = _S_empid6;
+		__m1d3f = _S_eppid6;
+		__p2d3f = _S_empid3;
+		__m2d3f = _S_eppid3;
 	      }
 
 	    //  Use approximation depending on size of z
-	    if (absz <= small)
+	    if (__absz <= _S_small)
 	      {
 		//  Use rational approximation
-		xi = -z;
-		cmplx ip1d3, im1d3, ip2d3, im2d3;
-		airy_hyperg_rational(z, ip1d3, im1d3, ip2d3, im2d3);
+		__xi = -__z;
+		__cmplx __ip1d3, __im1d3, __ip2d3, __im2d3;
+		__airy_hyperg_rational(__z, __ip1d3, __im1d3, __ip2d3, __im2d3);
 		//  Recover Ai(z) and Ai'(z)
-		im1d3 *= dgm2d3;
-		ip1d3 *= dgm1d3;
-		ai = im1d3 - z * ip1d3;
-		im2d3 *= dgm1d3;
-		ip2d3 *= d2g2d3;
-		aip = z * z * ip2d3 - im2d3;
+		__im1d3 *= _S_gm2d3;
+		__ip1d3 *= _S_gm1d3;
+		__ai = __im1d3 - __z * __ip1d3;
+		__im2d3 *= _S_gm1d3;
+		__ip2d3 *= _S_2g2d3;
+		__aip = __z * __z * __ip2d3 - __im2d3;
 	      }
 	    else
 	      {
 		//  Use backward recurrence
-		cmplx ip1d3, im1d3, ip2d3, im2d3;
-		airy_bessel_i(z2xi, eps, ip1d3, im1d3, ip2d3, im2d3);
+		__cmplx __ip1d3, __im1d3, __ip2d3, __im2d3;
+		__airy_bessel_i(__z2xi, __eps, __ip1d3, __im1d3, __ip2d3, __im2d3);
 		//  Recover Ai(z) and Ai'(z)
-		ai = d1d3 * sqrtz * (zm1d3f * im1d3 + zp1d3f * ip1d3);
-		aip = d1d3 * z * (zm2d3f * im2d3 - zp2d3f * ip2d3);
-                std::cout << " > > > > > ai = " << ai << '\n';
-                std::cout << " > > > > > aip = " << aip << '\n';
+		__ai = _S_1d3 * __sqrtz * (__m1d3f * __im1d3 + __p1d3f * __ip1d3);
+		__aip = _S_1d3 * __z * (__m2d3f * __im2d3 - __p2d3f * __ip2d3);
+                std::cout << " > > > > > ai = " << __ai << '\n';
+                std::cout << " > > > > > aip = " << __aip << '\n';
 	      }
 	  }
       }
     else
       {  //  abs(z) is large...
 	//  Check arg(z) to see which asymptotic form is appropriate
-	if (std::abs(std::arg(z)) < 2 * pi / 3)
-	  airy_asymp_absarg_ge_pio3(z, ai, aip);
+	if (std::abs(std::arg(__z)) < 2 * pi / 3)
+	  __airy_asymp_absarg_ge_pio3(__z, __ai, __aip);
 	else
-	  airy_asymp_absarg_lt_pio3(z, ai, aip);
+	  __airy_asymp_absarg_lt_pio3(__z, __ai, __aip);
       }
     return;
 }
@@ -406,39 +405,39 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_bessel_i(const std::complex<_Tp>& z, _Tp eps,
-		std::complex<_Tp>& ip1d3,
-		std::complex<_Tp>& im1d3,
-		std::complex<_Tp>& ip2d3,
-		std::complex<_Tp>& im2d3)
+  __airy_bessel_i(const std::complex<_Tp>& __z, _Tp __eps,
+		  std::complex<_Tp>& __ip1d3,
+		  std::complex<_Tp>& __im1d3,
+		  std::complex<_Tp>& __ip2d3,
+		  std::complex<_Tp>& __im2d3)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
-    constexpr cmplx zero{0}, zone{1};
-    constexpr _Tp one{1.0L}, half{0.5L},
-    	 d1d3  {3.333333333333333e-01}, d2d3  {6.666666666666667e-01},
-    	 d4d3  {1.333333333333333e+00}, d5d3  {1.666666666666667e+00},
-    	 d8d3  {2.666666666666667e+00}, d10d3 {3.333333333333333e+00},
-    	 d14d3 {4.666666666666667e+00}, d16d3 {5.333333333333333e+00},
-    	 gm4d3{8.929795115692492e-01}, gm5d3{9.027452929509336e-01},
-    	 d2sqr2{2.828427124746190e+01};
+    constexpr __cmplx _S_zero{0}, _S_zone{1};
+    constexpr _Tp
+    	 _S_1d3  {3.333333333333333e-01}, _S_2d3  {6.666666666666667e-01},
+    	 _S_4d3  {1.333333333333333e+00}, _S_5d3  {1.666666666666667e+00},
+    	 _S_8d3  {2.666666666666667e+00}, _S_10d3 {3.333333333333333e+00},
+    	 _S_14d3 {4.666666666666667e+00}, _S_16d3 {5.333333333333333e+00},
+    	 _S_gm4d3{8.929795115692492e-01}, _S_gm5d3{9.027452929509336e-01},
+    	 _S_2sqrt2{2.828427124746190e+01};
 
     std::cout << " > airy_bessel_i:\n";
-    std::cout << " > > z = " << z << '\n';
+    std::cout << " > > z = " << __z << '\n';
 
     //  Compute 1/z for use in recurrence for speed and abs(z)
-    cmplx z1dz;
-    safe_div(1, z, z1dz);
+    __cmplx __1dz;
+    __safe_div(1, __z, __1dz);
 
     //  Initialize for forward recursion based on order 2/3
-    int n = 0;
-    auto d2n = _Tp(2 * n) + d4d3;
-    auto zplst2 = zone;
-    auto zp2 = d2n * z1dz;
+    int __n = 0;
+    auto __d2n = _Tp(2 * __n) + _S_4d3;
+    auto __plast2 = _S_zone;
+    auto __p2 = __d2n * __1dz;
 
     //  Calculate weak convergence test and set flag for weak convergence loop
-    auto test = d2sqr2 / eps;
-    bool converged = false;
+    auto __test = _S_2sqrt2 / __eps;
+    bool __converged = false;
 
     //  loop until weak and strong convergence tests satisfied when recurring forward
     while (true)
@@ -446,152 +445,152 @@ template<typename _Tp>
 	do
 	  {
     	    //  Update n dependent quantities
-    	    ++n;
-    	    d2n += 2;
+    	    ++__n;
+    	    __d2n += 2;
     	    //  Interchange values
-    	    auto zpold2 = zplst2;
-    	    zplst2 = zp2;
+    	    auto __pold2 = __plast2;
+    	    __plast2 = __p2;
     	    //  Recur forward one step
-    	    zp2 = z1dz * d2n * zplst2 + zpold2;
+    	    __p2 = __1dz * __d2n * __plast2 + __pold2;
 	  }
-	while (norm1(zp2) < test);  //  Check if convergence test (in 1-norm) satisfied
+	while (__norm_L1(__p2) < __test);  //  Check if convergence test (in 1-norm) satisfied
 
 	//  If strong convergence, then weak and strong convergence
-	if (converged)
+	if (__converged)
     	  break;
 
 	//  Calculate strong convergence test.
 	//  See the Olver and Sookne papers cited for details.
-	auto rep2 = std::real(zp2);
-	auto imp2 = std::imag(zp2);
-	auto replast = std::real(zplst2);
-	auto implast = std::imag(zplst2);
+	auto __rep2 = std::real(__p2);
+	auto __imp2 = std::imag(__p2);
+	auto __replast2 = std::real(__plast2);
+	auto __implast2 = std::imag(__plast2);
 	//  Compute scale factor to avoid possible overflow
-	auto lamn = std::max(std::abs(rep2), std::abs(imp2));
+	auto __lamn = __norm_Linf(__p2);
 	//  Compute the kappa_n of strong convergence lemma
-	auto kapn = std::sqrt(((rep2 / lamn) * (rep2 / lamn)
-    			     + (imp2 / lamn) * (imp2 / lamn))
-    			   / ((replast / lamn) * (replast / lamn)
-    			    + (implast / lamn) * (implast / lamn)));
+	auto __kapn = std::sqrt(((__rep2 / __lamn) * (__rep2 / __lamn)
+    			     + (__imp2 / __lamn) * (__imp2 / __lamn))
+    			   / ((__replast2 / __lamn) * (__replast2 / __lamn)
+    			    + (__implast2 / __lamn) * (__implast2 / __lamn)));
 	//  Compute quantity needed for lambda_n of strong convergence lemma
-	lamn = _Tp(n + 1) / std::abs(z);
+	__lamn = _Tp(__n + 1) / std::abs(__z);
 	//  Determine appropriate value for rho_n of lemma
-	if (kapn + 1 / kapn > 2 * lamn)
-    	  kapn = lamn + std::sqrt(lamn * lamn - 1);
+	if (__kapn + 1 / __kapn > 2 * __lamn)
+    	  __kapn = __lamn + std::sqrt(__lamn * __lamn - 1);
 	//  Compute test value - sqrt(2) multiple already included
-	test *= std::sqrt(kapn - 1 / kapn);
+	__test *= std::sqrt(__kapn - 1 / __kapn);
 	//  Set strong convergence test flag
-	converged = true;
+	__converged = true;
       }
 
     //  Prepare for backward recurrence for both orders 1/3 and 2/3
-    auto rn = _Tp(n);
-    ++n;
-    d2n = _Tp(2 * n);
-    auto zplst1 = zero;
-    zplst2 = zero;
-    //  Carefully compute 1/zp2 to avoid overflow in complex divide
-    cmplx zp1;
-    safe_div(1, zp2, zp1);
-    zp2 = zp1;
+    auto __rn = _Tp(__n);
+    ++__n;
+    __d2n = _Tp(2 * __n);
+    auto __plast1 = _S_zero;
+    __plast2 = _S_zero;
+    //  Carefully compute 1/p2 to avoid overflow in complex divide
+    __cmplx __p1;
+    __safe_div(1, __p2, __p1);
+    __p2 = __p1;
     //  Set up n dependent parameters used in normalization sum
-    auto rnpn1 = rn + d1d3;
-    auto rnpn2 = rn + d2d3;
-    auto rnp2n1 = (rn - one) + d2d3;
-    auto rnp2n2 = (rn - one) + d4d3;
+    auto __rnpn1 = __rn + _S_1d3;
+    auto __rnpn2 = __rn + _S_2d3;
+    auto __rnp2n1 = (__rn - _Tp(1)) + _S_2d3;
+    auto __rnp2n2 = (__rn - _Tp(1)) + _S_4d3;
     //  Initialize normalization sum
-    auto fact1 = rnpn1 * rnp2n1 / rn;
-    auto sum1 = fact1 * zp1;
-    auto fact2 = rnpn2 * rnp2n2 / rn;
-    auto sum2 = fact2 * zp2;
+    auto __fact1 = __rnpn1 * __rnp2n1 / __rn;
+    auto __sum1 = __fact1 * __p1;
+    auto __fact2 = __rnpn2 * __rnp2n2 / __rn;
+    auto __sum2 = __fact2 * __p2;
     //  Set ending loop index to correspond to k=1 term of the
     //  normalization relationship
-    auto nend = n - 3;
+    auto __nend = __n - 3;
 
     //  if backward recurrence loop will be nontrivial
-    if (nend > 0)
+    if (__nend > 0)
       {
 	//  Loop until backward recursion to k=1 term of normalization
-	for (int l = 1; l <= nend; ++l)
+	for (int __l = 1; __l <= __nend; ++__l)
 	  {
     	    //  Update n dependent quantities
-    	    --n;
-    	    d2n -= 2;
-    	    fact1 = d2n + d2d3;
-    	    fact2 = d2n + d4d3;
+    	    --__n;
+    	    __d2n -= 2;
+    	    __fact1 = __d2n + _S_2d3;
+    	    __fact2 = __d2n + _S_4d3;
     	    //  Interchanges for order 1/3 recurrence
-    	    auto zpold1 = zplst1;
-    	    zplst1 = zp1;
+    	    auto __pold1 = __plast1;
+    	    __plast1 = __p1;
     	    //  Recur back one step for order 1/3
-    	    zp1 = z1dz * fact1 * zplst1 + zpold1;
+    	    __p1 = __1dz * __fact1 * __plast1 + __pold1;
     	    //  Interchanges for order 2/3 recurrence
-    	    auto zpold2 = zplst2;
-    	    zplst2 = zp2;
+    	    auto __pold2 = __plast2;
+    	    __plast2 = __p2;
     	    //  Recur back one step for order 2/3
-    	    zp2 = z1dz * fact2 * zplst2 + zpold2;
+    	    __p2 = __1dz * __fact2 * __plast2 + __pold2;
     	    //  Update quantities for computing normalization sums
-    	    rn = rn - one;
-    	    rnpn1 = rn + d1d3;
-    	    rnp2n1 = rn - d1d3;
-    	    rnpn2 = rn + d2d3;
-    	    rnp2n2 = rnpn1;
-    	    fact1 = rnp2n1 / rn;
-    	    fact2 = rnp2n2 / rn;
+    	    __rn -= _Tp(1);
+    	    __rnpn1 = __rn + _S_1d3;
+    	    __rnp2n1 = __rn - _S_1d3;
+    	    __rnpn2 = __rn + _S_2d3;
+    	    __rnp2n2 = __rnpn1;
+    	    __fact1 = __rnp2n1 / __rn;
+    	    __fact2 = __rnp2n2 / __rn;
     	    //  Update normalization sums
-    	    sum1 += rnpn1 * zp1;
-    	    sum1 *= fact1;
-    	    sum2 += rnpn2 * zp2;
-    	    sum2 *= fact2;
+    	    __sum1 += __rnpn1 * __p1;
+    	    __sum1 *= __fact1;
+    	    __sum2 += __rnpn2 * __p2;
+    	    __sum2 *= __fact2;
 	  }
       }
-    std::cout << " > > sum1 = " << sum1 << '\n';
-    std::cout << " > > sum2 = " << sum2 << '\n';
+    std::cout << " > > sum1 = " << __sum1 << '\n';
+    std::cout << " > > sum2 = " << __sum2 << '\n';
 
     //  Perform last two recurrence steps for order 1/3
-    auto zpold1 = zplst1;
-    zplst1 = zp1;
-    zp1 = d14d3 * zplst1 * z1dz + zpold1;
-    sum1 += d4d3 * zp1;
-    zpold1 = zplst1;
-    zplst1 = zp1;
-    zp1 = d8d3 * zplst1 * z1dz + zpold1;
-    sum1 = _Tp(2) * sum1 + zp1;
-    std::cout << " > > sum1 = " << sum1 << '\n';
+    auto __pold1 = __plast1;
+    __plast1 = __p1;
+    __p1 = _S_14d3 * __plast1 * __1dz + __pold1;
+    __sum1 += _S_4d3 * __p1;
+    __pold1 = __plast1;
+    __plast1 = __p1;
+    __p1 = _S_8d3 * __plast1 * __1dz + __pold1;
+    __sum1 = _Tp(2) * __sum1 + __p1;
+    std::cout << " > > sum1 = " << __sum1 << '\n';
 
     //  Compute scale factor and scale results for order 1/3 case
-    auto zd2pow = std::pow(half * z, -d1d3);
-    zpold1 = zd2pow * std::exp(-z);
-    sum1 *= gm4d3 * zpold1;
-    zplst1 /= sum1;
-    ip1d3 = zp1 / sum1;
-    std::cout << " > > zpold1 = " << zpold1 << '\n';
-    std::cout << " > > zd2pow = " << zd2pow << '\n';
-    std::cout << " > > sum1 = " << sum1 << '\n';
+    auto __zd2pow = std::pow(_Tp(0.5L) * __z, -_S_1d3);
+    __pold1 = __zd2pow * std::exp(-__z);
+    __sum1 *= _S_gm4d3 * __pold1;
+    __plast1 /= __sum1;
+    __ip1d3 = __p1 / __sum1;
+    std::cout << " > > pold1 = " << __pold1 << '\n';
+    std::cout << " > > zd2pow = " << __zd2pow << '\n';
+    std::cout << " > > sum1 = " << __sum1 << '\n';
 
     //  Perform last two recurrence steps for order 2/3
-    auto zpold2 = zplst2;
-    zplst2 = zp2;
-    zp2 = d16d3 * zplst2 * z1dz + zpold2;
-    sum2 += d5d3 * zp2;
-    zpold2 = zplst2;
-    zplst2 = zp2;
-    zp2 = d10d3 * zplst2 * z1dz + zpold2;
-    sum2 = _Tp(2) * sum2 + zp2;
-    std::cout << " > > sum2 = " << sum2 << '\n';
+    auto __pold2 = __plast2;
+    __plast2 = __p2;
+    __p2 = _S_16d3 * __plast2 * __1dz + __pold2;
+    __sum2 += _S_5d3 * __p2;
+    __pold2 = __plast2;
+    __plast2 = __p2;
+    __p2 = _S_10d3 * __plast2 * __1dz + __pold2;
+    __sum2 = _Tp(2) * __sum2 + __p2;
+    std::cout << " > > sum2 = " << __sum2 << '\n';
 
     //  Compute scale factor and scale results for order 2/3 case
-    sum2 *= gm5d3 * zd2pow * zpold1;
-    zplst2 /= sum2;
-    ip2d3 = zp2 / sum2;
-    std::cout << " > > zpold1 = " << zpold1 << '\n';
-    std::cout << " > > zd2pow = " << zd2pow << '\n';
-    std::cout << " > > sum2 = " << sum2 << '\n';
+    __sum2 *= _S_gm5d3 * __zd2pow * __pold1;
+    __plast2 /= __sum2;
+    __ip2d3 = __p2 / __sum2;
+    std::cout << " > > pold1 = " << __pold1 << '\n';
+    std::cout << " > > zd2pow = " << __zd2pow << '\n';
+    std::cout << " > > sum2 = " << __sum2 << '\n';
 
     //  Recur back one step from order +1/3 to get order -2/3
-    im2d3 = d2d3 * ip1d3 * z1dz + zplst1;
+    __im2d3 = _S_2d3 * __ip1d3 * __1dz + __plast1;
 
     //  Recur back one step from order +2/3 to get order -1/3
-    im1d3 = d4d3 * ip2d3 * z1dz + zplst2;
+    __im1d3 = _S_4d3 * __ip2d3 * __1dz + __plast2;
 
     return;
   }
@@ -627,8 +626,8 @@ template<typename _Tp>
     @param[in] eps The maximum relative error allowable in the computed
 		   results. The relative error test is based on the comparison
 		   of successive iterates.
-    @param[out] kp1d3  The value computed for E_(+1/3) of z.
-    @param[out] kp2d3  The value computed for E_(+2/3) of z.
+    @param[out] kp1d3  The value computed for E_(+1/3)(z).
+    @param[out] kp2d3  The value computed for E_(+2/3)(z).
     @param[out] status A completion code.
 		       status = 0 indicates normal completion
 		       status = 129, convergence failed in 100 iterations
@@ -640,152 +639,153 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_bessel_k(const std::complex<_Tp>& z, _Tp eps,
-		std::complex<_Tp>& kp1d3,
-		std::complex<_Tp>& kp2d3,
-		int& status)
+  __airy_bessel_k(const std::complex<_Tp>& __z, _Tp __eps,
+		  std::complex<_Tp>& __kp1d3,
+		  std::complex<_Tp>& __kp2d3,
+		  int& __status)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
-    constexpr _Tp an1i{ 4.8555555555555555555e+01L},
-		  an2i{ 4.7222222222222222222e+01L},
-		  p12i{ 3.1444444444444444444e+01L},
-		  p22i{ 3.2777777777777777777e+01L},
-		  p13i{-9.2592592592592592592e-01L},
-		  p23i{ 1.2962962962962962962e+00L},
-		  p11i{-7.9074074074074074074e+01L},
-		  p21i{-8.1296296296296296296e+01L};
+    constexpr _Tp _S_an1i{ 4.8555555555555555555e+01L},
+		  _S_an2i{ 4.7222222222222222222e+01L},
+		  _S_p12i{ 3.1444444444444444444e+01L},
+		  _S_p22i{ 3.2777777777777777777e+01L},
+		  _S_p13i{-9.2592592592592592592e-01L},
+		  _S_p23i{ 1.2962962962962962962e+00L},
+		  _S_p11i{-7.9074074074074074074e+01L},
+		  _S_p21i{-8.1296296296296296296e+01L};
 
-    constexpr std::complex<_Tp> zone{1};
+    constexpr std::complex<_Tp> _S_zone{1};
 
     constexpr _Tp
-    dfco[8]
+    _S_f[8]
     { 144, 77, 62208, 95472, 17017, 65, 90288, 13585 };
 
     constexpr _Tp
-    phico[6]
+    _S_phi[6]
     { 67, 91152, 12697, 79, 96336, 19633 };
 
-    std::cout << " > airy_bessel_k: z = " << z << '\n';
+    std::cout << " > airy_bessel_k: z = " << __z << '\n';
 
-    status = 0;
+    __status = 0;
 
     //  Initialize polynomials for recurrence
-    auto f10 = zone;
-    auto f20 = zone;
-    auto f11 = zone + dfco[0] * z / dfco[1];
-    auto f12 = z * (dfco[2] * z + dfco[3]);
-    f12 = zone + f12 / dfco[4];
-    auto f21 = zone + dfco[0] * z / dfco[5];
-    auto f22 = z * (dfco[2] * z + dfco[6]);
-    f22 = zone + f22 / dfco[7];
-    std::cout << " > > f10 = " << f10 << '\n';
-    std::cout << " > > f20 = " << f20 << '\n';
-    std::cout << " > > f11 = " << f11 << '\n';
-    std::cout << " > > f12 = " << f12 << '\n';
-    std::cout << " > > f21 = " << f21 << '\n';
-    std::cout << " > > f22 = " << f22 << '\n';
+    auto __f10 = _S_zone;
+    auto __f20 = _S_zone;
+    auto __f11 = _S_zone + _S_f[0] * __z / _S_f[1];
+    auto __f12 = __z * (_S_f[2] * __z + _S_f[3]);
+    __f12 = _S_zone + __f12 / _S_f[4];
+    auto __f21 = _S_zone + _S_f[0] * __z / _S_f[5];
+    auto __f22 = __z * (_S_f[2] * __z + _S_f[6]);
+    __f22 = _S_zone + __f22 / _S_f[7];
+    std::cout << " > > f10 = " << __f10 << '\n';
+    std::cout << " > > f20 = " << __f20 << '\n';
+    std::cout << " > > f11 = " << __f11 << '\n';
+    std::cout << " > > f12 = " << __f12 << '\n';
+    std::cout << " > > f21 = " << __f21 << '\n';
+    std::cout << " > > f22 = " << __f22 << '\n';
 
-    auto phi10 = zone;
-    auto phi20 = zone;
-    auto phi11 = cmplx((dfco[0] * std::real(z) + phico[0]) / dfco[1],
-		       std::imag(f11));
-    auto phi12 = z * (dfco[2] * z + phico[1]);
-    phi12 = (phi12 + phico[2]) / dfco[4];
-    auto phi21 = cmplx((dfco[0] * std::real(z) + phico[3]) / dfco[5],
-		       std::imag(f21));
-    auto phi22 = z * (dfco[2] * z + phico[4]);
-    phi22 = (phi22 + phico[5]) / dfco[7];
-    std::cout << " > > phi10 = " << phi10 << '\n';
-    std::cout << " > > phi20 = " << phi20 << '\n';
-    std::cout << " > > phi11 = " << phi11 << '\n';
-    std::cout << " > > phi12 = " << phi12 << '\n';
-    std::cout << " > > phi21 = " << phi21 << '\n';
-    std::cout << " > > phi22 = " << phi22 << '\n';
+    auto __phi10 = _S_zone;
+    auto __phi20 = _S_zone;
+    auto __phi11 = __cmplx((_S_f[0] * std::real(__z) + _S_phi[0]) / _S_f[1],
+		       std::imag(__f11));
+    auto __phi12 = __z * (_S_f[2] * __z + _S_phi[1]);
+    __phi12 = (__phi12 + _S_phi[2]) / _S_f[4];
+    auto __phi21 = __cmplx((_S_f[0] * std::real(__z) + _S_phi[3]) / _S_f[5],
+		       std::imag(__f21));
+    auto __phi22 = __z * (_S_f[2] * __z + _S_phi[4]);
+    __phi22 = (__phi22 + _S_phi[5]) / _S_f[7];
+    std::cout << " > > phi10 = " << __phi10 << '\n';
+    std::cout << " > > phi20 = " << __phi20 << '\n';
+    std::cout << " > > phi11 = " << __phi11 << '\n';
+    std::cout << " > > phi12 = " << __phi12 << '\n';
+    std::cout << " > > phi21 = " << __phi21 << '\n';
+    std::cout << " > > phi22 = " << __phi22 << '\n';
 
     //  Initialize for recursion
-    auto zratol = phi22 / f22;
-    auto zrat1 = phi12 / f12;
-    auto delt = _Tp(32);
-    auto an1 = an1i;
-    auto an2 = an2i;
-    auto p11 = p11i;
-    auto p12 = p12i;
-    auto p13 = p13i;
-    auto p21 = p21i;
-    auto p22 = p22i;
-    auto p23 = p23i;
-    auto eta = _Tp(24);
-    auto gamm = _Tp(3);
-    auto gam = _Tp(5);
-    auto q = _Tp(16) * gam;
+    auto __ratold = __phi22 / __f22;
+    auto __rat1 = __phi12 / __f12;
+    auto __delt = _Tp(32);
+    auto __an1 = _S_an1i;
+    auto __an2 = _S_an2i;
+    auto __p11 = _S_p11i;
+    auto __p12 = _S_p12i;
+    auto __p13 = _S_p13i;
+    auto __p21 = _S_p21i;
+    auto __p22 = _S_p22i;
+    auto __p23 = _S_p23i;
+    auto __eta = _Tp(24);
+    auto __gamm = _Tp(3);
+    auto __gam = _Tp(5);
+    auto __q = _Tp(16) * __gam;
 
     //  Loop until maximum iterations used or convergence
-    for (int i = 1; i < 100; ++i)
+    for (int __i = 1; __i < 100; ++__i)
       {
 	//  Evaluate next term in recurrence for order 1/3 polynomials
-	auto qz = q * z;
-	auto fact1 = qz - p11;
-	auto fact2 = qz - p12;
-	auto f13 = fact1 * f12 + fact2 * f11 - p13 * f10;
-	f13 /= an1;
-	auto phi13 = fact1 * phi12 + fact2 * phi11 - p13 * phi10;
-	phi13 /= an1;
+	auto __qz = __q * __z;
+	auto __fact1 = __qz - __p11;
+	auto __fact2 = __qz - __p12;
+	auto __f13 = __fact1 * __f12 + __fact2 * __f11 - __p13 * __f10;
+	__f13 /= __an1;
+	auto __phi13 = __fact1 * __phi12 + __fact2 * __phi11 - __p13 * __phi10;
+	__phi13 /= __an1;
 
 	//  Evaluate next term in recurrence for order 2/3 polynomials
-	fact1 = qz - p21;
-	fact2 = qz - p22;
-	auto f23 = fact1 * f22 + fact2 * f21 - p23 * f20;
-	f23 /= an2;
-	auto phi23 = fact1 * phi22 + fact2 * phi21 - p23 * phi20;
-	phi23 /= an2;
+	__fact1 = __qz - __p21;
+	__fact2 = __qz - __p22;
+	auto __f23 = __fact1 * __f22 + __fact2 * __f21 - __p23 * __f20;
+	__f23 /= __an2;
+	auto __phi23 = __fact1 * __phi22 + __fact2 * __phi21 - __p23 * __phi20;
+	__phi23 /= __an2;
 
 	//  check for convergence
-	auto zratnw = phi23 / f23;
-	zrat1 = phi13 / f13;
+	auto __ratnew = __phi23 / __f23;
+	__rat1 = __phi13 / __f13;
 
-	if (std::abs(zratnw - zratol) < eps * std::abs(zratnw))
+	if (std::abs(__ratnew - __ratold) < __eps * std::abs(__ratnew))
 	  {
 	    //  Convergence.
-	    kp2d3 = zratnw;
-	    kp1d3 = phi13 / f13;
+	    __kp2d3 = __ratnew;
+	    __kp1d3 = __phi13 / __f13;
 	    return;
 	  }
 
 	//  Prepare for next iteration
-	zratol = zratnw;
-	f20 = f21;
-	f21 = f22;
-	f22 = f23;
-	phi20 = phi21;
-	phi21 = phi22;
-	phi22 = phi23;
-	f10 = f11;
-	f11 = f12;
-	f12 = f13;
-	phi10 = phi11;
-	phi11 = phi12;
-	phi12 = phi13;
-	delt = delt + 24;
-	p12 = p12 + delt;
-	p22 = p22 + delt;
-	eta += 8;
-	an1 += eta;
-	an2 += eta;
-	auto anm1 = an1 - delt - _Tp(16);
-	auto anm2 = an2 - delt - _Tp(16);
-	gamm = gam;
-	gam += 2;
-	p23 = -gam / gamm;
-	p13 = p23 * anm1;
-	p23 = p23 * anm2;
-	p11 = -an1 - p12 - p13;
-	p21 = -an2 - p22 - p23;
-	q = _Tp(16) * gam;
+	__ratold = __ratnew;
+	__f20 = __f21;
+	__f21 = __f22;
+	__f22 = __f23;
+	__phi20 = __phi21;
+	__phi21 = __phi22;
+	__phi22 = __phi23;
+	__f10 = __f11;
+	__f11 = __f12;
+	__f12 = __f13;
+	__phi10 = __phi11;
+	__phi11 = __phi12;
+	__phi12 = __phi13;
+	__delt = __delt + _Tp(24);
+	__p12 = __p12 + __delt;
+	__p22 = __p22 + __delt;
+	__eta += _Tp(8);
+	__an1 += __eta;
+	__an2 += __eta;
+	auto __anm1 = __an1 - __delt - _Tp(16);
+	auto __anm2 = __an2 - __delt - _Tp(16);
+	__gamm = __gam;
+	__gam += _Tp(2);
+	__p23 = -__gam / __gamm;
+	__p13 = __p23 * __anm1;
+	__p23 = __p23 * __anm2;
+	__p11 = -__an1 - __p12 - __p13;
+	__p21 = -__an2 - __p22 - __p23;
+	__q = _Tp(16) * __gam;
       }
 
     //  Maximum iterations exceeded
-    status = 129;
+    __status = 129;
+
     return;
   }
 
@@ -842,42 +842,42 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_hyperg_rational(const std::complex<_Tp>& z,
-		       std::complex<_Tp>& fp1d3,
-		       std::complex<_Tp>& fm1d3,
-		       std::complex<_Tp>& fp2d3,
-		       std::complex<_Tp>& fm2d3)
+  __airy_hyperg_rational(const std::complex<_Tp>& __z,
+			 std::complex<_Tp>& __fp1d3,
+			 std::complex<_Tp>& __fm1d3,
+			 std::complex<_Tp>& __fp2d3,
+			 std::complex<_Tp>& __fm2d3)
   {
-    using cmplx = std::complex<_Tp>;
+    using __cmplx = std::complex<_Tp>;
 
-    constexpr cmplx zone{1};
+    constexpr __cmplx _S_zone{1};
 
-    constexpr _Tp ap1d3[4]{   81, 32400,  2585520,  37920960 };
-    constexpr _Tp bp1d3[4]{  -35,  5040,  -574560,  37920960 };
-    constexpr _Tp am1d3[4]{   81, 22680,  1156680,   7711200 };
-    constexpr _Tp bm1d3[4]{  -10,  1260,  -128520,   7711200 };
-    constexpr _Tp ap2d3[4]{  162, 75735,  7270560, 139352400 };
-    constexpr _Tp bp2d3[4]{ -110, 16830, -2019600, 139352400 };
-    constexpr _Tp am2d3[4]{  162, 36855,  1415232,   4481568 };
-    constexpr _Tp bm2d3[4]{   -7,   819,   -78624,   4481568 };
+    constexpr _Tp _S_ap1d3[4]{   81, 32400,  2585520,  37920960 };
+    constexpr _Tp _S_bp1d3[4]{  -35,  5040,  -574560,  37920960 };
+    constexpr _Tp _S_am1d3[4]{   81, 22680,  1156680,   7711200 };
+    constexpr _Tp _S_bm1d3[4]{  -10,  1260,  -128520,   7711200 };
+    constexpr _Tp _S_ap2d3[4]{  162, 75735,  7270560, 139352400 };
+    constexpr _Tp _S_bp2d3[4]{ -110, 16830, -2019600, 139352400 };
+    constexpr _Tp _S_am2d3[4]{  162, 36855,  1415232,   4481568 };
+    constexpr _Tp _S_bm2d3[4]{   -7,   819,   -78624,   4481568 };
 
     std::cout << " > airy_hyperg_rational:\n";
-    std::cout << " > > z = " << z << '\n';
+    std::cout << " > > z = " << __z << '\n';
 
     //  Check to see if z^3 will underflow and act accordingly
-    auto zzz = z * z * z;
+    auto __zzz = __z * __z * __z;
 
-    if (std::abs(zzz) < _Tp(10) * std::numeric_limits<_Tp>::min())
+    if (std::abs(__zzz) < _Tp(10) * std::numeric_limits<_Tp>::min())
       {
-	fp1d3  = zone;
-	fm1d3 = zone;
-	fp2d3  = zone;
-	fm2d3 = zone;
+	__fp1d3  = _S_zone;
+	__fm1d3 = _S_zone;
+	__fp2d3  = _S_zone;
+	__fm2d3 = _S_zone;
       }
     else
       {
-	auto r = 2 * std::real(zzz);
-	auto s = std::norm(zzz);
+	auto __r = 2 * std::real(__zzz);
+	auto __s = std::norm(__zzz);
 
 	//  All of the following polynomial evaluations are done using
 	//  a modified of Horner's rule which exploits the fact that
@@ -888,86 +888,112 @@ template<typename _Tp>
 
 	//  If n is the degree of the polynomial, n - 3 multiplies are
 	//  saved and 4 * n - 6 additions are saved.
+	auto __horner
+	{
+	  [__r, __s, __zzz](const auto (&_S_c)[4])
+	  {
+	    auto __aa = _S_c[0];
+	    auto __t  = __s * __aa;
+	    __aa = _S_c[1] + __r * __aa;
+	    auto __bb = _S_c[2] - __t;
+	    __t  = __s * __aa;
+	    __aa = __bb + __r * __aa;
+	    __bb = _S_c[3] - __t;
+	    return __aa * __zzz + __bb;
+	  }
+	};
 
 	//  Evaluate numerator polynomial for nu=+1/3 approximant
-	auto al = ap1d3[0];
+/*
+	auto al = _S_ap1d3[0];
 	auto t  = s * al;
-	al = ap1d3[1] + r * al;
-	auto be = ap1d3[2] - t;
+	al = _S_ap1d3[1] + r * al;
+	auto be = _S_ap1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = ap1d3[3] - t;
+	be = _S_ap1d3[3] - t;
 	fp1d3 = al * zzz + be;
 	//  Evaluate denominator polynomial for nu=+1/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = bp1d3[0];
+	al = _S_bp1d3[0];
 	t  = s * al;
-	al = bp1d3[1] + r * al;
-	be = bp1d3[2] - t;
+	al = _S_bp1d3[1] + r * al;
+	be = _S_bp1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = bp1d3[3] - t;
+	be = _S_bp1d3[3] - t;
 	fp1d3 /= al * zzz + be;
+*/
+	__fp1d3 = __horner(_S_ap1d3) / __horner(_S_bp1d3);
 
 	//  Evaluate numerator polynomial for nu=-1/3 approximant
-	al = am1d3[0];
+/*
+	al = _S_am1d3[0];
 	t  = s * al;
-	al = am1d3[1] + r * al;
-	be = am1d3[2] - t;
+	al = _S_am1d3[1] + r * al;
+	be = _S_am1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = am1d3[3] - t;
+	be = _S_am1d3[3] - t;
 	fm1d3 = al * zzz + be;
 	//  Evaluate denominator polynomial for nu=-1/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = bm1d3[0];
+	al = _S_bm1d3[0];
 	t  = s * al;
-	al = bm1d3[1] + r * al;
-	be = bm1d3[2] - t;
+	al = _S_bm1d3[1] + r * al;
+	be = _S_bm1d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = bm1d3[3] - t;
+	be = _S_bm1d3[3] - t;
 	fm1d3 /= al * zzz + be;
+*/
+	__fm1d3 = __horner(_S_am1d3) / __horner(_S_bm1d3);
 
 	//  Evaluate numerator polynomial for nu=+2/3 approximant
-	al = ap2d3[0];
+/*
+	al = _S_ap2d3[0];
 	t  = s * al;
-	al = ap2d3[1] + r * al;
-	be = ap2d3[2] - t;
+	al = _S_ap2d3[1] + r * al;
+	be = _S_ap2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = ap2d3[3] - t;
+	be = _S_ap2d3[3] - t;
 	fp2d3 = al * zzz + be;
 	//  Evaluate denominator polynomial for nu=+2/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = bp2d3[0];
+	al = _S_bp2d3[0];
 	t  = s * al;
-	al = bp2d3[1] + r * al;
-	be = bp2d3[2] - t;
+	al = _S_bp2d3[1] + r * al;
+	be = _S_bp2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = bp2d3[3] - t;
+	be = _S_bp2d3[3] - t;
 	fp2d3 /= al * zzz + be;
+*/
+	__fp2d3 = __horner(_S_ap2d3) / __horner(_S_bp2d3);
 
 	//  Evaluate numerator polynomial for nu=-2/3 approximant
-	al = am2d3[0];
+/*
+	al = _S_am2d3[0];
 	t  = s * al;
-	al = am2d3[1] + r * al;
-	be = am2d3[2] - t;
+	al = _S_am2d3[1] + r * al;
+	be = _S_am2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = am2d3[3] - t;
+	be = _S_am2d3[3] - t;
 	fm2d3 = al * zzz + be;
 	//  Evaluate denominator polynomial for nu=-2/3 approximant
 	//  and compute ratio of numerator and denominator
-	al = bm2d3[0];
+	al = _S_bm2d3[0];
 	t  = s * al;
-	al = bm2d3[1] + r * al;
-	be = bm2d3[2] - t;
+	al = _S_bm2d3[1] + r * al;
+	be = _S_bm2d3[2] - t;
 	t  = s * al;
 	al = be + r * al;
-	be = bm2d3[3] - t;
+	be = _S_bm2d3[3] - t;
 	fm2d3 /= al * zzz + be;
+*/
+	__fm2d3 = __horner(_S_am2d3) / __horner(_S_bm2d3);
       }
 
     return;
@@ -994,20 +1020,19 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_asymp_absarg_ge_pio3(const std::complex<_Tp>& z,
-			    std::complex<_Tp>& ai,
-			    std::complex<_Tp>& aip)
+  __airy_asymp_absarg_ge_pio3(std::complex<_Tp> __z,
+			      std::complex<_Tp>& __ai,
+			      std::complex<_Tp>& __aip)
   {
-    constexpr _Tp d2d3   = 6.666666666666667e-01;
-    constexpr _Tp pmhd2 = 2.820947917738781e-01;
-    constexpr std::complex<_Tp> zmone{-1};
-    constexpr int ncoeffs = 15;
-    constexpr int numnterms = 5;
-    constexpr int nterms[5]{ ncoeffs, 12, 11, 11, 9 };
+    constexpr _Tp _S_2d3   = 6.666666666666667e-01;
+    constexpr _Tp _S_pmhd2 = 2.820947917738781e-01;
+    constexpr int _S_ncoeffs = 15;
+    constexpr int _S_numnterms = 5;
+    constexpr int _S_nterms[5]{ _S_ncoeffs, 12, 11, 11, 9 };
 
     //  Coefficients for the expansion
     constexpr _Tp
-    ck[ncoeffs]
+    _S_ck[_S_ncoeffs]
     {
       0.5989251356587907e+05,
       0.9207206599726415e+04,
@@ -1027,7 +1052,7 @@ template<typename _Tp>
     };
 
     constexpr _Tp
-    dk[ncoeffs]
+    _S_dk[_S_ncoeffs]
     {
       -0.6133570666385206e+05,
       -0.9446354823095932e+04,
@@ -1047,47 +1072,47 @@ template<typename _Tp>
     };
 
     std::cout << " > airy_asymp_absarg_ge_pio3:\n";
-    std::cout << " > > z = " << z << '\n';
+    std::cout << " > > __z = " << __z << '\n';
 
     //  Compute -xi and z^(1/4)
-    auto pw1d4 = std::sqrt(z);
-    auto xim = z * pw1d4;
-    xim *= d2d3;
-    pw1d4 = std::sqrt(pw1d4);
+    auto __pw1d4 = std::sqrt(__z);
+    auto __xim = __z * __pw1d4;
+    __xim *= _S_2d3;
+    __pw1d4 = std::sqrt(__pw1d4);
 
     //  Compute outer factors in the expansions
-    auto zoutpr = std::exp(-xim);
-    zoutpr *= pmhd2;
-    auto zout = zoutpr / pw1d4;
-    zoutpr *= -pw1d4;
+    auto __zoutpr = std::exp(-__xim);
+    __zoutpr *= _S_pmhd2;
+    auto __zout = __zoutpr / __pw1d4;
+    __zoutpr *= -__pw1d4;
 
     //  Determine number of terms to use
-    auto nterm = nterms[std::min(numnterms - 1, (int(std::abs(z)) - 10) / 5)];
+    auto __nterm = _S_nterms[std::min(_S_numnterms - 1, (int(std::abs(__z)) - 10) / 5)];
     //  Initialize for modified Horner's rule evaluation of sums.
     //  It is assumed that at least three terms are used.
-    xim = zmone / xim;
-    auto r = 2 * std::real(xim);
-    auto s = std::norm(xim);
-    auto index = ncoeffs - nterm;// + 1;
-    auto al = ck[index];
-    auto alpr = dk[index];
-    ++index;
-    auto be = ck[index];
-    auto bepr = dk[index];
-    ++index;
+    __xim = -_Tp(1) / __xim;
+    auto __r = 2 * std::real(__xim);
+    auto __s = std::norm(__xim);
+    auto __index = _S_ncoeffs - __nterm;// + 1;
+    auto __al = _S_ck[__index];
+    auto __alpr = _S_dk[__index];
+    ++__index;
+    auto __be = _S_ck[__index];
+    auto __bepr = _S_dk[__index];
+    ++__index;
 
-    for (int k = index; k < ncoeffs; ++k)
+    for (int __k = __index; __k < _S_ncoeffs; ++__k)
       {
-	auto term = s * al;
-	al = be + r * al;
-	be = ck[k] - term;
-	term = s * alpr;
-	alpr = bepr + r * alpr;
-	bepr = dk[k] - term;
+	auto __term = __s * __al;
+	__al = __be + __r * __al;
+	__be = _S_ck[__k] - __term;
+	__term = __s * __alpr;
+	__alpr = __bepr + __r * __alpr;
+	__bepr = _S_dk[__k] - __term;
       }
 
-    ai = zout * al * xim + be;
-    aip = zoutpr * alpr * xim + bepr;
+    __ai = __zout * __al * __xim + __be;
+    __aip = __zoutpr * __alpr * __xim + __bepr;
 
     return;
   }
@@ -1112,22 +1137,22 @@ template<typename _Tp>
  */
 template<typename _Tp>
   void
-  airy_asymp_absarg_lt_pio3(std::complex<_Tp> z,
-			    std::complex<_Tp>& ai,
-			    std::complex<_Tp>& aip)
+  __airy_asymp_absarg_lt_pio3(std::complex<_Tp> __z,
+			      std::complex<_Tp>& __ai,
+			      std::complex<_Tp>& __aip)
   {
-    constexpr _Tp d2d3 {6.666666666666667e-01};
-    constexpr _Tp d9d4 {2.25e+00};
-    constexpr _Tp pimh{5.641895835477563e-01};
-    constexpr _Tp pid4{7.853981633974483e-01};
-    constexpr std::complex<_Tp> zone{1};
-    constexpr int ncoeffs = 9;
-    constexpr int numnterms = 5;
-    constexpr int nterms[numnterms]{ ncoeffs, 7, 6, 6, 5 };
+    constexpr _Tp _S_2d3 {6.666666666666667e-01};
+    constexpr _Tp _S_9d4 {2.25e+00};
+    constexpr _Tp _S_pimh{5.641895835477563e-01};
+    constexpr _Tp _S_pid4{7.853981633974483e-01};
+    constexpr std::complex<_Tp> __zone{1};
+    constexpr int _S_ncoeffs = 9;
+    constexpr int _S_numnterms = 5;
+    constexpr int _S_nterms[_S_numnterms]{ _S_ncoeffs, 7, 6, 6, 5 };
 
     //  coefficients for the expansion
     constexpr _Tp
-    ckc[ncoeffs]
+    _S_ckc[_S_ncoeffs]
     {
       0.2519891987160237e+08,
       0.4195248751165511e+06,
@@ -1140,7 +1165,7 @@ template<typename _Tp>
       0.6944444444444444e-01
     };
     constexpr _Tp
-    cks[ncoeffs]
+    _S_cks[_S_ncoeffs]
     {
       0.3148257417866826e+07,
       0.5989251356587907e+05,
@@ -1154,7 +1179,7 @@ template<typename _Tp>
     };
 
     constexpr _Tp
-    dks[ncoeffs]
+    _S_dks[_S_ncoeffs]
     {
       -0.2569790838391133e+08,
       -0.4289524004000691e+06,
@@ -1167,7 +1192,7 @@ template<typename _Tp>
       -0.9722222222222222e-01
     };
     constexpr _Tp
-    dkc[ncoeffs]
+    _S_dkc[_S_ncoeffs]
     {
       -0.3214536521400865e+07,
       -0.6133570666385206e+05,
@@ -1181,68 +1206,68 @@ template<typename _Tp>
     };
 
     std::cout << " > airy_asymp_absarg_lt_pio3:\n";
-    std::cout << " > > z = " << z << '\n';
+    std::cout << " > > z = " << __z << '\n';
 
     //  Set up working value of z
-    z = -z;
+    __z = -__z;
     //  Compute xi and z^(1/4)
-    auto pw1d4 = std::sqrt(z);
-    auto xi = z * pw1d4;
-    xi *= d2d3;
-    pw1d4 = std::sqrt(pw1d4);
+    auto __pw1d4 = std::sqrt(__z);
+    auto __xi = __z * __pw1d4;
+    __xi *= _S_2d3;
+    __pw1d4 = std::sqrt(__pw1d4);
 
     //  Compute sine and cosine factors in the expansions.
-    auto xiarg = xi + pid4;
-    auto sinxi = std::sin(xiarg);
-    auto cosxi = std::cos(xiarg);
+    auto __xiarg = __xi + _S_pid4;
+    auto __sinxi = std::sin(__xiarg);
+    auto __cosxi = std::cos(__xiarg);
 
     //  Determine number of terms to use.
-    auto nterm = nterms[std::min(numnterms - 1, (int(std::abs(z)) - 10) / 5)];
+    auto __nterm = _S_nterms[std::min(_S_numnterms - 1, (int(std::abs(__z)) - 10) / 5)];
     //  Initialize for modified Horner's rule evaluation of sums
     //  it is assumed that at least three terms are used
-    z = std::pow(zone / z, _Tp(3));
-    z *= d9d4;
-    auto r = -2 * std::real(z);
-    auto s = std::norm(z);
-    auto index = ncoeffs - nterm;// + 1;
+    __z = std::pow(__zone / __z, _Tp(3));
+    __z *= _S_9d4;
+    auto __r = -2 * std::real(__z);
+    auto __s = std::norm(__z);
+    auto __index = _S_ncoeffs - __nterm;
 
-    auto als = cks[index];
-    auto alc = ckc[index];
-    auto alprs = dks[index];
-    auto alprc = dkc[index];
-    ++index;
+    auto __als = _S_cks[__index];
+    auto __alc = _S_ckc[__index];
+    auto __alprs = _S_dks[__index];
+    auto __alprc = _S_dkc[__index];
+    ++__index;
 
-    auto bes = cks[index];
-    auto bec = ckc[index];
-    auto beprs = dks[index];
-    auto beprc = dkc[index];
-    ++index;
+    auto __bes = _S_cks[__index];
+    auto __bec = _S_ckc[__index];
+    auto __beprs = _S_dks[__index];
+    auto __beprc = _S_dkc[__index];
+    ++__index;
 
     //  Loop until components contributing to sums are computed
-    for (int k = index; k < ncoeffs; ++k)
+    for (int __k = __index; __k < _S_ncoeffs; ++__k)
       {
-	auto term = s * als;
-	als = bes + r * als;
-	bes = cks[k] - term;
-	term = s * alc;
-	alc = bec + r * alc;
-	bec = ckc[k] - term;
-	term = s * alprs;
-	alprs = beprs + r * alprs;
-	beprs = dks[k] - term;
-	term = s * alprc;
-	alprc = beprc + r * alprc;
-	beprc = dkc[k] - term;
+	auto __term = __s * __als;
+	__als = __bes + __r * __als;
+	__bes = _S_cks[__k] - __term;
+	__term = __s * __alc;
+	__alc = __bec + __r * __alc;
+	__bec = _S_ckc[__k] - __term;
+	__term = __s * __alprs;
+	__alprs = __beprs + __r * __alprs;
+	__beprs = _S_dks[__k] - __term;
+	__term = __s * __alprc;
+	__alprc = __beprc + __r * __alprc;
+	__beprc = _S_dkc[__k] - __term;
       }
 
     //  Complete evaluation of the Airy functions
-    xi = zone / xi;
-    ai = sinxi * als * z + bes
-       - xi * cosxi * alc * z + bec;
-    ai *= pimh / pw1d4;
-    aip = cosxi * alprc * z + beprc
-	+ xi * sinxi * alprs * z + beprs;
-    aip *= -pimh * pw1d4;
+    __xi = __zone / __xi;
+    __ai = __sinxi * __als * __z + __bes
+         - __xi * __cosxi * __alc * __z + __bec;
+    __ai *= _S_pimh / __pw1d4;
+    __aip = __cosxi * __alprc * __z + __beprc
+	  + __xi * __sinxi * __alprs * __z + __beprs;
+    __aip *= -_S_pimh * __pw1d4;
 
     return;
   }
