@@ -1,9 +1,697 @@
 C
-C     COPYRIGHT:  Copyright 1998-2015
+C     COPYRIGHT:  Copyright 1998-2010
 C                 Alion Science and Technology
 C                 US Govt Retains rights in accordance
 C                 with DoD FAR Supp 252.227 - 7013.
 C
+
+*
+*      Revised 11/27/85 to include all subroutines to FIND_ROOT and SHOW_CONT
+*
+*      Revised 12/18/85 to correct TE/TM interchange in DENOM_DETERM
+*      and to correct sign error in INNERMOST_CONDITION
+*
+*      Revised 4/16/86 to allow for the case NO_OF_INTERFACES =1 in the
+*      routine DENOM_DETERM and to incorporate rationalized matrix elements.
+*
+*      Revised 5/21/86 to incorporate Rick Whitaker's uniform asymptotic
+*      expansions of the Hankel functions.
+*
+cpogo//////////////////////////////////////////////////////////////////////////
+cpogo
+cpogo  This version of "cylsubs" has been upgraded to accommodate a 2X2 matrix
+cpogo  reflection coefficient for the innermost boundary.  R. J. Pogorzelski
+cpogo  3/15/93
+cpogo
+cpogo  Modified to accommodate complex alpha 4/93.  R. J. Pogorzelski
+cpogo
+cpogo/////////////////////////////////////////////////////////////////////////
+*
+*******************************************************************************
+
+
+      subroutine  compute_denom( denom_matrix,
+     1                           profile_transfer_matrix,
+     1                           gamma_num,
+     1                           gamma_denom )
+
+
+      include 'utd.i'
+
+
+      double complex  denom_matrix(2,2),
+     1                profile_transfer_matrix(4,4),
+     1                gamma_num(2,2),
+     1                gamma_denom(2,2)
+
+*-------------------------------------------------------------------------------
+      denom_matrix(1,1)=profile_transfer_matrix(1,2)*gamma_num(1,1)
+     1                 +profile_transfer_matrix(3,2)*gamma_num(1,2)
+     1                 -profile_transfer_matrix(2,2)*gamma_denom(1,1)
+     1                 -profile_transfer_matrix(4,2)*gamma_denom(1,2)
+
+
+      denom_matrix(1,2)=profile_transfer_matrix(1,4)*gamma_num(1,1)
+     1                 +profile_transfer_matrix(3,4)*gamma_num(1,2)
+     1                 -profile_transfer_matrix(2,4)*gamma_denom(1,1)
+     1                 -profile_transfer_matrix(4,4)*gamma_denom(1,2)
+
+
+      denom_matrix(2,1)=profile_transfer_matrix(1,2)*gamma_num(2,1)
+     1                 +profile_transfer_matrix(3,2)*gamma_num(2,2)
+     1                 -profile_transfer_matrix(2,2)*gamma_denom(2,1)
+     1                 -profile_transfer_matrix(4,2)*gamma_denom(2,2)
+
+      denom_matrix(2,2)=profile_transfer_matrix(1,4)*gamma_num(2,1)
+     1                 +profile_transfer_matrix(3,4)*gamma_num(2,2)
+     1                 -profile_transfer_matrix(2,4)*gamma_denom(2,1)
+     1                 -profile_transfer_matrix(4,4)*gamma_denom(2,2)
+
+      return
+
+      end subroutine
+
+
+      double complex function  denom_determ  (nu)
+*
+*      **      Function subprogram to compute the determinant of the
+*      **      "denominator" matrix for a cylinder comprising multiple
+*      **      penetrable layers
+*
+*      **      by L. W. Pearson 7/85
+*
+*      **      Revised 4/16/86 to incorporate rationalized matrix elements.
+*
+*      **      LANGUAGE: VAX Fortran  (G_FLOATING)
+*
+*      **      This subprogram computes the determinant of the "denominator"
+*      **       matrix for the reflection coefficient matrix for a source
+*      **      radiating exterior to a multilayer cylinder.  The term 
+*      **      denominator,as applied here, means of the two matrices in the
+*      **      product that forms the reflection coefficient, the one that
+*      **      is inverted.
+*
+*      **      The calling interface for the function comprises the call
+*      **      of a single function of a single variable in order that it
+*      **      be compatible with contour programs and complex-root-finder 
+*      **      routines.  
+*
+*      **      The calling argument is NU, a double complex quantity that is 
+*      **      the order that enters into the Bessel solution calculations.
+*
+*
+*      **      subroutines required
+*
+*      **                  field_coupling
+*
+*      **                  matrix_copy
+*
+*      **                  matrix_multiply
+*
+*      **                  innermost_condition
+*
+*-------------------------------------------------------------------------------
+
+
+      include 'utd.i'
+      include 'profile.i'
+
+      double complex      nu,
+     1            gamma_num(2,2),
+     1            gamma_denom(2,2),
+     1            denom_matrix(2,2),
+     1            field_coupling_matrix(4,4),
+     1            new_profile_matrix(4,4),
+     1            old_profile_matrix(4,4)
+
+      integer     i,
+     1            l,
+     1            inward_transfer_indicator
+
+
+      data inward_transfer_indicator /1/
+
+*-------------------------------------------------------------------------------
+ 
+*      **  loop to build profile coupling matrix  **
+
+      if ( noofinterfaces .gt. 1 )
+     1then
+
+      do i = 1, noofinterfaces - 1
+
+
+            call field_coupling  ( field_coupling_matrix,
+     1                             nu,
+     1                             i,
+     1                             inward_transfer_indicator )
+
+            if (i.eq.1)            ! Initialize product 1st time through
+
+     1      then
+
+                  call matrix_copy( old_profile_matrix,
+     1                              field_coupling_matrix, 4, 4 )
+
+            else
+
+                  call matrix_multiply( new_profile_matrix,
+     1                                  old_profile_matrix,
+     1                                  field_coupling_matrix,
+     1                                  4, 4, 4 )
+
+                  call matrix_copy( old_profile_matrix,
+     1                              new_profile_matrix, 4, 4 )
+
+            end if
+      end do
+
+      else      ! Set transfer matrix to identity--there are no layers
+
+        do i=1,4
+        do l=1,4
+
+          if ( i .eq. l ) 
+     1    then
+
+            old_profile_matrix(i,l) = 1.0d0
+
+           else
+
+            old_profile_matrix(i,l) = 0.0d0
+
+           end if
+
+        end do
+        end do
+
+      end if
+
+*-------------------------------------------------------------------------------
+
+*      **      construction of denominator matrix
+
+      call  innermost_condition( gamma_num,
+     1                           gamma_denom,
+     1                           nu )
+
+      call  compute_denom  ( denom_matrix,
+     1                       old_profile_matrix,
+     1                       gamma_num,
+     1                       gamma_denom )
+
+*-------------------------------------------------------------------------------
+
+*      **      compute denominator determinant & place in return variable
+
+      denom_determ = denom_matrix(1,1)*denom_matrix(2,2) 
+     1             - denom_matrix(1,2)*denom_matrix(2,1)
+      return
+
+      end
+
+
+      subroutine  get_profile( k0,
+     1                         alpha_call,
+     1                         omega_call,
+     1                         profile_file_name )
+
+
+*
+*      **      Subroutine to read a stratification profile from the file specified
+*      **      by profile_file_name.
+*
+*      **      by L. W. Pearson 7/85
+*
+*      **        REVISED 11/11/85 to render wavenumber calc's. consistent
+*      **        between k(0) and the remaining entries
+*
+*      **      This subroutine reads the ASCII data records in the file 
+*      **      specified by profile_file_name and places them in the 
+*      **       common /input_records/.
+*
+*      **      They are reread from the common and the first character
+*      **       is tested to sense an asterisk (*), which indicates a comment
+*      **      record.  If an asterisk is present, the record is skipped.
+*
+*      **      If no asterisk is present then the record is assumed to contain
+*      **      input data and is reread on a 4e15.0 format.  the data record 
+*      **      format is as follows:
+*
+*   INTERFACE_RADIUS1  REAL_RELATIVE_PERMITTIVITY1  IMAG_RELATIVE_PERMITTIVITY1
+*   INTERFACE_RADIUS2  REAL_RELATIVE_PERMITTIVITY2  IMAG_RELATIVE_PERMITTIVITY2
+*   INTERFACE_RADIUS3  REAL_RELATIVE_PERMITTIVITY3  IMAG_RELATIVE_PERMITTIVITY3
+*              .                 .                     .
+*              .                 .                     .
+*
+*              .                 .                     .
+*   INTERFACE_RADIUSn  REAL_RELATIVE_PERMITTIVITYn  IMAG_RELATIVE_PERMITTIVITYn  END_INDICATOR
+*
+*      **      INTERFACE_RADIUS  specifies the radius of the outer boundary
+*      **        of the given layer (meters)
+*
+*      **      RELATIVE_PERMITTIVITY specifies the relative dielectric
+*      **        constant for the given layer (dimensionless)
+*
+*      **      IMAG_RELATIVE_PERMITTIVITY is the the imaginary part of the
+*      **      relative permittivity.
+*
+*      **      END_INDICATOR is a last record indicator.  Its definitions
+*      **      are described below.
+*
+*      **      The data are indexed in the order of their appearance in 
+*      **      the data record.  The 0th index is assigned to the exterior
+*      **      medium, which is assumed to be free space.  The layers are 
+*      **      assigned indices 1,2,..., NO_OF_INTERFACES - 1.
+*
+*      **      DEFINITION OF "LAST" LAYER
+*
+*      **      The END_INDICATOR defines the last data record in the file.
+*      **      This record has the value of INTEFACE_RADIUS(NO_OF_INTERFACES),
+*      **      and the two are used in tandem to specify the
+*      **      way in which the structure is terminated at the interior.
+*      **      If the radius is zero in the last data record, then the
+*      **      innermost medium is assumed to extend all the way to the
+*      **      axis of the cylinder.  In this case, a positive value for
+*      **      END_INDICATOR defines a solid-core structure, while 
+*      **      a negative value of END_INDICATOR indicates that a perfect
+*      **      absorber condition is applied at the origin.  A non-zero 
+*      **      value for the radius in the last data record indicates that
+*      **      the radius defines the interior interface of the previous
+*      **      layer.  Then a positive value of END_INDICATOR indicates
+*      **      a perfect electric conductor (p.e.c.) bounding the innermost
+*      **      layer, while a negative value indicates a perfect magnetic
+*      **      conductor (p.m.c.).
+*
+*      **      The parameters set into the common /PROFILE/ are as follows:
+*
+*      **            INTERFACE RADIUS(i) = outer radius of the i-th medium.
+*      **                                  (i=1,2, ...,NO_OF_INTERFACES)
+*
+*      **            PROF_EPSILON(i) = complex permittivity of i-th medium, which
+*      **                       is computed from RELATIVE_PERMITTIVITY,
+*      **                       OMEGA, and CONDUCTIVITY.
+*      **                       (i=0,1,2,...,NO_OF_INTERFACES - 1).
+*
+*      **            PROF_MU(i) =  Complex permeability of the i-th medium.  In
+*      **                   the present version of the program it is set
+*      **                   to the permeability of free space.  It is 
+*      **                   defined in the program structure to allow
+*      **                   for future generalization to magnetic mater-
+*      **                   ials.
+*
+*      **            PROF_K(i) =  Complex wavenumber of the i-th region, which is
+*      **                  computed from OMEGA, PROF_EPSILON(i), and PROF_MU(i).
+*      **                  The complex square root is computed with the
+*      **                  spectral sqare root function SPEC_SQRT so that
+*      **                  the imaginary part of K(i) is non-positive.
+*      **                  (i=0,1,2,...,NO_OF_INTERFACES - 1).
+*
+*      **            PROF_BETA(i) = Radial wavenumber in the i-th layer for the
+*      **                    specified angle of arrival.  It is computed
+*      **                    from ALPHA, the logitudinal wavenumber (a
+*      **                    calling argument), and PROF_K(i).  The spectral
+*      **                    sqare root function SPEC_SQRT is used so
+*      **                    that computations are placed on the spectral
+*      **                    sheet of the alpha plane.
+*
+*      **            INNER_COND is an indicator that distiguishes the four
+*      **             possibilities for the innermost interface condition:
+*
+*      **            INNER_COND=1  =>  solid core
+*
+*      **            INNER_COND=2  =>  perfect absorber
+*
+*      **            INNER_COND=3  =>  perfect electric conductor
+*
+*      **            INNER_COND=4  =>  perfect magnetic conductor
+*
+*      **            NO_OF_INTERFACES is the count of the number of 
+*      **            interfaces at which conditions must be applied.
+*      **            NO_OF_INTERFACES - 1 of these conditions involve
+*      **            medium contrast.  The last condition is an innermost
+*      **            interface condition.  If the termination is P.E.C.
+*      **            or P.M.C., this condition applies at a finite radius
+*      **            so that the final material terminates there, and
+*      **            INTERFACE_RADIUS(NO_OF_INTERFACES) .ne. 0.  If the
+*      **            innermost condition is that of a solid core or a
+*      **            perfectly absorbing core, then
+*      **            INTERFACE_RADIUS(NO_OF_INTERFACES) = 0.  In these
+*      **            cases, the radial wavenumber for the core medium is
+*      **            required and BETA(NO_OF_INTERFACES) .ne. 0.
+*
+*      **            LAYER_DIMENSION  is defined in the main program and is
+*      **            set to the second dimension value for all of the 
+*      **            elements in the common.  It may be used for error
+*      **            checking purposes.
+*
+*      **            ALPHA is the longitudinal wavenumber.  It is passed
+*      **            into the subroutine through the call linkage in the
+*      **            variable ALPHA_CALL, and the subroutine places it into
+*      **            the common.
+*
+*      **            OMEGA is the radian frequency.  It is passed into the
+*      **            subroutine through the call linkage through the variable
+*      **            OMEGA_CALL, and the subroutine places it into the common.
+*
+*
+*      **      NOTE:      The handling of the ALPHA and OMEGA variables described
+*      **             above is mitigated by the need to be able to call the
+*      **            DENOM_DETERM routine with the single calling argument
+*      **            NU.
+*
+*
+*------------------------------------------------------------------------------
+*
+      include 'utd.i'
+      include 'profile.i'
+      include 'smpmtl.i' ! For m0
+
+      integer  term_input,
+     1         term_output,
+     1         profile_input,
+     1         hankel_message_log,
+     1         data_output,
+     1         record_space,
+     1         no_of_records,
+     1         record_index,
+     1         profile_index,
+     1         i
+cph
+      logical perm_input
+
+      double precision  real_relative_permittivity,
+     1                  imag_relative_permittivity,
+     1                  k0,
+     1                  end_indicator,
+     1                  omega_call
+
+      double precision  real_relative_permeability,
+     1                  imag_relative_permeability
+
+
+      double complex  alpha_call,
+     1                spec_sqrt
+
+
+      character*50  profile_file_name
+
+      character*50  perm_file
+
+
+      character*80  input_array,
+     1              record_string
+
+
+      character*1  comment_indicator,
+     1             asterisk
+
+      common  /input_output_dev/
+     1             term_input,
+     1             term_output,
+     1             data_output,
+     1             profile_input,
+     1             hankel_message_log
+
+
+      common /input_records/  input_array(100),
+     1                        record_space
+
+      common /perm/  perm_input,
+     1               perm_file
+
+      record_space = 100
+
+
+      data asterisk /'*'/
+
+*-------------------------------------------------------------------------------
+
+      open  (unit=profile_input,file=profile_file_name,status='old')
+
+cph
+      if (perm_input) open  (unit=22,file=perm_file,status='old')
+cph
+*-------------------------------------------------------------------------------
+*      **      place calling arguments into common       **
+      
+      alpha = alpha_call
+
+      omega = omega_call
+
+*-------------------------------------------------------------------------------
+
+*      ** set up input data record in internal file and fix record count **
+
+      do i=1,record_space
+
+            read(profile_input,1,end=200) input_array(i)
+
+1            format(a80)
+
+            write(hankel_message_log,1) input_array(i)
+
+      end do
+
+200      no_of_records=i-1
+
+
+*------------------------------------------------------------------------------
+
+
+
+*      **      place exterior medium parameters into profile arrays 
+
+
+            profmu(0)=mu0
+            profepsilon(0)=epsilon0
+            profk(0)=omega*spec_sqrt(profmu(0)*profepsilon(0))
+            profbeta(0)=spec_sqrt(profk(0)**2 - alpha**2)
+
+            profile_index = 0  !      Initialize profile index.
+*                              !      It is stepped as layer specifications
+*                              !      are set in the loop below.
+*----------------------------------------------------------------------------
+
+*      **      loop to read layer parameters & compute derived quantities
+
+
+
+      do  record_index=1,no_of_records
+
+      record_string=input_array(record_index)
+
+      read(record_string,2) comment_indicator
+
+2      format(a1)
+
+      if(comment_indicator.ne.asterisk)  
+
+     1      then
+
+            profile_index=profile_index+1
+
+                  if(profile_index.gt.layerdimension)
+
+     1            then
+                        write(term_output,4) layerdimension
+4                        format(
+     1                  '0error--number of layers in profile exceeds',
+     1                  '        common dimension (',i2,')')
+
+                        stop
+                  end if
+
+            read(record_string,3)     interfaceradius(profile_index),
+     1                              real_relative_permittivity,
+     1                              imag_relative_permittivity,
+     1                              end_indicator
+
+3            format(4e15.0)
+
+cph
+            if (perm_input) read(22,*) real_relative_permeability,
+     1                                 imag_relative_permeability
+cph
+
+            if  (end_indicator.eq.0.)
+
+     1        then
+
+                  profepsilon(profile_index) = epsilon0*
+     1                             dcmplx(real_relative_permittivity,
+     1                              imag_relative_permittivity)
+
+                  profmu(profile_index)=mu0  ! This definition is provided
+                                         ! to accomodate later extension
+                                         ! to magnetic materials
+
+cph
+                  if (perm_input) profmu(profile_index) =
+     1                                profmu(profile_index)*
+     1                            dcmplx(real_relative_permeability,
+     1                                   imag_relative_permeability)
+cph
+
+                  profk(profile_index) = omega*spec_sqrt(
+     1               profmu(profile_index)*profepsilon(profile_index))
+      
+                  profbeta(profile_index) = spec_sqrt(
+     1                  profk(profile_index)**2 - alpha**2)
+
+            else
+
+*            ** last line processing
+
+                  if  (interfaceradius(profile_index).eq.0.0)
+
+     1            then
+*      **                  **compute parameters for core region
+
+                        profepsilon(profile_index) = epsilon0*
+     1                             dcmplx(real_relative_permittivity,
+     1                              imag_relative_permittivity)
+
+                        profmu(profile_index)=mu0      !this definition is
+*                                          !provided to accomodate
+                                          !later extension
+                                          !to magnetic materials
+
+cph
+                  if (perm_input) profmu(profile_index)
+     1                             = profmu(profile_index)*
+     1                            dcmplx(real_relative_permeability,
+     1                                   imag_relative_permeability)
+cph
+
+                        profk(profile_index)=omega*spec_sqrt(
+     1                                    profmu(profile_index)*
+     1                                    profepsilon(profile_index))
+      
+                        profbeta(profile_index)=spec_sqrt(
+     1                                    profk(profile_index)**2
+     1                                               -alpha**2)
+
+                        if  (end_indicator .gt. 0.0d0)
+
+     1                  then
+
+                              innercond=1      !solid core
+
+                        else
+
+                              innercond=2      !perfect absorber
+
+                        end if
+
+                  else
+
+                        if  (end_indicator.gt.0.)
+
+     1                  then
+
+                              innercond=3      !p.e.c.
+
+                        else
+
+                              innercond=4      !p.m.c.
+
+                        end if
+
+                  end if
+
+            end if
+
+            noofinterfaces = profile_index
+
+            end if
+
+      end do
+
+*------------------------------------------------------------------------------
+
+      close ( unit = profile_input )
+
+
+      return
+
+
+      end
+
+
+
+
+      subroutine  get_config( alpha_call,
+     1                        omega_call,
+     1                        k0,
+     1                        profile_file_name )
+
+
+      include 'utd.i'
+
+      double complex  alpha_call,
+     1                theta
+
+      double precision  omega_call,
+     1                  k0,
+     1                  c,
+     1                  f_ghz,
+     1                  deg_to_rad
+
+      integer  term_input,
+     1         term_output,
+     1         data_output,
+     1         profile_input,
+     1         hankel_message_log
+
+      character*50  profile_file_name
+
+
+      data  c/2.99792456d8/,
+     1      deg_to_rad/1.745329251994328d-2/
+
+
+      common     /input_output_dev/
+     1                  term_input,
+     1                  term_output,
+     1                  data_output,
+     1                  profile_input,
+     1                  hankel_message_log
+
+
+*------------------------------------------------------------------------------
+
+
+      write(term_output,1)
+
+    1 format('1enter frequency (ghz)')
+
+      read(term_input,*) f_ghz
+
+            omega_call=2.*dpi*f_ghz*1.e9
+            k0=omega_call/c
+
+      write(term_output,2)
+
+    2 format('0enter angle-of-arrival relative to z-axis (degrees)')
+
+      read(term_input,*) theta
+   
+            alpha_call=k0*zcos(theta*deg_to_rad)
+
+
+      write(term_output,3)
+
+    3 format('0Enter file name for material profile')
+
+      read(term_input,4) profile_file_name
+
+    4 format(a50)
+
+      return
+
+      end
+
 
 
       double complex function spec_sqrt(zz)
@@ -41,6 +729,1626 @@ C
       spec_sqrt=root
 
       return
+
+      end
+
+
+      subroutine  open_output_file( profile_file_name,
+     1                              data_output )
+
+*
+*      **      Subroutine to open a file for writing tabulation of contour
+*      **      values for 3-D plotting
+*
+*      **      by L. W. Pearson  7/85
+*
+*      **      LANGUAGE:  VAX Fortran
+*
+*      **      This subroutine opens a file associated with unit number
+*      **      DATA_OUTPUT with a file name that is built up from the
+*      **      character string PROFILE_FILE_NAME.  Upon entry, it is
+*      **      assumed that the string in PROFILE_FILE_NAME is of the form
+*      **      filename.ext.  The routine constructs a new name in the
+*      **      form filename.OPT and creates a file by performing an OPEN
+*      **      with that file name on unit = DATA_OUTPUT.
+*
+*--------------------------------------------------------------------------------
+
+      include 'utd.i'
+
+
+      character*50  profile_file_name,
+     1              output_file_name
+
+      character*1  period
+
+      character*3  extension
+
+
+      integer  data_output,
+     1         period_position
+
+
+      data period /'.'/,
+     1     extension /'opt'/
+
+*-------------------------------------------------------------------------------
+
+      period_position = index(profile_file_name, period)
+
+      output_file_name = profile_file_name(1:period_position)//extension
+
+      open(unit = data_output, file = output_file_name, status = 'new')
+
+      return
+
+      end
+
+      subroutine  get_scan_range  ( upper_left_nu,
+     1                              lower_right_nu,
+     1                              number_of_real_points,
+     1                              number_of_imag_points )
+
+*      **      Subroutine to query the user and read the values in the complex
+*      **      plane defining diagonally opposite corners of a rectangular 
+*      **      region that is to be scanned
+*
+*      **      by L. W. Pearson  7/85
+*
+*      **      Revised 4/21/86 to alow scan box to pass into first quadrant
+*
+*      **      LANGUAGE:  VAX Fortran
+*
+*      **      This program queries the user by way of I/O unit numbers speci-
+*      **      fied in the  common /INPUT_OUTPUT_DEV/ and reads from the 
+*      **      user's terminal upper and lower limits of the the real and
+*      **      imaginary parts of corner coordinates defining a scan rectangle..
+*      **      The number of points to be computed along each direction is 
+*      **      simillarly determined.  The input is tested to ensure
+*      **      that the coordinates specify a box that is partial in the
+*      **      fourth quadrant.  If it does not, the user is prompted for
+*      **      new values.  This prompting process is repeated until two
+*      **      satisfactory values are specified.
+*
+*      **      The satisfactory values are used to construct the UPPER_LEFT_NU
+*      **      and LOWER_RIGHT_NU values that are returned to the calling
+*      **      program.
+*
+*--------------------------------------------------------------------------------
+
+      include 'utd.i'
+
+
+      double complex  upper_left_nu,
+     1                lower_right_nu
+
+
+      double precision  real_1,
+     1                  real_2,
+     1                  imag_1,
+     1                  imag_2,
+     1                  small_real,
+     1                  large_real,
+     1                  small_imag,
+     1                  large_imag
+
+
+      integer  term_input,
+     1         term_output,
+     1         data_output,
+     1         profile_input,
+     1         hankel_message_log,
+     1         number_of_real_points,
+     1         number_of_imag_points
+
+
+      common /input_output_dev/
+     1            term_input,
+     1            term_output,
+     1            data_output,
+     1            profile_input,
+     1            hankel_message_log
+
+*-------------------------------------------------------------------------------
+
+      write  (term_output,1)
+
+
+1      format(
+     1'0Enter values of lower and upper range of real part of scan box',
+     1/,' and number of points to be computed in the real direction',/,
+     1' (rectangle must lie dominantly in the 4-th quadrant)')
+
+
+100      read (TERM_INPUT,*)  real_1, real_2, number_of_real_points
+
+
+      if (real_1 .lt. 0.  .or.  real_2 .lt. 0. ) 
+
+     1then
+
+            write (term_output,2)
+
+2            format('0Real extent reaches outside the right half plane',
+     1       '--REENTER')
+
+
+            go to 100            !  Loop 'til input is good
+
+      else
+
+      write  (term_output,3)
+
+
+3      format(
+     1'0Enter values of lower and upper range of imag part of scan box',
+     1/,' and number of points to be computed in the imag direction',/,
+     1' (rectangle must lie in the 4-th quadrant)')
+
+
+
+200      read (term_input,*)  imag_1, imag_2, number_of_imag_points
+
+
+      if (IMAG_1 .gt. 0.)
+
+     1      THEN
+
+                  write( TERM_OUTPUT,4)
+
+4      format('Scan box lies in the first quadrant-RENTER IMAG. RANGE')
+
+                  GO TO 200      !  Loop 'til input is good
+
+
+            ELSE 
+
+                  if ( IMAG_2 .gt. 0 )
+
+     1              THEN
+
+                    write( TERM_OUTPUT,5)
+
+5      format('Scan box crosses real axis-interpret rslts with caution')
+
+                  end if
+
+
+                  small_real = dmin1(real_1,real_2)
+
+                  small_imag = dmin1(imag_1,imag_2)
+
+                  large_real = dmax1(real_1,real_2)
+
+                  large_imag = dmax1(imag_1,imag_2)
+
+
+                  upper_left_nu = dcmplx(small_real,large_imag)
+
+                  lower_right_nu = dcmplx(large_real,small_imag)
+
+            end if
+
+      end if
+
+      return
+
+      end
+
+
+      subroutine  generate_scan( upper_left_nu,
+     1                           lower_right_nu,
+     1                           number_of_real_points,
+     1                           number_of_imag_points )
+
+*      **      Subroutine to generate a plot output data file for
+*      **      contour plotting the magnitude of the denominator term
+*      **      over a region of the nu-plane.
+*      
+*      **      by L. W. Pearson 7/85
+*
+*      **      LANGUAGE:  VAX Fortran
+*
+*      **      This subroutine calls the function DENOM_DETERM with 
+*      **      arguments NU spaced over a rectangular grid, which is defined
+*      **      on a rectangle with diagonally oposed corners defined by
+*      **      UPPER_LEFT_NU and LOWER_RIGHT_NU.
+*
+*      **      The magnitude of the values obtained are written to the output
+*      **      unit specified by  the variable DATA_OUTPUT, which resides in
+*      **      the common /INPUT_OUTPUT DEVICES.  The file associate with this
+*      **      unit must be opened prior to the call to this routine.  The
+*      **      output format is compatiple with the DISSPLA 3-d and contour
+*      **      plot drivers written by C. Sabrawal at MDRL.
+*
+*-------------------------------------------------------------------------------
+
+
+      include 'utd.i'
+
+
+      double complex  upper_left_nu,
+     1                lower_right_nu,
+     1                nu,
+     1                denom_determ
+
+
+      integer  real_index,
+     1         imag_index,
+     1         number_of_real_points,
+     1         number_of_imag_points,
+     1         term_input,
+     1         term_output,
+     1         data_output,
+     1         profile_input,
+     1         hankel_message_log,
+     1         code
+
+
+      double precision  beginning_real,
+     1                  ending_real,
+     1                  beginning_imag,
+     1                  ending_imag,
+     1                  real_increment,
+     1                  imag_increment,
+     1                  real_nu,
+     1                  imag_nu,
+     1                  magnitude(0:99)
+
+
+      common /input_output_dev/
+     1            term_input,
+     1            term_output,
+     1            data_output,
+     1            profile_input,
+     1            hankel_message_log
+
+
+
+*-------------------------------------------------------------------------------
+
+      beginning_real = dreal(upper_left_nu)
+
+      ending_real = dreal(lower_right_nu)
+
+      beginning_imag = dimag(upper_left_nu)
+
+      ending_imag = dimag(lower_right_nu)
+
+
+      real_increment = (ending_real - beginning_real)
+     1                               / (number_of_real_points - 1)
+
+      imag_increment = (ending_imag - beginning_imag)
+     1                               / (number_of_imag_points - 1)
+
+
+      write (data_output,2)
+
+2     format(8x,'real v',7x,/,8x,'imag v',7x,/,8x,'|denom|',6x)
+
+      write (data_output,3) number_of_real_points, number_of_imag_points
+
+3     format(1x,2i15)
+
+
+
+      write (data_output,1) beginning_real,ending_real
+
+      write (data_output,1) beginning_imag,ending_imag
+
+
+
+
+      do imag_index = 0, number_of_imag_points - 1
+
+            imag_nu = imag_index * imag_increment + beginning_imag
+
+            do real_index = 0, number_of_real_points - 1
+
+                  real_nu = real_index * real_increment + beginning_real
+
+                  nu = cmplx(real_nu,imag_nu)
+
+                  magnitude(real_index) = zabs(denom_determ(nu))
+
+            end do
+
+            write (data_output,1) (magnitude(real_index),
+     1                        real_index = 0, number_of_real_points-1)
+
+*      **      the above sequence, that of storing all values for a given 
+*      **      imag_nu followed by a vector write on a 5e15.7 format, renders
+*      **      the output data compatible with the plotting routines.
+
+1            format(1x,5e15.7)
+
+      end do
+
+
+      code = 2
+
+*///////////////////////////////////////////////////////////////////////////////
+
+*///////////////////////////////////////////////////////////////////////////////
+
+
+      return
+
+      end
+
+
+
+      subroutine  matrix_copy  (to_matrix,
+     1                    from_matrix,
+     1                    first_dim,
+     1                    second_dim)
+
+
+*      **      Subroutine to copy one double complex matrix to another.
+*
+*      **      by L. W. Pearson  7/85
+*
+*      **      LANGUAGE:  VAX Fortran  (G_FLOATING)
+*
+*      **      CALLING ARGUMENTS:
+*
+*      **            TO_MATRIX - Matrix into which copy is to be made
+*      **                        (double complex)
+*
+*      **            FROM_MATRIX - Matrix from which copy is to be made
+*      **                        (double complex)
+*
+*      **            FIRST_DIM - First dimension of both matrices
+*      **                      (integer)
+*
+*      **            SECOND_DIM - Second dimension of both matrices
+*      **                       (integer)
+*
+*----------------------------------------------------------------------------
+
+
+
+      include 'utd.i'
+
+      integer            first_dim,
+     1            second_dim,
+     1            i,
+     1            k
+
+
+      double complex      to_matrix(first_dim,second_dim),
+     1            from_matrix(first_dim,second_dim)
+
+
+
+      do   i  =1,first_dim
+
+            do   k    =  1,second_dim
+
+                  to_matrix(i,k) = from_matrix(i,k)
+
+            end do
+
+      end do
+
+      return
+
+      end
+
+
+
+      subroutine matrix_multiply(      product_matrix,
+     1                        left_matrix,
+     1                        right_matrix,
+     1                        left_dim,
+     1                        indexed_dim,
+     1                        right_dim)
+
+
+*      **      Subroutine to multiply two conformal double complex matrices
+*
+*      **      by L. W. Pearson 7/85
+*
+*      **      LANGUAGE:  VAX Fortran  (G_FLOATING)
+*
+*
+*      **      CALLING ARGUMENTS:
+*
+*      **            PRODUCT_MATRIX - Matrix into which product is placed
+*      **                           (double complex)
+*
+*      **            LEFT_MATRIX - Left member of the matrix product
+*      **                           (double complex)
+*
+*      **            RIGHT_MATRIX - Right member of the matrix product
+*      **                           (double complex)
+*
+*      **            LEFT_DIM
+*      **            INDEXED_DIM
+*      **            RIGHT_DIM   -  integer variables whose combinations
+*      **                         form the dimensions of the matrices
+*      **                         (See declaratives below)
+*
+*-------------------------------------------------------------------------------
+
+
+
+      include 'utd.i'
+
+
+      integer            left_dim,
+     1            right_dim,
+     1            indexed_dim,
+     1            row_index,
+     1            column_index,
+     1            sum_index
+
+
+      double complex      product_matrix(left_dim,right_dim),
+     1            left_matrix(left_dim,indexed_dim),
+     1            right_matrix(indexed_dim,right_dim),
+     1            sum
+
+
+*-------------------------------------------------------------------------------
+
+
+      do  row_index  =  1,left_dim
+
+            do  column_index  =  1,right_dim
+
+                  sum=0.
+
+                  do  sum_index  =  1,indexed_dim
+
+                        sum=sum+
+     1                      left_matrix(row_index,sum_index)*
+     1                         right_matrix(sum_index,column_index)
+
+                  end do
+
+                  product_matrix(row_index,column_index)  =  sum
+
+            end do
+
+      end do
+
+      return
+
+      end
+
+
+      subroutine  innermost_condition  (      gamma_num,
+     1                              gamma_denom,
+     1                              nu)
+*
+*
+*      **      Subroutine to compute reflection coefficients at the
+*      **      innermost interface of a radial profile
+*
+*      **      by L. W. Pearson  7/85
+*
+*      **      Revised 10/29/85 (incorporating uniform Hankel representations
+*
+*      **      Revised 4/16/86 to incorporate rationalized matrix elements
+*
+cpogo//////////////////////////////////////////////////////////////////////
+cpogo
+cpogo          Upgraded to accommodate 2X2 matrix reflection coefficient
+cpogo          for innermost boundary.  R. J. Pogorzelski  3/15/93
+cpogo
+cpogo//////////////////////////////////////////////////////////////////////
+*
+*      **      LANGUAGE:  VAX Fortran  (G_FLOATING)
+*
+*      **      This subroutine computes the reflection coefficients
+*      **      for the transfer matrix formulation of multilayer dielectric
+*      **      cylinders.
+*
+*      **      CALLING ARGUMENTS:
+*
+*      **            GAMMA_NUM -       Matrix in which the numerator of
+*      **                        the reflection coefficient is 
+*      **                        returned (double complex)
+*
+*      **            GAMMA_DENOM-     Matrix in which the denominator of
+*      **                        the reflection coefficient is 
+*      **                        returned (double complex)
+*
+*      **            NU   -     Azimuthal propagation constant.  This
+*      **                     input variable enters into the present
+*      **                     computation as the order of the Hankel
+*      **                     functions.
+*
+*
+*      **      The program also uses as input, data in the common /PROFILE/,
+*      **      which must be setup by way of a call to the subroutine 
+*      **      GET_PROFILE prior to the call here.  The quantities stored
+*      **      in this common are described in the header to GET_PROFILE.
+*      **      The present subroutine uses the indicator INNERMOST_COND, which
+*      **      resides in /PROFILE/, as the selector of the recipe that is
+*      **      used to calculate the reflection coefficients.
+*
+*      **      SUBROUTINE REQUIRED:      UNIFORM_HANKEL
+*
+*
+*-------------------------------------------------------------------------------
+
+
+      include 'utd.i'
+      include 'profile.i'
+
+      double complex      gamma_num(2,2),
+     1            gamma_denom(2,2),
+     1            nu,
+     1            eta
+
+
+      double complex      argument,l_ratio,q_ratio,
+     1            nu_call,
+     1            hankel_1,
+     1            hankel_1_prime,
+     1            hankel_2,
+     1            hankel_2_prime,
+     1            surface_impedance_matrix(2,2),
+     1            deltaz, l11, l21
+
+
+      double precision     test
+
+
+      integer     term_input,
+     1            term_output,
+     1            data_output,
+     1            profile_input,
+     1            hankel_message_log
+
+
+      common     /input_output_dev/
+     1                  term_input,
+     1                  term_output,
+     1                  data_output,
+     1                  profile_input,
+     1                  hankel_message_log
+
+      common    /zsurf/ 
+     1                  surface_impedance_matrix
+
+*-------------------------------------------------------------------------------
+
+
+      if  (innercond   .eq.  1)      !  solid core condition
+
+     1then
+
+            gamma_num(1,1)=1.
+
+            gamma_num(2,2)=1.
+
+            gamma_denom(1,1)=1.
+
+            gamma_denom(2,2)=1.
+
+      else if  (innercond  .eq.  2)      !  perfectly absorbing inner core
+
+     1then
+
+            gamma_num(1,1)=0.
+
+            gamma_num(2,2)=0.
+
+            gamma_denom(1,1)=1.
+
+            gamma_denom(2,2)=1.
+
+      end if
+
+*-------------------------------------------------------------------------------
+*
+*      **      If the inner condition is that of an impenetrable boundary
+*      **      (innercond = 3 or 4) then Hankel function ratios are
+*      **      involved.  These are computed before testing for these
+*      **      two cases.
+*
+
+      if (innercond .ge. 3) 
+
+     1then
+
+            argument = interfaceradius(noofinterfaces) *
+     1                              profbeta(noofinterfaces - 1)
+
+            nu_call = nu                  ! converts precision for call
+cpogo
+C/////////////////////////////////////////////////////////////////////////
+cpogo
+cpogo   This branch added to extend subroutine capabilities to very
+cpogo   very large values of nu.  To do this it computes the gammas
+cpogo   as the defining ratios rather than the individual Hankel
+cpogo   functions used in the small nu branch.  Because of the manner
+cpogo   in which the gammas appear in the formulation, this trick does
+cpogo   not change the values of the reflection matrix elements.
+cpogo
+cpogo   Added by R. J. POGORZELSKI            February 12, 1993
+C////////////////////////////////////////////////////////////////////////
+cpogo
+      test = 10.*zabs(argument)**(1./3.)
+cph
+      test = 1.d09
+cph
+      if(zabs(nu-argument).gt.test)then
+c      if(dpi.gt.4)then
+        if(innercond.eq.3)then
+              gamma_num(1,1) =-(l_ratio(1,1,nu,noofinterfaces)
+     &                           /l_ratio(2,1,nu,noofinterfaces))
+     &                           *q_ratio(1,2,nu,noofinterfaces)
+          gamma_denom(1,1)= 1.
+          gamma_num(2,2)  = -q_ratio(1,2,nu,noofinterfaces)
+          gamma_denom(2,2)= 1.
+            endif
+        if(innercond.eq.4)then
+          gamma_num(2,2) =-(l_ratio(1,1,nu,noofinterfaces)
+     &                           /l_ratio(2,1,nu,noofinterfaces))
+     &                           *q_ratio(1,2,nu,noofinterfaces)
+          gamma_denom(1,1)= 1.
+          gamma_num(1,1)  = -q_ratio(1,2,nu,noofinterfaces)
+          gamma_denom(2,2)= 1.
+          return
+            endif
+        if(innercond.eq.5)then
+
+        eta = zsqrt(profmu(noofinterfaces-1)
+     1           /profepsilon(noofinterfaces-1))
+        if(dreal(eta).lt.0.)eta=-eta
+
+            deltaz = surface_impedance_matrix(1,1)
+     1              *surface_impedance_matrix(2,2)
+     1              -surface_impedance_matrix(1,2)
+     1              *surface_impedance_matrix(2,1)
+            gamma_num(2,2)=((deltaz/surface_impedance_matrix(2,2)
+     1                    -eta*l_ratio(2,1,nu,noofinterfaces))
+     1                    *(1./surface_impedance_matrix(2,2)
+     1                    +l_ratio(1,1,nu,noofinterfaces)/eta)
+     1                    -(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                    *interfaceradius(noofinterfaces))
+     1                    -surface_impedance_matrix(2,1)
+     1                    /surface_impedance_matrix(2,2))
+     1                    *(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                    *interfaceradius(noofinterfaces))
+     1                    +surface_impedance_matrix(1,2)
+     1                    /surface_impedance_matrix(2,2)))
+     1                    *q_ratio(1,2,nu,noofinterfaces)
+
+            gamma_num(2,1)=(l_ratio(1,1,nu,noofinterfaces)
+     1                     -l_ratio(2,1,nu,noofinterfaces))*(alpha*nu/
+     1                    (profbeta(noofinterfaces-1)**2
+     1                    *interfaceradius(noofinterfaces))
+     1                    -surface_impedance_matrix(2,1)
+     1                    /surface_impedance_matrix(2,2))
+     1                    *q_ratio(1,2,nu,noofinterfaces)/eta
+
+        gamma_num(1,2)=(l_ratio(2,1,nu,noofinterfaces)
+     1              -l_ratio(1,1,nu,noofinterfaces))
+     1              *(alpha*nu/
+     1                    (profbeta(noofinterfaces-1)**2
+     1                    *interfaceradius(noofinterfaces))
+     1                    +surface_impedance_matrix(1,2)
+     1                    /surface_impedance_matrix(2,2))
+     1                    *q_ratio(1,2,nu,noofinterfaces)*eta
+
+        gamma_num(1,1)=((deltaz/surface_impedance_matrix(2,2)
+     1                     -eta*l_ratio(1,1,nu,noofinterfaces))
+     1                     *(l_ratio(2,1,nu,noofinterfaces)/eta
+     1                     +1./surface_impedance_matrix(2,2))
+     1                     -(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                     *interfaceradius(noofinterfaces))
+     1                     -surface_impedance_matrix(2,1)
+     1                     /surface_impedance_matrix(2,2))
+     1                     *(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                     *interfaceradius(noofinterfaces))
+     1                     +surface_impedance_matrix(1,2)
+     1                     /surface_impedance_matrix(2,2)))
+     1                     *q_ratio(1,2,nu,noofinterfaces)
+
+      gamma_denom(1,1)=((eta*l_ratio(2,1,nu,noofinterfaces)
+     1                -deltaz/surface_impedance_matrix(2,2))
+     1                      *(l_ratio(2,1,nu,noofinterfaces)
+     1                /eta+1./surface_impedance_matrix(2,2))
+     1                      +(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      -surface_impedance_matrix(2,1)
+     1                      /surface_impedance_matrix(2,2))
+     1                      *(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      +surface_impedance_matrix(1,2)
+     1                      /surface_impedance_matrix(2,2)))
+
+      gamma_denom(1,2) = (0.,0.)
+
+      gamma_denom(2,1) = (0.,0.)
+
+      gamma_denom(2,2) = gamma_denom(1,1)
+
+            endif
+      else
+cpogo
+C////////////////////////////////////////////////////////////////////////
+cpogo
+
+            call  uniform_hankel(      hankel_1,
+     1                        hankel_2,
+     1                        hankel_1_prime,
+     1                        hankel_2_prime,
+     1                        argument,
+     1                        nu_call )
+
+
+*-------------------------------------------------------------------------------
+
+      if  (innercond  .eq. 3)      !p.e.c.
+
+     1then
+
+            gamma_num(1,1) = - hankel_1_prime
+
+            gamma_denom(1,1) =  hankel_2_prime
+
+            gamma_num(2,2) = - hankel_1
+
+            gamma_denom(2,2) =  hankel_2
+cph
+cph      write(3,*) ' gamma_num(1,1) = ',gamma_num(1,1)
+cph      write(3,*) ' gamma_denom(1,1) = ',gamma_denom(1,1)    
+cph      write(3,*) ' gamma_num(2,2) = ',gamma_num(2,2)
+cph      write(3,*) ' gamma_denom(2,2) = ',gamma_denom(2,2)
+cph
+      else if  (innercond  .eq.  4)
+
+     1then
+
+            gamma_num(1,1) = - hankel_1
+
+            gamma_denom(1,1) =  hankel_2
+
+            gamma_num(2,2) = - hankel_1_prime
+
+            gamma_denom(2,2) =  hankel_2_prime
+
+      else if(innercond.eq.5)
+     1then
+        eta = zsqrt(profmu(noofinterfaces-1)
+     1               /profepsilon(noofinterfaces-1))
+        if(dreal(eta).lt.0.)eta=-eta
+
+            deltaz = surface_impedance_matrix(1,1)
+     1              *surface_impedance_matrix(2,2)
+     1              -surface_impedance_matrix(1,2)
+     1              *surface_impedance_matrix(2,1)
+
+            l11 = (0.,1.)*profk(noofinterfaces-1)*hankel_1_prime
+     1           /(profbeta(noofinterfaces-1)*hankel_1)
+            l21 = (0.,1.)*profk(noofinterfaces-1)*hankel_2_prime
+     1           /(profbeta(noofinterfaces-1)*hankel_2)
+
+
+        gamma_num(2,2)=((deltaz/surface_impedance_matrix(2,2)
+     1                     -eta*l21)
+     1                    *(l11/eta
+     1                     +1./surface_impedance_matrix(2,2))
+     1                      -(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      -surface_impedance_matrix(2,1)
+     1                      /surface_impedance_matrix(2,2))
+     1                      *(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      +surface_impedance_matrix(1,2)
+     1                      /surface_impedance_matrix(2,2)))
+     1                      *hankel_1
+
+            gamma_num(2,1)=(l11-l21)*(alpha*nu/
+     1                    (profbeta(noofinterfaces-1)**2
+     1                    *interfaceradius(noofinterfaces))
+     1                    -surface_impedance_matrix(2,1)
+     1                    /surface_impedance_matrix(2,2))
+     1                    *hankel_1/eta
+
+        gamma_num(1,2)=(l21-l11)*(alpha*nu/
+     1                    (profbeta(noofinterfaces-1)**2
+     1                    *interfaceradius(noofinterfaces))
+     1                    +surface_impedance_matrix(1,2)
+     1                    /surface_impedance_matrix(2,2))
+     1                    *hankel_1*eta
+
+        gamma_num(1,1)=((deltaz/surface_impedance_matrix(2,2)
+     1                     -eta*l11)
+     1                    *(l21/eta
+     1                     +1./surface_impedance_matrix(2,2))
+     1                      -(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      -surface_impedance_matrix(2,1)
+     1                      /surface_impedance_matrix(2,2))
+     1                      *(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      +surface_impedance_matrix(1,2)
+     1                      /surface_impedance_matrix(2,2)))
+     1                      *hankel_1
+
+      gamma_denom(1,1)=((eta*l21-deltaz/surface_impedance_matrix(2,2))
+     1                      *(l21/eta+1./surface_impedance_matrix(2,2))
+     1                      +(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      -surface_impedance_matrix(2,1)
+     1                      /surface_impedance_matrix(2,2))
+     1                      *(alpha*nu/(profbeta(noofinterfaces-1)**2 
+     1                      *interfaceradius(noofinterfaces))
+     1                      +surface_impedance_matrix(1,2)
+     1                      /surface_impedance_matrix(2,2)))
+     1                      *hankel_2
+
+      gamma_denom(1,2) = (0.,0.)
+
+      gamma_denom(2,1) = (0.,0.)
+
+      gamma_denom(2,2) = gamma_denom(1,1)
+
+      end if
+      end if
+      end if 
+      return
+
+      end
+
+
+
+      subroutine  field_coefficient (      field_coef_matrix,
+     1                        medium_index,
+     1                        radius_index,
+     1                        nu)
+
+*      **      Subroutine to compute the 4 x 4 FIELD COEFFICIENT MATRIX
+*      **      in the MEDIUM_INDEX-th medium at the RADIUS_INDEX-th radius
+*
+*      **      by L. W. Pearson  7/85
+*
+*      **      Revised 10/29/85 (including uniform Hankel representations)
+*
+*      **      LANGUAGE:  VAX Fortran  (G_FLOATING)
+*
+*
+*      **      CALLING ARGUMENTS:
+*
+*      **            FIELD_COEF_MATRIX is a 4 x 4 matrix of coefficients
+*      **            that is returned by the subroutine.
+*      **            (double complex)
+*
+*      **            MEDIUM_INDEX is the index of the medium parameters
+*      **            in terms of which the matrix is to be computed. 
+*      **            (integer)
+*
+*      **            RADIUS_INDEX is the index of the radius at which the
+*      **            matrix is to be calculated
+*      **            (integer)
+*
+*      **            NU is the azimuthal wavenumber for which the matrix is
+*      **            computed.  (This wavenumber reflects itself as the 
+*      **            order of the Hankel functions that enter into the
+*      **            matrix computation.)
+*      **            (double complex)
+*
+*      **      SUBROUTINES REQUIRED
+*
+*      **            UNIFORM_HANKEL
+*
+*      **      NOTES:      Because of the possibility of the accumulation of
+*      **            large exponents when materials are lossy, all of 
+*      **            the routines comprising the multilayer cylinder
+*      **            algorithm are to be compiled using the G_FLOATING
+*      **            qualifier.
+*
+*
+*      **            The program uses as input, data in the common /PROFILE/,
+*      **            which must be setup by way of a call to the subroutine 
+*      **            GET_PROFILE prior to the call here.  The quantities
+*      **            stored in this common are described in the header to
+*      **            GET_PROFILE.
+*-------------------------------------------------------------------------------
+
+
+      include 'utd.i'
+      include 'profile.i'
+
+
+      double complex      field_coef_matrix(4,4),
+     1            nu,
+     1            factor_1,
+     1            factor_2,zh1,zh2,zh1p,zh2p,arg1,arg2,scale_factor
+
+
+      double complex      nu_call,
+     1            argument,
+     1            hankel_1,
+     1            hankel_1_prime,
+     1            hankel_2,
+     1            hankel_2_prime
+
+      integer     ii,jj,
+     1            medium_index,
+     1            radius_index,
+     1            term_input,
+     1            term_output,
+     1            data_output,
+     1            profile_input,
+     1            hankel_message_log
+
+      common     /input_output_dev/
+     1                  term_input,
+     1                  term_output,
+     1                  data_output,
+     1                  profile_input,
+     1                  hankel_message_log
+
+
+*-------------------------------------------------------------------------------
+
+cpogo///////////////////////////////////////////////////////////////////////////
+cpogo
+cpogo  This segment of code computes the factor in front of the
+cpogo  field coupling matrix.  Later in this subroutine an optional
+cpogo  code segment is included which divides this scale factor out
+cpogo  of the field coefficient matrix for consistency with the 
+cpogo  asymptotic version of the field coupling matrix.  Removing
+cpogo  such factors from the matrix does not affect the resulting
+cpogo  reflection matrix.
+cpogo
+cpogo
+      scale_factor = -dpi/4.
+      arg1 = profbeta(medium_index)*interfaceradius(radius_index)
+      arg2 = profbeta(medium_index+1)*interfaceradius(radius_index)
+      call uniform_hankel(zh1,zh2,zh1p,zh2p,arg2,nu)  
+      scale_factor = scale_factor*zh1*zh2*arg1*arg1/
+     &    (profk(medium_index+1)*interfaceradius(radius_index))
+cph      write(3,*) ' radius_index = ',radius_index
+cph      write(3,*) ' zh1 = ',zh1,' zh2 = ',zh2
+cph
+      if (medium_index .eq. 0) then
+        call uniform_hankel(zh1,zh2,zh1p,zh2p,arg1,nu)
+        scale_factor = scale_factor*zh2
+      end if
+cph  
+cpogo
+cpogo
+cpogo///////////////////////////////////////////////////////////////////////////
+*      **  Set up calling arguments and compute Hankel functions  **
+
+      argument = profbeta(medium_index)*interfaceradius(radius_index)
+
+            nu_call = nu
+
+            call  UNIFORM_HANKEL(      hankel_1,
+     1                        hankel_2,
+     1                        hankel_1_prime,
+     1                        hankel_2_prime,
+     1                        argument,
+     1                        nu_call )
+
+
+*-------------------------------------------------------------------------------
+
+*      **  Compute factors comprising elements (1,1), (1,2), (3,3) & (3,4)  **
+*      **                    and place them in these elements               **
+
+
+
+            factor_1 = profbeta(medium_index) * hankel_1_prime
+
+            factor_2 = profbeta(medium_index) * hankel_2_prime
+
+
+
+            field_coef_matrix(1,1) = factor_1
+
+            field_coef_matrix(1,2) = factor_2
+
+            field_coef_matrix(3,3) = - factor_1
+
+            field_coef_matrix(3,4) = - factor_2
+
+
+
+*--------------------------------------------------------------------------------
+
+*      **  Compute factors common to elements (1,3), (1,4), (3,1) & (3,2)  **
+*      **                and compute these elements from them              **
+
+
+
+            factor_1 = - alpha * nu * hankel_1 /
+
+     1       ( (0.,1.) * omega * interfaceradius(radius_index) )
+
+
+            factor_2 = - alpha * nu * hankel_2 /
+
+     1       ( (0.,1.) * omega * interfaceradius(radius_index) )
+
+
+
+
+            field_coef_matrix(1,3) = factor_1/profepsilon(medium_index)
+
+            field_coef_matrix(1,4) = factor_2/profepsilon(medium_index)
+
+            field_coef_matrix(3,1) = factor_1/profmu(medium_index)
+
+            field_coef_matrix(3,2) = factor_2/profmu(medium_index)
+
+
+*--------------------------------------------------------------------------------
+
+*      **  Compute factors common to elements (2,1), (2,2), (4,3) & (4,4)  **
+*      **               and compute these elements from them               **
+
+
+
+            factor_1 = profbeta(medium_index) ** 2 * hankel_1 /
+
+     1                                       ( (0.,1.) * omega )
+
+            factor_2 = profbeta(medium_index) ** 2 * hankel_2 /
+
+     1                                       ( (0.,1.) * omega )
+
+
+
+            field_coef_matrix(2,1) = factor_1/profmu(medium_index)
+
+            field_coef_matrix(2,2) = factor_2/profmu(medium_index)
+
+            field_coef_matrix(4,3) = factor_1/profepsilon(medium_index)
+
+            field_coef_matrix(4,4) = factor_2/profepsilon(medium_index)
+
+*--------------------------------------------------------------------------------
+
+
+*      **   Put zeros in (2,3), (2,4), (4,1) & (4,2) elements  **
+
+
+            field_coef_matrix(2,3) = 0.
+
+            field_coef_matrix(2,4) = 0.
+
+            field_coef_matrix(4,1) = 0.
+
+            field_coef_matrix(4,2) = 0.
+
+
+*-------------------------------------------------------------------------------
+cpogo///////////////////////////////////////////////////////////////////////
+cpogo
+cpogo This is the optional code segment described above.  If included,
+cpogo it divides out a scale factor common to all elements of the matrix.
+cpogo
+      do 111 ii=1,4
+      do 111 jj=1,4
+  111 field_coef_matrix(ii,jj) = field_coef_matrix(ii,jj)/SCALE_FACTOR
+cpogo///////////////////////////////////////////////////////////////////////
+
+      return
+
+      end
+
+
+
+      subroutine  field_coefficient_inverse (      field_coef_matrix,
+     1                              medium_index,
+     1                              radius_index,
+     1                              nu)
+
+*      **      Subroutine to compute the inverse of the 4 x 4 
+*      **      FIELD COEFFICIENT MATRIX in the MEDIUM_INDEX-th medium 
+*      **      at the RADIUS_INDEX-th radius
+*
+*      **      by L. W. Pearson  11/85
+*
+*      **      LANGUAGE:  VAX Fortran  (G_FLOATING)
+*
+*
+*      **      CALLING ARGUMENTS:
+*
+*      **            FIELD_COEF_MATRIX is a 4 x 4 matrix of coefficients
+*      **            that is returned by the subroutine containing the
+*      **            INVERSE of the field coeffficient matrix.
+*      **            (double complex)
+*
+*      **            MEDIUM_INDEX is the index of the medium parameters
+*      **            in terms of which the matrix is to be computed. 
+*      **            (integer)
+*
+*      **            RADIUS_INDEX is the index of the radius at which the
+*      **            matrix is to be calculated
+*      **            (integer)
+*
+*      **            NU is the azimuthal wavenumber for which the matrix is
+*      **            computed.  (This wavenumber reflects itself as the 
+*      **            order of the Hankel functions that enter into the
+*      **            matrix computation.)
+*      **            (double complex)
+*
+*      **      SUBROUTINES REQUIRED
+*
+*      **            UNIFORM_HANKEL
+*
+*      **      NOTES:      Because of the possibility of the accumulation of
+*      **            large exponents when materials are lossy, all of 
+*      **            the routines comprising the multilayer cylinder
+*      **            algorithm are to be compiled using the G_FLOATING
+*      **            qualifier.
+*
+*      **            The program uses as input, data in the common /PROFILE/,
+*      **            which must be setup by way of a call to the subroutine 
+*      **            GET_PROFILE prior to the call here.  The quantities
+*      **            stored in this common are described in the header to
+*      **            GET_PROFILE.
+*-------------------------------------------------------------------------------
+
+
+      include 'utd.i'
+      include 'profile.i'
+
+      double complex      field_coef_matrix(4,4),
+     1            nu,
+     1            factor_1,
+     1            factor_2
+
+
+      double complex      nu_call,
+     1            argument,
+     1            hankel_1,
+     1            hankel_1_prime,
+     1            hankel_2,
+     1            hankel_2_prime
+
+      integer     medium_index,
+     1            radius_index,
+     1            term_input,
+     1            term_output,
+     1            data_output,
+     1            profile_input,
+     1            hankel_message_log
+
+      common     /input_output_dev/
+     1                  term_input,
+     1                  term_output,
+     1                  data_output,
+     1                  profile_input,
+     1                  hankel_message_log
+
+
+
+*-------------------------------------------------------------------------------
+
+*      **  Set up calling arguments and compute Hankel functions  **
+
+      argument = profbeta(medium_index)*interfaceradius(radius_index)
+
+            nu_call = nu
+
+            call  UNIFORM_HANKEL(      hankel_1,
+     1                        hankel_2,
+     1                        hankel_1_prime,
+     1                        hankel_2_prime,
+     1                        argument,
+     1                        nu_call )
+
+
+*-------------------------------------------------------------------------------
+
+*      **  Compute factors comprising elements (1,1), (2,1), (3,3) & (4,3)  **
+*      **                    and place them in these elements               **
+
+
+
+            factor_1 = (0.,1.) * dpi * interfaceradius(radius_index)
+
+     1                                     * hankel_1 / 4
+
+            factor_2 = (0.,1.) * dpi * interfaceradius(radius_index)
+
+     1                                     * hankel_2 / 4
+
+
+
+            field_coef_matrix(1,1) = - factor_2
+
+            field_coef_matrix(2,1) =   factor_1
+
+            field_coef_matrix(3,3) =   factor_2
+
+            field_coef_matrix(4,3) = - factor_1
+
+
+
+*--------------------------------------------------------------------------------
+
+*      **  Compute factors common to elements (1,4), (2,4), (3,2) & (4,2)  **
+*      **                and compute these elements from them              **
+
+
+
+            factor_1 = (0.,1.) * dpi * alpha * nu * hankel_1 / 
+
+     1                              (4 * profbeta(medium_index)**2)
+
+
+            factor_2 = (0.,1.) * dpi * alpha * nu * hankel_2 / 
+
+     1                              (4 * profbeta(medium_index)**2)
+
+
+
+            field_coef_matrix(1,4) = - factor_2
+
+            field_coef_matrix(2,4) =   factor_1
+
+            field_coef_matrix(3,2) =   factor_2
+
+            field_coef_matrix(4,2) = - factor_1
+
+
+*--------------------------------------------------------------------------------
+
+*      **  Compute factors common to elements (1,2), (2,2), (3,4) & (4,4)  **
+*      **               and compute these elements from them               **
+
+
+
+            factor_1 = dpi * omega * interfaceradius(radius_index) * 
+
+     1                hankel_1_prime / ( 4 * profbeta(medium_index) )
+
+
+            factor_2 = dpi * omega * interfaceradius(radius_index) * 
+
+     1                hankel_2_prime / ( 4 * profbeta(medium_index) )
+
+
+
+           field_coef_matrix(1,2) = -factor_2*profmu(medium_index)
+
+           field_coef_matrix(2,2) =  factor_1*profmu(medium_index)
+
+           field_coef_matrix(3,4) = -factor_2*profepsilon(medium_index)
+
+           field_coef_matrix(4,4) =  factor_1*profepsilon(medium_index)
+
+*--------------------------------------------------------------------------------
+
+
+*      **   Put zeros in (1,3), (2,3), (3,1) & (4,1) elements  **
+
+
+            field_coef_matrix(1,3) = 0.
+
+            field_coef_matrix(2,3) = 0.
+
+            field_coef_matrix(3,1) = 0.
+
+            field_coef_matrix(4,1) = 0.
+
+
+*-------------------------------------------------------------------------------
+
+      return
+
+      end
+
+
+
+      subroutine  field_coupling  (      field_coupling_matrix,
+     1                        nu,
+     1                        index,
+     1                        in_or_out)
+
+C
+C--------------------------------------------------------------------
+C
+      include 'utd.i'
+      include 'profile.i'
+
+      double complex      field_coupling_matrix(4,4),
+     1            nu,z1,z2,
+     1            p_ratio,
+     1            zh11,zh21,zh12,zh22,zh1p1,zh1p2,zh2p1,zh2p2
+
+      double precision      test1,test2
+
+      integer            index,
+     1            in_or_out,
+     1            term_input,
+     1            term_output,
+     1            data_output,
+     1            profile_input,
+     1            hankel_message_log
+
+      common     /input_output_dev/
+     1                  term_input,
+     1                  term_output,
+     1                  data_output,
+     1                  profile_input,
+     1                  hankel_message_log
+
+
+*-------------------------------------------------------------------------------
+cpogo////////////////////////////////////////////////////////////////////////
+cpogo
+cpogo If the order of the Hankel functions is not too close to their
+cpogo arguments, use the simplified asymptotics for speed.  Otherwise use
+cpogo the more accurate Pearson/Whitaker routines.
+cpogo
+      z1 = profbeta(index-1)*interfaceradius(index)
+      z2 = profbeta(index)  *interfaceradius(index)
+      test1 = 10.*zabs(z1)**(1./3.)
+      test2 = 10.*zabs(z2)**(1./3.)
+cph
+      test1 = 1.d09
+      test2 = 1.d09
+cph
+
+      if(( (zabs(nu-z1) .gt. test1)
+     &   .and.(zabs(nu-z2) .gt. test2) ).and.
+     &                                (in_or_out .eq. 1))then
+
+         call asymptotic_field_coupling( field_coupling_matrix,
+     1                        nu,
+     1                        index,
+     1                        in_or_out)
+cpogo////////////////////////////////////////////////////////////////////////
+cpogo If desired, this segment may be used to remove the P ratios for plotting
+cpogo purposes.  This must NOT be done if the true field coupling is desired
+cpogo such as in computing the reflection matrix, for example.
+cpogo Note the the following IF statement short circuits the segment.
+cpogo
+      if(dpi.lt.4.)go to 5
+      field_coupling_matrix(1,1)=field_coupling_matrix(1,1)/
+     &      p_ratio(1,1,nu,index)
+      field_coupling_matrix(1,2)=field_coupling_matrix(1,2)/
+     &      p_ratio(2,1,nu,index)
+      field_coupling_matrix(1,3)=field_coupling_matrix(1,3)/
+     &      p_ratio(1,1,nu,index)
+      field_coupling_matrix(1,4)=field_coupling_matrix(1,4)/
+     &      p_ratio(2,1,nu,index)
+      field_coupling_matrix(2,1)=field_coupling_matrix(2,1)/
+     &      p_ratio(1,2,nu,index)
+      field_coupling_matrix(2,2)=field_coupling_matrix(2,2)/
+     &      p_ratio(2,2,nu,index)
+      field_coupling_matrix(2,3)=field_coupling_matrix(2,3)/
+     &      p_ratio(1,2,nu,index)
+      field_coupling_matrix(2,4)=field_coupling_matrix(2,4)/
+     &      p_ratio(2,2,nu,index)
+      field_coupling_matrix(3,1)=field_coupling_matrix(3,1)/
+     &      p_ratio(1,1,nu,index)
+      field_coupling_matrix(3,2)=field_coupling_matrix(3,2)/
+     &      p_ratio(2,1,nu,index)
+      field_coupling_matrix(3,3)=field_coupling_matrix(3,3)/
+     &      p_ratio(1,1,nu,index)
+      field_coupling_matrix(3,4)=field_coupling_matrix(3,4)/
+     &      p_ratio(2,1,nu,index)
+      field_coupling_matrix(4,1)=field_coupling_matrix(4,1)/
+     &      p_ratio(1,2,nu,index)
+      field_coupling_matrix(4,2)=field_coupling_matrix(4,2)/
+     &      p_ratio(2,2,nu,index)
+      field_coupling_matrix(4,3)=field_coupling_matrix(4,3)/
+     &      p_ratio(1,2,nu,index)
+      field_coupling_matrix(4,4)=field_coupling_matrix(4,4)/
+     &      p_ratio(2,2,nu,index)
+    5 continue
+      else
+         call original_field_coupling( field_coupling_matrix,
+     1                        nu,
+     1                        index,
+     1                        in_or_out)
+cpogo////////////////////////////////////////////////////////////////////////
+cpogo If desired, this segment may be used to remove the P ratios for plotting
+cpogo purposes.  This must NOT be done if the true field coupling is desired
+cpogo such as in computing the reflection matrix, for example.
+cpogo Note the the following IF statement short circuits the segment.
+cpogo
+      if(dpi.lt.4.)go to 6
+      call uniform_hankel(zh11,zh21,zh1p1,zh2p1,z1,nu)
+      call uniform_hankel(zh12,zh22,zh1p2,zh2p2,z2,nu)
+      field_coupling_matrix(1,1)=field_coupling_matrix(1,1)
+     &      *zh12/zh11
+      field_coupling_matrix(1,2)=field_coupling_matrix(1,2)
+     &      *zh12/zh21
+      field_coupling_matrix(1,3)=field_coupling_matrix(1,3)
+     &      *zh12/zh11
+      field_coupling_matrix(1,4)=field_coupling_matrix(1,4)
+     &      *zh12/zh21
+      field_coupling_matrix(2,1)=field_coupling_matrix(2,1)
+     &      *zh22/zh11
+      field_coupling_matrix(2,2)=field_coupling_matrix(2,2)
+     &      *zh22/zh21
+      field_coupling_matrix(2,3)=field_coupling_matrix(2,3)
+     &      *zh22/zh11
+      field_coupling_matrix(2,4)=field_coupling_matrix(2,4)
+     &      *zh22/zh21
+      field_coupling_matrix(3,1)=field_coupling_matrix(3,1)
+     &      *zh12/zh11
+      field_coupling_matrix(3,2)=field_coupling_matrix(3,2)
+     &      *zh12/zh21
+      field_coupling_matrix(3,3)=field_coupling_matrix(3,3)
+     &      *zh12/zh11
+      field_coupling_matrix(3,4)=field_coupling_matrix(3,4)
+     &      *zh12/zh21
+      field_coupling_matrix(4,1)=field_coupling_matrix(4,1)
+     &      *zh22/zh11
+      field_coupling_matrix(4,2)=field_coupling_matrix(4,2)
+     &      *zh22/zh21
+      field_coupling_matrix(4,3)=field_coupling_matrix(4,3)
+     &      *zh22/zh11
+      field_coupling_matrix(4,4)=field_coupling_matrix(4,4)
+     &      *zh22/zh21
+    6 continue
+      endif
+      return
+      end subroutine
+
+c/////////////////////////////////////////////////////////////////////////
+
+
+
+
+      subroutine  original_field_coupling  (      field_coupling_matrix,
+     1                        nu,
+     1                        index,
+     1                        in_or_out)
+
+*
+*      **      Subroutine to construct the field coupling matrix for a speci-
+*      **      fied interface within a layer profile of cylindrical dielectrics
+*
+*      **      by L. W. Pearson  7/85
+*      **            revised 11/85 to use analytical inverse
+*
+*      **      LANGUAGE:  VAX Fortran  (G_FLOATING)
+*
+*      **      This subroutine computes a 4 x 4 field coupling matrix
+*      **      that relates the four potential coefficients in the (INDEX-1)st
+*      **      medium in a profile to those in the INDEX-th medium.
+*      **      The direction of the dependence is specifiable using the
+*      **      calling parameter IN_OR_OUT, as defined below.
+*
+*      **      The routine calls the subroutine FIELD_COEFFICIENT with 
+*      **      the index of the "from" medium andFIELD_COEFFICIENT_INVERSE
+*      **      with the index of the "to" medium.  The product of the two
+*      **      resulting matrices is the FIELD_COUPLING_MATRIX.
+*
+*      **      CALLING ARGUMENTS
+*
+*      **            FIELD_COUPLING_MATRIX is the 4 x 4 matrix that is
+*      **            returned by this subroutine.
+*      **            (double complex  (4,4))
+*
+*      **            NU is the azimuthal wavenumber (which enters in as the 
+*      **            order of the Hankel functions in the matrix) that must
+*      **             be supplied by the calling routine.
+*      **            (double complex)
+*
+*      **            INDEX is the index of the interface for which the 
+*      **            matrix is to be computed.  The interface lies between
+*      **            the INDEX-th and the (INDEX + 1)-st media and has a
+*      **            radius of INTERFACE_RADIUS(INDEX + 1).  (INTERFACE_
+*      **            RADIUS is a vector of parameters in the common
+*      **            /PROFILE/.
+*                  (integer)
+*
+*      **            IN_OR_OUT is a parameter that indicates the direction
+*      **            in which the return matrix is to express the dependency
+*      **            of one set of potential coefficients upon the other.
+*
+*      **            IN_OR_OUT = 1   =>  the returned matrix times the coef-
+*      **                            ficient vector for the INDEX-th
+*      **                            layer is the coefficient vector
+*      **                            for the (INDEX + 1)-st layer.
+*
+*      **            IN_OR_OUT = -1  =>  the returned matrix times the coef-
+*      **                            ficient vector for the (INDEX+1)-st
+*      **                            layer is the coefficient vector
+*      **                            for the INDEX-th layer.
+*      **            (integer)
+*
+*
+*      **            SUBROUTINE REQUIRED:
+*
+*      **                         FIELD_COEFFICIENT
+*
+*      **                         FIELD_COEFFICIENT_INVERSE
+*
+*      **                         MATRIX_INVERT
+*
+*      **                         MATRIX_MULTIPLY
+*
+*-------------------------------------------------------------------------------
+
+
+      include 'utd.i'
+
+
+      double complex      field_coupling_matrix(4,4),
+     1            field_coef_matrix_outer(4,4),
+     1            field_coef_matrix_inner(4,4),
+     1            nu
+
+
+
+
+      integer            index,
+     1            in_or_out,
+     1            term_input,
+     1            term_output,
+     1            data_output,
+     1            profile_input,
+     1            hankel_message_log
+
+
+
+
+      common     /input_output_dev/
+     1                  term_input,
+     1                  term_output,
+     1                  data_output,
+     1                  profile_input,
+     1                  hankel_message_log
+
+
+*-------------------------------------------------------------------------------
+
+      if  (in_or_out. eq. 1)
+
+     1then
+
+      call   field_coefficient  (      field_coef_matrix_outer,
+     1                        index - 1,
+     1                        index,
+     1                        nu)
+
+
+      call   field_coefficient_inverse ( field_coef_matrix_inner,
+     1                           index,
+     1                           index,
+     1                           nu)
+
+            call matrix_multiply  (      field_coupling_matrix,
+     1                        field_coef_matrix_inner,
+     1                        field_coef_matrix_outer,
+     1                        4,4,4)
+
+      else  if (in_or_out .eq. -1)
+
+     1then
+
+      call   field_coefficient_inverse ( field_coef_matrix_outer,
+     1                           index - 1,
+     1                           index,
+     1                           nu)
+
+
+      call   field_coefficient  (      field_coef_matrix_inner,
+     1                        index,
+     1                        index,
+     1                        nu)
+
+
+            call  matrix_multiply  (field_coupling_matrix,
+     1                        field_coef_matrix_outer,
+     1                        field_coef_matrix_inner,
+     1                        4,4,4)
+
+      end if
+
+
 
       end
 

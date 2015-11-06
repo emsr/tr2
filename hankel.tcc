@@ -1001,7 +1001,7 @@ template<typename _Tp>
 	//  Loop until quantities to evaluate lowest order u and v 
 	//  polynomials and partial quantities to evaluate
 	//  next highest order polynomials computed
-	for (; index < indexend; ++index)
+	for (; index < indexend; ++index, ++indexp)
 	  {
 	    auto term = ds * ukta;
 	    ukta = uktb + dr * ukta;
