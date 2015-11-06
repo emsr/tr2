@@ -103,6 +103,7 @@ string_literal_2
 test_common_float
 test_hankel
 test_hankel_old
+test_hankel_orig
 test_hypergeometric_distribution.int
 test_hypergeometric_distribution.lower
 test_hypergeometric_distribution.txt
