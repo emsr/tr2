@@ -903,96 +903,9 @@ template<typename _Tp>
 	  }
 	};
 
-	//  Evaluate numerator polynomial for nu=+1/3 approximant
-/*
-	auto al = _S_ap1d3[0];
-	auto t  = s * al;
-	al = _S_ap1d3[1] + r * al;
-	auto be = _S_ap1d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_ap1d3[3] - t;
-	fp1d3 = al * zzz + be;
-	//  Evaluate denominator polynomial for nu=+1/3 approximant
-	//  and compute ratio of numerator and denominator
-	al = _S_bp1d3[0];
-	t  = s * al;
-	al = _S_bp1d3[1] + r * al;
-	be = _S_bp1d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_bp1d3[3] - t;
-	fp1d3 /= al * zzz + be;
-*/
 	__fp1d3 = __horner(_S_ap1d3) / __horner(_S_bp1d3);
-
-	//  Evaluate numerator polynomial for nu=-1/3 approximant
-/*
-	al = _S_am1d3[0];
-	t  = s * al;
-	al = _S_am1d3[1] + r * al;
-	be = _S_am1d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_am1d3[3] - t;
-	fm1d3 = al * zzz + be;
-	//  Evaluate denominator polynomial for nu=-1/3 approximant
-	//  and compute ratio of numerator and denominator
-	al = _S_bm1d3[0];
-	t  = s * al;
-	al = _S_bm1d3[1] + r * al;
-	be = _S_bm1d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_bm1d3[3] - t;
-	fm1d3 /= al * zzz + be;
-*/
 	__fm1d3 = __horner(_S_am1d3) / __horner(_S_bm1d3);
-
-	//  Evaluate numerator polynomial for nu=+2/3 approximant
-/*
-	al = _S_ap2d3[0];
-	t  = s * al;
-	al = _S_ap2d3[1] + r * al;
-	be = _S_ap2d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_ap2d3[3] - t;
-	fp2d3 = al * zzz + be;
-	//  Evaluate denominator polynomial for nu=+2/3 approximant
-	//  and compute ratio of numerator and denominator
-	al = _S_bp2d3[0];
-	t  = s * al;
-	al = _S_bp2d3[1] + r * al;
-	be = _S_bp2d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_bp2d3[3] - t;
-	fp2d3 /= al * zzz + be;
-*/
 	__fp2d3 = __horner(_S_ap2d3) / __horner(_S_bp2d3);
-
-	//  Evaluate numerator polynomial for nu=-2/3 approximant
-/*
-	al = _S_am2d3[0];
-	t  = s * al;
-	al = _S_am2d3[1] + r * al;
-	be = _S_am2d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_am2d3[3] - t;
-	fm2d3 = al * zzz + be;
-	//  Evaluate denominator polynomial for nu=-2/3 approximant
-	//  and compute ratio of numerator and denominator
-	al = _S_bm2d3[0];
-	t  = s * al;
-	al = _S_bm2d3[1] + r * al;
-	be = _S_bm2d3[2] - t;
-	t  = s * al;
-	al = be + r * al;
-	be = _S_bm2d3[3] - t;
-	fm2d3 /= al * zzz + be;
-*/
 	__fm2d3 = __horner(_S_am2d3) / __horner(_S_bm2d3);
       }
 
