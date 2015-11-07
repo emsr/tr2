@@ -1,4 +1,4 @@
-// $HOME/bin/bin/g++ -std=c++14 -o test_numeric_limits test_numeric_limits.cpp
+// $HOME/bin/bin/g++ -o test_numeric_limits test_numeric_limits.cpp
 
 // LD_LIBRARY_PATH=/$HOME/bin/lib64:$LD_LIBRARY_PATH ./test_numeric_limits
 

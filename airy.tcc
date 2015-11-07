@@ -166,7 +166,7 @@ template<typename _Tp>
       Vol 13, pp 195-203, 1974.
  
     @param[in] z   The argument at which the Airy function and its derivative
-		   are to be computed.
+		   are computed.
     @param[in] eps Relative error required.  Currently, eps is used only
     		   in the backward recursion algorithms.
     @param[out] ai  The value computed for Ai(z).
@@ -198,7 +198,6 @@ template<typename _Tp>
     static constexpr _Tp _S_small{0.25}, _S_big{15};
 
     __error = 0;
-
     std::cout << " > airy:\n";
     std::cout << " > > z = " << __z << '\n';
     std::cout << " > > small = " << _S_small << '\n';
@@ -214,15 +213,17 @@ template<typename _Tp>
 	//  Check argument for right or left half plane
 	if (std::real(__z) >= _Tp(0))
 	  {
-	    //  Argument in closed right half plane
-	    //  Compute xi as defined in the representations in terms of Bessel functions
+	    //  Argument in closed right half plane. Compute xi as defined
+	    //  in the representations in terms of Bessel functions
 	    auto __sqrtz = std::sqrt(__z);
 	    auto __xi = _S_2d3 * __z * __sqrtz;
 
-	    //  Check for abs(z) too large for accuracy of representations (1) and (4)
+	    //  Check for abs(z) too large for accuracy of
+	    //  representations (1) and (4)
 	    if (__absz >= _Tp{2})
 	      {
-		//  Use rational approximation for modified Bessel functions of orders 1/3 and 2/3
+		//  Use rational approximation for modified Bessel functions
+		//  of orders 1/3 and 2/3
 		__airy_bessel_k(__xi, __eps, __ai, __aip, __error);
 		//  Recover Ai(z) and Ai'(z)
 		auto __p1d4c = std::sqrt(__sqrtz);
@@ -237,7 +238,8 @@ template<typename _Tp>
 		  {
 		    //  Use rational approximation along with (1) and (4)
 		    __cmplx __ip1d3, __im1d3, __ip2d3, __im2d3;
-		    __airy_hyperg_rational(__z, __ip1d3, __im1d3, __ip2d3, __im2d3);
+		    __airy_hyperg_rational(__z,
+					   __ip1d3, __im1d3, __ip2d3, __im2d3);
 		    //  Recover Ai(z) and Ai'(z)
 		    __im1d3 *= _S_gm2d3;
 		    __ip1d3 *= _S_gm1d3;
@@ -250,7 +252,8 @@ template<typename _Tp>
 		  {
 		    //  Use backward recurrence along with (1) and (4)
 		    __cmplx __ip1d3, __im1d3, __ip2d3, __im2d3;
-		    __airy_bessel_i(__xi, __eps, __ip1d3, __im1d3, __ip2d3, __im2d3);
+		    __airy_bessel_i(__xi, __eps,
+				    __ip1d3, __im1d3, __ip2d3, __im2d3);
 		    //  Recover Ai(z) and Ai'(z)
 		    __ai = _S_1d3 * __sqrtz * (__im1d3 - __ip1d3);
 		    __aip = _S_1d3 * __z * (__ip2d3 - __im2d3);
@@ -261,15 +264,16 @@ template<typename _Tp>
 	  }
 	else
 	  {
-	    //  Argument lies in left half plane
-	    //  Compute xi as defined in the representations in terms of Bessel functions
+	    //  Argument lies in left half plane.  Compute xi as defined
+	    //  in the representations in terms of Bessel functions
 	    auto __sqrtz = std::sqrt(-__z);
 	    auto __xi = -_S_2d3 * __z * __sqrtz;
-	    //  Set up arguments to recover Bessel functions of the first kind in (3) and (6)
+	    //  Set up arguments to recover Bessel functions of the first kind
+	    //  in (3) and (6)
 	    __cmplx __z2xi, __p1d3f, __m1d3f, __p2d3f, __m2d3f;
 	    if (std::imag(__xi) >= _Tp(0))
 	      {
-		//  Argument lies in upper half plane, so use appropriate identity
+		//  Argument lies in upper half plane
 		__z2xi = -_S_j * __xi;
 		__p1d3f = _S_eppid6;
 		__m1d3f = _S_empid6;
@@ -278,7 +282,7 @@ template<typename _Tp>
 	      }
 	    else
 	      {
-		//  Argument lies in lower half plane, so use appropriate identity
+		//  Argument lies in lower half plane
 		__z2xi = _S_j * __xi;
 		__p1d3f = _S_empid6;
 		__m1d3f = _S_eppid6;
@@ -305,9 +309,11 @@ template<typename _Tp>
 	      {
 		//  Use backward recurrence
 		__cmplx __ip1d3, __im1d3, __ip2d3, __im2d3;
-		__airy_bessel_i(__z2xi, __eps, __ip1d3, __im1d3, __ip2d3, __im2d3);
+		__airy_bessel_i(__z2xi, __eps,
+				__ip1d3, __im1d3, __ip2d3, __im2d3);
 		//  Recover Ai(z) and Ai'(z)
-		__ai = _S_1d3 * __sqrtz * (__m1d3f * __im1d3 + __p1d3f * __ip1d3);
+		__ai = _S_1d3 * __sqrtz
+		     * (__m1d3f * __im1d3 + __p1d3f * __ip1d3);
 		__aip = _S_1d3 * __z * (__m2d3f * __im2d3 - __p2d3f * __ip2d3);
                 std::cout << " > > > > > ai = " << __ai << '\n';
                 std::cout << " > > > > > aip = " << __aip << '\n';
@@ -350,7 +356,7 @@ template<typename _Tp>
     the normalization relationship used is
 	   nu z 
       (z/2)  e                   inf  (k+nu)*Gamma(2 nu+k)
-      -----------  = I_nu(z) + 2 SUM  -------------------- I_(nu+k)(z) .
+      -----------  = I_nu(z) + 2 SUM  -------------------- I_(nu+k)(z).
       Gamma(nu+1)                k=1   k! Gamma(1 + 2 nu)   
 
     This modification of the algorithm is given in part in
@@ -395,8 +401,7 @@ template<typename _Tp>
     absolutely necessary are not made.  Under these assumptions
     a status return is not needed.
 
-    @param[in]  z     The argument at which the modified Bessel
-		      functions computed by this program are to be evaluated.
+    @param[in]  z     The argument of the modified Bessel functions.
     @param[in]  eps   The maximum relative error required in the results.
     @param[out] ip1d3 The value of I_(+1/3)(z).
     @param[out] im1d3 The value of I_(-1/3)(z).
@@ -421,7 +426,6 @@ template<typename _Tp>
     	 _S_14d3 {4.666666666666667e+00}, _S_16d3 {5.333333333333333e+00},
     	 _S_gm4d3{8.929795115692492e-01}, _S_gm5d3{9.027452929509336e-01},
     	 _S_2sqrt2{2.828427124746190e+01};
-
     std::cout << " > airy_bessel_i:\n";
     std::cout << " > > z = " << __z << '\n';
 
@@ -563,9 +567,9 @@ template<typename _Tp>
     __sum1 *= _S_gm4d3 * __pold1;
     __plast1 /= __sum1;
     __ip1d3 = __p1 / __sum1;
-    std::cout << " > > pold1 = " << __pold1 << '\n';
+    std::cout << " > > pold1  = " << __pold1 << '\n';
     std::cout << " > > zd2pow = " << __zd2pow << '\n';
-    std::cout << " > > sum1 = " << __sum1 << '\n';
+    std::cout << " > > sum1   = " << __sum1 << '\n';
 
     //  Perform last two recurrence steps for order 2/3
     auto __pold2 = __plast2;
@@ -582,9 +586,9 @@ template<typename _Tp>
     __sum2 *= _S_gm5d3 * __zd2pow * __pold1;
     __plast2 /= __sum2;
     __ip2d3 = __p2 / __sum2;
-    std::cout << " > > pold1 = " << __pold1 << '\n';
+    std::cout << " > > pold1  = " << __pold1 << '\n';
     std::cout << " > > zd2pow = " << __zd2pow << '\n';
-    std::cout << " > > sum2 = " << __sum2 << '\n';
+    std::cout << " > > sum2   = " << __sum2 << '\n';
 
     //  Recur back one step from order +1/3 to get order -2/3
     __im2d3 = _S_2d3 * __ip1d3 * __1dz + __plast1;
@@ -632,10 +636,11 @@ template<typename _Tp>
 		       status = 0 indicates normal completion
 		       status = 129, convergence failed in 100 iterations
 
-    @note According to published information about the behaviour of the error for orders
-	  1/3 and 2/3, status = 129 should never occur for the domain of z that we recommend.
-	  indeed, in the worst case, say, z=2 and arg(z) = 3*pi/4, we expect 20 iterations
-	  to give 7 or 8 decimals of accuracy.
+    @note According to published information about the behaviour
+	  of the error for orders 1/3 and 2/3, status = 129 should never occur
+	  for the domain of z that we recommend.
+	  In the worst case, say, z=2 and arg(z) = 3*pi/4,
+	  20 iterations should give 7 or 8 decimals of accuracy.
  */
 template<typename _Tp>
   void
@@ -656,6 +661,7 @@ template<typename _Tp>
 		  _S_p21i{-8.1296296296296296296e+01L};
 
     constexpr std::complex<_Tp> _S_zone{1};
+    constexpr int _S_iter_max = 100;
 
     constexpr _Tp
     _S_f[8]
@@ -665,9 +671,8 @@ template<typename _Tp>
     _S_phi[6]
     { 67, 91152, 12697, 79, 96336, 19633 };
 
-    std::cout << " > airy_bessel_k: z = " << __z << '\n';
-
     __status = 0;
+    std::cout << " > airy_bessel_k: z = " << __z << '\n';
 
     //  Initialize polynomials for recurrence
     auto __f10 = _S_zone;
@@ -688,11 +693,11 @@ template<typename _Tp>
     auto __phi10 = _S_zone;
     auto __phi20 = _S_zone;
     auto __phi11 = __cmplx((_S_f[0] * std::real(__z) + _S_phi[0]) / _S_f[1],
-		       std::imag(__f11));
+			   std::imag(__f11));
     auto __phi12 = __z * (_S_f[2] * __z + _S_phi[1]);
     __phi12 = (__phi12 + _S_phi[2]) / _S_f[4];
     auto __phi21 = __cmplx((_S_f[0] * std::real(__z) + _S_phi[3]) / _S_f[5],
-		       std::imag(__f21));
+			    std::imag(__f21));
     auto __phi22 = __z * (_S_f[2] * __z + _S_phi[4]);
     __phi22 = (__phi22 + _S_phi[5]) / _S_f[7];
     std::cout << " > > phi10 = " << __phi10 << '\n';
@@ -720,23 +725,31 @@ template<typename _Tp>
     auto __q = _Tp(16) * __gam;
 
     //  Loop until maximum iterations used or convergence
-    for (int __i = 1; __i < 100; ++__i)
+    for (int __i = 1; __i < _S_iter_max; ++__i)
       {
 	//  Evaluate next term in recurrence for order 1/3 polynomials
 	auto __qz = __q * __z;
 	auto __fact1 = __qz - __p11;
 	auto __fact2 = __qz - __p12;
-	auto __f13 = __fact1 * __f12 + __fact2 * __f11 - __p13 * __f10;
+	auto __f13 = __fact1 * __f12
+		   + __fact2 * __f11
+		   - __p13 * __f10;
 	__f13 /= __an1;
-	auto __phi13 = __fact1 * __phi12 + __fact2 * __phi11 - __p13 * __phi10;
+	auto __phi13 = __fact1 * __phi12
+		     + __fact2 * __phi11
+		     - __p13 * __phi10;
 	__phi13 /= __an1;
 
 	//  Evaluate next term in recurrence for order 2/3 polynomials
 	__fact1 = __qz - __p21;
 	__fact2 = __qz - __p22;
-	auto __f23 = __fact1 * __f22 + __fact2 * __f21 - __p23 * __f20;
+	auto __f23 = __fact1 * __f22
+		   + __fact2 * __f21
+		   - __p23 * __f20;
 	__f23 /= __an2;
-	auto __phi23 = __fact1 * __phi22 + __fact2 * __phi21 - __p23 * __phi20;
+	auto __phi23 = __fact1 * __phi22
+		     + __fact2 * __phi21
+		     - __p23 * __phi20;
 	__phi23 /= __an2;
 
 	//  check for convergence
@@ -860,7 +873,6 @@ template<typename _Tp>
     constexpr _Tp _S_bp2d3[4]{ -110, 16830, -2019600, 139352400 };
     constexpr _Tp _S_am2d3[4]{  162, 36855,  1415232,   4481568 };
     constexpr _Tp _S_bm2d3[4]{   -7,   819,   -78624,   4481568 };
-
     std::cout << " > airy_hyperg_rational:\n";
     std::cout << " > > z = " << __z << '\n';
 
@@ -925,7 +937,7 @@ template<typename _Tp>
     made.  Hence, a status return is not needed.
 
     @param[in]  z Complex input variable set equal to the value at which
-		  Ai(z) and its derivative are to be evaluated.
+		  Ai(z) and its derivative are evaluated.
 		  This subroutine assumes abs(z) > 15
 		  and abs(arg(z)) < 2*pi/3.
     @param[out] ai  The value computed for Ai(z).
@@ -983,7 +995,6 @@ template<typename _Tp>
       -0.9722222222222222e-01,
        0.1000000000000000e+01
     };
-
     std::cout << " > airy_asymp_absarg_ge_pio3:\n";
     std::cout << " > > __z = " << __z << '\n';
 
@@ -1000,7 +1011,8 @@ template<typename _Tp>
     __zoutpr *= -__pw1d4;
 
     //  Determine number of terms to use
-    auto __nterm = _S_nterms[std::min(_S_numnterms - 1, (int(std::abs(__z)) - 10) / 5)];
+    auto __nterm = _S_nterms[std::min(_S_numnterms - 1,
+				      (int(std::abs(__z)) - 10) / 5)];
     //  Initialize for modified Horner's rule evaluation of sums.
     //  It is assumed that at least three terms are used.
     __xim = -_Tp(1) / __xim;
@@ -1043,7 +1055,7 @@ template<typename _Tp>
     made.  Hence, an error return is not needed.
 
     @param[in] z  The value at which the Airy function and its derivative
-	          are to be evaluated.
+	          are evaluated.
 		  This subroutine assumes abs(z) > 15 and abs(arg(-z)) < pi/3.
     @param[out] ai  The computed value of the Airy function Ai(z).
     @param[out] aip The computed value of the Airy function derivative Ai'(z).
@@ -1117,7 +1129,6 @@ template<typename _Tp>
       -0.4388503086419753e-01,
        0.1000000000000000e+01
     };
-
     std::cout << " > airy_asymp_absarg_lt_pio3:\n";
     std::cout << " > > z = " << __z << '\n';
 
@@ -1135,7 +1146,8 @@ template<typename _Tp>
     auto __cosxi = std::cos(__xiarg);
 
     //  Determine number of terms to use.
-    auto __nterm = _S_nterms[std::min(_S_numnterms - 1, (int(std::abs(__z)) - 10) / 5)];
+    auto __nterm = _S_nterms[std::min(_S_numnterms - 1,
+				      (int(std::abs(__z)) - 10) / 5)];
     //  Initialize for modified Horner's rule evaluation of sums
     //  it is assumed that at least three terms are used
     __z = std::pow(__zone / __z, _Tp(3));

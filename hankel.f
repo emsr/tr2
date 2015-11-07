@@ -6,7 +6,7 @@ C                 with DoD FAR Supp 252.227 - 7013.
 C
 
 
-      subroutine  hfuns( nu, arg, h1, h2, h1p, h2p, ierror )
+      subroutine hfuns( nu, arg, h1, h2, h1p, h2p, ierror )
 
       include  'utd.i'
 

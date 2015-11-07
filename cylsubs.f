@@ -1556,7 +1556,9 @@ cpogo///////////////////////////////////////////////////////////////////
      &                                   zh13,zh23,zh1p3,zh2p3,znu3,
      &                                   zh14,zh24,zh1p4,zh2p4,znu4
 
-      write(6,*) '> hankel_uniform: nu = ', znu, ' z = ', z
+      write(6,*) '> hankel_uniform:'
+      write(6,*) '> > nu = ', znu
+      write(6,*) '> > z  = ', z
 
       ctest = zabs(znu)**(1./3.)/5.
 
@@ -1773,7 +1775,9 @@ c     initialize zairy completion codes
       ier1 = 0
       ier2 = 0
 
-      write(6,*) '> hankel_uniform_outer: nu = ', znu, ' z = ', z
+      write(6,*) '> hankel_uniform_outer:'
+      write(6,*) '> > nu = ', znu
+      write(6,*) '> > z  = ', z
 
 cp    if z/nu successfully computed
         if (lzdiv(z,znu,zhat))

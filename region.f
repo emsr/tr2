@@ -16,7 +16,6 @@ C
       integer  indexr, ierror
       character*1  aorb
 
-
       ierror = 0
       aorb = ' '
       alphar = dreal(alpha)

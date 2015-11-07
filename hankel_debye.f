@@ -18,9 +18,9 @@ C
       double precision  alphar, alphai
       integer  indexr, morn, ierror
       character*1  aorb
-
-
-      write(6,*) 'hankel_debye: nu = ', nu, ' z = ', arg
+      write(6,*) 'hankel_debye:'
+      write(6,*) '> > nu = ', znu
+      write(6,*) '> > z  = ', z
 
 c      write(3,*) ' region = ',indexr
 c      write(3,*) ' alpha = ',alpha
