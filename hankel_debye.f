@@ -1,10 +1,3 @@
-C
-C     COPYRIGHT:  Copyright 1998-2015
-C                 Alion Science and Technology
-C                 US Govt Retains rights in accordance
-C                 with DoD FAR Supp 252.227 - 7013.
-C
-
       subroutine h_debye( nu, arg, alpha, indexr, aorb, morn,
      *                    h1dbye, h2dbye, h1pdby, h2pdby, ierror )
 
@@ -19,8 +12,8 @@ C
       integer  indexr, morn, ierror
       character*1  aorb
       write(6,*) 'hankel_debye:'
-      write(6,*) '> > nu = ', znu
-      write(6,*) '> > z  = ', z
+      write(6,*) '> > nu = ', nu
+      write(6,*) '> > z  = ', arg
 
 c      write(3,*) ' region = ',indexr
 c      write(3,*) ' alpha = ',alpha

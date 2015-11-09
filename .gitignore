@@ -101,6 +101,7 @@ queens4
 sphere.iv
 string_literal_2
 test_common_float
+hankel_toy
 test_hankel
 test_hankel_old
 test_hankel_orig

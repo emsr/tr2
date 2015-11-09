@@ -1,11 +1,3 @@
-C
-C     COPYRIGHT:  Copyright 1998-2015
-C                 Alion Science and Technology
-C                 US Govt Retains rights in accordance
-C                 with DoD FAR Supp 252.227 - 7013.
-C
-
-
       subroutine hfuns( nu, arg, h1, h2, h1p, h2p, ierror )
 
       include  'utd.i'

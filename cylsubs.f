@@ -1,11 +1,3 @@
-C
-C     COPYRIGHT:  Copyright 1998-2015
-C                 Alion Science and Technology
-C                 US Govt Retains rights in accordance
-C                 with DoD FAR Supp 252.227 - 7013.
-C
-
-
       double complex function spec_sqrt(zz)
 *
 *
