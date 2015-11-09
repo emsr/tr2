@@ -30,6 +30,10 @@ specfun/carlson3
 specfun/carlson4
 specfun/test_specfun
 specfun/test_specfun_ext
+specfun/hankel_toy
+specfun/test_hankel
+specfun/test_hankel_old
+specfun/plot
 
 literal_bitset
 
@@ -39,7 +43,6 @@ optional/test_optional
 
 random2
 
-specfun/plot
 
 test_hypergeometric_distribution
 test_optional
@@ -101,9 +104,6 @@ queens4
 sphere.iv
 string_literal_2
 test_common_float
-hankel_toy
-test_hankel
-test_hankel_old
 test_hankel_orig
 test_hypergeometric_distribution.int
 test_hypergeometric_distribution.lower
