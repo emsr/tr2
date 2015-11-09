@@ -184,6 +184,8 @@ utf8_char_literal
 pr64626
 viewer
 
+test_polynomial
+
 test_von_mises_fisher_distribution
 
 fold_expression
