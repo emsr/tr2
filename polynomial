@@ -112,6 +112,24 @@ namespace std
     }
 
     /**
+     *  Evaluate the polynomial at the input point.
+     */
+    template<typename _Tp2>
+      auto
+      operator()(_Tp2 __x) const
+      -> decltype(value_type() * _Tp2())
+      {
+	if (degree() > 0)
+	  {
+	    auto __poly(coefficient(degree()) * _Tp2(1));
+	    for (int __i = degree() - 1; __i >= 0; --__i)
+	      __poly = __poly * __x + coefficient(__i);
+	  }
+	else
+	  return value_type();
+      }
+
+    /**
      *  Evaluate the polynomial at a range of input points.
      *  The output is written to the output iterator which
      *  must be large enough to contain the results.
