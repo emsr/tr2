@@ -34,6 +34,8 @@
 #include <complex>
 #include <stdexcept>
 
+namespace std
+{
 namespace __detail
 {
 
@@ -50,7 +52,7 @@ namespace __detail
       constexpr unsigned int _S_max_iter = 100;
       constexpr _Tp _S_eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
       constexpr _Tp _S_fp_min = std::numeric_limits<_Tp>::min();
-      constexpr _Tp _S_pi_2 = std::tr1::__detail::__numeric_constants<_Tp>::__pi_2();
+      constexpr _Tp _S_pi_2 = std::__detail::__numeric_constants<_Tp>::__pi_2();
 
       //  Evaluate Chi and Shi by Lentz's modified method of continued fracions.
       std::complex<_Tp> __b(_Tp(1), __t);
@@ -93,7 +95,7 @@ namespace __detail
       constexpr auto _S_max_iter = 100;
       constexpr auto _S_eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
       constexpr auto _S_fp_min = std::numeric_limits<_Tp>::min();
-      constexpr auto _S_gamma_e = std::tr1::__detail::__numeric_constants<_Tp>::__gamma_e();
+      constexpr auto _S_gamma_e = std::__detail::__numeric_constants<_Tp>::__gamma_e();
 
       //  Evaluate Chi and Shi by series simultaneously.
       _Tp _Csum(0), _Ssum(0);
@@ -179,5 +181,6 @@ namespace __detail
     }
 
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_SF_HYPINT_TCC

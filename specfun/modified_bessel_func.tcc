@@ -33,7 +33,10 @@
 
 ///  We'll pull this into the main (TR1) modified_bessel_func.tcc ultimately.
 
-namespace __detail {
+namespace std
+{
+namespace __detail
+{
 
 
 /**
@@ -193,5 +196,6 @@ template<typename _Tp>
 
 
 } // __detail
+} // namespace std
 
 #endif // _GLIBCXX_MODIFIED_BESSEL_FUNC_TCC

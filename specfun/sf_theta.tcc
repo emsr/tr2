@@ -32,6 +32,8 @@
 
 #include <array>
 
+namespace std
+{
 namespace __detail
 {
 
@@ -106,5 +108,6 @@ namespace __detail
     }
 
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_SF_THETA_TCC

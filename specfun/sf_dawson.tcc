@@ -32,6 +32,8 @@
 
 /// FIXME for better than float.  I'm not sure these are good even for float
 
+namespace std
+{
 namespace __detail
 {
 
@@ -119,5 +121,6 @@ namespace __detail
     }
 
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_SF_DAWSON_TCC
