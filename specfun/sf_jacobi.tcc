@@ -30,6 +30,8 @@
 #ifndef _GLIBCXX_SF_JACOBI_TCC
 #define _GLIBCXX_SF_JACOBI_TCC 1
 
+namespace std
+{
 namespace __detail
 {
 
@@ -86,5 +88,6 @@ namespace __detail
     }
 
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_SF_JACOBI_TCC

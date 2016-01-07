@@ -34,6 +34,8 @@
 #include <complex>
 #include <stdexcept>
 
+namespace std
+{
 namespace __detail
 {
 
@@ -188,5 +190,6 @@ namespace __detail
     }
 
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_SF_FRESNEL_TCC

@@ -30,6 +30,8 @@
 #ifndef _GLIBCXX_ELL_INTEGRAL_TCC
 #define _GLIBCXX_ELL_INTEGRAL_TCC 1
 
+namespace std
+{
 namespace __detail
 {
 
@@ -681,5 +683,6 @@ template<typename _Tp>
   }
 
 } // __detail
+} // namespace std
 
 #endif // _GLIBCXX_ELL_INTEGRAL_TCC

@@ -31,8 +31,10 @@
 #define _GLIBCXX_EXP_INTEGRAL_TCC 1
 
 
-namespace __detail {
-
+namespace std
+{
+namespace __detail
+{
 
 template<typename _Tp> _Tp __expint_E1(_Tp);
 
@@ -263,7 +265,7 @@ template<typename _Tp>
   __expint_E1(_Tp __x)
   {
     if (__x < _Tp(0))
-      return -std::tr1::__detail::__expint_Ei(-__x);
+      return -std::__detail::__expint_Ei(-__x);
     else if (__x < _Tp(1))
       return __expint_E1_series(__x);
     else if (__x < _Tp(100))  //  TODO: Find a good asymptotic switch point.
@@ -384,7 +386,6 @@ template<typename _Tp>
       }
   }
 
-
 template<typename _Tp>
   _Tp
   __logint(const _Tp __x)
@@ -394,9 +395,8 @@ template<typename _Tp>
     else if (std::abs(__x) == _Tp(1))
       return std::numeric_limits<_Tp>::infinity();
     else
-      return std::tr1::expint(std::log(__x));
+      return std::expint(std::log(__x));
   }
-
 
 template<typename _Tp>
   _Tp
@@ -407,10 +407,9 @@ template<typename _Tp>
     else if (__x == _Tp(0))
       return _Tp(0);
     else
-      return (std::tr1::__detail::__expint_Ei(__x)
-            - std::tr1::__detail::__expint_E1(__x)) / _Tp(2);
+      return (std::__detail::__expint_Ei(__x)
+            - std::__detail::__expint_E1(__x)) / _Tp(2);
   }
-
 
 template<typename _Tp>
   _Tp
@@ -419,11 +418,11 @@ template<typename _Tp>
     if (__isnan(__x))
       return std::numeric_limits<_Tp>::quiet_NaN();
     else
-      return (std::tr1::__detail::__expint_Ei(__x)
-            + std::tr1::__detail::__expint_E1(__x)) / _Tp(2);
+      return (std::__detail::__expint_Ei(__x)
+            + std::__detail::__expint_E1(__x)) / _Tp(2);
   }
 
-
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_EXP_INTEGRAL_TCC

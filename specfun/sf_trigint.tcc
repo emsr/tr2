@@ -30,6 +30,8 @@
 #ifndef _GLIBCXX_SF_TRIGINT_TCC
 #define _GLIBCXX_SF_TRIGINT_TCC 1
 
+namespace std
+{
 namespace __detail
 {
 
@@ -44,7 +46,7 @@ namespace __detail
       constexpr unsigned auto _S_max_iter = 100;
       constexpr auto _S_eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
       constexpr auto _S_fp_min = std::numeric_limits<_Tp>::min();
-      constexpr auto _S_pi_2 = std::tr1::__detail::__numeric_constants<_Tp>::__pi_2();
+      constexpr auto _S_pi_2 = std::__detail::__numeric_constants<_Tp>::__pi_2();
 
       //  Evaluate Ci and Si by Lentz's modified method of continued fractions.
       std::complex<_Tp> __b(_Tp(1), __t);
@@ -86,7 +88,7 @@ namespace __detail
       constexpr unsigned auto _S_max_iter = 100;
       constexpr auto _S_eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
       constexpr auto _S_fp_min = std::numeric_limits<_Tp>::min();
-      constexpr auto _S_gamma_e = std::tr1::__detail::__numeric_constants<_Tp>::__gamma_e();
+      constexpr auto _S_gamma_e = std::__detail::__numeric_constants<_Tp>::__gamma_e();
 
       //  Evaluate Ci and Si by series simultaneously.
       _Tp __sumc(0), __sums(0);
@@ -147,7 +149,7 @@ namespace __detail
     {
       const unsigned auto _S_max_iter = 100;
       constexpr auto _S_eps = _Tp(5) * std::numeric_limits<_Tp>::epsilon();
-      constexpr auto _S_pi_2 = std::tr1::__detail::__numeric_constants<_Tp>::__pi_2();
+      constexpr auto _S_pi_2 = std::__detail::__numeric_constants<_Tp>::__pi_2();
 
       auto __invt = _Tp(1) / __t;
       auto __term = _Tp(1); // 0!
@@ -230,5 +232,6 @@ namespace __detail
     }
 
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_SF_TRIGINT_TCC

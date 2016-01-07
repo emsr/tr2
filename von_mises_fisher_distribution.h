@@ -60,8 +60,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    * <table border=1 cellpadding=10 cellspacing=0>
    * <caption align=top>Distribution Statistics</caption>
    * <tr><td>Mean</td><td>@f$ \bold{\mu} @f$</td></tr>
-   * <tr><td>Variance</td><td>@f$  @f$</td></tr>
-   * <tr><td>Range</td><td>@f$[-\pi, \pi]@f$</td></tr>
    * </table>
    */
   template<std::size_t _Dim, typename _RealType = double>

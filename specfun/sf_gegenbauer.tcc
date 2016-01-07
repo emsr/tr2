@@ -30,6 +30,8 @@
 #ifndef _GLIBCXX_SF_GEGENBAUER_TCC
 #define _GLIBCXX_SF_GEGENBAUER_TCC 1
 
+namespace std
+{
 namespace __detail
 {
 
@@ -58,5 +60,6 @@ namespace __detail
     }
 
 } // namespace __detail
+} // namespace std
 
 #endif // _GLIBCXX_SF_GEGENBAUER_TCC
