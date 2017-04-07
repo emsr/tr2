@@ -1,6 +1,11 @@
 *.exe
 *.dll
 
+ConvexHullGiftWrap
+ConvexHullGrahamScan
+ConvexHullJarvisMarch
+ConvexHullMonotoneChain
+
 any/test_any
 
 apply
