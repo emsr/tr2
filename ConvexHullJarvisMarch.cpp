@@ -17,32 +17,55 @@ template<typename Tp>
     Tp y;
   };
 
+// A utility function to return square of distance between p1 and p2
+template<typename Tp>
+  Tp
+  dist(Point<Tp> p1, Point<Tp> p2)
+  { return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y); }
+
+// 2D cross product of OA and OB vectors,
+// i.e. z-component of their 3D cross product.
+// Returns a positive value, if OAB makes a counter-clockwise turn,
+// negative for clockwise turn, and zero if the points are collinear.
+template<typename Tp>
+  Tp
+  cross(Point<Tp> p0, Point<Tp> p1, Point<Tp> p2)
+  { return (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x); }
+
+enum Orientation
+{
+  clockwise,
+  collinear,
+  counter_clockwise,
+};
+
 // To find orientation of ordered triplet (p, q, r).
 // The function returns following values
 // 0 --> p, q and r are colinear
 // 1 --> Clockwise
 // 2 --> Counterclockwise
 template<typename Tp>
-  int
+  Orientation
   orientation(Point<Tp> p, Point<Tp> q, Point<Tp> r)
   {
-    auto val = (q.y - p.y) * (r.x - q.x) - (q.x - p.x) * (r.y - q.y);
+    auto val = cross(p, q, r);
 
     if (val == 0)
-      return 0; // colinear
-    return (val > 0) ? 1 : 2; // clock or counterclock wise
+      return collinear;
+    else
+      return (val > 0) ? clockwise : counter_clockwise;
   }
 
 // Prints convex hull of a set of n points.
 template<typename Tp>
-  void
+  std::vector<Point<Tp>>
   convexHull(std::vector<Point<Tp>> points)
   {
     const int n = points.size();
 
     // There must be at least 3 points
     if (n < 3)
-      return;
+      return std::vector<Point<Tp>>();
 
     // Initialize Result
     int next[n];
@@ -76,12 +99,12 @@ template<typename Tp>
     }
     while (p != l);
 
-    // Print Result
+    // Store Result
+    std::vector<Point<Tp>> hull;
     for (int i = 0; i < n; i++)
-    {
       if (next[i] != -1)
-	std::cout << "(" << points[i].x << ", " << points[i].y << ")\n";
-    }
+	hull.push_back(points[i]);
+    return hull;
   }
 
 // Driver program to test above functions
@@ -102,8 +125,11 @@ main()
     { 3, 3 }
   };
 
+  auto hull = convexHull(points);
+
   std::cout << "The points in the convex hull are: \n";
-  convexHull(points);
+  for (auto h : hull)
+    std::cout << "(" << h.x << ", " << h.y << ")\n";
 
   return 0;
 }

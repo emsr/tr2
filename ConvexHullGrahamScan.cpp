@@ -58,7 +58,7 @@ enum Orientation
 };
 
 template<typename Tp>
-  int
+  Orientation
   orientation(Point<Tp> p, Point<Tp> q, Point<Tp> r)
   {
     auto val = cross(p, q, r);
@@ -91,10 +91,14 @@ template<typename Tp>
 
 // Prints convex hull of a set of n points.
 template<typename Tp>
-  void
+  std::vector<Point<Tp>>
   convexHull(std::vector<Point<Tp>> points)
   {
     const int n = points.size();
+
+    // There must be at least 3 points
+    if (n < 3)
+      return std::vector<Point<Tp>>();
 
     // Find the bottommost point
     auto y_min = points[0].y;
@@ -132,13 +136,15 @@ template<typename Tp>
 	S.push(points[i]);
       }
 
-    // Now stack has the output points, print contents of stack
+    // Store and return the convex hull.
+    std::vector<Point<Tp>> hull;
     while (!S.empty())
       {
-	auto p = S.top();
-	std::cout << "(" << p.x << ", " << p.y << ")\n";
+	hull.push_back(S.top());
 	S.pop();
       }
+
+    return hull;
   }
 
 // Driver program to test above functions
@@ -159,8 +165,11 @@ main()
     { 3, 3 }
   };
 
+  auto hull = convexHull(points);
+
   std::cout << "The points in the convex hull are: \n";
-  convexHull(points);
+  for (auto h : hull)
+    std::cout << "(" << h.x << ", " << h.y << ")\n";
 
   return 0;
 }
