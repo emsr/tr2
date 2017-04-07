@@ -1,5 +1,8 @@
 /*
-g++ -o ConvexHullJarvisMarch ConvexHullJarvisMarch.cpp
+g++ -Wall -Wextra -o ConvexHullJarvisMarch ConvexHullJarvisMarch.cpp
+./ConvexHullJarvisMarch
+
+g++ -std=c++14 -Wall -Wextra -o ConvexHullJarvisMarch ConvexHullJarvisMarch.cpp
 ./ConvexHullJarvisMarch
 */
 
@@ -10,6 +13,9 @@ g++ -o ConvexHullJarvisMarch ConvexHullJarvisMarch.cpp
 #include <vector>
 #include <iostream>
 
+/**
+ * A two-dimensional point.
+ */
 template<typename Tp>
   struct Point
   {
@@ -17,21 +23,28 @@ template<typename Tp>
     Tp y;
   };
 
-// A utility function to return square of distance between p1 and p2
+/**
+ * Return square of distance between p1 and p2.
+ */
 template<typename Tp>
   Tp
   dist(Point<Tp> p1, Point<Tp> p2)
   { return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y); }
 
-// 2D cross product of OA and OB vectors,
-// i.e. z-component of their 3D cross product.
-// Returns a positive value, if OAB makes a counter-clockwise turn,
-// negative for clockwise turn, and zero if the points are collinear.
+/**
+ * Return the 2D cross product of p0->p1 and p0->p2 vectors,
+ * i.e. the z-component of their 3D cross product.
+ * Returns a positive value, if p0->p1->p2 makes a counter-clockwise turn,
+ * negative for clockwise turn, and zero if the points are collinear.
+ */
 template<typename Tp>
   Tp
   cross(Point<Tp> p0, Point<Tp> p1, Point<Tp> p2)
   { return (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x); }
 
+/**
+ * An enumeration of the relative orientation of a sequence of three points.
+ */
 enum Orientation
 {
   clockwise,
@@ -39,11 +52,9 @@ enum Orientation
   counter_clockwise,
 };
 
-// To find orientation of ordered triplet (p, q, r).
-// The function returns following values
-// 0 --> p, q and r are colinear
-// 1 --> Clockwise
-// 2 --> Counterclockwise
+/**
+ * Return the orientation of an ordered triplet (p, q, r) or points.
+ */
 template<typename Tp>
   Orientation
   orientation(Point<Tp> p, Point<Tp> q, Point<Tp> r)
@@ -56,14 +67,16 @@ template<typename Tp>
       return (val > 0) ? clockwise : counter_clockwise;
   }
 
-// Prints convex hull of a set of n points.
+/**
+ * Return the convex hull of a set of points.
+ */
 template<typename Tp>
   std::vector<Point<Tp>>
-  convexHull(std::vector<Point<Tp>> points)
+  convexHull(std::vector<Point<Tp>> point)
   {
-    const int n = points.size();
+    const int n = point.size();
 
-    // There must be at least 3 points
+    // There must be at least 3 points.
     if (n < 3)
       return std::vector<Point<Tp>>();
 
@@ -72,26 +85,26 @@ template<typename Tp>
     for (int i = 0; i < n; i++)
       next[i] = -1;
 
-    // Find the lower leftmost point
+    // Find the lower left-most point.
     int l = 0;
     for (int i = 1; i < n; i++)
       {
-	if (points[i].x < points[l].x)
+	if (point[i].x < point[l].x)
 	  l = i;
-	else if (points[i].x == points[l].x && points[i].y < points[l].y)
+	else if (point[i].x == point[l].x && point[i].y < point[l].y)
 	  l = i;
       }
 
-    // Start from leftmost point, keep moving counterclockwise
-    // until reach the start point again
+    // Start from left-most point, keep moving counterclockwise
+    // until reach the start point again.
     int p = l, q;
     do
     {
       // Search for a point 'q' such that orientation(p, i, q) is
-      // counterclockwise for all points 'i'
+      // counterclockwise for all points 'i'.
       q = (p + 1) % n;
       for (int i = 0; i < n; i++)
-	if (orientation(points[p], points[i], points[q]) == 2)
+	if (orientation(point[p], point[i], point[q]) == counter_clockwise)
           q = i;
 
       next[p] = q; // Add q to result as a next point of p
@@ -103,18 +116,18 @@ template<typename Tp>
     std::vector<Point<Tp>> hull;
     for (int i = 0; i < n; i++)
       if (next[i] != -1)
-	hull.push_back(points[i]);
+	hull.push_back(point[i]);
     return hull;
   }
 
-// Driver program to test above functions
+// Driver program to test above functions.
 int
 main()
 {
   using Tp = long long;
 
   std::vector<Point<Tp>>
-  points
+  point
   {
     { 0, 3 },
     { 2, 2 },
@@ -125,7 +138,7 @@ main()
     { 3, 3 }
   };
 
-  auto hull = convexHull(points);
+  auto hull = convexHull(point);
 
   std::cout << "The points in the convex hull are: \n";
   for (auto h : hull)
