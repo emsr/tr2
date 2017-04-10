@@ -6,8 +6,6 @@ g++ -std=c++14 -Wall -Wextra -o ConvexHullMonotoneChain ConvexHullMonotoneChain.
 ./ConvexHullMonotoneChain
 */
 
-// Implementation of Andrew's monotone chain 2D convex hull algorithm.
-
 #include <vector>
 #include <algorithm>
 #include <iostream>
@@ -32,7 +30,7 @@ template<typename Tp>
 template<typename Tp>
   Tp
   dist(Point<Tp> p1, Point<Tp> p2)
-  { return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y); }
+  { return (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y); }
 
 /**
  * Return the 2D cross product of p0->p1 and p0->p2 vectors,
@@ -47,7 +45,6 @@ template<typename Tp>
 
 /**
  * Return the convex hull of a set of points.
- * Note: the last point in the returned list is the same as the first one.
  */
 template<typename Tp>
   std::vector<Point<Tp>>
@@ -64,26 +61,56 @@ template<typename Tp>
     // Sort points lexicographically.
     std::sort(point.begin(), point.end());
 
-    int k = 0;
-
-    // Build lower hull.
-    for (int i = 0; i < n; ++i)
+    // Test both branches.
+    bool orig_direction = true;
+    if (orig_direction)
       {
-	while (k >= 2 && cross(hull[k - 2], hull[k - 1], point[i]) <= 0)
-	  --k;
-	hull[k++] = point[i];
-      }
+	int k = 0;
 
-    // Build upper hull.
-    for (int i = n - 2, t = k + 1; i >= 0; i--)
+	// Build lower hull.
+	for (int i = 0; i < n; ++i)
+	  {
+	    while (k >= 2 && cross(hull[k - 2], hull[k - 1], point[i]) <= 0)
+	      --k;
+	    hull[k++] = point[i];
+	  }
+
+	// Build upper hull.
+	// Skip both endopints to avoid duplicating hull points.
+	for (int i = n - 2, t = k + 1; i > 0; i--)
+	  {
+	    while (k >= t && cross(hull[k - 2], hull[k - 1], point[i]) <= 0)
+	      --k;
+	    hull[k++] = point[i];
+	  }
+
+	hull.resize(k);
+	return hull;
+      }
+    else
       {
-	while (k >= t && cross(hull[k - 2], hull[k - 1], point[i]) <= 0)
-	  --k;
-	hull[k++] = point[i];
-      }
+	int k = 0;
 
-    hull.resize(k);
-    return hull;
+	// Build upper hull.
+	for (int i = n - 1; i >= 0; i--)
+	  {
+	    while (k >= 2 && cross(hull[k - 2], hull[k - 1], point[i]) <= 0)
+	      --k;
+	    hull[k++] = point[i];
+	  }
+
+	// Build lower hull.
+	// Skip both endopints to avoid duplicating hull points.
+	for (int i = 1, t = k + 1; i < n - 1; ++i)
+	  {
+	    while (k >= t && cross(hull[k - 2], hull[k - 1], point[i]) <= 0)
+	      --k;
+	    hull[k++] = point[i];
+	  }
+
+	hull.resize(k);
+	return hull;
+      }
   }
 
 // Driver program to test above functions

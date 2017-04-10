@@ -6,8 +6,6 @@ g++ -std=c++14 -Wall -Wextra -o ConvexHullGrahamScan ConvexHullGrahamScan.cpp
 ./ConvexHullGrahamScan
 */
 
-// http://www.sanfoundry.com/cpp-programming-examples-computational-geometry-problems-algorithms/
-
 // A C++ program to find convex hull of a set of points
 // Refer http://www.geeksforgeeks.org/check-if-two-given-line-segments-intersect/
 // for explanation of orientation()
@@ -16,6 +14,38 @@ g++ -std=c++14 -Wall -Wextra -o ConvexHullGrahamScan ConvexHullGrahamScan.cpp
 #include <stack>
 #include <algorithm>
 #include <iostream>
+
+/**
+ * A utility function push a point onto a vector.
+ */
+template<typename Tp>
+  void
+  push(std::vector<Tp>& S, Tp p)
+  { S.push_back(p); }
+
+/**
+ * A utility function pop a point off a vector.
+ */
+template<typename Tp>
+  void
+  pop(std::vector<Tp>& S)
+  { S.erase(S.end() - 1); }
+
+/**
+ * A utility to return the top of a vector.
+ */
+template<typename Tp>
+  Tp
+  top(std::vector<Tp>& S)
+  { return S.back(); }
+
+/**
+ * A utility function to find next to top in a vector.
+ */
+template<typename Tp>
+  Tp
+  next(std::vector<Tp>& S)
+  { return S[S.size() - 2]; }
 
 /**
  * A two-dimensional point.
@@ -28,26 +58,12 @@ template<typename Tp>
   };
 
 /**
- * A utility function to find next to top in a stack.
- */
-template<typename Tp>
-  Point<Tp>
-  nextToTop(std::stack<Point<Tp>>& S)
-  {
-    auto p = S.top();
-    S.pop();
-    auto res = S.top();
-    S.push(p);
-    return res;
-  }
-
-/**
  * Return square of distance between p1 and p2.
  */
 template<typename Tp>
   Tp
   dist(Point<Tp> p1, Point<Tp> p2)
-  { return (p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y); }
+  { return (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y); }
 
 /**
  * Return the 2D cross product of p0->p1 and p0->p2 vectors,
@@ -82,7 +98,7 @@ template<typename Tp>
     if (val == 0)
       return collinear;
     else
-      return (val > 0) ? clockwise : counter_clockwise;
+      return (val > 0) ? counter_clockwise : clockwise;
   }
 
 /**
@@ -113,7 +129,7 @@ template<typename Tp>
  */
 template<typename Tp>
   std::vector<Point<Tp>>
-  convexHull(std::vector<Point<Tp>> point)
+  convex_hull(std::vector<Point<Tp>> point)
   {
     const int n = point.size();
 
@@ -126,15 +142,19 @@ template<typename Tp>
     int i_min = 0;
     for (int i = 1; i < n; ++i)
       {
-	auto y = point[i].y;
+	const auto y = point[i].y;
 
 	// Pick the bottom-most or chose the left-most point in case of tie
-	if ((y < y_min) || (y_min == y && point[i].x < point[i_min].x))
-	  y_min = point[i_min = i].y;
+	if ((y < y_min) || (y == y_min && point[i].x < point[i_min].x))
+	  {
+	    i_min = i;
+	    y_min = y;
+	  }
       }
 
     // Place the bottom-most point at first position.
     std::swap(point[0], point[i_min]);
+    i_min = 0;
 
     // Sort remaining points with respect to the first point.
     // A point p1 comes before p2 in sorted ouput if p2 has larger polar angle.
@@ -142,27 +162,19 @@ template<typename Tp>
     std::sort(point.begin() + 1, point.end(), Compare<Tp>(point[0]));
 
     // Create an empty stack and push first three points to it.
-    std::stack<Point<Tp>> S;
-    S.push(point[0]);
-    S.push(point[1]);
-    S.push(point[2]);
+    std::vector<Point<Tp>> hull;
+    push(hull, point[0]);
+    push(hull, point[1]);
+    push(hull, point[2]);
 
     // Process remaining points.
     for (int i = 3; i < n; ++i)
       {
 	// Keep removing top while the angle formed by points next-to-top,
 	// top, and point[i] makes a non-left turn
-	while (orientation(nextToTop(S), S.top(), point[i]) != counter_clockwise)
-	  S.pop();
-	S.push(point[i]);
-      }
-
-    // Store and return the convex hull.
-    std::vector<Point<Tp>> hull;
-    while (!S.empty())
-      {
-	hull.push_back(S.top());
-	S.pop();
+	while (orientation(next(hull), top(hull), point[i]) != counter_clockwise)
+	  pop(hull);
+	push(hull, point[i]);
       }
 
     return hull;
@@ -186,7 +198,7 @@ main()
     { 3, 3 }
   };
 
-  auto hull = convexHull(point);
+  auto hull = convex_hull(point);
 
   std::cout << "The points in the convex hull are: \n";
   for (auto h : hull)
