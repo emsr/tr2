@@ -1,8 +1,5 @@
 /*
-g++ -Wall -Wextra -o ConvexHullMonotoneChain ConvexHullMonotoneChain.cpp
-./ConvexHullMonotoneChain
-
-g++ -std=c++14 -Wall -Wextra -o ConvexHullMonotoneChain ConvexHullMonotoneChain.cpp
+g++ -std=c++14 -g -Wall -Wextra -o ConvexHullMonotoneChain ConvexHullMonotoneChain.cpp
 ./ConvexHullMonotoneChain
 */
 
@@ -10,38 +7,7 @@ g++ -std=c++14 -Wall -Wextra -o ConvexHullMonotoneChain ConvexHullMonotoneChain.
 #include <algorithm>
 #include <iostream>
 
-/**
- * A two-dimensional point with lexicographical order.
- */
-template<typename Tp>
-  struct Point
-  {
-    Tp x;
-    Tp y;
-
-    bool
-    operator<(const Point& p) const
-    { return x < p.x || (x == p.x && y < p.y); }
-  };
-
-/**
- * Return square of distance between p1 and p2.
- */
-template<typename Tp>
-  Tp
-  dist(Point<Tp> p1, Point<Tp> p2)
-  { return (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y); }
-
-/**
- * Return the 2D cross product of p0->p1 and p0->p2 vectors,
- * i.e. the z-component of their 3D cross product.
- * Returns a positive value, if p0->p1->p2 makes a counter-clockwise turn,
- * negative for clockwise turn, and zero if the points are collinear.
- */
-template<typename Tp>
-  Tp
-  cross(Point<Tp> p0, Point<Tp> p1, Point<Tp> p2)
-  { return (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x); }
+#include "ConvexHull.h"
 
 /**
  * Return the convex hull of a set of points.
