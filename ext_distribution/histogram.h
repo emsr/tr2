@@ -16,6 +16,8 @@
 #include <vector>
 #include <algorithm>
 #include <stdexcept>
+#include <numeric>
+#include <cmath>
 
 /**
  *  @brief  A simple histogram class.

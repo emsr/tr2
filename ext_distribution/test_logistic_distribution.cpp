@@ -10,7 +10,7 @@ void
 logisticplot(double a, double b)
 {
   std::default_random_engine re; // the default engine
-  __gnu_cxx::logistic_distribution<> rd(a, b);
+  std::logistic_distribution<> rd(a, b);
 
   auto gen = std::bind(rd, re);
 
@@ -35,24 +35,24 @@ logisticplot(double a, double b)
 int
 main()
 {
-  std::cout << "logistic(4.0, 1.0)" << std::endl;
+  std::cout << "logistic(4.0, 1.0)\n";
   logisticplot(4.0 /* mean */, 1.0 /* sigma */);
 
-  std::cout << "logistic(2.0, 1.0)" << std::endl;
+  std::cout << "logistic(2.0, 1.0)\n";
   logisticplot(2.0 /* mean */, 1.0 /* sigma */);
 
-  std::cout << "logistic(0.0, 1.0)" << std::endl;
+  std::cout << "logistic(0.0, 1.0)\n";
   logisticplot(0.0 /* mean */, 1.0 /* sigma */);
 
-  std::cout << "logistic(0.0, 2.0)" << std::endl;
+  std::cout << "logistic(0.0, 2.0)\n";
   logisticplot(0.0 /* mean */, 2.0 /* sigma */);
 
-  std::cout << "logistic(2.0, 2.0)" << std::endl;
+  std::cout << "logistic(2.0, 2.0)\n";
   logisticplot(2.0 /* mean */, 2.0 /* sigma */);
 
-  std::cout << "logistic(2.0, 4.0)" << std::endl;
+  std::cout << "logistic(2.0, 4.0)\n";
   logisticplot(2.0 /* mean */, 4.0 /* sigma */);
 
-  std::cout << "logistic(5.0, 0.2)" << std::endl;
+  std::cout << "logistic(5.0, 0.2)\n";
   logisticplot(5.0 /* mean */, 0.2 /* sigma */);
 }

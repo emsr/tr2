@@ -1,7 +1,8 @@
 #ifndef __LOGISTIC_DISTRIBUTION_TCC
 #define __LOGISTIC_DISTRIBUTION_TCC 1
 
-namespace __gnu_cxx
+// This is already in __gnu_cxx
+namespace std
 {
 
   template<typename _RealType>
@@ -14,16 +15,16 @@ namespace __gnu_cxx
 		      const param_type& __p)
       {
 	__glibcxx_function_requires(_OutputIteratorConcept<_OutputIterator>)
-	__detail::_Adaptor<_UniformRandomNumberGenerator, result_type>
+	std::__detail::_Adaptor<_UniformRandomNumberGenerator, result_type>
 	  __aurng(__urng);
 
 	while (__f != __t)
 	  {
-	    result_type __arg = result_type(1)
-	    while (__arg != result_type(1))
+	    result_type __arg = result_type(1);
+	    while (__arg == result_type(1) || __arg == result_type(0))
 	      __arg = __aurng();
 	    *__f++ = __p.a()
-		   + __p.b() * std::log(__arg / (result_type(1) - __arg)));
+		   + __p.b() * std::log(__arg / (result_type(1) - __arg));
 	  }
       }
 

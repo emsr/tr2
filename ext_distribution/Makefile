@@ -1,5 +1,4 @@
 
-all: $(TEST_BINS)
 
 TEST_SRCS = \
   test_arcsine_distribution.cpp \
@@ -8,6 +7,7 @@ TEST_SRCS = \
   test_hoyt_distribution.cpp \
   test_k_distribution2.cpp \
   test_k_distribution.cpp \
+  test_logistic_distribution.cpp \
   test_nakagami_distribution.cpp \
   test_nakagami_fading_model.cpp \
   test_pareto_distribution.cpp \
@@ -23,6 +23,7 @@ TEST_BINS = \
   test_hoyt_distribution \
   test_k_distribution2 \
   test_k_distribution \
+  test_logistic_distribution \
   test_nakagami_distribution \
   test_nakagami_fading_model \
   test_pareto_distribution \
@@ -32,17 +33,20 @@ TEST_BINS = \
   test_logistic_distribution
 
 
+test_bins: $(TEST_BINS)
+
+
 check_fading_model: check_fading_model.cpp libFadingModel.so
 	$$HOME/bin/bin/g++ -std=c++11 -o check_fading_model check_fading_model.cpp -L. -lFadingModel
 
 libFadingModel.so: RiceFadingModel.o NakagamiFadingModel.o
 	$$HOME/bin/bin/g++ -std=c++11 -fPIC -shared -o libFadingModel.so RiceFadingModel.o NakagamiFadingModel.o
 
+NakagamiFadingModel.o: NakagamiFadingModel.h NakagamiFadingModel.cpp
+	$$HOME/bin/bin/g++ -std=c++17 -fPIC -c -o NakagamiFadingModel.o NakagamiFadingModel.cpp
+
 RiceFadingModel.o: RiceFadingModel.h RiceFadingModel.cpp
 	$$HOME/bin/bin/g++ -std=c++11 -fPIC -c -o RiceFadingModel.o RiceFadingModel.cpp
-
-NakagamiFadingModel.o: NakagamiFadingModel.h NakagamiFadingModel.cpp
-	$$HOME/bin/bin/g++ -std=c++11 -fPIC -c -o NakagamiFadingModel.o NakagamiFadingModel.cpp
 
 fading_model_docs: RiceFadingModel.h NakagamiFadingModel.h
 	rm -rf html_model latex_model
@@ -50,33 +54,34 @@ fading_model_docs: RiceFadingModel.h NakagamiFadingModel.h
 	cd latex_model; make pdf && cp refman.pdf ../fading_model.pdf
 
 
-test_bins: $(TEST_BINS)
-
-test_arcsine_distribution: test_arcsine_distribution.cpp
+test_arcsine_distribution: test_arcsine_distribution.cpp arcsine_distribution.h
 	$$HOME/bin/bin/g++ -std=c++11 -o test_arcsine_distribution test_arcsine_distribution.cpp
 
-test_beta_distribution: test_beta_distribution.cpp
+test_beta_distribution: test_beta_distribution.cpp beta_distribution.h
 	$$HOME/bin/bin/g++ -std=c++11 -o test_beta_distribution test_beta_distribution.cpp
 
 test_gamma_distribution: test_gamma_distribution.cpp
 	$$HOME/bin/bin/g++ -std=c++11 -o test_gamma_distribution test_gamma_distribution.cpp
 
-test_hoyt_distribution: test_hoyt_distribution.cpp
+test_hoyt_distribution: test_hoyt_distribution.cpp hoyt_distribution.h
 	$$HOME/bin/bin/g++ -std=c++11 -o test_hoyt_distribution test_hoyt_distribution.cpp
 
-test_k_distribution2: test_k_distribution2.cpp
+test_k_distribution2: test_k_distribution2.cpp k_distribution2.h
 	$$HOME/bin/bin/g++ -std=c++11 -o test_k_distribution2 test_k_distribution2.cpp
 
-test_k_distribution: test_k_distribution.cpp
+test_k_distribution: test_k_distribution.cpp k_distribution.h
 	$$HOME/bin/bin/g++ -std=c++11 -o test_k_distribution test_k_distribution.cpp
 
-test_nakagami_distribution: test_nakagami_distribution.cpp
+test_logistic_distribution: test_logistic_distribution.cpp logistic_distribution.h logistic_distribution.tcc
+	$$HOME/bin/bin/g++ -std=c++11 -o test_logistic_distribution test_logistic_distribution.cpp
+
+test_nakagami_distribution: test_nakagami_distribution.cpp nakagami_distribution.h
 	$$HOME/bin/bin/g++ -std=c++11 -o test_nakagami_distribution test_nakagami_distribution.cpp
 
 test_nakagami_fading_model: test_nakagami_fading_model.cpp NakagamiFadingModel.cpp
 	$$HOME/bin/bin/g++ -std=c++11 -o test_nakagami_fading_model test_nakagami_fading_model.cpp NakagamiFadingModel.cpp
 
-test_pareto_distribution: test_pareto_distribution.cpp
+test_pareto_distribution: test_pareto_distribution.cpp pareto_distribution.h
 	$$HOME/bin/bin/g++ -std=c++11 -o test_pareto_distribution test_pareto_distribution.cpp
 
 test_rice_distribution_multi: test_rice_distribution_multi.cpp
@@ -87,9 +92,6 @@ test_rice_distribution: test_rice_distribution.cpp
 
 test_rice_fading_model: test_rice_fading_model.cpp RiceFadingModel.cpp
 	$$HOME/bin/bin/g++ -std=c++11 -o test_rice_fading_model test_rice_fading_model.cpp RiceFadingModel.cpp
-
-test_logistic_distribution: test_logistic_distribution.cpp RiceFadingModel.cpp
-	$$HOME/bin/bin/g++ -std=c++11 -o test_logistic_distribution test_logistic_distribution.cpp
 
 
 test:

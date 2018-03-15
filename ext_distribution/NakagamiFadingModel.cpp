@@ -1,5 +1,6 @@
 
 #include <chrono>
+#include <functional> // For bind.
 #include <ext/random>
 
 #include "NakagamiFadingModel.h"
@@ -16,8 +17,7 @@ system_now()
 {
   std::chrono::time_point<std::chrono::system_clock> now{std::chrono::system_clock::now()};
   std::chrono::system_clock::duration epoch{now.time_since_epoch()};
-  std::chrono::microseconds microsec{epoch};
-  return static_cast<unsigned long>(microsec.count());
+  return static_cast<unsigned long>(now.time_since_epoch().count());
 }
 
 }

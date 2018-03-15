@@ -275,7 +275,7 @@ namespace __gnu_cxx
 
   template<typename _RealType>
     template<typename _UniformRandomNumberGenerator>
-      result_type
+      typename k_distribution<_RealType>::result_type
       k_distribution<_RealType>::
       operator()(_UniformRandomNumberGenerator& __urng)
       {
@@ -286,7 +286,7 @@ namespace __gnu_cxx
 
   template<typename _RealType>
     template<typename _UniformRandomNumberGenerator>
-      result_type
+      typename k_distribution<_RealType>::result_type
       k_distribution<_RealType>::
       operator()(_UniformRandomNumberGenerator& __urng,
 		 const param_type& __p)

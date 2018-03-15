@@ -190,12 +190,13 @@ namespace __gnu_cxx
        *        the same parameters and the sequences that would
        *        be generated are equal.
        */
-      friend bool
-      operator==(const k_distribution2<_RealType1>& __d1,
-		 const k_distribution2<_RealType1>& __d2)
-      { return (__d1.param() == __d2.param()
-		&& __d1._M_gd1 == __d2._M_gd1
-		&& __d1._M_gd2 == __d2._M_gd2); }
+      template<typename _RealType1>
+	friend bool
+	operator==(const k_distribution2<_RealType1>& __d1,
+		   const k_distribution2<_RealType1>& __d2)
+	{ return (__d1.param() == __d2.param()
+		  && __d1._M_gd1 == __d2._M_gd1
+		  && __d1._M_gd2 == __d2._M_gd2); }
 
       /**
        * @brief Inserts a %k_distribution2 random number distribution
@@ -262,7 +263,7 @@ namespace __gnu_cxx
 
   template<typename _RealType>
     template<typename _UniformRandomNumberGenerator>
-      result_type
+      typename k_distribution2<_RealType>::result_type
       k_distribution2<_RealType>::
       operator()(_UniformRandomNumberGenerator& __urng)
       {
@@ -275,7 +276,7 @@ namespace __gnu_cxx
 
   template<typename _RealType>
     template<typename _UniformRandomNumberGenerator>
-      result_type
+      typename k_distribution2<_RealType>::result_type
       k_distribution2<_RealType>::
       operator()(_UniformRandomNumberGenerator& __urng,
 		 const param_type& __p)
@@ -293,7 +294,7 @@ namespace __gnu_cxx
     template<typename _OutputIterator,
 	     typename _UniformRandomNumberGenerator>
       void
-      k_distribution<_RealType>::
+      k_distribution2<_RealType>::
       __generate_impl(_OutputIterator __f, _OutputIterator __t,
 		      _UniformRandomNumberGenerator& __urng,
 		      const param_type& __p)

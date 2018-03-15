@@ -10,7 +10,7 @@ void
 kplot(double lambda, double mu, double nu)
 {
   std::default_random_engine re; // the default engine
-  __gnu_cxx::__k_distribution2<> kd(lambda, mu, nu);
+  __gnu_cxx::k_distribution2<> kd(lambda, mu, nu);
   std::cout << kd << std::endl;
 
   auto gen = std::bind(kd, re);
