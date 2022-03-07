@@ -1,4 +1,4 @@
-// ./bin/bin/g++ -std=c++11 -o test_dijkstra test_dijkstra.cpp
+// g++ -std=c++11 -g -o test_dijkstra test_dijkstra.cpp
 
 #include <iostream>
 #include <vector>
@@ -10,30 +10,52 @@ test_dijkstra()
 {
   int num_vertices, num_edges;
   std::cin >> num_vertices >> num_edges;
-  std::vector<std::unordered_map<int,int>> vertex(num_vertices);
-  for(int e = 0; e < num_edges; ++e)
+  std::vector<std::unordered_map<int,int>> vertex(num_vertices + 1);
+  for (int e = 0; e < num_edges; ++e)
   {
     int a, b, s;
     std::cin >> a >> b >> s;
     auto ret = vertex[e].insert(std::pair<int,int>(b,s));
-    if (ret.first.first > s) // exists
+    if ((*ret.first).first > s) // exists
       vertex[a][b] = s;
   }
+
   int x, y;
   std::cin >> x >> y;
   std::map<int, int> q;
-  for(auto it = vertex[x].begin(), end = vertex[x].end(); it != end; ++it)
+  for (auto it = vertex[x].begin(), end = vertex[x].end(); it != end; ++it)
     q.insert(std::pair<int,int>(it->second, it->first));
+
+  std::vector<int> dist(num_vertices + 1);
+  const auto end = vertex[x].end();
+  for (int i = 1; i <= num_vertices; ++i)
+  {
+    if (i == x)
+      continue;
+    const auto tmp = vertex[x].find(i);
+    dist[i] = (tmp != end) ? tmp->second : -1;
+  }
+
+  for (int i = 1; i <= num_vertices; ++i)
+  {
+    std::cout << ' ' << dist[i];
+  }
+  std::cout << '\n';
+
   return 0;
 }
 
-
+int
+main()
+{
+  test_dijkstra();
+}
 
 /*
 #include <climits>
 #include <cstdio>
 #include <map>
-#include <tr1/unordered_map>
+#include <unordered_map>
 
 const int NODES_MAX = 10000;
 

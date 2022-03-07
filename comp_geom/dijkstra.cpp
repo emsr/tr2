@@ -8,8 +8,8 @@
 #include <iterator>
 #include <limits>
 
-template<typename DistTp>
-  IdxTp /* Should be IdxTp */
+template<typename IdxTp, typename DistTp>
+  IdxTp
   minDistanceIdx(const std::vector<DistTp> & dist,
                  const std::vector<bool> & sptSet)
   {
@@ -60,7 +60,7 @@ template<typename IdxTp, typename DistTp, IdxTp Num>
 
     for (int count = 0; count < Num; ++count)
     {
-      IdxTp u = minDistanceIdx(dist, sptSet);
+      IdxTp u = minDistanceIdx<IdxTp>(dist, sptSet);
       //if (u == -1)
 	//break;
 
