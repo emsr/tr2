@@ -3,5 +3,7 @@ test_graham_scan
 test_jarvis_march
 test_monotone_chain
 
+test_intrusive_stack
+
 test_dijkstra
 dijkstra
