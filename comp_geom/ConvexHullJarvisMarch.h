@@ -1,21 +1,14 @@
-/*
-g++ -std=c++14 -g -Wall -Wextra -o ConvexHullJarvisMarch ConvexHullJarvisMarch.cpp
-./ConvexHullJarvisMarch
-*/
 
 // A C++ program to find convex hull of a set of points
 
 #include <vector>
-#include <iostream>
-
-#include "ConvexHull.h"
 
 /**
  * Return the convex hull of a set of points.
  */
 template<typename Tp>
   std::vector<Point<Tp>>
-  convex_hull(std::vector<Point<Tp>> point)
+  convex_hull_jarvis_march(std::vector<Point<Tp>> point)
   {
     const int n = point.size();
 
@@ -54,30 +47,3 @@ template<typename Tp>
 
     return hull;
   }
-
-// Driver program to test above functions.
-int
-main()
-{
-  using Tp = long long;
-
-  std::vector<Point<Tp>>
-  point
-  {
-    { 0, 3 },
-    { 2, 2 },
-    { 1, 1 },
-    { 2, 1 },
-    { 3, 0 },
-    { 0, 0 },
-    { 3, 3 }
-  };
-
-  auto hull = convex_hull(point);
-
-  std::cout << "The points in the convex hull are: \n";
-  for (auto h : hull)
-    std::cout << "(" << h.x << ", " << h.y << ")\n";
-
-  return 0;
-}

@@ -20,7 +20,7 @@ template<typename Tp>
  */
 template<typename Tp>
   inline Tp
-  dist2(Point<Tp> p1, Point<Tp> p2)
+  dist2(const Point<Tp>& p1, const Point<Tp>& p2)
   { return (p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y); }
 
 /**
@@ -31,7 +31,7 @@ template<typename Tp>
  */
 template<typename Tp>
   inline Tp
-  cross(Point<Tp> p0, Point<Tp> p1, Point<Tp> p2)
+  cross(const Point<Tp>& p0, const Point<Tp>& p1, const Point<Tp>& p2)
   { return (p1.x - p0.x) * (p2.y - p0.y) - (p1.y - p0.y) * (p2.x - p0.x); }
 
 /**
@@ -49,7 +49,7 @@ enum Orientation
  */
 template<typename Tp>
   inline Orientation
-  orientation(Point<Tp> p, Point<Tp> q, Point<Tp> r)
+  orientation(const Point<Tp>& p, const Point<Tp>& q, const Point<Tp>& r)
   {
     auto val = cross(p, q, r);
 
@@ -81,5 +81,10 @@ template<typename Tp>
 	return orient == counter_clockwise;
     }
   };
+
+#include "ConvexHullGiftWrap.h"
+#include "ConvexHullGrahamScan.h"
+#include "ConvexHullJarvisMarch.h"
+#include "ConvexHullMonotoneChain.h"
 
 #endif // CONVEXHULL_H
