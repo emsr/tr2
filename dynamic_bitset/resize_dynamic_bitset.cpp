@@ -8,14 +8,20 @@
  * Created on October 11, 2013, 2:32 PM
  */
 
-// $HOME/bin/bin/g++ -std=c++11 -o resize_dynamic_bitset resize_dynamic_bitset.cpp
+/*
+$HOME/bin/bin/g++ -std=c++11 -o resize_dynamic_bitset resize_dynamic_bitset.cpp -Wl,-rpath=$HOME/bin/lib64
 
-// $HOME/bin/bin/g++ -std=c++11 -m32 -o resize_dynamic_bitset resize_dynamic_bitset.cpp
+$HOME/bin/bin/g++ -std=c++11 -m32 -o resize_dynamic_bitset32 resize_dynamic_bitset.cpp -Wl,-rpath=$HOME/bin/lib32
+*/
 
 #include <iostream>
 #include <cstdlib>
 #include <boost/dynamic_bitset.hpp>
-#include <tr2/dynamic_bitset>
+#ifdef LOCAL_TR2
+#  include "dynamic_bitset"
+#else
+#  include <tr2/dynamic_bitset>
+#endif
 
 int
 main(int argc, char** argv)
